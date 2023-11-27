@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2023/11/24 19:29:45 by mcourtoi         ###   ########.fr        #
+#    Updated: 2023/11/27 16:39:18 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,6 +34,12 @@ PRV_DIR		=	private
 #            SOURCE FILES            #
 ######################################
 SRC			=							\
+				${addprefix server/,	\
+					server.cpp			\
+				}						\
+				${addprefix utils/,		\
+					trim.cpp			\
+				}						\
 				main.cpp
 
 ######################################
