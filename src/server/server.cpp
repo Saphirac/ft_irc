@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/26 15:55:39 by mcourtoi          #+#    #+#             */
-/*   Updated: 2023/11/27 16:41:30 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2023/11/27 16:55:51 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 #include <unistd.h>
 #include <iostream>
 #include <cerrno>
-#include <functional>
 #include <sys/types.h> 
 
 /**
