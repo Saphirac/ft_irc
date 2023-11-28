@@ -6,30 +6,36 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2023/11/27 17:30:43 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2023/11/28 18:12:18 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-Server::Server(/* args */)
+Server::Server(int const port, std::string const password) : 
+_port(port),
+_password(password)
 {
+	if (DEBUG)
+		std::cout << "Server constructor called\n";
 }
 
 Server::~Server()
 {
+	if (DEBUG)
+		std::cout << "Server destructor called\n";
 }
 
 // Getters //
 
-int const	Server::getIp() const
+int	Server::getIp() const
 {
 	if (DEBUG)
 		std::cout << "getIp() member function of server called\n";
 	return this->_ip;
 }
 
-int const	Server::getPort() const
+int	Server::getPort() const
 {
 	if (DEBUG)
 		std::cout << "getPort() member function of server called\n";
@@ -43,7 +49,7 @@ int const	Server::getSocket() const
 	return this->_socket;
 }
 
-sockaddr_in const	&Server::getSockAddr() const
+sockaddr_in	&Server::getSockAddr() const
 {
 	if (DEBUG)
 		std::cout << "getSockAddr() member function of server called\n";

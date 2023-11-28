@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/26 15:55:39 by mcourtoi          #+#    #+#             */
-/*   Updated: 2023/11/27 16:55:51 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2023/11/28 18:58:24 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@
 #include <unistd.h>
 #include <iostream>
 #include <cerrno>
-#include <sys/types.h> 
+#include <sys/types.h>
+#include "irc.hpp"
 
 /**
  * @brief Create a socket object
@@ -34,6 +35,7 @@ int	create_socket()
 	if (fd_socket == -1)
 	{
 		std::cerr << "Failed to create socket. errno: " << errno << std::endl;
+		// TODO: Change this exit with an exception
 		exit (EXIT_FAILURE);
 	}
 	return fd_socket;
@@ -66,26 +68,24 @@ void	read_and_respond(int connection)
 
 	while (buffer != "quit\n")
 	{
-		ssize_t bytes_read = read(connection, &buffer[0], buffer.size() - 1); // Laisser un espace pour le caractère de fin de chaîne
+		ssize_t bytes_read = read(connection, &buffer[0], buffer.size() - 1);
 		if (bytes_read <= 0)
 		{
 			if (bytes_read == 0)
 			{
-				// La connexion a été fermée par le client
+				// connexion fermée par le client
 				std::cout << "Client disconnected." << std::endl;
 			}
 			else {
-				// Une erreur de lecture
+				// erreur de lecture
 				std::cerr << "Read failed. errno: " << errno << std::endl;
 			}
 			return;
 		}
 
 		buffer[bytes_read] = '\0'; // Assurer la terminaison de la chaîne
-		std::cout << "The message was: " << buffer << '\n';
-
-		buffer.resize(bytes_read - 2);
-		if (buffer == "quit")
+		buffer.resize(bytes_read);
+		if (trim(buffer) == "quit")
 			return;
 		buffer.assign(100, '\0');
 
@@ -98,7 +98,6 @@ void	create_server(int chosen_addr)
 {
 	int	fd_socket = create_socket();
 	sockaddr_in	sock_addr = bind_assign_sockaddr(fd_socket, chosen_addr);
-	int	connection;
 
 	if (listen(fd_socket, 10) < 0) 
 	{
@@ -106,7 +105,9 @@ void	create_server(int chosen_addr)
 		exit(EXIT_FAILURE);
 	}
 	socklen_t	addr_len = sizeof(sock_addr);
-	connection = accept(fd_socket, (struct sockaddr*)&sock_addr, (socklen_t*)&addr_len);
+
+	int connection = accept(fd_socket, (struct sockaddr*)&sock_addr, (socklen_t*)&addr_len);
+
 	if (connection < 0)
 	{
 		std::cout << "Failed to connect. errno: " << errno << std::endl;

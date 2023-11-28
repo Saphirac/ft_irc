@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2023/11/27 17:21:06 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2023/11/28 18:27:29 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include <iostream>
 
 // Utils //
-std::string trim(std::string const &str);
+std::string	trim(std::string const &str);
+void		create_server(int chosen_addr);
 
 #endif
