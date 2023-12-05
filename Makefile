@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
+#    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2023/11/24 19:29:45 by mcourtoi         ###   ########.fr        #
+#    Updated: 2023/11/29 16:17:17 by jodufour         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,7 @@ PRV_DIR		=	private
 ######################################
 #            SOURCE FILES            #
 ######################################
-SRC			=							\
+SRC			=	\
 				main.cpp
 
 ######################################
@@ -63,7 +63,7 @@ endif
 #                RULES                #
 #######################################
 ${NAME}: ${OBJ}
-	${LINK} $^ -o $@
+	${LINK} $^ ${OUTPUT_OPTION}
 
 all: ${NAME}
 
@@ -71,7 +71,7 @@ all: ${NAME}
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/%.cpp
 	@${MKDIR} ${@D}
-	${CXX} $< ${CXXFLAGS} -o $@
+	${CXX} $< ${CXXFLAGS} ${OUTPUT_OPTION}
 
 clean:
 	${RM} ${OBJ_DIR} ${NAME} vgcore.*

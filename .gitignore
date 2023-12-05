@@ -3,3 +3,5 @@
 !private
 !.gitignore
 !Makefile
+!LICENSE
+!RFCs_summary.md
