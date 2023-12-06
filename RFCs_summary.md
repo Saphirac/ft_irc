@@ -13,32 +13,77 @@ That means that everything related to the client side of the protocol<br>
 and to the server-to-server communication will be voluntarily ignored.
 
 # Server specifications
-The server must have a unique name which must be at most 63 characters long.<br>
-Server name must be of the following form:<br>
-`shortname *( "." shortname )`<br>
-where `shortname` is of the following form:<br>
-`( letter / digit ) *( letter / digit / "-" )`<br>
+The server must have a unique name, which must:
+- be at most 63 characters long.
+- be of the following form:<br>
+  `shortname *( "." shortname )`<br>
+  where `shortname` is of the following form:<br>
+  `( letter / digit ) *( letter / digit / "-" )`<br>
 
 The above notation means that the server name must:
-1. Start with 1 `shortname` that must:
-    1. Start with 1 character that is either a letter or a digit
-    2. Contain 0 or more characters that are letters and/or digit and/or dashes (`-`)
-2. Contain 0 or more patterns that must:
-    1. Start with 1 dot (`.`)
-    2. Contain 1 `shortname` that must:
-        1. Start with 1 character that is either a letter or a digit
-		2. Contain 0 or more characters that are letters and/or digit and/or dashes (`-`)
+1. Start with 1 `shortname`, which must:
+   1. Start with 1 character that is either a letter or a digit
+   2. Contain 0 or more characters that are letters and/or digit and/or dashes (`-`)
+2. Contain 0 or more patterns, which must:
+   1. Start with 1 dot (`.`)
+   2. Contain 1 `shortname`, which must:
+      1. Start with 1 character that is either a letter or a digit
+      2. Contain 0 or more characters that are letters and/or digit and/or dashes (`-`)
 
 # User specifications
-Every user must have a unique nickname which must be at most 9 characters long.<br>
-Nicknames must be of the following form:<br>
-`( letter / special ) *8( letter / digit / special / "-" )`<br>
-where `special` is one of the following characters:<br>
-``"[", "]", "\", "`", "_", "^", "{", "|", "}"``
+For every user, the server must have the following information about them:
+- a unique nickname, which must:
+  - be at most 9 characters long.<br>
+  - be of the following form:<br>
+   	`( letter / special ) *8( letter / digit / special / "-" )`<br>
+   	where `special` is one of the following characters:<br>
+    ``[]\`_^{|}``
+- the name of the host that the user is running on
+- the username of the user on that host
 
 The above notation means that the nickname must:
-1. Start with 1 character that is either a letter or a special character
-2. Contain 0 or more up to 8 characters that are letters and/or digits and/or special characters and/or dashes (`-`)
+1. Start with 1 character that is either a letter or any of the ``[]\`_^{|}`` characters
+2. Contain 0 or more up to 8 characters that are letters and/or digits<br>
+   and/or any of the ``[]\`_^{|}`` characters and/or dashes (`-`)
+
+# Channel specifications
+For every channel, the server must have the following information about it:
+- a unique name, which must:
+  - be at most 50 characters long.<br>
+  - be case-insensitive.<br>
+  - be of the following form:<br>
+    `( "#" / "+" / ( "!" channelid ) / "&" ) chanstring [ ":" chanstring ]`<br>
+    where:
+    - `chanelid` is of the following form:<br>
+      `5( uppercase / digit )`<br>
+    - `chanstring` is of the following form:<br>
+      `*(%x01-06 / %x08-09 / %x0B-0C / %x0E-1F / %x21-2B / %x2D-39 / %x3B-FF)`
+- a list of users that are on that channel
+- any other data needed for the channel modes<br>
+  (for example, the channel topic, a flag field, a list of the channel operators, etc...)
+
+The above notation means that the channel name must:
+1. Start with 1 character that is either a hash (`#`), a plus (`+`),<br>
+   an exclamation mark (`!`) followed by a 5 characters that are either uppercase letters or digits,<br>
+   or an ampersand (`&`)
+2. Contain 0 or more characters that are any octet except:
+   - NUL (`\x00`)
+   - BELL (`\x07`)
+   - LF (`\x0A`)
+   - CR (`\x0D`)
+   - space (`\x20`)
+   - comma (`\x2C`)
+   - colon (`\x3A`)
+3. Contain 0 or 1 pattern, which must:
+   1. Start with 1 colon (`:`)
+   2. Contain 0 or more characters that are any octet except:
+      - NUL (`\x00`)
+      - BELL (`\x07`)
+      - LF (`\x0A`)
+      - CR (`\x0D`)
+      - space (`\x20`)
+      - comma (`\x2C`)
+      - colon (`\x3A`)
 
 # Message specifications
 Messages received by the server are separated by:
