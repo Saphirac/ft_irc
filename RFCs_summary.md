@@ -10,7 +10,12 @@ They are the RFCs that define the IRC protocol.<br>
 In this summary, we will only cover the most important parts of the RFCs,<br>
 that are relevant to the implementation of our own IRC server.<br>
 That means that everything related to the client side of the protocol<br>
-and to the server-to-server communication will be voluntarily ignored.
+and to the server-to-server communication will be voluntarily ignored.<br>
+<br>
+Note that we are using the [Augmented Backus–Naur form](https://en.wikipedia.org/wiki/Augmented_Backus%E2%80%93Naur_form)<br>
+to represent the grammar rules that apply to the different components of the IRC protocol.<br>
+However, we also provided a more human-readable description of the rules for each,<br>
+in the [explained ABNF notations](#explained-abnf-notations).<br>
 
 # Server specifications
 The server must have a unique name, which must:
@@ -19,16 +24,7 @@ The server must have a unique name, which must:
   `shortname *( "." shortname )`<br>
   where `shortname` is of the following form:<br>
   `( letter / digit ) *( letter / digit / "-" )`<br>
-
-The above notation means that the server name must:
-1. Start with 1 `shortname`, which must:
-   1. Start with 1 character that is either a letter or a digit
-   2. Contain 0 or more characters that are letters and/or digit and/or dashes (`-`)
-2. Contain 0 or more patterns, which must:
-   1. Start with 1 dot (`.`)
-   2. Contain 1 `shortname`, which must:
-      1. Start with 1 character that is either a letter or a digit
-      2. Contain 0 or more characters that are letters and/or digit and/or dashes (`-`)
+  (click [here](#server-name) for more explanation about the above notation)
 
 # User specifications
 For every user, the server must have the following information about them:
@@ -37,14 +33,10 @@ For every user, the server must have the following information about them:
   - be of the following form:<br>
    	`( letter / special ) *8( letter / digit / special / "-" )`<br>
    	where `special` is one of the following characters:<br>
-    ``[]\`_^{|}``
+    ``[]\`_^{|}``<br>
+    (click [here](#user-nickname) for more explanation about the above notation)
 - the name of the host that the user is running on
 - the username of the user on that host
-
-The above notation means that the nickname must:
-1. Start with 1 character that is either a letter or any of the ``[]\`_^{|}`` characters
-2. Contain 0 or more up to 8 characters that are letters and/or digits<br>
-   and/or any of the ``[]\`_^{|}`` characters and/or dashes (`-`)
 
 # Channel specifications
 For every channel, the server must have the following information about it:
@@ -57,12 +49,47 @@ For every channel, the server must have the following information about it:
     - `chanelid` is of the following form:<br>
       `5( uppercase / digit )`<br>
     - `chanstring` is of the following form:<br>
-      `*(%x01-06 / %x08-09 / %x0B-0C / %x0E-1F / %x21-2B / %x2D-39 / %x3B-FF)`
+      `*(%x01-06 / %x08-09 / %x0B-0C / %x0E-1F / %x21-2B / %x2D-39 / %x3B-FF)`<br>
+    (click [here](#channel-name) for more explanation about the above notation)
 - a list of users that are on that channel
 - any other data needed for the channel modes<br>
   (for example, the channel topic, a flag field, a list of the channel operators, etc...)
 
-The above notation means that the channel name must:
+# Message specifications
+Messages received by the server are separated by:
+- CR (carriage return)(`\r`)
+- LF (line feed)(`\n`)
+
+Empty messages are silently ignored.<br>
+<br>
+For example, receiving the following string:<br>
+`"Hello\nWorld\r!\n\n How\n\rare \r\n you \r\r?"`<br>
+will result in the following messages being received by the server: <br>
+`"Hello", "World", "!", " How", "are ", " you ", "?"`
+
+A message received by the server is composed of 3 parts:
+- Prefix
+- Command
+- Parameters
+
+# Explained ABNF notations
+
+## Server name
+1. Start with 1 `shortname`, which must:
+   1. Start with 1 character that is either a letter or a digit
+   2. Contain 0 or more characters that are letters and/or digit and/or dashes (`-`)
+2. Contain 0 or more patterns, which must:
+   1. Start with 1 dot (`.`)
+   2. Contain 1 `shortname`, which must:
+      1. Start with 1 character that is either a letter or a digit
+      2. Contain 0 or more characters that are letters and/or digit and/or dashes (`-`)
+
+## User nickname
+1. Start with 1 character that is either a letter or any of the ``[]\`_^{|}`` characters
+2. Contain 0 or more up to 8 characters that are letters and/or digits<br>
+   and/or any of the ``[]\`_^{|}`` characters and/or dashes (`-`)
+
+## Channel name
 1. Start with 1 character that is either a hash (`#`), a plus (`+`),<br>
    an exclamation mark (`!`) followed by a 5 characters that are either uppercase letters or digits,<br>
    or an ampersand (`&`)
@@ -84,20 +111,3 @@ The above notation means that the channel name must:
       - space (`\x20`)
       - comma (`\x2C`)
       - colon (`\x3A`)
-
-# Message specifications
-Messages received by the server are separated by:
-- CR (carriage return)(`\r`)
-- LF (line feed)(`\n`)
-
-Empty messages are silently ignored.<br>
-<br>
-For example, receiving the following string:<br>
-`"Hello\nWorld\r!\n\n How\n\rare \r\n you \r\r?"`<br>
-will result in the following messages being received by the server: <br>
-`"Hello", "World", "!", " How", "are ", " you ", "?"`
-
-A message received by the server is composed of 3 parts:
-- Prefix
-- Command
-- Parameters
