@@ -9,7 +9,7 @@
 	- [Command](#command)
 	- [Parameters](#parameters)
 - [Command specifications](#command-specifications)
-- [Reply specifications](#reply-specifications)
+- [Numeric reply specifications](#numeric-reply-specifications)
 - [Explained ABNF notations](#explained-abnf-notations)
 	- [Short name](#short-name)
 	- [Server name / Host](#server-name--host)
@@ -120,20 +120,21 @@ In this second case, in addition of discarding the message,<br>
 the server should drop the connection with the client who sent it.
 
 ## Command
-The command part may actually be an IRC command or a numeric reply code.<br>
-
-`1*letter / 3digit`
-
 The command part of the message must be either one of the following:
 - a valid IRC command (see [Command specifications](#command-specifications) section)
-- a 3 digits number that represents a reply code (see [Reply specifications](#reply-specifications) section)
+- a numeric reply code (see [Numeric reply specifications](#numeric-reply-specifications) section)
+
+Therefore, it must be formatted as follows:<br>
+`1*letter / 3digit`
+
+(click [here](#command-1) for more explanations about the above notation)
 
 ## Parameters
 TODO
 
 # Command specifications
 
-# Reply specifications
+# Numeric reply specifications
 
 # Explained ABNF notations
 ## Short name
@@ -144,7 +145,7 @@ TODO
 1. Start with 1 `shortname`, which must be formatted as described [here](#short-name)
 1. Contain 0 or more patterns, which must:
 	1. Start with 1 dot (`.`)
-	2. Contain 1 `shortname`, which must be formatted as described [here](#short-name)
+	1. Contain 1 `shortname`, which must be formatted as described [here](#short-name)
 
 ## User nickname
 1. Start with 1 character that is either a letter or any of the ``[\]^_`{|}`` characters
@@ -165,9 +166,9 @@ and/or any of the ``[\]^_`{|}`` characters and/or dashes (`-`)
 1. Start with 1 character that is either a hash (`#`), a plus (`+`), an ampersand (`&`),<br>
 or an exclamation mark (`!`) followed by a 5 characters that are uppercase letters and/or digits
 1. Contain a `chanstring`, which must be formatted as described [here](#channel-string)
-2. Contain 0 or 1 pattern, which must:
+1. Contain 0 or 1 pattern, which must:
 	1. Start with 1 colon (`:`)
-	2. Contain a `chanstring`, which must be formatted as described [here](#channel-string)
+	1. Contain a `chanstring`, which must be formatted as described [here](#channel-string)
 
 ## Messages
 TODO: `[ ":" prefix space ] command [ params ] crlf`
@@ -177,21 +178,24 @@ TODO: `[ ":" prefix space ] command [ params ] crlf`
 	- `servername`, which must be formatted as described [here](#server-name--host)
 	- 1 pattern, which must:
 		1. Start with 1 `nickname`, which must be formatted as described [here](#user-nickname)
-		2. Contain 0 or 1 pattern, which must:
+		1. Contain 0 or 1 pattern, which must:
 			1. Start with 0 or 1 pattern, which must:
 				1. Start with 1 exclamation mark (`!`)
-				2. Contain 1 `user`, which must:
+				1. Contain 1 `user`, which must:
 					1. Start with 1 or more characters that are any octet except:
 						- NUL (`\0`)
 						- LF (`\n`)
 						- CR (`\r`)
 						- space (` `)
 						- at sign (`@`)
-			2. Contain 1 at sign (`@`)
-			3. Contain 1 `host`, which must be formatted as described [here](#server-name--host)
+			1. Contain 1 at sign (`@`)
+			1. Contain 1 `host`, which must be formatted as described [here](#server-name--host)
 
 ## Command
-TODO
+1. Start with either one of the following:
+	- 1 or more letters
+	- 3 digits
+
 
 ## Parameters
 TODO
