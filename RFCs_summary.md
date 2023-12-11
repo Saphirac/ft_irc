@@ -104,11 +104,16 @@ where:
 - `nickname` is formatted as described in the [User specifications](#user-specifications) section,
 - `user` is formatted as follows:<br>
 	`*( %x01-09 / %x0b-0c / %x0e-1f / %x21-3f / %x41-ff )`
-- `host` is formatted as `servername`<br>
+- `host` is formatted as `servername`
 
 (click [here](#prefix-1) for more explanations about the above notation)
 
-TODO: continue here
+A prefix may be invalid for two main reasons (excluding the errors of format),<br>
+and in both cases, the received messages that contain those invalid prefixes must be discarded:<br>
+- when it identifies an unknown client.<br>
+- when it identifies a known client that is not the one who sent the message.<br>
+In this second case, in addition of discarding the message,<br>
+the server should drop the connection with the client who sent it.
 
 ## Command
 TODO
