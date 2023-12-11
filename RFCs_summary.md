@@ -8,9 +8,13 @@
 	- [Prefix](#prefix)
 	- [Command](#command)
 	- [Parameters](#parameters)
+- [Command specifications](#command-specifications)
+- [Reply specifications](#reply-specifications)
 - [Explained ABNF notations](#explained-abnf-notations)
+	- [Short name](#short-name)
 	- [Server name / Host](#server-name--host)
 	- [User nickname](#user-nickname)
+	- [Channel string](#channel-string)
 	- [Channel name](#channel-name)
 	- [Messages](#messages)
 	- [Prefix](#prefix-1)
@@ -19,11 +23,11 @@
 
 # Introduction
 This file is a summary of:
-- [RFC 2813](https://www.rfc-editor.org/rfc/pdfrfc/rfc2813.txt.pdf)
-- [RFC 2812](https://www.rfc-editor.org/rfc/pdfrfc/rfc2812.txt.pdf)
-- [RFC 2811](https://www.rfc-editor.org/rfc/pdfrfc/rfc2811.txt.pdf)
-- [RFC 2810](https://www.rfc-editor.org/rfc/pdfrfc/rfc2810.txt.pdf)
-- [RFC 1459](https://www.rfc-editor.org/rfc/pdfrfc/rfc1459.txt.pdf)
+- [RFC 2813](https://www.rfc-editor.org/rfc/pdfrfc/rfc2813.txt.pdf) (Server Protocol)
+- [RFC 2812](https://www.rfc-editor.org/rfc/pdfrfc/rfc2812.txt.pdf) (Client Protocol)
+- [RFC 2811](https://www.rfc-editor.org/rfc/pdfrfc/rfc2811.txt.pdf) (Channel Management)
+- [RFC 2810](https://www.rfc-editor.org/rfc/pdfrfc/rfc2810.txt.pdf) (Architecture)
+- [RFC 1459](https://www.rfc-editor.org/rfc/pdfrfc/rfc1459.txt.pdf) (IRC Protocol)
 
 They are the RFCs that define the IRC protocol.<br>
 In this summary, we will only cover the most important parts of the RFCs,<br>
@@ -116,31 +120,39 @@ In this second case, in addition of discarding the message,<br>
 the server should drop the connection with the client who sent it.
 
 ## Command
-TODO
+The command part may actually be an IRC command or a numeric reply code.<br>
+
+`1*letter / 3digit`
+
+The command part of the message must be either one of the following:
+- a valid IRC command (see [Command specifications](#command-specifications) section)
+- a 3 digits number that represents a reply code (see [Reply specifications](#reply-specifications) section)
 
 ## Parameters
 TODO
 
+# Command specifications
+
+# Reply specifications
+
 # Explained ABNF notations
+## Short name
+1. Start with 1 character that is either a letter or a digit
+1. Contain 0 or more characters that are letters and/or digits and/or dashes (`-`)
+
 ## Server name / Host
-1. Start with 1 `shortname`, which must:
-	1. Start with 1 character that is either a letter or a digit
-	1. Contain 0 or more characters that are letters and/or digits and/or dashes (`-`)
+1. Start with 1 `shortname`, which must be formatted as described [here](#short-name)
 1. Contain 0 or more patterns, which must:
 	1. Start with 1 dot (`.`)
-	1. Contain 1 `shortname`, which must:
-		1. Start with 1 character that is either a letter or a digit
-		1. Contain 0 or more characters that are letters and/or digits and/or dashes (`-`)
+	2. Contain 1 `shortname`, which must be formatted as described [here](#short-name)
 
 ## User nickname
 1. Start with 1 character that is either a letter or any of the ``[\]^_`{|}`` characters
 1. Contain 0 or more up to 8 characters that are letters and/or digits<br>
 and/or any of the ``[\]^_`{|}`` characters and/or dashes (`-`)
 
-## Channel name
-1. Start with 1 character that is either a hash (`#`), a plus (`+`), an ampersand (`&`),<br>
-or an exclamation mark (`!`) followed by a 5 characters that are uppercase letters and/or digits
-1. Contain 0 or more characters that are any octet except:
+## Channel string
+1. Start with 0 or more characters that are any octet except:
 	- NUL (`\0`)
 	- BELL (`\a`)
 	- LF (`\n`)
@@ -148,56 +160,35 @@ or an exclamation mark (`!`) followed by a 5 characters that are uppercase lette
 	- space (` `)
 	- comma (`,`)
 	- colon (`:`)
+
+## Channel name
+1. Start with 1 character that is either a hash (`#`), a plus (`+`), an ampersand (`&`),<br>
+or an exclamation mark (`!`) followed by a 5 characters that are uppercase letters and/or digits
+1. Contain a `chanstring`, which must be formatted as described [here](#channel-string)
 2. Contain 0 or 1 pattern, which must:
 	1. Start with 1 colon (`:`)
-	2. Contain 0 or more characters that are any octet except:
-		- NUL (`\0`)
-		- BELL (`\a`)
-		- LF (`\n`)
-		- CR (`\r`)
-		- space (` `)
-		- comma (`,`)
-		- colon (`:`)
+	2. Contain a `chanstring`, which must be formatted as described [here](#channel-string)
 
 ## Messages
 TODO: `[ ":" prefix space ] command [ params ] crlf`
 
 ## Prefix
 1. Start with either one of the following:
-	- `servername`, which must:
-		1. Start with 1 `shortname`, which must:
-			1. Start with 1 character that is either a letter or a digit
-			1. Contain 0 or more characters that are letters and/or digits and/or dashes (`-`)
-		1. Contain 0 or more patterns, which must:
-			1. Start with 1 dot (`.`)
-			1. Contain 1 `shortname`, which must:
-				1. Start with 1 character that is either a letter or a digit
-				1. Contain 0 or more characters that are letters and/or digits and/or dashes (`-`)
+	- `servername`, which must be formatted as described [here](#server-name--host)
 	- 1 pattern, which must:
-		1. Start with 1 `nickname`, which must:
-			1. Start with 1 character that is either a letter or any of the ``[\]^_`{|}`` characters
-			1. Contain 0 or more up to 8 characters that are letters and/or digits<br>
-			and/or any of the ``[\]^_`{|}`` characters and/or dashes (`-`)
-		1. Contain 0 or 1 pattern, which must:
+		1. Start with 1 `nickname`, which must be formatted as described [here](#user-nickname)
+		2. Contain 0 or 1 pattern, which must:
 			1. Start with 0 or 1 pattern, which must:
 				1. Start with 1 exclamation mark (`!`)
-				1. Contain 1 `user`, which must:
+				2. Contain 1 `user`, which must:
 					1. Start with 1 or more characters that are any octet except:
 						- NUL (`\0`)
 						- LF (`\n`)
 						- CR (`\r`)
 						- space (` `)
 						- at sign (`@`)
-			1. Contain 1 at sign (`@`)
-			1. Contain 1 `host`, which must:
-				1. Start with 1 `shortname`, which must:
-					1. Start with 1 character that is either a letter or a digit
-					1. Contain 0 or more characters that are letters and/or digits and/or dashes (`-`)
-				1. Contain 0 or more patterns, which must:
-					1. Start with 1 dot (`.`)
-					1. Contain 1 `shortname`, which must:
-						1. Start with 1 character that is either a letter or a digit
-						1. Contain 0 or more characters that are letters and/or digits and/or dashes (`-`)
+			2. Contain 1 at sign (`@`)
+			3. Contain 1 `host`, which must be formatted as described [here](#server-name--host)
 
 ## Command
 TODO
