@@ -11,15 +11,23 @@
 - [Command specifications](#command-specifications)
 - [Numeric reply specifications](#numeric-reply-specifications)
 - [Explained ABNF notations](#explained-abnf-notations)
-	- [Short name](#short-name)
 	- [Server name / Host](#server-name--host)
 	- [User nickname](#user-nickname)
-	- [Channel string](#channel-string)
 	- [Channel name](#channel-name)
 	- [Messages](#messages)
 	- [Prefix](#prefix-1)
 	- [Command](#command-1)
 	- [Parameters](#parameters-1)
+	- [Miscellaneaous](#miscellaneaous)
+		- [shortname](#shortname)
+		- [special](#special)
+		- [channelid](#channelid)
+		- [chanstring](#chanstring)
+		- [nospcrlfcl](#nospcrlfcl)
+		- [middle](#middle)
+		- [trailing](#trailing)
+		- [user](#user)
+		- [crlf](#crlf)
 
 # Introduction
 This file is a summary of:
@@ -45,6 +53,7 @@ The server must have a unique name, which must:
 - be at most 63 characters long.
 - be formated as follows:<br>
 	`shortname *( "." shortname )`<br>
+
 	where `shortname` is formatted as follows:<br>
 	`( letter / digit ) *( letter / digit / "-" )`
 
@@ -56,8 +65,9 @@ For every user, the server must have the following information about them:
 	- be at most 9 characters long.<br>
 	- be formatted as follows:<br>
 		`( letter / special ) *8( letter / digit / special / "-" )`<br>
-		where `special` is any of the following characters:<br>
-		``[\]^_`{|}``
+
+		where `special` is formatted as follows:<br>
+		`%x5b-60 / %x7b-7d`
 
 		(click [here](#user-nickname) for more explanations about the above notation)
 - the name of the host that the user is running on
@@ -70,11 +80,12 @@ For every channel, the server must have the following information about it:
 	- be case-insensitive.<br>
 	- be formatted as follows:<br>
 		`( "#" / "+" / "&" / ( "!" channelid ) ) chanstring [ ":" chanstring ]`<br>
+
 		where:
-		- `chanelid` is formatted as follows:<br>
+		- `channelid` is formatted as follows:<br>
 			`5( uppercase / digit )`<br>
 		- `chanstring` is formatted as follows:<br>
-			`*(%x01-06 / %x08-09 / %x0b-0c / %x0e-1f / %x21-2b / %x2d-39 / %x3b-ff)`
+			`*( %x01-06 / %x08-09 / %x0b-0c / %x0e-1f / %x21-2b / %x2d-39 / %x3b-ff )`
 
 		(click [here](#channel-name) for more explanations about the above notation)
 - a list of users that are on that channel
@@ -86,6 +97,7 @@ Every message received by the server must:
 - be at most 512 characters long.
 - be formatted as follows:<br>
 	`[ ":" prefix space ] command [ params ] crlf`<br>
+	
 	where:
 	- `prefix` is a pattern, which is formatted as described [here](#prefix),
 	- `command` is a pattern, which is formatted as described [here](#command),
@@ -101,13 +113,15 @@ The purpose of the prefix is to explicitly indicate the true origin of a receive
 However, the prefix is <b style="color:rgb(255 221 0)">optionnal</b>, and thus, if a received message has no prefix,<br>
 it is assumed that its true origin is the connection from which it was received.<br>
 
-Every prefix must be formatted as follows:<br>
-`servername / ( nickname [ [ "!" user ] "@" host ] )`
+Every prefix must be formatted as either one of the following:<br>
+- `servername`
+- `nickname [ [ "!" user ] "@" host ]`
+
 where:
-- `servername` is formatted as described in the [Server specifications](#server-specifications) section,
-- `nickname` is formatted as described in the [User specifications](#user-specifications) section,
+- `servername` is formatted as described [here](#server-specifications),
+- `nickname` is formatted as described [here](#user-specifications),
 - `user` is formatted as follows:<br>
-	`*( %x01-09 / %x0b-0c / %x0e-1f / %x21-3f / %x41-ff )`
+	`1*( %x01-09 / %x0b-0c / %x0e-1f / %x21-3f / %x41-ff )`
 - `host` is formatted as `servername`
 
 (click [here](#prefix-1) for more explanations about the above notation)
@@ -121,81 +135,170 @@ the server should drop the connection with the client who sent it.
 
 ## Command
 The command part of the message must be either one of the following:
-- a valid IRC command (see [Command specifications](#command-specifications) section)
-- a numeric reply code (see [Numeric reply specifications](#numeric-reply-specifications) section)
-
-Therefore, it must be formatted as follows:<br>
-`1*letter / 3digit`
+- a valid IRC command (see [Command specifications](#command-specifications) section),<br>
+	which must be formatted as follows:<br>
+	`1*letter`
+- a numeric reply code (see [Numeric reply specifications](#numeric-reply-specifications) section),<br>
+	which must be formatted as follows:<br>
+	`3digit`
 
 (click [here](#command-1) for more explanations about the above notation)
 
 ## Parameters
-TODO
+The parameters part of the message must be formatted as either one of the following:
+- `*14( space middle ) [ space ":" trailing ]`
+- `14( space middle ) [ space [ ":" ] trailing ]`
+
+where:
+- `middle` is formatted as follows:<br>
+	`nospcrlfcl *( ":" / nospcrlfcl )`
+- `trailing` is formatted as follows:<br>
+	`*( ":" / " " / nospcrlfcl )`
+- `nospcrlfcl` is formatted as follows:<br>
+	`%x01-09 / %x0b-0c / %x0e-1f / %x21-39 / %x3b-ff`
+
+(click [here](#parameters-1) for more explanations about the above notation)
 
 # Command specifications
 
 # Numeric reply specifications
 
 # Explained ABNF notations
-## Short name
-1. Start with 1 character that is either a letter or a digit
-1. Contain 0 or more characters that are letters and/or digits and/or dashes (`-`)
-
 ## Server name / Host
-1. Start with 1 `shortname`, which must be formatted as described [here](#short-name)
-1. Contain 0 or more patterns, which must:
-	1. Start with 1 dot (`.`)
-	1. Contain 1 `shortname`, which must be formatted as described [here](#short-name)
+`shortname *( "." shortname )`
+>	1. Start with 1 [`shortname`](#shortname)
+>	1. Contain 0 or more patterns, which must:
+>		1. Start with 1 dot (`.`)
+>		1. Contain 1 [`shortname`](#shortname)
 
 ## User nickname
-1. Start with 1 character that is either a letter or any of the ``[\]^_`{|}`` characters
-1. Contain 0 or more up to 8 characters that are letters and/or digits<br>
-and/or any of the ``[\]^_`{|}`` characters and/or dashes (`-`)
-
-## Channel string
-1. Start with 0 or more characters that are any octet except:
-	- NUL (`\0`)
-	- BELL (`\a`)
-	- LF (`\n`)
-	- CR (`\r`)
-	- space (` `)
-	- comma (`,`)
-	- colon (`:`)
+`( letter / special ) *8( letter / digit / special / "-" )`
+>	1. Start with 1 character that is either a letter or a [`special`](#special)
+>	1. Contain 0 or more up to 8 characters that are letters<br>
+>	and/or digits and/or a [`special`](#special) and/or dashes (`-`)
 
 ## Channel name
-1. Start with 1 character that is either a hash (`#`), a plus (`+`), an ampersand (`&`),<br>
-or an exclamation mark (`!`) followed by a 5 characters that are uppercase letters and/or digits
-1. Contain a `chanstring`, which must be formatted as described [here](#channel-string)
-1. Contain 0 or 1 pattern, which must:
-	1. Start with 1 colon (`:`)
-	1. Contain a `chanstring`, which must be formatted as described [here](#channel-string)
+`( "#" / "+" / "&" / ( "!" channelid ) ) chanstring [ ":" chanstring ]`
+>	1. Start with 1 character that is either a hash (`#`), a plus (`+`), an ampersand (`&`),<br>
+>	or a pattern, which must:
+>		1. Start with 1 exclamation mark (`!`)
+>		1. Contain 1 [`channelid`](#channelid)
+>	1. Contain a [`chanstring`](#chanstring)
+>	1. Contain 0 or 1 pattern, which must:
+>		1. Start with 1 colon (`:`)
+>		1. Contain a [`chanstring`](#chanstring)
 
 ## Messages
-TODO: `[ ":" prefix space ] command [ params ] crlf`
+`[ ":" prefix space ] command [ params ] crlf`
+
+>	1. Start with 0 or 1 pattern, which must:
+>		1. Start with 1 colon (`:`)
+>		1. Contain 1 [`prefix`](#prefix)
+>		1. Contain 1 space (` `)
+>	1. Contain 1 [`command`](#command)
+>	1. Contain 0 or 1 [`params`](#parameters)
+>	1. Contain 1 [`crlf`](#crlf)
 
 ## Prefix
-1. Start with either one of the following:
-	- `servername`, which must be formatted as described [here](#server-name--host)
-	- 1 pattern, which must:
-		1. Start with 1 `nickname`, which must be formatted as described [here](#user-nickname)
-		1. Contain 0 or 1 pattern, which must:
-			1. Start with 0 or 1 pattern, which must:
-				1. Start with 1 exclamation mark (`!`)
-				1. Contain 1 `user`, which must:
-					1. Start with 1 or more characters that are any octet except:
-						- NUL (`\0`)
-						- LF (`\n`)
-						- CR (`\r`)
-						- space (` `)
-						- at sign (`@`)
-			1. Contain 1 at sign (`@`)
-			1. Contain 1 `host`, which must be formatted as described [here](#server-name--host)
+- `servername`
+>	1 [`servername`](#server-name--host)
+- `nickname [ [ "!" user ] "@" host ]`
+>	1. Start with 1 [`nickname`](#user-nickname)
+>	1. Contain 0 or 1 pattern, which must:
+>		1. Start with 0 or 1 pattern, which must:
+>			1. Start with 1 exclamation mark (`!`)
+>			1. Contain 1 [`user`](#user)
+>		1. Contain 1 at sign (`@`)
+>		1. Contain 1 [`host`](#server-name--host)
 
 ## Command
-1. Start with either one of the following:
-	- 1 or more letters
-	- 3 digits
+- `1*letter`
+>	1 or more letters
 
+- `3digit`
+>	3 digits
 
 ## Parameters
-TODO
+- `*14( space middle ) [ space ":" trailing ]`
+>	1. Start with 0 or more up to 14 patterns, which must:
+>		1. Start with 1 space (` `)
+>		1. Contain 1 [`middle`](#middle)
+>	1. Contain 0 or 1 pattern, which must:
+>		1. Start with 1 space (` `)
+>		1. Contain 1 colon (`:`)
+>		1. Contain 1 [`trailing`](#trailing)
+
+- `14( space middle ) [ space [ ":" ] trailing ]`
+
+>	1. Start with 14 patterns, which must:
+>		1. Start with 1 space (` `)
+>		1. Contain 1 [`middle`](#middle)
+>	1. Contain 0 or 1 pattern, which must:
+>		1. Start with 1 space (` `)
+>		1. Contain 0 or 1 colon (`:`)
+>		1. Contain 1 [`trailing`](#trailing)
+
+## Miscellaneaous
+### shortname
+`( letter / digit ) *( letter / digit / "-" )`
+>	1. Start with 1 character that is either a letter or a digit
+>	1. Contain 0 or more characters that are letters and/or digits and/or dashes (`-`)
+
+### special
+`%x5b-60 / %x7b-7d`<br>
+>	1 character that is any of the following:
+>	- opening bracket (`[`)
+>	- closing bracket (`]`)
+>	- opening brace (`{`)
+>	- closing brace (`}`)
+>	- underscore (`_`)
+>	- backslash (`\`)
+>	- caret (`^`)
+>	- pipe (`|`)
+>	- tilde (`` ` ``)
+
+### channelid
+`5( uppercase / digit )`
+>	5 characters that are either uppercase letters and/or digits
+
+### chanstring
+`*( %x01-06 / %x08-09 / %x0b-0c / %x0e-1f / %x21-2b / %x2d-39 / %x3b-ff )`
+>	0 or more characters that are any octet except:
+>	- NUL (`\0`)
+>	- BELL (`\a`)
+>	- CR (`\r`)
+>	- LF (`\n`)
+>	- space (` `)
+>	- comma (`,`)
+>	- colon (`:`)
+
+### nospcrlfcl
+`%x01-09 / %x0b-0c / %x0e-1f / %x21-39 / %x3b-ff`
+>	1 character that is any octet except:
+>	- NUL (`\0`)
+>	- space (` `)
+>	- CR (`\r`)
+>	- LF (`\n`)
+>	- colon (`:`)
+
+### middle
+`nospcrlfcl *( ":" / nospcrlfcl )`
+>	1. Start with 1 [`nospcrlfcl`](#nospcrlfcl)
+>	1. Contain 0 or more colon (`:`) and/or [`nospcrlfcl`](#nospcrlfcl)
+
+### trailing
+`*( ":" / " " / nospcrlfcl )`
+>	0 or more colon (`:`) and/or space (` `) and/or [`nospcrlfcl`](#nospcrlfcl)
+
+### user
+`1*( %x01-09 / %x0b-0c / %x0e-1f / %x21-3f / %x41-ff )`
+>	1 or more characters that are any octet except:
+>	- NUL (`\0`)
+>	- CR (`\r`)
+>	- LF (`\n`)
+>	- space (` `)
+>	- at sign (`@`)
+
+### crlf
+`%x0d.0a`
+>	1 carriage return (`\r`) followed by 1 line feed (`\n`)
