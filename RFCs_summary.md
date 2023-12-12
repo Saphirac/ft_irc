@@ -11,14 +11,19 @@
 - [Command specifications](#command-specifications)
 - [Numeric reply specifications](#numeric-reply-specifications)
 - [Explained ABNF notations](#explained-abnf-notations)
-	- [Server name / Host](#server-name--host)
+	- [Server name / Host name](#server-name--host-name)
+	- [User name](#user-name)
 	- [User nickname](#user-nickname)
 	- [Channel name](#channel-name)
-	- [Messages](#messages)
+	- [Message](#message)
 	- [Prefix](#prefix-1)
 	- [Command](#command-1)
 	- [Parameters](#parameters-1)
 	- [Version](#version)
+	- [Replies](#replies)
+		- [RPL\_WELCOME](#rpl_welcome)
+		- [RPL\_YOURHOST](#rpl_yourhost)
+		- [RPL\_CREATED](#rpl_created)
 	- [Miscellaneaous](#miscellaneaous)
 		- [shortname](#shortname)
 		- [special](#special)
@@ -27,8 +32,11 @@
 		- [nospcrlfcl](#nospcrlfcl)
 		- [middle](#middle)
 		- [trailing](#trailing)
-		- [user](#user)
 		- [crlf](#crlf)
+		- [date](#date)
+		- [year](#year)
+		- [month](#month)
+		- [day](#day)
 
 # Introduction
 This file is a summary of:
@@ -58,7 +66,7 @@ The server must have a unique name, which must:
 	where `shortname` is formatted as follows:<br>
 	`( letter / digit ) *( letter / digit / "-" )`
 
-	(click [here](#server-name) for more explanations about the above notation)
+	(click [here](#server-name--host-name) for more explanations about the above notation)
 
 # User specifications
 For every user, the server must have the following information about them:
@@ -105,7 +113,7 @@ Every message sent and received by the server must:
 	- `params` is a pattern, which is formatted as described [here](#parameters),
 	- `crlf` is a carriage return (`\r`) followed by a line feed (`\n`),
 
-	(click [here](#messages) for more explanations about the above notation)
+	(click [here](#message) for more explanations about the above notation)
 
 Empty messages are silently ignored.
 
@@ -115,15 +123,15 @@ However, the prefix is <b style="color:rgb(255 221 0)">optionnal</b>, and thus, 
 it is assumed that its true origin is the connection from which it was received.<br>
 
 Every prefix must be formatted as either one of the following:<br>
-- `servername`
-- `nickname [ [ "!" user ] "@" host ]`
+- `server`
+- `nick [ [ "!" user ] "@" host ]`
 
 where:
-- `servername` is formatted as described [here](#server-specifications),
-- `nickname` is formatted as described [here](#user-specifications),
+- `server` is formatted as described [here](#server-specifications),
+- `nick` is formatted as described [here](#user-specifications),
 - `user` is formatted as follows:<br>
 	`1*( %x01-09 / %x0b-0c / %x0e-1f / %x21-3f / %x41-ff )`
-- `host` is formatted as `servername`
+- `host` is formatted as `server`
 
 (click [here](#prefix-1) for more explanations about the above notation)
 
@@ -173,17 +181,38 @@ any such messages received by the server must be silently discarded.<br>
 
 Here is a list of the different numeric replies that we will need:
 - `001` : `RPL_WELCOME`<br>
-	"Welcome to the Internet Relay Network `nick "!" user "@" host`"
+	`"Welcome to the Internet Relay Network" space nick "!" user "@" host`<br>
+
+	(click [here](#rpl_welcome) for more explanations about the above notation)
+
 - `002` : `RPL_YOURHOST`<br>
-	"Your host is [`servername`](#server-name--host), running version [`version`](#version)"
+	`"Your host is" space server "," space "running version" space version`
+
+	(click [here](#rpl_yourhost) for more explanations about the above notation)
+
+- `003` : `RPL_CREATED`<br>
+	`"This server was created" space date`
+
+	(click [here](#rpl_created) for more explanations about the above notation)
+
+- TODO: Continue here
 
 # Explained ABNF notations
-## Server name / Host
+## Server name / Host name
 `shortname *( "." shortname )`
 >	1. Start with 1 [`shortname`](#shortname)
 >	1. Contain 0 or more patterns, which must:
 >		1. Start with 1 dot (`.`)
 >		1. Contain 1 [`shortname`](#shortname)
+
+## User name
+`1*( %x01-09 / %x0b-0c / %x0e-1f / %x21-3f / %x41-ff )`
+>	1 or more characters that are any octet except:
+>	- NUL (`\0`)
+>	- CR (`\r`)
+>	- LF (`\n`)
+>	- space (` `)
+>	- at sign (`@`)
 
 ## User nickname
 `( letter / special ) *8( letter / digit / special / "-" )`
@@ -202,7 +231,7 @@ Here is a list of the different numeric replies that we will need:
 >		1. Start with 1 colon (`:`)
 >		1. Contain a [`chanstring`](#chanstring)
 
-## Messages
+## Message
 `[ ":" prefix space ] command [ params ] crlf`
 
 >	1. Start with 0 or 1 pattern, which must:
@@ -214,16 +243,16 @@ Here is a list of the different numeric replies that we will need:
 >	1. Contain 1 [`crlf`](#crlf)
 
 ## Prefix
-- `servername`
->	1 [`servername`](#server-name--host)
-- `nickname [ [ "!" user ] "@" host ]`
->	1. Start with 1 [`nickname`](#user-nickname)
+- `server`
+>	1 [`server`](#server-name--host-name)
+- `nick [ [ "!" user ] "@" host ]`
+>	1. Start with 1 [`nick`](#user-nickname)
 >	1. Contain 0 or 1 pattern, which must:
 >		1. Start with 0 or 1 pattern, which must:
 >			1. Start with 1 exclamation mark (`!`)
->			1. Contain 1 [`user`](#user)
+>			1. Contain 1 [`user`](#user-name)
 >		1. Contain 1 at sign (`@`)
->		1. Contain 1 [`host`](#server-name--host)
+>		1. Contain 1 [`host`](#server-name--host-name)
 
 ## Command
 - `1*letter`
@@ -258,6 +287,34 @@ Here is a list of the different numeric replies that we will need:
 >		1. Start with 1 dot (`.`)
 >		1. Contain 1 or more digits
 
+## Replies
+### RPL_WELCOME
+`"Welcome to the Internet Relay Network" space nick "!" user "@" host`
+>	1. Start with the string "Welcome to the Internet Relay Network"
+>	1. Contain 1 space (` `)
+>	1. Contain 1 [`nick`](#user-nickname)
+>	1. Contain 1 exclamation mark (`!`)
+>	1. Contain 1 [`user`](#user-name)
+>	1. Contain 1 at sign (`@`)
+>	1. Contain 1 [`host`](#server-name--host-name)
+
+### RPL_YOURHOST
+`"Your host is" space server "," space "running version" space version`
+>	1. Start with the string "Your host is"
+>	1. Contain 1 space (` `)
+>	1. Contain 1 [`server`](#server-name--host-name)
+>	1. Contain 1 comma (`,`)
+>	1. Contain 1 space (` `)
+>	1. Contain the string "running version"
+>	1. Contain 1 space (` `)
+>	1. Contain 1 [`version`](#version)
+
+### RPL_CREATED
+`"This server was created" space date`
+>	1. Start with the string "This server was created"
+>	1. Contain 1 space (` `)
+>	1. Contain 1 [`date`](#date)
+
 ## Miscellaneaous
 ### shortname
 `( letter / digit ) *( letter / digit / "-" )`
@@ -265,7 +322,7 @@ Here is a list of the different numeric replies that we will need:
 >	1. Contain 0 or more characters that are letters and/or digits and/or dashes (`-`)
 
 ### special
-`%x5b-60 / %x7b-7d`<br>
+`%x5b-60 / %x7b-7d`
 >	1 character that is any of the following:
 >	- opening bracket (`[`)
 >	- closing bracket (`]`)
@@ -310,15 +367,23 @@ Here is a list of the different numeric replies that we will need:
 `*( ":" / " " / nospcrlfcl )`
 >	0 or more colon (`:`) and/or space (` `) and/or [`nospcrlfcl`](#nospcrlfcl)
 
-### user
-`1*( %x01-09 / %x0b-0c / %x0e-1f / %x21-3f / %x41-ff )`
->	1 or more characters that are any octet except:
->	- NUL (`\0`)
->	- CR (`\r`)
->	- LF (`\n`)
->	- space (` `)
->	- at sign (`@`)
-
 ### crlf
 `%x0d.0a`
 >	1 carriage return (`\r`) followed by 1 line feed (`\n`)
+
+### date
+`year "-" month "-" day`
+>	1. Start with 1 [`year`](#year)
+>	1. Contain 1 dash (`-`)
+>	1. Contain 1 [`month`](#month)
+>	1. Contain 1 dash (`-`)
+>	1. Contain 1 [`day`](#day)
+
+### year
+TODO
+
+### month
+TODO
+
+### day
+TODO
