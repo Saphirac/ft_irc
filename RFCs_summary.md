@@ -18,6 +18,7 @@
 	- [Prefix](#prefix-1)
 	- [Command](#command-1)
 	- [Parameters](#parameters-1)
+	- [Version](#version)
 	- [Miscellaneaous](#miscellaneaous)
 		- [shortname](#shortname)
 		- [special](#special)
@@ -93,7 +94,7 @@ For every channel, the server must have the following information about it:
 	(for example, the channel topic, a flag field, a list of the channel operators, etc...)
 
 # Message specifications
-Every message received by the server must:
+Every message sent and received by the server must:
 - be at most 512 characters long.
 - be formatted as follows:<br>
 	`[ ":" prefix space ] command [ params ] crlf`<br>
@@ -127,7 +128,8 @@ where:
 (click [here](#prefix-1) for more explanations about the above notation)
 
 A prefix may be invalid for two main reasons (excluding the errors of format),<br>
-and in both cases, the received messages that contain those invalid prefixes must be discarded:<br>
+and in both cases, the received messages that contain those invalid prefixes<br>
+must be silently discarded:<br>
 - when it identifies an unknown client.<br>
 - when it identifies a known client that is not the one who sent the message.<br>
 In this second case, in addition of discarding the message,<br>
@@ -162,6 +164,18 @@ where:
 # Command specifications
 
 # Numeric reply specifications
+Most of the messages that the server receives from a client<br>
+generate a reply to that client from the server to indicate<br>
+whether the operation succeeded or failed.<br>
+
+Numeric replies are not allowed to originate from a client;<br>
+any such messages received by the server must be silently discarded.<br>
+
+Here is a list of the different numeric replies that we will need:
+- `001` : `RPL_WELCOME`<br>
+	"Welcome to the Internet Relay Network `nick "!" user "@" host`"
+- `002` : `RPL_YOURHOST`<br>
+	"Your host is [`servername`](#server-name--host), running version [`version`](#version)"
 
 # Explained ABNF notations
 ## Server name / Host
@@ -229,7 +243,6 @@ where:
 >		1. Contain 1 [`trailing`](#trailing)
 
 - `14( space middle ) [ space [ ":" ] trailing ]`
-
 >	1. Start with 14 patterns, which must:
 >		1. Start with 1 space (` `)
 >		1. Contain 1 [`middle`](#middle)
@@ -237,6 +250,13 @@ where:
 >		1. Start with 1 space (` `)
 >		1. Contain 0 or 1 colon (`:`)
 >		1. Contain 1 [`trailing`](#trailing)
+
+## Version
+`1*digit *( "." 1*digit )`
+>	1. Start with 1 or more digits
+>	1. Contain 0 or more patterns, which must:
+>		1. Start with 1 dot (`.`)
+>		1. Contain 1 or more digits
 
 ## Miscellaneaous
 ### shortname
