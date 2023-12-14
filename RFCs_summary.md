@@ -3,18 +3,24 @@
 - [Introduction](#introduction)
 - [Server specifications](#server-specifications)
 - [User specifications](#user-specifications)
+	- [User modes](#user-modes)
 - [Channel specifications](#channel-specifications)
+	- [Channel modes](#channel-modes)
 - [Message specifications](#message-specifications)
 	- [Prefix](#prefix)
 	- [Command](#command)
 	- [Parameters](#parameters)
 - [Command specifications](#command-specifications)
 - [Numeric reply specifications](#numeric-reply-specifications)
+	- [Registration](#registration)
+	- [Command responses](#command-responses)
 - [Explained ABNF notations](#explained-abnf-notations)
 	- [Server name / Host name](#server-name--host-name)
 	- [User name](#user-name)
 	- [User nickname](#user-nickname)
+	- [User modes](#user-modes-1)
 	- [Channel name](#channel-name)
+	- [Channel modes](#channel-modes-1)
 	- [Message](#message)
 	- [Prefix](#prefix-1)
 	- [Command](#command-1)
@@ -24,6 +30,7 @@
 		- [RPL\_WELCOME](#rpl_welcome)
 		- [RPL\_YOURHOST](#rpl_yourhost)
 		- [RPL\_CREATED](#rpl_created)
+		- [RPL\_MYINFO](#rpl_myinfo)
 	- [Miscellaneaous](#miscellaneaous)
 		- [shortname](#shortname)
 		- [special](#special)
@@ -58,33 +65,64 @@ However, we also provided a more human-readable description of the rules for eac
 in the [Explained ABNF notations](#explained-abnf-notations) section.<br>
 
 # Server specifications
-The server must have a unique name, which must:
-- be at most 63 characters long.
-- be formated as follows:<br>
-	`shortname *( "." shortname )`<br>
+The server must have:
+- a unique __name__, which must:
+	- be at most 63 characters long.
+	- be formated as follows:<br>
+		`shortname *( "." shortname )`
+
+		where `shortname` is formatted as follows:<br>
+		`( letter / digit ) *( letter / digit / "-" )`
+
+		(click [here](#server-name--host-name) for more explanations about the above notation)
+
+# User specifications
+For every user, the server must have the following information about them:
+- a unique __nickname__, which must:
+	- be at most 9 characters long.<br>
+	- be formatted as follows:<br>
+		`( letter / special ) *8( letter / digit / special / "-" )`
+
+		where `special` is formatted as follows:<br>
+		`%x5b-60 / %x7b-7d`
+
+		(click [here](#user-nickname) for more explanations about the above notation)
+
+- the name of the __host__ that the user is running on, which must be formatted as follows:<br>
+	`shortname *( "." shortname )`
 
 	where `shortname` is formatted as follows:<br>
 	`( letter / digit ) *( letter / digit / "-" )`
 
 	(click [here](#server-name--host-name) for more explanations about the above notation)
 
-# User specifications
-For every user, the server must have the following information about them:
-- a unique nickname, which must:
-	- be at most 9 characters long.<br>
-	- be formatted as follows:<br>
-		`( letter / special ) *8( letter / digit / special / "-" )`<br>
+- the __username__ of the user on that host, which must be formatted as follows:<br>
+	`1*( %x01-09 / %x0b-0c / %x0e-1f / %x21-3f / %x41-ff )`
 
-		where `special` is formatted as follows:<br>
-		`%x5b-60 / %x7b-7d`
+	(click [here](#user-name) for more explanations about the above notation)
 
-		(click [here](#user-nickname) for more explanations about the above notation)
-- the name of the host that the user is running on
-- the username of the user on that host
+- the __modes__ of the user (see [User modes](#user-modes) section)
+
+## User modes
+Users may have a set of modes, to indicate different states about themselves.<br>
+In messages sent and received by the server, user modes are represented by a single letter.
+
+Here is a list of the user modes that the server will support:
+- `a` : away
+- `i` : invisible
+- `w` : wallops listener
+- `B` : bot
+- `O` : local operator
+
+Every set of modes related to a user that is received or sent by the server<br>
+must be formatted as follows:<br>
+`*( "a" / "i" / "w" / "B" / "O" )`
+
+(click [here](#user-modes-1) for more explanations about the above notation)
 
 # Channel specifications
 For every channel, the server must have the following information about it:
-- a unique name, which must:
+- a unique __name__, which must:
 	- be at most 50 characters long.<br>
 	- be case-insensitive.<br>
 	- be formatted as follows:<br>
@@ -97,9 +135,28 @@ For every channel, the server must have the following information about it:
 			`*( %x01-06 / %x08-09 / %x0b-0c / %x0e-1f / %x21-2b / %x2d-39 / %x3b-ff )`
 
 		(click [here](#channel-name) for more explanations about the above notation)
-- a list of users that are on that channel
+- a __list of users__ that are on that channel
 - any other data needed for the channel modes<br>
 	(for example, the channel topic, a flag field, a list of the channel operators, etc...)
+
+## Channel modes
+Channels may have a set of modes, to indicate different states about themselves.<br>
+In messages sent and received by the server, channel modes are represented by a single letter.
+
+Here is a list of the channel modes that the server will support:
+- `b` : set/remove ban mask
+- `i` : invite-only
+- `k` : key needed to join
+- `l` : limit on number of users
+- `n` : no messages to channel from clients on the outside
+- `o` : give/take channel operator privileges
+- `t` : topic settable by channel operators only
+
+Every set of modes related to a channel that is received or sent by the server<br>
+must be formatted as follows:<br>
+`*( "b" / "i" / "k" / "l" / "n" / "o" / "t" )`
+
+(click [here](#channel-modes-1) for more explanations about the above notation)
 
 # Message specifications
 Every message sent and received by the server must:
@@ -108,10 +165,10 @@ Every message sent and received by the server must:
 	`[ ":" prefix space ] command [ params ] crlf`<br>
 	
 	where:
-	- `prefix` is a pattern, which is formatted as described [here](#prefix),
-	- `command` is a pattern, which is formatted as described [here](#command),
-	- `params` is a pattern, which is formatted as described [here](#parameters),
-	- `crlf` is a carriage return (`\r`) followed by a line feed (`\n`),
+	- `prefix` is formatted as described [here](#prefix)
+	- `command` is formatted as described [here](#command)
+	- `params` is formatted as described [here](#parameters)
+	- `crlf` is a carriage return (`\r`) followed by a line feed (`\n`)
 
 	(click [here](#message) for more explanations about the above notation)
 
@@ -119,7 +176,8 @@ Empty messages are silently ignored.
 
 ## Prefix
 The purpose of the prefix is to explicitly indicate the true origin of a received message.<br>
-However, the prefix is <b style="color:rgb(255 221 0)">optionnal</b>, and thus, if a received message has no prefix,<br>
+However, the prefix is <b style="color:rgb(255 221 0)">optionnal</b>,
+and thus, if a received message has no prefix,<br>
 it is assumed that its true origin is the connection from which it was received.<br>
 
 Every prefix must be formatted as either one of the following:<br>
@@ -127,13 +185,12 @@ Every prefix must be formatted as either one of the following:<br>
 - `nick [ [ "!" user ] "@" host ]`
 
 where:
-- `server` is formatted as described [here](#server-specifications),
-- `nick` is formatted as described [here](#user-specifications),
-- `user` is formatted as follows:<br>
-	`1*( %x01-09 / %x0b-0c / %x0e-1f / %x21-3f / %x41-ff )`
-- `host` is formatted as `server`
+- `server` is formatted as described [here](#server-specifications)
+- `nick` is formatted as described [here](#user-specifications)
+- `user` is formatted as descibed [here](#user-specifications)
+- `host` is formatted as described [here](#user-specifications)
 
-(click [here](#prefix-1) for more explanations about the above notation)
+(click [here](#prefix-1) for more explanations about the above notations)
 
 A prefix may be invalid for two main reasons (excluding the errors of format),<br>
 and in both cases, the received messages that contain those invalid prefixes<br>
@@ -152,7 +209,7 @@ The command part of the message must be either one of the following:
 	which must be formatted as follows:<br>
 	`3digit`
 
-(click [here](#command-1) for more explanations about the above notation)
+(click [here](#command-1) for more explanations about the above notations)
 
 ## Parameters
 The parameters part of the message must be formatted as either one of the following:
@@ -167,7 +224,7 @@ where:
 - `nospcrlfcl` is formatted as follows:<br>
 	`%x01-09 / %x0b-0c / %x0e-1f / %x21-39 / %x3b-ff`
 
-(click [here](#parameters-1) for more explanations about the above notation)
+(click [here](#parameters-1) for more explanations about the above notations)
 
 # Command specifications
 
@@ -179,23 +236,56 @@ whether the operation succeeded or failed.<br>
 Numeric replies are not allowed to originate from a client;<br>
 any such messages received by the server must be silently discarded.<br>
 
-Here is a list of the different numeric replies that we will need:
+Here is a list of the different numeric replies that we will need.
+
+## Registration
 - `001` : `RPL_WELCOME`<br>
 	`"Welcome to the Internet Relay Network" space nick "!" user "@" host`<br>
+
+	where:
+	- `nick` is formatted as described [here](#user-specifications),
+	- `user` is formatted as described [here](#user-specifications),
+	- `host` is formatted as described [here](#user-specifications)
 
 	(click [here](#rpl_welcome) for more explanations about the above notation)
 
 - `002` : `RPL_YOURHOST`<br>
 	`"Your host is" space server "," space "running version" space version`
 
+	where:
+	- `server` is formatted as described [here](#server-specifications)
+	- `version` is formatted as described [here](#version)
+
 	(click [here](#rpl_yourhost) for more explanations about the above notation)
 
 - `003` : `RPL_CREATED`<br>
 	`"This server was created" space date`
 
+	where:
+	- `date` is formatted as follows:<br>
+		`year "-" month "-" day`
+	- `year` is formatted as follows:<br>
+		`1*digit`
+	- `month` is formatted as follows:<br>
+		`%x30 %x31-39 / %x31 %x30-32`
+	- `day` is formatted as follows:<br>
+		`%x30 %x31-39 / %x31-32 %x30-39 / %x33 %x30-31`
+
 	(click [here](#rpl_created) for more explanations about the above notation)
 
-- TODO: Continue here
+- `004` : RPL_MYINFO<br>
+	`server space version space umodes space cmodes`
+
+	where:
+	- `server` is formatted as described [here](#server-specifications)
+	- `version` is formatted as described [here](#server-specifications)
+	- `umodes` represents the available user modes, and is formatted as described [here](#user-modes)
+	- `cmodes` represents the available channel modes, and is formatted as described [here](#channel-modes)
+
+	(click [here](#rpl_myinfo) for more explanations about the above notation)
+
+## Command responses
+TODO
 
 # Explained ABNF notations
 ## Server name / Host name
@@ -220,6 +310,15 @@ Here is a list of the different numeric replies that we will need:
 >	1. Contain 0 or more up to 8 characters that are letters<br>
 >	and/or digits and/or a [`special`](#special) and/or dashes (`-`)
 
+## User modes
+`*( "a" / "i" / "w" / "B" / "O" )`
+>	0 or more characters that are any of the following:
+>	- lower A (`a`)
+>	- lower I (`i`)
+>	- lower W (`w`)
+>	- upper B (`B`)
+>	- upper O (`O`)
+
 ## Channel name
 `( "#" / "+" / "&" / ( "!" channelid ) ) chanstring [ ":" chanstring ]`
 >	1. Start with 1 character that is either a hash (`#`), a plus (`+`), an ampersand (`&`),<br>
@@ -230,6 +329,17 @@ Here is a list of the different numeric replies that we will need:
 >	1. Contain 0 or 1 pattern, which must:
 >		1. Start with 1 colon (`:`)
 >		1. Contain a [`chanstring`](#chanstring)
+
+## Channel modes
+`*( "b" / "i" / "k" / "l" / "n" / "o" / "t" )`
+>	0 or more characters that are any of the following:
+>	- lower B (`b`)
+>	- lower I (`i`)
+>	- lower K (`k`)
+>	- lower L (`l`)
+>	- lower N (`n`)
+>	- lower O (`o`)
+>	- lower T (`t`)
 
 ## Message
 `[ ":" prefix space ] command [ params ] crlf`
@@ -315,6 +425,14 @@ Here is a list of the different numeric replies that we will need:
 >	1. Contain 1 space (` `)
 >	1. Contain 1 [`date`](#date)
 
+### RPL_MYINFO
+`server space version space umodes space cmodes`
+>	1. Start with 1 [`server`](#server-name--host-name)
+>	1. Contain 1 space (` `)
+>	1. Contain 1 [`version`](#version)
+>	1. Contain 1 space (` `)
+>	1. Contain 1 [`umodes`](#user-modes)
+
 ## Miscellaneaous
 ### shortname
 `( letter / digit ) *( letter / digit / "-" )`
@@ -380,10 +498,18 @@ Here is a list of the different numeric replies that we will need:
 >	1. Contain 1 [`day`](#day)
 
 ### year
-TODO
+`1*digit`
+>	1 or more digits
 
 ### month
-TODO
+`%x30 %x31-39 / %x31 %x30-32`
+>	2 digits that are either:
+>	- zero (`0`) followed by any digit from one (`1`) to nine (`9`)
+>	- one (`1`) followed by any digit from zero (`0`) to two (`2`)
 
 ### day
-TODO
+`%x30 %x31-39 / %x31-32 %x30-39 / %x33 %x30-31`
+>	2 digits that are either:
+>	- zero (`0`) followed by any digit from one (`1`) to nine (`9`)
+>	- one (`1`) or two (`2`) followed by any digit from zero (`0`) to nine (`9`)
+>	- three (`3`) followed by any digit from zero (`0`) to one (`1`)
