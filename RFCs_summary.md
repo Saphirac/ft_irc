@@ -1,36 +1,60 @@
 # Table of contents
 - [Table of contents](#table-of-contents)
 - [Introduction](#introduction)
-- [Server specifications](#server-specifications)
-- [User specifications](#user-specifications)
-	- [User modes](#user-modes)
-- [Channel specifications](#channel-specifications)
-	- [Channel modes](#channel-modes)
-- [Message specifications](#message-specifications)
+- [Server](#server)
+	- [Name](#name)
+	- [Version](#version)
+- [Users](#users)
+	- [Nickname](#nickname)
+	- [Hostname](#hostname)
+	- [Username](#username)
+	- [Modes](#modes)
+- [Channels](#channels)
+	- [Name](#name-1)
+	- [Topic](#topic)
+	- [Modes](#modes-1)
+- [Messages](#messages)
 	- [Prefix](#prefix)
 	- [Command](#command)
 	- [Parameters](#parameters)
-- [Command specifications](#command-specifications)
-- [Numeric reply specifications](#numeric-reply-specifications)
+- [Commands](#commands)
+- [Numeric replies](#numeric-replies)
 	- [Registration](#registration)
-	- [Command responses](#command-responses)
+	- [Infos](#infos)
+	- [Errors](#errors)
 - [Explained ABNF notations](#explained-abnf-notations)
-	- [Server name / Host name](#server-name--host-name)
-	- [User name](#user-name)
-	- [User nickname](#user-nickname)
-	- [User modes](#user-modes-1)
-	- [Channel name](#channel-name)
-	- [Channel modes](#channel-modes-1)
+	- [Server](#server-1)
+		- [Name](#name-2)
+		- [Version](#version-1)
+	- [User](#user)
+		- [Nickname](#nickname-1)
+		- [Hostname](#hostname-1)
+		- [Username](#username-1)
+		- [Modes](#modes-2)
+	- [Channel](#channel)
+		- [Name](#name-3)
+		- [Topic](#topic-1)
+		- [Modes](#modes-3)
 	- [Message](#message)
-	- [Prefix](#prefix-1)
-	- [Command](#command-1)
-	- [Parameters](#parameters-1)
-	- [Version](#version)
+		- [Prefix](#prefix-1)
+		- [Command](#command-1)
+		- [Parameters](#parameters-1)
 	- [Replies](#replies)
 		- [RPL\_WELCOME](#rpl_welcome)
 		- [RPL\_YOURHOST](#rpl_yourhost)
 		- [RPL\_CREATED](#rpl_created)
 		- [RPL\_MYINFO](#rpl_myinfo)
+		- [RPL\_UMODEIS](#rpl_umodeis)
+		- [RPL\_YOUREOPER](#rpl_youreoper)
+		- [ERR\_NONICKNAMEGIVEN](#err_nonicknamegiven)
+		- [ERR\_ERRONEUSNICKNAME](#err_erroneusnickname)
+		- [ERR\_NICKNAMEINUSE](#err_nicknameinuse)
+		- [ERR\_NEEDMOREPARAMS](#err_needmoreparams)
+		- [ERR\_ALREADYREGISTERED](#err_alreadyregistered)
+		- [ERR\_PASSWDMISMATCH](#err_passwdmismatch)
+		- [ERR\_NOOPERHOST](#err_nooperhost)
+		- [ERR\_UMODEUNKNOWNFLAG](#err_umodeunknownflag)
+		- [ERR\_USERSDONTMATCH](#err_usersdontmatch)
 	- [Miscellaneaous](#miscellaneaous)
 		- [shortname](#shortname)
 		- [special](#special)
@@ -57,54 +81,70 @@ They are the RFCs that define the IRC protocol.<br>
 In this summary, we will only cover the most important parts of the RFCs,<br>
 that are relevant to the implementation of our own IRC server.<br>
 That means that everything related to the client side of the protocol<br>
-and to the server-to-server communication will be voluntarily ignored.<br>
-<br>
+and to the server-to-server communication will be voluntarily ignored.
+
 Note that we are using the [Augmented Backus–Naur form](https://en.wikipedia.org/wiki/Augmented_Backus%E2%80%93Naur_form)<br>
 to represent the grammar rules that apply to the different components of the IRC protocol.<br>
 However, we also provided a more human-readable description of the rules for each,<br>
-in the [Explained ABNF notations](#explained-abnf-notations) section.<br>
+in the [Explained ABNF notations](#explained-abnf-notations) section.
 
-# Server specifications
+# Server
 The server must have:
-- a unique __name__, which must:
-	- be at most 63 characters long.
-	- be formated as follows:<br>
-		`shortname *( "." shortname )`
+- a [name](#name)
+- a [version](#version)
 
-		where `shortname` is formatted as follows:<br>
-		`( letter / digit ) *( letter / digit / "-" )`
+## Name
+The server name must:
+- be at most 63 characters long.
+- be formated as follows:<br>
+`shortname *( "." shortname )`
 
-		(click [here](#server-name--host-name) for more explanations about the above notation)
+where `shortname` is formatted as follows:<br>
+`( letter / digit ) *( letter / digit / "-" )`
 
-# User specifications
-For every user, the server must have the following information about them:
-- a unique __nickname__, which must:
-	- be at most 9 characters long.<br>
-	- be formatted as follows:<br>
-		`( letter / special ) *8( letter / digit / special / "-" )`
+(click [here](#name-2) for more explanations about the above notation)
 
-		where `special` is formatted as follows:<br>
-		`%x5b-60 / %x7b-7d`
+## Version
+The server version must be formatted as follows:<br>
+`1*digit *( "." 1*digit )`
 
-		(click [here](#user-nickname) for more explanations about the above notation)
+(click [here](#version-1) for more explanations about the above notation)
 
-- the name of the __host__ that the user is running on, which must be formatted as follows:<br>
-	`shortname *( "." shortname )`
+# Users
+For every user, the server must keep track of the following information about them:
+- their [nickname](#nickname), which is the name used by the user on the IRC network
+- their [hostname](#hostname), which is the name of the host that the user is running on
+- their [username](#username), which is the name of the user on their host
+- their [modes](#modes), which are a set of flags that indicate different states about the user
 
-	where `shortname` is formatted as follows:<br>
-	`( letter / digit ) *( letter / digit / "-" )`
+## Nickname
+Every nickname must:
+- be unique
+- be at most 9 characters long.
+- be formatted as follows:<br>
+	`( letter / special ) *8( letter / digit / special / "-" )`
 
-	(click [here](#server-name--host-name) for more explanations about the above notation)
+	where `special` is formatted as follows:<br>
+	`%x5b-60 / %x7b-7d`
 
-- the __username__ of the user on that host, which must be formatted as follows:<br>
-	`1*( %x01-09 / %x0b-0c / %x0e-1f / %x21-3f / %x41-ff )`
+	(click [here](#nickname-1) for more explanations about the above notation)
 
-	(click [here](#user-name) for more explanations about the above notation)
+## Hostname
+Every hostname must be formatted as follows:<br>
+`shortname *( "." shortname )`
 
-- the __modes__ of the user (see [User modes](#user-modes) section)
+where `shortname` is formatted as follows:<br>
+`( letter / digit ) *( letter / digit / "-" )`
 
-## User modes
-Users may have a set of modes, to indicate different states about themselves.<br>
+(click [here](#hostname-1) for more explanations about the above notation)
+
+## Username
+Every username must be formatted as follows:<br>
+`1*( %x01-09 / %x0b-0c / %x0e-1f / %x21-3f / %x41-ff )`
+
+(click [here](#username-1) for more explanations about the above notation)
+
+## Modes
 In messages sent and received by the server, user modes are represented by a single letter.
 
 Here is a list of the user modes that the server will support:
@@ -118,29 +158,43 @@ Every set of modes related to a user that is received or sent by the server<br>
 must be formatted as follows:<br>
 `*( "a" / "i" / "w" / "B" / "O" )`
 
-(click [here](#user-modes-1) for more explanations about the above notation)
+(click [here](#modes-2) for more explanations about the above notation)
 
-# Channel specifications
-For every channel, the server must have the following information about it:
-- a unique __name__, which must:
-	- be at most 50 characters long.<br>
-	- be case-insensitive.<br>
-	- be formatted as follows:<br>
-		`( "#" / "+" / "&" / ( "!" channelid ) ) chanstring [ ":" chanstring ]`<br>
-
-		where:
-		- `channelid` is formatted as follows:<br>
-			`5( uppercase / digit )`<br>
-		- `chanstring` is formatted as follows:<br>
-			`*( %x01-06 / %x08-09 / %x0b-0c / %x0e-1f / %x21-2b / %x2d-39 / %x3b-ff )`
-
-		(click [here](#channel-name) for more explanations about the above notation)
+# Channels
+For every channel, the server must keep track of the following information about it:
+- their [name](#name-1)
+- their [topic](#topic), which is a short description of the channel
+- their [modes](#modes-1), which are a set of flags that indicate different states about the channel<br>
+	and/or additional fields that are needed by some modes<br>
+	(e.g. a list of channel operators, a list of banned users, the key to join the channel, etc...)
 - a __list of users__ that are on that channel
-- any other data needed for the channel modes<br>
-	(for example, the channel topic, a flag field, a list of the channel operators, etc...)
 
-## Channel modes
+## Name
+Every channel name must:
+- be at most 50 characters long.<br>
+- be case-insensitive.<br>
+- be formatted as follows:<br>
+	`( "#" / "+" / "&" / ( "!" channelid ) ) chanstring [ ":" chanstring ]`<br>
+
+	where:
+	- `channelid` is formatted as follows:<br>
+		`5( uppercase / digit )`<br>
+	- `chanstring` is formatted as follows:<br>
+		`*( %x01-06 / %x08-09 / %x0b-0c / %x0e-1f / %x21-2b / %x2d-39 / %x3b-ff )`
+
+		(click [here](#name-3) for more explanations about the above notation)
+
+## Topic
+Every channel topic must be formatted as follows:<br>
+`*( %x01-09 / %x0b-0c / %x0e-ff )`
+
+(click [here](#topic-1) for more explanations about the above notation)
+
+## Modes
 Channels may have a set of modes, to indicate different states about themselves.<br>
+Unlike the user modes, some channel modes may be related to some users,<br>
+and not only to the channel itself. Therefore, channels may need to have extra fields<br>
+to keep track of the users that are related to these modes.<br>
 In messages sent and received by the server, channel modes are represented by a single letter.
 
 Here is a list of the channel modes that the server will support:
@@ -156,9 +210,9 @@ Every set of modes related to a channel that is received or sent by the server<b
 must be formatted as follows:<br>
 `*( "b" / "i" / "k" / "l" / "n" / "o" / "t" )`
 
-(click [here](#channel-modes-1) for more explanations about the above notation)
+(click [here](#modes-3) for more explanations about the above notation)
 
-# Message specifications
+# Messages
 Every message sent and received by the server must:
 - be at most 512 characters long.
 - be formatted as follows:<br>
@@ -185,28 +239,27 @@ Every prefix must be formatted as either one of the following:<br>
 - `nick [ [ "!" user ] "@" host ]`
 
 where:
-- `server` is formatted as described [here](#server-specifications)
-- `nick` is formatted as described [here](#user-specifications)
-- `user` is formatted as descibed [here](#user-specifications)
-- `host` is formatted as described [here](#user-specifications)
+- `server` is formatted as described [here](#name)
+- `nick` is formatted as described [here](#nickname)
+- `user` is formatted as descibed [here](#username)
+- `host` is formatted as described [here](#hostname)
 
 (click [here](#prefix-1) for more explanations about the above notations)
 
-A prefix may be invalid for two main reasons (excluding the errors of format),<br>
-and in both cases, the received messages that contain those invalid prefixes<br>
-must be silently discarded:<br>
-- when it identifies an unknown client.<br>
-- when it identifies a known client that is not the one who sent the message.<br>
-In this second case, in addition of discarding the message,<br>
-the server should drop the connection with the client who sent it.
+A prefix may be invalid for 3 different reasons, and in each case,<br>
+the received message that contain this invalid prefix must be discarded,<br>
+and an error must be sent back to the client from which the message was received.<br>
+A prefix is considered invalid when:
+- it has a format error
+- it identifies an unknown client
+- it identifies a known client that is not the one who sent the message<br>
+	In this last case, the server should drop the connection with the client who sent it
 
 ## Command
 The command part of the message must be either one of the following:
-- a valid IRC command (see [Command specifications](#command-specifications) section),<br>
-	which must be formatted as follows:<br>
+- a valid [IRC command](#commands), which must be formatted as follows:<br>
 	`1*letter`
-- a numeric reply code (see [Numeric reply specifications](#numeric-reply-specifications) section),<br>
-	which must be formatted as follows:<br>
+- a [numeric reply](#numeric-replies), which must be formatted as follows:<br>
 	`3digit`
 
 (click [here](#command-1) for more explanations about the above notations)
@@ -226,9 +279,9 @@ where:
 
 (click [here](#parameters-1) for more explanations about the above notations)
 
-# Command specifications
+# Commands
 
-# Numeric reply specifications
+# Numeric replies
 Most of the messages that the server receives from a client<br>
 generate a reply to that client from the server to indicate<br>
 whether the operation succeeded or failed.<br>
@@ -239,26 +292,26 @@ any such messages received by the server must be silently discarded.<br>
 Here is a list of the different numeric replies that we will need.
 
 ## Registration
-- `001` : `RPL_WELCOME`<br>
+- 001: RPL_WELCOME<br>
 	`"Welcome to the Internet Relay Network" space nick "!" user "@" host`<br>
 
 	where:
-	- `nick` is formatted as described [here](#user-specifications),
-	- `user` is formatted as described [here](#user-specifications),
-	- `host` is formatted as described [here](#user-specifications)
+	- `nick` is formatted as described [here](#nickname),
+	- `user` is formatted as described [here](#username),
+	- `host` is formatted as described [here](#hostname)
 
 	(click [here](#rpl_welcome) for more explanations about the above notation)
 
-- `002` : `RPL_YOURHOST`<br>
+- 002: RPL_YOURHOST<br>
 	`"Your host is" space server "," space "running version" space version`
 
 	where:
-	- `server` is formatted as described [here](#server-specifications)
+	- `server` is formatted as described [here](#name)
 	- `version` is formatted as described [here](#version)
 
 	(click [here](#rpl_yourhost) for more explanations about the above notation)
 
-- `003` : `RPL_CREATED`<br>
+- 003: RPL_CREATED<br>
 	`"This server was created" space date`
 
 	where:
@@ -273,29 +326,115 @@ Here is a list of the different numeric replies that we will need.
 
 	(click [here](#rpl_created) for more explanations about the above notation)
 
-- `004` : RPL_MYINFO<br>
+- 004: RPL_MYINFO<br>
 	`server space version space umodes space cmodes`
 
 	where:
-	- `server` is formatted as described [here](#server-specifications)
-	- `version` is formatted as described [here](#server-specifications)
-	- `umodes` represents the available user modes, and is formatted as described [here](#user-modes)
-	- `cmodes` represents the available channel modes, and is formatted as described [here](#channel-modes)
+	- `server` is formatted as described [here](#name)
+	- `version` is formatted as described [here](#version)
+	- `umodes` represents the available user modes, and is formatted as described [here](#modes)
+	- `cmodes` represents the available channel modes, and is formatted as described [here](#modes-1)
 
 	(click [here](#rpl_myinfo) for more explanations about the above notation)
 
-## Command responses
-TODO
+## Infos
+- 221: RPL_UMODEIS<br>
+	`nick space ":" [ "+" ] umodes`
+
+	where:
+	- `nick` is formatted as described [here](#nickname)
+	- `umodes` is formatted as described [here](#modes)
+
+	(click [here](#rpl_umodeis) for more explanations about the above notation)
+
+- 381: RPL_YOUREOPER<br>
+	`":You are now an IRC operator"`
+
+	(click [here](#rpl_youreoper) for more explanations about the above notation)
+
+## Errors
+- 431: ERR_NONICKNAMEGIVEN<br>
+	`":No nickname given"`
+
+	(click [here](#err_nonicknamegiven) for more explanations about the above notation)
+
+- 432: ERR_ERRONEUSNICKNAME<br>
+	`nick space ":Erroneous nickname"`
+
+	where `nick` is formatted as described [here](#nickname)
+
+	(click [here](#err_erroneusnickname) for more explanations about the above notation)
+
+- 433: ERR_NICKNAMEINUSE<br>
+	`nick space ":Nickname already in use"`
+
+	where `nick` is formatted as described [here](#nickname)
+
+	(click [here](#err_nicknameinuse) for more explanations about the above notation)
+
+- 461: ERR_NEEDMOREPARAMS<br>
+	`command space ":Not enough parameters"`
+
+	where `command` is formatted as described [here](#command)
+
+	(click [here](#err_needmoreparams) for more explanations about the above notation)
+
+- 462: ERR_ALREADYREGISTERED<br>
+	`":Unauthorized command (already registered)"`
+
+	(click [here](#err_alreadyregistered) for more explanations about the above notation)
+
+- 464: ERR_PASSWDMISMATCH<br>
+	`":Password incorrect"`
+
+	(click [here](#err_passwdmismatch) for more explanations about the above notation)
+
+- 491: ERR_NOOPERHOST<br>
+	`":No O-lines for your host"`
+
+	(click [here](#err_nooperhost) for more explanations about the above notation)
+
+- 501: ERR_UMODEUNKNOWNFLAG<br>
+	`":Unknown MODE flag"`
+
+	(click [here](#err_umodeunknownflag) for more explanations about the above notation)
+
+- 502: ERR_USERSDONTMATCH<br>
+	`":Cannot change mode for other users"`
+
+	(click [here](#err_usersdontmatch) for more explanations about the above notation)
 
 # Explained ABNF notations
-## Server name / Host name
+## Server
+### Name
 `shortname *( "." shortname )`
 >	1. Start with 1 [`shortname`](#shortname)
 >	1. Contain 0 or more patterns, which must:
 >		1. Start with 1 dot (`.`)
 >		1. Contain 1 [`shortname`](#shortname)
 
-## User name
+### Version
+`1*digit *( "." 1*digit )`
+>	1. Start with 1 or more digits
+>	1. Contain 0 or more patterns, which must:
+>		1. Start with 1 dot (`.`)
+>		1. Contain 1 or more digits
+
+## User
+### Nickname
+`( letter / special ) *8( letter / digit / special / "-" )`
+>	1. Start with 1 character that is either a letter or a [`special`](#special)
+>	1. Contain 0 or more up to 8 characters that are letters<br>
+>	and/or digits and/or a [`special`](#special) and/or dashes (`-`)
+
+### Hostname
+`shortname *( "." shortname )`
+>	1. Start with 1 [`shortname`](#shortname)
+>	1. Contain 0 or more patterns, which must:
+>		1. Start with 1 dot (`.`)
+>		1. Contain 1 [`shortname`](#shortname)
+
+### Username
 `1*( %x01-09 / %x0b-0c / %x0e-1f / %x21-3f / %x41-ff )`
 >	1 or more characters that are any octet except:
 >	- NUL (`\0`)
@@ -304,13 +443,7 @@ TODO
 >	- space (` `)
 >	- at sign (`@`)
 
-## User nickname
-`( letter / special ) *8( letter / digit / special / "-" )`
->	1. Start with 1 character that is either a letter or a [`special`](#special)
->	1. Contain 0 or more up to 8 characters that are letters<br>
->	and/or digits and/or a [`special`](#special) and/or dashes (`-`)
-
-## User modes
+### Modes
 `*( "a" / "i" / "w" / "B" / "O" )`
 >	0 or more characters that are any of the following:
 >	- lower A (`a`)
@@ -319,7 +452,8 @@ TODO
 >	- upper B (`B`)
 >	- upper O (`O`)
 
-## Channel name
+## Channel
+### Name
 `( "#" / "+" / "&" / ( "!" channelid ) ) chanstring [ ":" chanstring ]`
 >	1. Start with 1 character that is either a hash (`#`), a plus (`+`), an ampersand (`&`),<br>
 >	or a pattern, which must:
@@ -330,7 +464,14 @@ TODO
 >		1. Start with 1 colon (`:`)
 >		1. Contain a [`chanstring`](#chanstring)
 
-## Channel modes
+### Topic
+`*( %x01-09 / %x0b-0c / %x0e-ff )`
+>	0 or more characters that are any octet except:
+>	- NUL (`\0`)
+>	- CR (`\r`)
+>	- LF (`\n`)
+
+### Modes
 `*( "b" / "i" / "k" / "l" / "n" / "o" / "t" )`
 >	0 or more characters that are any of the following:
 >	- lower B (`b`)
@@ -346,32 +487,32 @@ TODO
 
 >	1. Start with 0 or 1 pattern, which must:
 >		1. Start with 1 colon (`:`)
->		1. Contain 1 [`prefix`](#prefix)
+>		1. Contain 1 [`prefix`](#prefix-1)
 >		1. Contain 1 space (` `)
->	1. Contain 1 [`command`](#command)
->	1. Contain 0 or 1 [`params`](#parameters)
+>	1. Contain 1 [`command`](#command-1)
+>	1. Contain 0 or 1 [`params`](#parameters-1)
 >	1. Contain 1 [`crlf`](#crlf)
 
-## Prefix
+### Prefix
 - `server`
->	1 [`server`](#server-name--host-name)
+>	1 [`server`](#name-2)
 - `nick [ [ "!" user ] "@" host ]`
->	1. Start with 1 [`nick`](#user-nickname)
+>	1. Start with 1 [`nick`](#nickname-1)
 >	1. Contain 0 or 1 pattern, which must:
 >		1. Start with 0 or 1 pattern, which must:
 >			1. Start with 1 exclamation mark (`!`)
->			1. Contain 1 [`user`](#user-name)
+>			1. Contain 1 [`user`](#username-1)
 >		1. Contain 1 at sign (`@`)
->		1. Contain 1 [`host`](#server-name--host-name)
+>		1. Contain 1 [`host`](#hostname-1)
 
-## Command
+### Command
 - `1*letter`
 >	1 or more letters
 
 - `3digit`
 >	3 digits
 
-## Parameters
+### Parameters
 - `*14( space middle ) [ space ":" trailing ]`
 >	1. Start with 0 or more up to 14 patterns, which must:
 >		1. Start with 1 space (` `)
@@ -390,34 +531,27 @@ TODO
 >		1. Contain 0 or 1 colon (`:`)
 >		1. Contain 1 [`trailing`](#trailing)
 
-## Version
-`1*digit *( "." 1*digit )`
->	1. Start with 1 or more digits
->	1. Contain 0 or more patterns, which must:
->		1. Start with 1 dot (`.`)
->		1. Contain 1 or more digits
-
 ## Replies
 ### RPL_WELCOME
 `"Welcome to the Internet Relay Network" space nick "!" user "@" host`
 >	1. Start with the string "Welcome to the Internet Relay Network"
 >	1. Contain 1 space (` `)
->	1. Contain 1 [`nick`](#user-nickname)
+>	1. Contain 1 [`nick`](#nickname-1)
 >	1. Contain 1 exclamation mark (`!`)
->	1. Contain 1 [`user`](#user-name)
+>	1. Contain 1 [`user`](#username-1)
 >	1. Contain 1 at sign (`@`)
->	1. Contain 1 [`host`](#server-name--host-name)
+>	1. Contain 1 [`host`](#hostname-1)
 
 ### RPL_YOURHOST
 `"Your host is" space server "," space "running version" space version`
 >	1. Start with the string "Your host is"
 >	1. Contain 1 space (` `)
->	1. Contain 1 [`server`](#server-name--host-name)
+>	1. Contain 1 [`server`](#name-2)
 >	1. Contain 1 comma (`,`)
 >	1. Contain 1 space (` `)
 >	1. Contain the string "running version"
 >	1. Contain 1 space (` `)
->	1. Contain 1 [`version`](#version)
+>	1. Contain 1 [`version`](#version-1)
 
 ### RPL_CREATED
 `"This server was created" space date`
@@ -427,11 +561,67 @@ TODO
 
 ### RPL_MYINFO
 `server space version space umodes space cmodes`
->	1. Start with 1 [`server`](#server-name--host-name)
+>	1. Start with 1 [`server`](#name-2)
 >	1. Contain 1 space (` `)
->	1. Contain 1 [`version`](#version)
+>	1. Contain 1 [`version`](#version-1)
 >	1. Contain 1 space (` `)
->	1. Contain 1 [`umodes`](#user-modes)
+>	1. Contain 1 [`umodes`](#modes-2)
+>	1. Contain 1 space (` `)
+>	1. Contain 1 [`cmodes`](#modes-3)
+
+### RPL_UMODEIS
+`nick space ":" [ "+" ] umodes`
+>	1. Start with 1 [`nick`](#nickname-1)
+>	1. Contain 1 space (` `)
+>	1. Contain 1 colon (`:`)
+>	1. Contain 0 or 1 plus (`+`)
+>	1. Contain 1 [`umodes`](#modes-2)
+
+### RPL_YOUREOPER
+`":You are now an IRC operator"`
+>	Match the string ":You are now an IRC operator"
+
+### ERR_NONICKNAMEGIVEN
+`":No nickname given"`
+>	Match the string ":No nickname given"
+
+### ERR_ERRONEUSNICKNAME
+`nick space ":Erroneous nickname"`
+>	1. Start with 1 [`nick`](#nickname-1)
+>	1. Contain 1 space (` `)
+>	1. Contain the string ":Erroneous nickname"
+
+### ERR_NICKNAMEINUSE
+`nick space ":Nickname already in use"`
+>	1. Start with 1 [`nick`](#nickname-1)
+>	1. Contain 1 space (` `)
+>	1. Contain the string ":Nickname already in use"
+
+### ERR_NEEDMOREPARAMS
+`command space ":Not enough parameters"`
+>	1. Start with 1 [`command`](#command-1)
+>	1. Contain 1 space (` `)
+>	1. Contain the string ":Not enough parameters"
+
+### ERR_ALREADYREGISTERED
+`":Unauthorized command (already registered)"`
+>	Match the string ":Unauthorized command (already registered)"
+
+### ERR_PASSWDMISMATCH
+`":Password incorrect"`
+>	Match the string ":Password incorrect"
+
+### ERR_NOOPERHOST
+`":No O-lines for your host"`
+>	Match the string ":No O-lines for your host"
+
+### ERR_UMODEUNKNOWNFLAG
+`":Unknown MODE flag"`
+>	Match the string ":Unknown MODE flag"
+
+### ERR_USERSDONTMATCH
+`":Cannot change mode for other users"`
+>	Match the string ":Cannot change mode for other users"
 
 ## Miscellaneaous
 ### shortname
