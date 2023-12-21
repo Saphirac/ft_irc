@@ -9,6 +9,7 @@
 	- [Hostname](#hostname)
 	- [Username](#username)
 	- [Modes](#modes)
+	- [Mask](#mask)
 - [Channels](#channels)
 	- [Name](#name-1)
 	- [Topic](#topic)
@@ -136,13 +137,14 @@ Here is a list of the user modes that the server will support:
 - `i` : invisible
 - `w` : wallops listener
 
-Every set of user modes that is received or sent by the server must be formatted as follows:<br>
-`*( %x42 / %x4f / %x61 / %x69 / %x77 )`
+Every single mode related to a user that is received or sent by the server<br>
+must be formatted as follows:<br>
+__umode__ = `%x42 / %x4f / %x61 / %x69 / %x77`<br id="umode">
 <!-- #region: Explained ABNF notation -->
 <details>
 <summary>Explanations about the above ABNF notation</summary>
 
->	0 or more octets that has any value among the following:
+>	1 octet that has any value among the following:
 >	- 0x42 (`B`)
 >	- 0x4f (`O`)
 >	- 0x61 (`a`)
@@ -151,6 +153,34 @@ Every set of user modes that is received or sent by the server must be formatted
 </details>
 <!-- #endregion -->
 <br>
+
+Every set of modes related to a user that is received or sent by the server<br>
+must be formatted as follows:<br>
+__umodeset__ = `*umode`<br id="umodeset">
+<!-- #region: Explained ABNF notation -->
+<details>
+<summary>Explanations about the above ABNF notation</summary>
+
+>	0 or more [umodes](#umode)
+</details>
+<!-- #endregion -->
+<br>
+
+## Mask
+A mask is a way to identify a user without any possible ambiguity.<br>
+Every user mask that is received or sent by the server must be formatted as follows:<br>
+__umask__ = `nick %x21 user %x40 host`<br id="umask">
+<!-- #region: Explained ABNF notation -->
+<details>
+<summary>Explanations about the above ABNF notation</summary>
+
+>	1. Start with 1 [nick](#nickname)
+>	1. Contain 1 octet that has the value 0x21 (`!`)
+>	1. Contain 1 [user](#username)
+>	1. Contain 1 octet that has the value 0x40 (`@`)
+>	1. Contain 1 [host](#hostname)
+</details>
+<!-- #endregion -->
 
 # Channels
 For every channel, the server must keep track of the following information about it:
@@ -212,14 +242,14 @@ Here is a list of the channel modes that the server will support:
 - `o` : give/take channel operator privileges
 - `t` : topic settable by channel operators only
 
-Every set of modes related to a channel that is received or sent by the server<br>
+Every single mode related to a channel that is received or sent by the server<br>
 must be formatted as follows:<br>
-`*( %x62 / %x69 / %x6b / %x6c / %x6e / %x6f / %x74 )`
+__cmode__ = `%x62 / %x69 / %x6b / %x6c / %x6e / %x6f / %x74`<br id="cmode">
 <!-- #region: Explained ABNF notation -->
 <details>
 <summary>Explanations about the above ABNF notation</summary>
 
->	0 or more octets that have any value among the following:
+>	1 octet that has any value among the following:
 >	- 0x62 (`b`)
 >	- 0x69 (`i`)
 >	- 0x6b (`k`)
@@ -227,6 +257,18 @@ must be formatted as follows:<br>
 >	- 0x6e (`n`)
 >	- 0x6f (`o`)
 >	- 0x74 (`t`)
+</details>
+<!-- #endregion -->
+<br>
+
+Every set of modes related to a channel that is received or sent by the server<br>
+must be formatted as follows:<br>
+__cmodeset__ = `*cmode`<br id="cmodeset">
+<!-- #region: Explained ABNF notation -->
+<details>
+<summary>Explanations about the above ABNF notation</summary>
+
+>	0 or more [cmode](#cmode)
 </details>
 <!-- #endregion -->
 <br>
@@ -401,7 +443,7 @@ Here is a list of the different numeric replies that we will need.
 	<!-- #endregion -->
 	<br>
 - 004: RPL_MYINFO<br id="rpl_myinfo">
-	`server space version space umodes space cmodes`
+	`server space version space umodeset space cmodeset`
 	<!-- #region: Explained ABNF notation -->
 	<details>
 	<summary>Explanations about the above notation</summary>
@@ -410,15 +452,15 @@ Here is a list of the different numeric replies that we will need.
 	>	1. Contain 1 [space](#space)
 	>	1. Contain 1 [version](#version)
 	>	1. Contain 1 [space](#space)
-	>	1. Contain 1 [umodes](#modes)
+	>	1. Contain 1 [umodeset](#umodeset)
 	>	1. Contain 1 [space](#space)
-	>	1. Contain 1 [cmodes](#modes-1)
+	>	1. Contain 1 [cmodeset](#cmodeset)
 	</details>
 	<!-- #endregion -->
 
 ## Infos
 - 221: RPL_UMODEIS<br id="rpl_umodeis">
-	`nick " :" [ %x2b ] umodes`
+	`nick " :" [ %x2b ] umodeset`
 	<!-- #region: Explained ABNF notation -->
 	<details>
 	<summary>Explanations about the above notation</summary>
@@ -426,7 +468,21 @@ Here is a list of the different numeric replies that we will need.
 	>	1. Start with 1 [nick](#nickname)
 	>	1. Contain the string " :"
 	>	1. Contain 0 or 1 octet that has the value 0x2b (`+`)
-	>	1. Contain 1 [umodes](#modes)
+	>	1. Contain 1 [umodes](#umodeset)
+	</details>
+	<!-- #endregion -->
+	<br>
+- 324: RPL_CHANNELMODEIS<br id="rpl_channelmodeis">
+	`channel space mode space params`
+	<!-- #region: Explained ABNF notation -->
+	<details>
+	<summary>Explanations about the above notation</summary>
+
+	>	1. Start with 1 [channel](#name-1)
+	>	1. Contain 1 [space](#space)
+	>	1. Contain 1 [mode](#modes-1)
+	>	1. Contain 1 [space](#space)
+	>	1. Contain 1 [params](#parameters)
 	</details>
 	<!-- #endregion -->
 	<br>
@@ -450,6 +506,52 @@ Here is a list of the different numeric replies that we will need.
 	>	1. Start with 1 [channel](#name-1)
 	>	1. Contain the string " :"
 	>	1. Contain 1 [topic](#topic)
+	</details>
+	<!-- #endregion -->
+	<br>
+- 346: RPL_INVITELIST<br id="rpl_invitelist">
+	`channel space invitemask`
+	<!-- #region: Explained ABNF notation -->
+	<details>
+	<summary>Explanations about the above notation</summary>
+
+	>	1. Start with 1 [channel](#name-1)
+	>	1. Contain 1 [space](#space)
+	>	1. Contain 1 [invitemask](#umask)
+	</details>
+	<!-- #endregion -->
+	<br>
+- 347: RPL_ENDOFINVITELIST<br id="rpl_endofinvitelist">
+	`channel " :End of channel invite list"`
+	<!-- #region: Explained ABNF notation -->
+	<details>
+	<summary>Explanations about the above notation</summary>
+
+	>	1. Start with 1 [channel](#name-1)
+	>	1. Contain the string " :End of channel invite list"
+	</details>
+	<!-- #endregion -->
+	<br>
+- 367: RPL_BANLIST<br id="rpl_banlist">
+	`channel space banmask`
+	<!-- #region: Explained ABNF notation -->
+	<details>
+	<summary>Explanations about the above notation</summary>
+
+	>	1. Start with 1 [channel](#name-1)
+	>	1. Contain 1 [space](#space)
+	>	1. Contain 1 [banmask](#umask)
+	</details>
+	<!-- #endregion -->
+	<br>
+- 368: RPL_ENDOFBANLIST<br id="rpl_endofbanlist">
+	`channel " :End of channel ban list"`
+	<!-- #region: Explained ABNF notation -->
+	<details>
+	<summary>Explanations about the above notation</summary>
+
+	>	1. Start with 1 [channel](#name-1)
+	>	1. Contain the string " :End of channel ban list"
 	</details>
 	<!-- #endregion -->
 	<br>
@@ -518,6 +620,30 @@ Here is a list of the different numeric replies that we will need.
 	</details>
 	<!-- #endregion -->
 	<br>
+- 441: ERR_USERNOTINCHANNEL<br id="err_usernotinchannel">
+	`nick space channel " :They aren't on that channel"`
+	<!-- #region: Explained ABNF notation -->
+	<details>
+	<summary>Explanations about the above notation</summary>
+
+	> 1. Start with 1 [nick](#nickname)
+	> 1. Contain 1 [space](#space)
+	> 1. Contain 1 [channel](#name-1)
+	> 1. Contain the string " :They aren't on that channel"
+	</details>
+	<!-- #endregion -->
+	<br>
+- 442: ERR_NOTONCHANNEL<br id="err_notonchannel">
+	`channel " :You're not on that channel"`
+	<!-- #region: Explained ABNF notation -->
+	<details>
+	<summary>Explanations about the above notation</summary>
+
+	> 1. Start with 1 [channel](#name-1)
+	> 1. Contain the string " :You're not on that channel"
+	</details>
+	<!-- #endregion -->
+	<br>
 - 461: ERR_NEEDMOREPARAMS<br id="err_needmoreparams">
 	`command " :Not enough parameters"`
 	<!-- #region: Explained ABNF notation -->
@@ -549,6 +675,17 @@ Here is a list of the different numeric replies that we will need.
 	</details>
 	<!-- #endregion -->
 	<br>
+- 467: ERR_KEYSET<br id="err_keyset">
+	`channel " :Channel key already set"`
+	<!-- #region: Explained ABNF notation -->
+	<details>
+	<summary>Explanations about the above notation</summary>
+
+	> 1. Start with 1 [channel](#name-1)
+	> 1. Contain the string " :Channel key already set"
+	</details>
+	<!-- #endregion -->
+	<br>
 - 471: ERR_CHANNELISFULL<br id="err_channelisfull">
 	`channel " :Cannot join channel (+l)"`
 	<!-- #region: Explained ABNF notation -->
@@ -557,6 +694,18 @@ Here is a list of the different numeric replies that we will need.
 
 	>	1. Start with 1 [channel](#name-1)
 	>	1. Contain the string " :Cannot join channel (+l)"
+	</details>
+	<!-- #endregion -->
+	<br>
+- 472: ERR_UNKNOWNMODE<br id="err_unknownmode">
+	`cmode " :is unknown mode char to me for " channel`
+	<!-- #region: Explained ABNF notation -->
+	<details>
+	<summary>Explanations about the above notation</summary>
+
+	> 1. Start with 1 [cmode](#cmode)
+	> 1. Contain the string " :is unknown mode char to me for "
+	> 1. Contain 1 [channel](#name-1)
 	</details>
 	<!-- #endregion -->
 	<br>
@@ -590,6 +739,17 @@ Here is a list of the different numeric replies that we will need.
 	
 	> 1. Start with 1 [channel](#name-1)
 	> 1. Contain the string " :Cannot join channel (+k)"
+	</details>
+	<!-- #endregion -->
+	<br>
+- 482: ERR_CHANOPRIVSNEEDED<br id="err_chanoprivsneeded">
+	`channel " :You're not channel operator"`
+	<!-- #region: Explained ABNF notation -->
+	<details>
+	<summary>Explanations about the above notation</summary>
+	
+	> 1. Start with 1 [channel](#name-1)
+	> 1. Contain the string " :You're not channel operator"
 	</details>
 	<!-- #endregion -->
 	<br>
