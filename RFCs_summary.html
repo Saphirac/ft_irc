@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>RFCs summary</title>
+		<link rel="stylesheet" href="style.css"/>
+	</head>
+	<body>
+		<h1 id="table_of_content">Table of contents</h1>
+		<ul>
+			<li><a href="#table_of_contents">Table of contents</a></li>
+			<li><a href="#introduction">Introduction</a></li>
+			<li><a href="#server">Server</a>
+				<ul>
+					<li><a href="#server_name">Name</a></li>
+					<li><a href="#server_version">Version</a></li>
+				</ul>
+			</li>
+			<li><a href="#users">Users</a>
+				<ul>
+					<li><a href="#nickname">Nickname</a></li>
+					<li><a href="#hostname">Hostname</a></li>
+					<li><a href="#username">Username</a></li>
+					<li><a href="#user_modes">Modes</a></li>
+					<li><a href="#user_mask">Mask</a></li>
+				</ul>
+			</li>
+			<li><a href="#channels">Channels</a>
+				<ul>
+					<li><a href="#channel_name">Name</a></li>
+					<li><a href="#topic">Topic</a></li>
+					<li><a href="#channel_modes">Modes</a></li>
+				</ul>
+			</li>
+			<li><a href="#messages">Messages</a></li>
+				<ul>
+					<li><a href="#prefix">Prefix</a></li>
+					<li><a href="#command">Command</a></li>
+					<li><a href="#parameters">Parameters</a></li>
+				</ul>
+			<li><a href="#commands">Commands</a></li>
+			<li><a href="#numeric-replies">Numeric replies</a></li>
+				<ul>
+					<li><a href="#registration">Registration</a></li>
+					<li><a href="#infos">Infos</a></li>
+					<li><a href="#errors">Errors</a></li>
+				</ul>
+			<li><a href="#miscellaneaous_abnf_components">Miscellaneaous ABNF components</a></li>
+		</ul>
+
+		<h1 id="introduction">Introduction</h1>
+		<figure>
+			<figcaption>This file is a summary of:</figcaption>
+			<ul>
+				<li><a href="https://www.rfc-editor.org/rfc/pdfrfc/rfc2813.txt.pdf">RFC 2813</a> (Server Protocol)</li>
+				<li><a href="https://www.rfc-editor.org/rfc/pdfrfc/rfc2812.txt.pdf">RFC 2812</a> (Client Protocol)</li>
+				<li><a href="https://www.rfc-editor.org/rfc/pdfrfc/rfc2811.txt.pdf">RFC 2811</a> (Channel Management)</li>
+				<li><a href="https://www.rfc-editor.org/rfc/pdfrfc/rfc2810.txt.pdf">RFC 2810</a> (Architecture)</li>
+				<li><a href="https://www.rfc-editor.org/rfc/pdfrfc/rfc1459.txt.pdf">RFC 1459</a> (IRC Protocol)</li>
+			</ul>
+		</figure>
+		<p>
+			They are the RFCs that define the IRC protocol.<br>
+			In this summary, we will only cover the most important parts of the RFCs<br>
+			that are relevant to the implementation of our own IRC server.<br>
+			That means that everything related to the client side of the protocol<br>
+			and to the server-to-server communication will be voluntarily ignored.<br>
+			<br>
+			Note that we are using the
+			<a href="https://en.wikipedia.org/wiki/Augmented_Backus%E2%80%93Naur_form">
+				Augmented Backus–Naur form
+			</a>
+			to represent<br>
+			the grammar rules that apply to the different components of the IRC protocol.<br>
+			However, we also provided a more human-readable description for each rule.
+		</p>
+
+		<h1 id="server">Server</h1>
+		<figure>
+			<figcaption>The server must have:</figcaption>
+			<ul>
+				<li>a <a href="#server_name">name</a></li>
+				<li>a <a href="#server_version">version</a></li>
+			</ul>
+		</figure>
+
+		<h2 id="server_name">Name</h2>
+		<figure>
+			<figcaption>The server name must:</figcaption>
+			<ul>
+				<li>be at most 63 octets long.</li>
+				<li>be formated as follows:
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_server">
+								<b>server</b> = shortname *( %x2e shortname )
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_shortname">shortname</a></code></li>
+								<li>Contain 0 or more patterns, which must:
+									<ol>
+										<li>Start with 1 octet that has the value <code>0x2e</code> (<code>.</code>)</li>
+										<li>Contain 1 <code><a href="#abnf_shortname">shortname</a></code></li>
+									</ol>
+								</li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</li>
+			</ul>
+		</figure>
+
+		<h2 id="server_version">Version</h2>
+		<figure>
+			<figcaption>The server version must be formatted as follows:</figcaption>
+			<!-- #region: ABNF -->
+			<details>
+				<summary>
+				<code id="abnf_version">
+					<b>version</b> = 1*digit *( %x2e 1*digit )
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 or more <code><a href="#abnf_digit">digits</a></code></li>
+					<li>Contain 0 or more patterns, which must:
+						<ol>
+							<li>Start with 1 octet that has the value <code>0x2e</code> (<code>.</code>)</li>
+							<li>Contain 1 or more <code><a href="#abnf_digit">digits</a></code></li>
+						</ol>
+					</li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		</figure>
+
+		<h1 id="users">Users</h1>
+		<figure>
+			<figcaption>
+				For every user, the server must keep track of the following information about them:
+			</figcaption>
+			<ul>
+				<li>their <a href="#nickname">nickname</a></li>
+				<li>their <a href="#hostname">hostname</a></li>
+				<li>their <a href="#username">username</a></li>
+				<li>their <a href="#user_modes">modes</a></li>
+			</ul>
+		</figure>
+
+		<h2 id="nickname">Nickname</h2>
+		<p>
+			Nicknames are the names used by the users on the IRC network<br>
+			to identify themselves and each other, for example when you want<br>
+			to send a private message to someone, or to invite someone to a channel, etc...
+		</p>
+		<figure>
+			<figcaption>Every nickname must:</figcaption>
+			<ul>
+				<li>be unique</li>
+				<li>be at most 9 octets long.</li>
+				<li>be formatted as follows:
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_nick">
+								<b>nick</b> = ( letter / special ) *8( letter / digit / special / %x2d )
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>
+									Start with either 1 <code><a href="#abnf_letter">letter</a></code>
+									or 1 <code><a href="#abnf_special">special</a></code>
+								</li>
+								<li>
+									Contain 0 or more up to 8 <code><a href="#abnf_letter">letters</a></code>
+									and/or <code><a href="#abnf_digit">digits</a></code><br>
+									and/or <code><a href="#abnf_special">specials</a></code>
+									and/or octets that have the value <code>0x2d</code> (<code>-</code>)
+								</li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</li>
+			</ul>
+		</figure>
+
+		<h2 id="hostname">Hostname</h2>
+		<p>
+			Hostnames are the names of the hosts that the users are running on.<br>
+			For example, if a user is running on a computer named "mycomputer",<br>
+			then their hostname will be "mycomputer".<br>
+		</p>
+		<figure>
+			<figcaption>Every hostname must be formatted as follows:</figcaption>
+			<!-- #region: ABNF -->
+			<details>
+				<summary>
+					<code id="abnf_host">
+						<b>host</b> = shortname *( %x2e shortname )
+					</code>
+				</summary>
+				<blockquote>
+					<ol>
+						<li>Start with 1 <code><a href="#abnf_shortname">shortname</a></code></li>
+						<li>Contain 0 or more patterns, which must:
+							<ol>
+								<li>Start with 1 octet that has the value <code>0x2e</code> (<code>.</code>)</li>
+								<li>Contain 1 <code><a href="#abnf_shortname">shortname</a></code></li>
+							</ol>
+						</li>
+					</ol>
+				</blockquote>
+			</details>
+			<!-- #endregion -->
+		</figure>
+
+		<h2 id="username">Username</h2>
+		<p>
+			Usernames are the names of the users on their host.<br>
+			For example, if a user is logged as "John" on their computer,<br>
+			then their username will be "John".
+		</p>
+		<figure>
+			<figcaption>Every username must be formatted as follows:</figcaption>
+			<!-- #region: ABNF -->
+			<details>
+				<summary>
+					<code id="abnf_user">
+						<b>user</b> = 1*nolfcrspat
+					</code>
+				</summary>
+				<blockquote>
+					1 or more <code><a href="#abnf_nolfcrspat">nolfcrspat</a></code>
+				</blockquote>
+			</details>
+			<!-- #endregion -->
+		</figure>
+
+		<h2 id="user_modes">Modes</h2>
+		<p>
+			User modes are flags that indicate different states about the user.<br>
+			In messages sent and received by the server, user modes are represented by a single letter.
+		</p>
+		<figure>
+			<figcaption>Here is a list of the user modes that the server will support:</figcaption>
+			<ul>
+				<li><code>B</code> : bot</li>
+				<li><code>O</code> : local operator</li>
+				<li><code>a</code> : away</li>
+				<li><code>i</code> : invisible</li>
+				<li><code>w</code> : wallops listener</li>
+			</ul>
+		</figure>
+		<figure>
+			<figcaption>
+				Every single mode related to a user that is received or sent by the server<br>
+				must be formatted as follows:
+			</figcaption>
+			<!-- #region: ABNF -->
+			<details>
+				<summary>
+					<code id="abnf_umode">
+						<b>umode</b> = %x42 / %x4f / %x61 / %x69 / %x77
+					</code>
+				</summary>
+				<blockquote>
+					1 octet that has any value among the following:
+					<ul>
+						<li><code>0x42</code> (<code>B</code>)</li>
+						<li><code>0x4f</code> (<code>O</code>)</li>
+						<li><code>0x61</code> (<code>a</code>)</li>
+						<li><code>0x69</code> (<code>i</code>)</li>
+						<li><code>0x77</code> (<code>w</code>)</li>
+					</ul>
+				</blockquote>
+			</details>
+			<!-- #endregion -->
+		</figure>
+		<figure>
+			<figcaption>
+				Every set of modes related to a user that is received or sent by the server<br>
+				must be formatted as follows:
+			</figcaption>
+			<!-- #region: ABNF -->
+			<details>
+				<summary>
+					<code id="abnf_umode_set">
+						<b>umode-set</b> = *umode
+					</code>
+				</summary>
+				<blockquote>
+					0 or more <code><a href="#abnf_umode">umodes</a></code>
+				</blockquote>
+			</details>
+			<!-- #endregion -->
+		</figure>
+
+		<h2 id="user_mask">Mask</h2>
+		<p>A mask is a way to identify a user without any possible ambiguity.</p>
+		<figure>
+			<figcaption>
+				Every user mask that is received or sent by the server must be formatted as follows:
+			</figcaption>
+			<!-- #region: ABNF -->
+			<details>
+				<summary>
+					<code id="abnf_umask">
+						<b>umask</b> = nick %x21 user %x40 host
+					</code>
+				</summary>
+				<blockquote>
+					<ol>
+						<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+						<li>Contain 1 octet that has the value <code>0x21</code> (<code>!</code>)</li>
+						<li>Contain 1 <code><a href="#abnf_user">user</a></code></li>
+						<li>Contain 1 octet that has the value <code>0x40</code> (<code>@</code>)</li>
+						<li>Contain 1 <code><a href="#abnf_host">host</a></code></li>
+					</ol>
+				</blockquote>
+			</details>
+			<!-- #endregion -->
+		</figure>
+
+		<h1 id="channels">Channels</h1>
+		<figure>
+			<figcaption>
+				For every channel, the server must keep track of the following information about it:
+			</figcaption>
+			<ul>
+				<li>their <a href="#channel_name">name</a></li>
+				<li>their <a href="#topic">topic</a></li>
+				<li>their <a href="#channel_modes">modes</a></li>
+				<li>a <b>list of users</b> that are on that channel</li>
+			</ul>
+		</figure>
+
+		<h2 id="channel_name">Name</h2>
+		<figure>
+			<figcaption>Every channel name must:</figcaption>
+			<ul>
+				<li>be at most 50 octets long</li>
+				<li>be case-insensitive</li>
+				<li>be formatted as follows:
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_channel">
+								<b>channel</b> = ( %x23 / %x26 / %x2b / ( %x21 channelid ) ) chanstring [ %x3a chanstring ]
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with either 1 of the following:
+									<ul>
+										<li>1 octet that has any value among the following:
+											<ul>
+												<li><code>0x23</code> (<code>#</code>)</li>
+												<li><code>0x26</code> (<code>&</code>)</li>
+												<li><code>0x2b</code> (<code>+</code>)</li>
+											</ul>
+										</li>
+										<li>1 pattern, which must:
+											<ol>
+												<li>Start with 1 octet that has the value <code>0x21</code> (<code>!</code>)</li>
+												<li>Contain 1 <code><a href="#abnf_channelid">channelid</a></code></li>
+											</ol>
+										</li>
+									</ul>
+								</li>
+								<li>Contain 1 <code><a href="#abnf_chanstring">chanstring</a></code></li>
+								<li>Contain 0 or 1 pattern, which must:
+									<ol>
+										<li>Start with 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+										<li>Contain 1 <code><a href="#abnf_chanstring">chanstring</a></code></li>
+									</ol>
+								</li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</li>
+			</ul>
+		</figure>
+
+		<h2 id="topic">Topic</h2>
+		<p>
+			Topics are a short description about the channel. Most of the time,<br>
+			it describes the main subject that is discussed in the channel.
+		</p>
+		<figure>
+			<figcaption>Every channel topic must be formatted as follows:</figcaption>
+			<!-- #region: ABNF -->
+			<details>
+				<summary>
+					<code id="abnf_topic">
+						<b>topic</b> = *nolfcr
+					</code>
+				</summary>
+			
+				<blockquote>
+					0 or more <code><a href="#abnf_nolfcr">nolfcr</a></code>
+				</blockquote>
+			</details>
+			<!-- #endregion -->
+		</figure>
+
+		<h2 id="channel_modes">Modes</h2>
+		<p>
+			Channel modes are flags that indicate different states about the channel.<br>
+			Unlike the user modes, some channel modes may be related to some users,<br>
+			and not only to the channel itself. Therefore, channels may need to have extra fields<br>
+			to keep track of the users that are related to these modes (e.g. a list of channel operators)<br>
+			In messages sent and received by the server, channel modes are represented by a single letter.
+		</p>
+		<figure>
+			<figcaption>Here is a list of the channel modes that the server will support:</figcaption>
+			<ul>
+				<li><code>b</code> : set/remove ban mask</li>
+				<li><code>i</code> : invite-only</li>
+				<li><code>k</code> : key needed to join</li>
+				<li><code>l</code> : limit on number of users</li>
+				<li><code>n</code> : no messages to channel from clients on the outside</li>
+				<li><code>o</code> : give/take channel operator privileges</li>
+				<li><code>t</code> : topic settable by channel operators only</li>
+			</ul>
+		</figure>
+		<figure>
+			<figcaption>
+				Every single mode related to a channel that is received or sent by the server<br>
+				must be formatted as follows:
+			</figcaption>
+			<!-- #region: ABNF -->
+			<details>
+				<summary>
+					<code id="abnf_cmode">
+						<b>cmode</b> = %x62 / %x69 / %x6b / %x6c / %x6e / %x6f / %x74
+					</code>
+				</summary>
+			
+				<blockquote>
+					1 octet that has any value among the following:
+					<ul>
+						<li><code>0x62</code> (<code>b</code>)</li>
+						<li><code>0x69</code> (<code>i</code>)</li>
+						<li><code>0x6b</code> (<code>k</code>)</li>
+						<li><code>0x6c</code> (<code>l</code>)</li>
+						<li><code>0x6e</code> (<code>n</code>)</li>
+						<li><code>0x6f</code> (<code>o</code>)</li>
+						<li><code>0x74</code> (<code>t</code>)</li>
+					</ul>
+				</blockquote>
+			</details>
+			<!-- #endregion -->
+		</figure>
+		<figure>
+			<figcaption>
+				Every set of modes related to a channel that is received or sent by the server<br>
+				must be formatted as follows:
+			</figcaption>
+			<!-- #region: ABNF -->
+			<details>
+				<summary>
+					<code id="abnf_cmode_set">
+						<b>cmode-set</b> = *cmode
+					</code>
+				</summary>
+				<blockquote>
+					0 or more <code><a href="#abnf_cmode">cmodes</a></code>
+				</blockquote>
+			</details>
+			<!-- #endregion -->
+		</figure>
+
+		<h3 id="channel_mode_parameters">Parameters</h3>
+		<!-- TODO: Write this section + Write the ABNF of `cmode-params` -->
+
+		<h1 id="messages">Messages</h1>
+		<figure>
+			<figcaption>Every message sent and received by the server must:</figcaption>
+			<ul>
+				<li>be at most 512 octets long</li>
+				<li>be formatted as follows:
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_message">
+								<b>message</b> = [ %x3a prefix space ] command [ params ] crlf
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 0 or 1 pattern, which must:
+									<ol>
+										<li>Start with 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+										<li>Contain 1 <code><a href="#abnf_prefix">prefix</a></code></li>
+										<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+									</ol>
+								</li>
+								<li>Contain 1 <code><a href="#abnf_command">command</a></code></li>
+								<li>Contain 0 or 1 <code><a href="#abnf_params">params</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_crlf">crlf</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</li>
+			</ul>
+			<p>Empty messages are silently ignored.</p>
+		</figure>
+
+		<h2 id="prefix">Prefix</h2>
+		<p>
+			The purpose of the prefix is to explicitly indicate the true origin of a received message.<br>
+			However, the prefix is <mark>optionnal</mark>, and thus, if a received message has no prefix,<br>
+			it is assumed that its true origin is the connection from which it was received.<br>
+		</p>
+		<figure>
+			<figcaption>The prefix part of the message must be formatted as follows:</figcaption>
+			<!-- #region: ABNF -->
+			<details>
+				<summary>
+					<code id="abnf_prefix">
+						<b>prefix</b> = server / nick [ [ %x21 user ] %x40 host ] 
+					</code>
+				</summary>
+				<blockquote>
+					Either 1 <code><a href="#abnf_server">server</a></code>, or 1 pattern, which must:
+					<ol>
+						<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+						<li>Contain 0 or 1 pattern, which must:
+							<ol>
+								<li>Start with 0 or 1 pattern, which must:
+									<ol>
+										<li>Start with 1 octet that has the value <code>0x21</code> (<code>!</code>)</li>
+										<li>Contain 1 <code><a href="#abnf_user">user</a></code></li>
+									</ol>
+								</li>
+								<li>Contain 1 octet that has the value <code>0x40</code> (<code>@</code>)</li>
+								<li>Contain 1 <code><a href="#abnf_host">host</a></code></li>
+							</ol>
+						</li>
+					</ol>
+				</blockquote>
+			</details>
+			<!-- #endregion -->
+		</figure>
+		<p>
+			A prefix may be invalid for 3 different reasons, and in each case,<br>
+			the received message that contain this invalid prefix must be discarded,<br>
+			and an error must be sent back to the client from which the message was received.<br>
+		</p>
+		<figure>
+			<figcaption>A prefix is considered invalid when:</figcaption>
+			<ul>
+				<li>it has a format error</li>
+				<li>it identifies an unknown client</li>
+				<li>it identifies a known client that is not the one who sent the message<br>
+					In this last case, the server should drop the connection with the client who sent it
+				</li>
+			</ul>
+		</figure>
+
+		<h2 id="command">Command</h2>
+		<figure>
+			<figcaption>The command part of the message must be formatted as follows:</figcaption>
+			<!-- #region: ABNF -->
+			<details>
+				<summary>
+					<code id="abnf_command">
+						<b>command</b> = IRC-command / numeric-reply
+					</code>
+				</summary>
+				<blockquote>
+					Either 1 <code><a href="#abnf_irc_command">IRC-command</a></code>,
+					or 1 <code><a href="#abnf_numeric_reply">numeric-reply</a></code>
+				</blockquote>
+			</details>
+			<!-- #endregion -->
+		</figure>
+
+		<h2 id="parameters">Parameters</h2>
+		<figure>
+			<figcaption>
+				The parameters part of the message must be formatted as either one of the following:
+			</figcaption>
+			<!-- #region: Explained ABNF notation -->
+			<details>
+				<summary>
+					<code id="abnf_params">
+						<b>params</b> = *13( space middle ) [ space %x3a trailing ]<br>
+						<b>params</b> =/ 14( space middle ) [ space [ %x3a ] trailing ]
+					</code>
+				</summary>
+				<blockquote>
+					Either 1 of the following:
+					<ul>
+						<li>1 pattern, which must:
+							<ol>
+								<li>Start with 0 or more up to 13 patterns, which must:
+									<ol>
+										<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+										<li>Contain 1 <code><a href="#abnf_middle">middle</a></code></li>
+									</ol>
+								</li>
+								<li>Contain 0 or 1 pattern, which must:
+									<ol>
+										<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+										<li>Contain 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+										<li>Contain 1 <code><a href="#abnf_trailing">trailing</a></code></li>
+									</ol>
+								</li>
+							</ol>
+						</li>
+						<li>1 pattern, which must:
+							<ol>
+								<li>Start with 14 patterns, which must:
+									<ol>
+										<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+										<li>Contain 1 <code><a href="#abnf_middle">middle</a></code></li>
+									</ol>
+								</li>
+								<li>Contain 0 or 1 pattern, which must:
+									<ol>
+										<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+										<li>Contain 0 or 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+										<li>Contain 1 <code><a href="#abnf_trailing">trailing</a></code></li>
+									</ol>
+								</li>
+							</ol>
+						</li>
+					</ul>
+				</blockquote>
+			</details>
+			<!-- #endregion -->
+		</figure>
+
+		<h1 id="commands">Commands</h1>
+		<!-- TODO: Write this section + Write the ABNF of `irc-command` -->
+
+		<h1 id="numeric-replies">Numeric replies</h1>
+		<p>
+			Most of the messages that the server receives from a client<br>
+			generate a reply to that client from the server to indicate<br>
+			whether the operation succeeded or failed.
+		</p>
+		<figure>
+			<figcaption>
+				Every numeric reply that is received or sent by the server must be formatted as follows:
+			</figcaption>
+			<!-- #region: ABNF -->
+			<details>
+				<summary>
+					<code id="abnf_numeric_reply">
+						<b>numeric-reply</b> = 3digit
+					</code>
+				</summary>
+				<blockquote>
+					3 <code><a href="#abnf_digit">digits</a></code>
+				</blockquote>
+			</details>
+			<!-- #endregion -->
+		</figure>
+		<p>
+			Numeric replies are not allowed to originate from a client.<br>
+			Any such messages received by the server must be silently discarded.<br>
+			<br>
+			There is a list of the different numeric replies that we will need below.
+		</p>
+
+		<h2 id="registration">Registration</h2>
+		<table>
+			<tr>
+				<th>Number</th>
+				<th>Name</th>
+				<th>Parameters</th>
+			</tr>
+			<tr id="rpl_welcome">
+				<td>001</td>
+				<td><b>RPL_WELCOME</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_welcome">
+								":Welcome to the Internet Relay Network " nick %x21 user %x40 host
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with the string <code>":Welcome to the Internet Relay Network "</code></li>
+								<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
+								<li>Contain 1 octet that has the value <code>0x21</code> (<code>!</code>)</li>
+								<li>Contain 1 <code><a href="#abnf_user">user</a></code></li>
+								<li>Contain 1 octet that has the value <code>0x40</code> (<code>@</code>)</li>
+								<li>Contain 1 <code><a href="#abnf_host">host</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_yourhost">
+				<td>002</td>
+				<td><b>RPL_YOURHOST</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_yourhost">
+								":Your host is " server ", running version " version
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with the string <code>":Your host is "</code></li>
+								<li>Contain 1 <code><a href="#abnf_server">server</a></code></li>
+								<li>Contain the string <code>", running version "</code></li>
+								<li>Contain 1 <code><a href="#abnf_version">version</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_created">
+				<td>003</td>
+				<td><b>RPL_CREATED</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_created">
+								":This server was created " date
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with the string <code>":This server was created "</code></li>
+								<li>Contain 1 <code><a href="#abnf_date">date</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_myinfo">
+				<td>004</td>
+				<td><b>RPL_MYINFO</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_myinfo">
+								server space version space umode-set space cmode-set
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_server">server</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_version">version</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_umode_set">umode-set</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_cmode_set">cmode-set</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+		</table>
+
+		<h2 id="infos">Infos</h2>
+		<table>
+			<tr>
+				<th>Number</th>
+				<th>Name</th>
+				<th>Parameters</th>
+			</tr>
+			<tr id="rpl_umodeis">
+				<td>221</td>
+				<td><b>RPL_UMODEIS</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_umodeis">
+								nick " :" [ %x2b ] umode-set
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+								<li>Contain the string <code>" :"</code></li>
+								<li>Contain 0 or 1 octet that has the value <code>0x2b</code> (<code>+</code>)</li>
+								<li>Contain 1 <code><a href="#abnf_umode_set">umode-set</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_away">
+				<td>301</td>
+				<td><b>RPL_AWAY</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_away">
+								nick " :" away-message
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+								<li>Contain the string <code>" :"</code></li>
+								<li>Contain 1 <code><a href="#abnf_trailing">away-message</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_channelmodeis">
+				<td>324</td>
+				<td><b>RPL_CHANNELMODEIS</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_channelmodeis">
+								channel space cmode-set space cmode-params
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_cmode_set">cmode-set</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_cmode_params">cmode-params</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_notopic">
+				<td>331</td>
+				<td><b>RPL_NOTOPIC</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_notopic">
+								channel " :No topic is set"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :No topic is set"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_topic">
+				<td>332</td>
+				<td><b>RPL_TOPIC</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_topic">
+								channel " :" topic
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :"</code></li>
+								<li>Contain 1 <code><a href="#abnf_topic">topic</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_inviting">
+				<td>341</td>
+				<td><b>RPL_INVITING</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_inviting">
+								channel space nick
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_invitelist">
+				<td>346</td>
+				<td><b>RPL_INVITELIST</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_invitelist">
+								channel space invite-mask
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_invite_mask">invite-mask</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_endofinvitelist">
+				<td>347</td>
+				<td><b>RPL_ENDOFINVITELIST</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_endofinvitelist">
+								channel " :End of channel invite list"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :End of channel invite list"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_banlist">
+				<td>367</td>
+				<td><b>RPL_BANLIST</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_banlist">
+								channel space umask
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_umask">umask</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_endofbanlist">
+				<td>368</td>
+				<td><b>RPL_ENDOFBANLIST</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_endofbanlist">
+								channel " :End of channel ban list"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :End of channel ban list"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_motd">
+				<td>372</td>
+				<td><b>RPL_MOTD</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_motd">
+								":- " trailing
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Sart with the string <code>":- "</code></li>
+								<li>Contain 1 <code><a href="#abnf_trailing">trailing</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+			</tr>
+			<tr id="rpl_motdstart">
+				<td>375</td>
+				<td><b>RPL_MOTDSTART</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_motdstart">
+								":- " server " Message of the day - "
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with the string <code>":- "</code></li>
+								<li>Contain 1 <code><a href="#abnf_server">server</a></code></li>
+								<li>Contain the string <code>" Message of the day - "</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_endofmotd">
+				<td>376</td>
+				<td><b>RPL_ENDOFMOTD</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_endofmotd">
+								":End of MOTD command"
+							</code>
+						</summary>
+						<blockquote>
+							Match the string <code>":End of MOTD command"</code>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_youreoper">
+				<td>381</td>
+				<td><b>RPL_YOUREOPER</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_youreoper">
+								":You are now an IRC operator"
+							</code>
+						</summary>
+						<blockquote>
+							Match the string <code>":You are now an IRC operator"</code>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+		</table>
+
+		<h2 id="errors">Errors</h2>
+		<table>
+			<tr>
+				<th>Number</th>
+				<th>Name</th>
+				<th>Parameters</th>
+			</tr>
+			<tr id="err_nosuchnick">
+				<td>401</td>
+				<td><b>ERR_NOSUCHNICK</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_nosuchnick">
+								nick " :No such nick/channel"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+								<li>Contain the string <code>" :No such nick/channel"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_nosuchchannel">
+				<td>403</td>
+				<td><b>ERR_NOSUCHCHANNEL</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_nosuchchannel">
+								channel " :No such channel"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :No such channel"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_cannotsendtochan">
+				<td>404</td>
+				<td><b>ERR_CANNOTSENDTOCHAN</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_cannotsendtochan">
+								channel " :Cannot send to channel"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :Cannot send to channel"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_toomanychannels">
+				<td>405</td>
+				<td><b>ERR_TOOMANYCHANNELS</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_toomanychannels">
+								channel " :You have joined too many channels"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :You have joined too many channels"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_toomanytargets">
+				<td>407</td>
+				<td><b>ERR_TOOMANYTARGETS</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_toomanytargets">
+								target " :" error-code " recipients. " abort-message
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_target">target</a></code></li>
+								<li>Contain the string <code>" :"</code></li>
+								<li>Contain 1 <code><a href="#abnf_error_code">error-code</a></code></li>
+								<li>Contain the string <code>" recipients. "</code></li>
+								<li>Contain 1 <code><a href="#abnf_abort_message">abort-message</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_norecipient">
+				<td>411</td>
+				<td><b>ERR_NORECIPIENT</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_norecipient">
+								":No recipient given (" irc-command %x29
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with the string <code>":No recipient given ("</code></li>
+								<li>Contain 1 <code><a href="#abnf_irc_command">irc-command</a></code></li>
+								<li>Contain 1 octet that has the value <code>0x29</code> (<code>)</code>)</li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+			</tr>
+			<tr id="err_notexttosend">
+				<td>412</td>
+				<td><b>ERR_NOTEXTTOSEND</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_notexttosend">
+								":No text to send"
+							</code>
+						</summary>
+						<blockquote>
+							Match the string <code>":No text to send"</code>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_nonicknamegiven">
+				<td>431</td>
+				<td><b>ERR_NONICKNAMEGIVEN</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_nonicknamegiven">
+								":No nickname given"
+							</code>
+						</summary>
+						<blockquote>
+							Match the string <code>":No nickname given"</code>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_erroneusnickname">
+				<td>432</td>
+				<td><b>ERR_ERRONEUSNICKNAME</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_erroneusnickname">
+								nick " :Erroneous nickname"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+								<li>Contain the string <code>" :Erroneous nickname"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_nicknameinuse">
+				<td>433</td>
+				<td><b>ERR_NICKNAMEINUSE</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_nicknameinuse">
+								nick " :Nickname already in use"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+								<li>Contain the string <code>" :Nickname already in use"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_usernotinchannel">
+				<td>441</td>
+				<td><b>ERR_USERNOTINCHANNEL</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_usernotinchannel">
+								nick space channel " :They aren't on that channel"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :They aren't on that channel"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_notonchannel">
+				<td>442</td>
+				<td><b>ERR_NOTONCHANNEL</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_notonchannel">
+								channel " :You're not on that channel"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :You're not on that channel"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_useronchannel">
+				<td>443</td>
+				<td><b>ERR_USERONCHANNEL</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_useronchannel">
+								user space channel " :is already on channel"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_user">user</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :is already on channel"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_needmoreparams">
+				<td>461</td>
+				<td><b>ERR_NEEDMOREPARAMS</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_needmoreparams">
+								irc-command " :Not enough parameters"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_irc_command">irc-command</a></code></li>
+								<li>Contain the string <code>" :Not enough parameters"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_alreadyregistered">
+				<td>462</td>
+				<td><b>ERR_ALREADYREGISTERED</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_alreadyregistered">
+								":Unauthorized command (already registered)"
+							</code>
+						</summary>
+						<blockquote>
+							Match the string <code>":Unauthorized command (already registered)"</code>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_passwdmismatch">
+				<td>464</td>
+				<td><b>ERR_PASSWDMISMATCH</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_passwdmismatch">
+								":Password incorrect"
+							</code>
+						</summary>
+						<blockquote>
+							Match the string <code>":Password incorrect"</code>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_keyset">
+				<td>467</td>
+				<td><b>ERR_KEYSET</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_keyset">
+								channel " :Channel key already set"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :Channel key already set"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_channelisfull">
+				<td>471</td>
+				<td><b>ERR_CHANNELISFULL</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_channelisfull">
+								channel " :Cannot join channel (+l)"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :Cannot join channel (+l)"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_unknownmode">
+				<td>472</td>
+				<td><b>ERR_UNKNOWNMODE</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_unknownmode">
+								cmode " :is unknown mode char to me for " channel
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_cmode">cmode</a></code></li>
+								<li>Contain the string <code>" :is unknown mode char to me for "</code></li>
+								<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_inviteonlychan">
+				<td>473</td>
+				<td><b>ERR_INVITEONLYCHAN</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_inviteonlychan">
+								channel " :Cannot join channel (+i)"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :Cannot join channel (+i)"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_bannedfromchan">
+				<td>474</td>
+				<td><b>ERR_BANNEDFROMCHAN</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_bannedfromchan">
+								channel " :Cannot join channel (+b)"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :Cannot join channel (+b)"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_badchannelkey">
+				<td>475</td>
+				<td><b>ERR_BADCHANNELKEY</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_badchannelkey">
+								channel " :Cannot join channel (+k)"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :Cannot join channel (+k)"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_badchanmask">
+				<td>476</td>
+				<td><b>ERR_BADCHANMASK</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_badchanmask">
+								channel " :Bad Channel Mask"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :Bad Channel Mask"</code></li>
+							</ol>
+						</blockquote>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_chanoprivsneeded">
+				<td>482</td>
+				<td><b>ERR_CHANOPRIVSNEEDED</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_chanoprivsneeded">
+								channel " :You're not channel operator"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code>channel</code></li>
+								<li>Contain the string <code>" :You're not channel operator"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_nooperhost">
+				<td>491</td>
+				<td><b>ERR_NOOPERHOST</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_nooperhost">
+								":No O-lines for your host"
+							</code>
+						</summary>
+						<blockquote>
+							Match the string <code>":No O-lines for your host"</code>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_umodeunknownflag">
+				<td>501</td>
+				<td><b>ERR_UMODEUNKNOWNFLAG</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_umodeunknownflag">
+								":Unknown MODE flag"
+							</code>
+						</summary>
+						<blockquote>
+							Match the string <code>":Unknown MODE flag"</code>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_userdontmatch">
+				<td>502</td>
+				<td><b>ERR_USERSDONTMATCH</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_err_userdontmatch">
+								":Cannot change mode for other users"
+							</code>
+						</summary>
+						<blockquote>
+							Match the string <code>":Cannot change mode for other users"</code>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+		</table>
+
+		<h1 id="miscellaneaous_abnf_components">Miscellaneaous ABNF components</h1>
+		<!-- #region: ABNF of `space` -->
+		<details>
+			<summary>
+				<code id="abnf_space">
+					<b>space</b> = %x20
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has the value <code>0x20</code> (<code> </code>)
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `crlf` -->
+		<details>
+			<summary>
+				<code id="abnf_crlf">
+					<b>crlf</b> = %x0d.0a
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has the value <code>0x0d</code> (<code>\r</code>) followed by
+				1 octet that has the value <code>0x0a</code> (<code>\n</code>)
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `lowercase` -->
+		<details>
+			<summary>
+				<code id="abnf_lowercase">
+					<b>lowercase</b> = %x61-7a
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has any value between <code>0x61</code> (<code>a</code>)
+				and <code>0x7a</code> (<code>z</code>) both included
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `uppercase` -->
+		<details>
+			<summary>
+				<code id="abnf_uppercase">
+					<b>uppercase</b> = %x41-5a
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has any value between <code>0x41</code> (<code>A</code>)
+				and <code>0x5a</code> (<code>Z</code>) both included
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `letter` -->
+		<details>
+			<summary>
+				<code id="abnf_letter">
+					<b>letter</b> = lowercase / uppercase
+				</code>
+			</summary>
+			<blockquote>
+				Either 1 <a href="#lowercase">lowercase</a> or 1 <a href="#uppercase">uppercase</a>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `digit` -->
+		<details>
+			<summary>
+				<code id="abnf_digit">
+					<b>digit</b> = %x30-39
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has any value between <code>0x30</code> (<code>0</code>)
+				and <code>0x39</code> (<code>9</code>) both included
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `special` -->
+		<details>
+			<summary>
+				<code id="abnf_special">
+					<b>special</b> = %x5b-60 / %x7b-7d
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has any value among the following:
+				<ul>
+					<li><code>0x5b</code> (<code>[</code>)</li>
+					<li><code>0x5c</code> (<code>\</code>)</li>
+					<li><code>0x5d</code> (<code>]</code>)</li>
+					<li><code>0x5e</code> (<code>^</code>)</li>
+					<li><code>0x5f</code> (<code>_</code>)</li>
+					<li><code>0x60</code> (<code>`</code>)</li>
+					<li><code>0x7b</code> (<code>{</code>)</li>
+					<li><code>0x7c</code> (<code>|</code>)</li>
+					<li><code>0x7d</code> (<code>}</code>)</li>
+				</ul>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `nolfcr` -->
+		<details>
+			<summary>
+				<code id="abnf_nolfcr">
+					<b>nolfcr</b> = %x01-09 / %x0b-0c / %x0e-ff
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has any value except:
+				<ul>
+					<li><code>0x00</code> (<code>\0</code>)</li>
+					<li><code>0x0a</code> (<code>\n</code>)</li>
+					<li><code>0x0d</code> (<code>\r</code>)</li>
+				</ul>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `nolfcrsp` -->
+		<details>
+			<summary>
+				<code id="abnf_nolfcrsp">
+					<b>nolfcrsp</b> = %x01-09 / %x0b-0c / %x0e-1f / %x21-ff
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has any value except:
+				<ul>
+					<li><code>0x00</code> (<code>\0</code>)</li>
+					<li><code>0x0a</code> (<code>\n</code>)</li>
+					<li><code>0x0d</code> (<code>\r</code>)</li>
+					<li><code>0x20</code> (<code> </code>)</li>
+				</ul>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `nolfcrspcl -->
+		<details>
+			<summary>
+				<code id="abnf_nolfcrspcl">
+					<b>nolfcrspcl</b> = %x01-09 / %x0b-0c / %x0e-1f / %x21-39 / %x3b-ff
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has any value except:
+				<ul>
+					<li><code>0x00</code> (<code>\0</code>)</li>
+					<li><code>0x0a</code> (<code>\n</code>)</li>
+					<li><code>0x0d</code> (<code>\r</code>)</li>
+					<li><code>0x20</code> (<code> </code>)</li>
+					<li><code>0x3a</code> (<code>:</code>)</li>
+				</ul>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `nolfcrspat -->
+		<details>
+			<summary>
+				<code id="abnf_nolfcrspat">
+					<b>nolfcrspat</b> = %x01-09 / %x0b-0c / %x0e-1f / %x21-3f / %x41-ff
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has any value except:
+				<ul>
+					<li><code>0x00</code> (<code>\0</code>)</li>
+					<li><code>0x0a</code> (<code>\n</code>)</li>
+					<li><code>0x0d</code> (<code>\r</code>)</li>
+					<li><code>0x20</code> (<code> </code>)</li>
+					<li><code>0x40</code> (<code>@</code>)</li>
+				</ul>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `year` -->
+		<details>
+			<summary>
+				<code id="abnf_year">
+					<b>year</b> = 1*digit
+				</code>
+			</summary>
+			<blockquote>
+				1 or more <code><a href="#digit">digits</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `month` -->
+		<details>
+			<summary>
+				<code id="abnf_month">
+					<b>month</b> = %x30 %x31-39 / %x31 %x30-32
+				</code>
+			</summary>
+			<blockquote>
+				Either 1 of the following:
+				<ul>
+					<li>
+						1 octet that has the value <code>0x30</code> (<code>0</code>) followed by 1 octet<br>
+						that has any value between <code>0x31</code> (<code>1</code>)
+						and <code>0x39</code> (<code>9</code>) both included
+					</li>
+					<li>
+						1 octet that has the value <code>0x31</code> (<code>1</code>) followed by 1 octet<br>
+						that has any value between <code>0x30</code> (<code>0</code>)
+						and <code>0x32</code> (<code>2</code>) both included
+					</li>
+				</ul>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `day` -->
+		<details>
+			<summary>
+				<code id="abnf_day">
+					<b>day</b> = %x30 %x31-39 / %x31-32 %x30-39 / %x33 %x30-31
+				</code>
+			</summary>
+			<blockquote>
+				Either 1 of the following:
+				<ul>
+					<li>
+						1 octet that has the value <code>0x30</code> (<code>0</code>) followed by 1 octet<br>
+						that has any value between <code>0x31</code> (<code>1</code>)
+						and <code>0x39</code> (<code>9</code>) both included
+					</li>
+					<li>
+						1 octet that has either the value <code>0x31</code> (<code>1</code>)
+						or the value <code>0x32</code> (<code>2</code>) followed by 1 octet<br>
+						that has any value between <code>0x30</code> (<code>0</code>)
+						and <code>0x39</code> (<code>9</code>) both included
+					</li>
+					<li>
+						1 octet that has the value <code>0x33</code> (<code>3</code>) followed by 1 octet<br>
+						that has any value between <code>0x30</code> (<code>0</code>)
+						and <code>0x31</code> (<code>1</code>) both included
+					</li>
+				</ul>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `shortname` -->
+		<details>
+			<summary>
+				<code id="abnf_shortname">
+					<b>shortname</b> = ( letter / digit ) *( letter / digit / %x2d )
+			</summary>
+			<blockquote>
+				<ol>
+					<li>
+						Start with either 1 <code><a href="#letter">letter</a></code>
+						or 1 <code><a href="#digit">digit</a></code>
+					</li>
+					<li>
+						Contain 0 or more <code><a href="#letter">letters</a></code>
+						and/or <code><a href="#digit">digits</a></code><br>
+						and/or octets that have the value <code>0x2d</code> (<code>-</code>)
+					</li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `channelid` -->
+		<details>
+			<summary>
+				<code id="abnf_channelid">
+					<b>channelid</b> = 5( uppercase / digit )
+				</code>
+			</summary>
+			<blockquote>
+				5 <code><a href="#abnf_uppercase">uppercase</a></code>
+				and/or <code><a href="#abnf_digit">digit</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `chanstring` -->
+		<details>
+			<summary>
+				<code id="abnf_chanstring">
+					<b>chanstring</b> = *( %x01-06 / %x08-09 / %x0b-0c / %x0e-1f / %x21-2b / %x2d-39 / %x3b-ff )
+				</code>
+			</summary>
+			<blockquote>
+				0 or more octets that have any value except:
+				<ul>
+					<li><code>0x00</code> (<code>\0</code>)</li>
+					<li><code>0x07</code> (<code>\a</code>)</li>
+					<li><code>0x0a</code> (<code>\n</code>)</li>
+					<li><code>0x0d</code> (<code>\r</code>)</li>
+					<li><code>0x20</code> (<code> </code>)</li>
+					<li><code>0x2c</code> (<code>,</code>)</li>
+					<li><code>0x3a</code> (<code>:</code>)</li>
+				</ul>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `middle` -->
+		<details>
+			<summary>
+				<code id="abnf_middle">
+					<b>middle</b> = nolfcrspcl *nolfcrsp
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_nolfcrspcl">nolfcrspcl</a></code></li>
+					<li>Contain 0 or more <code><a href="#abnf_nolfcrsp">nolfcrsp</a></code></li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `trailing` -->
+		<details>
+			<summary>
+				<code id="abnf_trailing">
+					<b>trailing</b> = *nolfcr
+				</code>
+			</summary>
+			<blockquote>
+				0 or more <code><a href="#abnf_nolfcr">nolfcr</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `date` -->
+		<details>
+			<summary>
+				<code id="abnf_date">
+					<b>date</b> = year %x2d month %x2d day
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_year">year</a></code></li>
+					<li>Contain 1 octet that has the value <code>0x2d</code> (<code>-</code>)</li>
+					<li>Contain 1 <code><a href="#abnf_month">month</a></code></li>
+					<li>Contain 1 octet that has the value <code>0x2d</code> (<code>-</code>)</li>
+					<li>Contain 1 <code><a href="#abnf_day">day</a></code></li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+	</body>
+</html>
