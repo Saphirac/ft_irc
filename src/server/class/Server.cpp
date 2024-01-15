@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2023/11/28 18:12:18 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2023/12/23 02:33:14 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,14 @@ sockaddr_in	&Server::getSockAddr() const
 {
 	if (DEBUG)
 		std::cout << "getSockAddr() member function of server called\n";
-	return this->sock_addr;
+	return this->_sock_addr;
+}
+
+socklen_t	&Server::getSockLen() const
+{
+	if (DEBUG)
+		std::cout << "getSockLen() member function of server called\n";
+	return this->_addr_len;
 }
 
 std::string const	&Server::getPassword() const
@@ -104,7 +111,14 @@ void	Server::setSockAddr(sockaddr_in const &addr)
 {
 	if (DEBUG)
 		std::cout << "setSockAddr() member function of server called\n";
-	this->sock_addr = addr;
+	this->_sock_addr = addr;
+}
+
+void	Server::setSockLen(size_t const &socklen)
+{
+	if (DEBUG)
+		std::cout << "setSockLen() member function of server called\n";
+	this->_addr_len = sizeof(this->_sock_addr);
 }
 
 void	Server::setPassword(std::string const &password)

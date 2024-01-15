@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/26 15:55:39 by mcourtoi          #+#    #+#             */
-/*   Updated: 2023/11/28 18:58:24 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2023/12/23 02:37:56 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <cerrno>
 #include <sys/types.h>
 #include "irc.hpp"
+#include "Server.hpp"
 
 /**
  * @brief Create a socket object
@@ -62,6 +63,14 @@ sockaddr_in	bind_assign_sockaddr(int fd_socket, int chosen_addr)
 	return sock_addr;
 }
 
+void	send_welcome_message(int connection)
+{
+	std::string response;
+
+	response = "NOTICE AUTH :*** Processing connection to MyServer"
+	send(connection, response.c_str(), response.size(), 0);
+}
+
 void	read_and_respond(int connection)
 {
 	std::string buffer(100, '\0');
@@ -84,29 +93,38 @@ void	read_and_respond(int connection)
 		}
 
 		buffer[bytes_read] = '\0'; // Assurer la terminaison de la chaîne
-		buffer.resize(bytes_read);
-		if (trim(buffer) == "quit")
+		buffer = trim(buffer);
+		if (buffer == "quit")
 			return;
+		std::cout << buffer << '\n';
+		send_welcome_message(connection);
+		
 		buffer.assign(100, '\0');
-
-		std::string response = "got it\n";
-		send(connection, response.c_str(), response.size(), 0);
 	}
 }
 
-void	create_server(int chosen_addr)
+void	init_server(int chosen_addr, Server *myserver)
 {
-	int	fd_socket = create_socket();
-	sockaddr_in	sock_addr = bind_assign_sockaddr(fd_socket, chosen_addr);
+	myserver->setPort(chosen_addr);
+	myserver->setSocket(create_socket());
+	myserver->setSockAddr(bind_assign_sockaddr(fd_socket, myserver->getPort()));
+	myserver->setSockLen();
+	myserver->setName("MyServer");
+}
 
-	if (listen(fd_socket, 10) < 0) 
+Server	*create_server(int chosen_addr)
+{
+	new Server	*myserver;
+
+	if (listen(myserver->getSocket(), 10) < 0) 
 	{
 		std::cout << "Failed to listen on socket. errno: " << errno << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	socklen_t	addr_len = sizeof(sock_addr);
 
-	int connection = accept(fd_socket, (struct sockaddr*)&sock_addr, (socklen_t*)&addr_len);
+	int connection = accept(myserver->getSocket(),
+			(struct sockaddr*)&myserver->getSockAddr(),
+			(socklen_t*)&myserver->getSockLen());
 
 	if (connection < 0)
 	{
