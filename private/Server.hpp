@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 16:45:32 by mcourtoi          #+#    #+#             */
-/*   Updated: 2023/12/23 02:33:30 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/15 16:03:19 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,9 @@
 //# include "Client.hpp"
 # include <sys/types.h>
 # include <netinet/in.h>
+
+class Client;
+class Channel;
 
 // Class //
 
@@ -33,6 +36,7 @@ class	Server
 {
 private:
 
+	std::string	_name;
 	int	_ip;
 	int	_port;
 	int	_socket;
@@ -48,6 +52,7 @@ public:
 	~Server();
 
 	// Getters //
+	std::string const	&getName() const;
 	int	getIp() const;
 	int	getPort() const;
 	int	getSocket() const;
@@ -58,6 +63,7 @@ public:
 	std::vector<Channel*> const	&getChannels() const;
 
 	// Setters //
+	void	setName(std::string const &name);
 	void	setIp(int const ip);
 	void	setPort(int const port);
 	void	setSocket(int const socket);
@@ -70,7 +76,7 @@ public:
 };
 
 // Tests //
-void	create_server(int chosen_addr);
+Server	*create_server(int chosen_addr, std::string password);
 
 
 #endif

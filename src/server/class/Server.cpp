@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2023/12/23 02:33:14 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/15 16:06:39 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,13 @@ Server::~Server()
 
 // Getters //
 
+std::string const	&Server::getName() const
+{
+	if (DEBUG)
+		std::cout << "getName() member function of server called\n";
+	return this->_name;
+}
+
 int	Server::getIp() const
 {
 	if (DEBUG)
@@ -42,21 +49,21 @@ int	Server::getPort() const
 	return this->_port;
 }
 
-int const	Server::getSocket() const
+int	Server::getSocket() const
 {
 	if (DEBUG)
 		std::cout << "getSocket() member function of server called\n";
 	return this->_socket;
 }
 
-sockaddr_in	&Server::getSockAddr() const
+sockaddr_in const	&Server::getSockAddr() const
 {
 	if (DEBUG)
 		std::cout << "getSockAddr() member function of server called\n";
 	return this->_sock_addr;
 }
 
-socklen_t	&Server::getSockLen() const
+socklen_t const	&Server::getSockLen() const
 {
 	if (DEBUG)
 		std::cout << "getSockLen() member function of server called\n";
@@ -86,6 +93,13 @@ std::vector<Channel *> const	&Server::getChannels() const
 
 // Setters //
 
+void	Server::setName(std::string const &name)
+{
+	if (DEBUG)
+		std::cout << "setName() member function of server called\n";
+	this->_name = name;
+}
+
 void	Server::setIp(int const ip)
 {
 	if (DEBUG)
@@ -114,7 +128,7 @@ void	Server::setSockAddr(sockaddr_in const &addr)
 	this->_sock_addr = addr;
 }
 
-void	Server::setSockLen(size_t const &socklen)
+void	Server::setSockLen()
 {
 	if (DEBUG)
 		std::cout << "setSockLen() member function of server called\n";

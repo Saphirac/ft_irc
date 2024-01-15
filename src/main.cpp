@@ -6,17 +6,18 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2023/11/28 18:13:02 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/15 16:09:40 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "irc.hpp"
 #include <cstdlib>
+#include "Server.hpp"
 
 int main(int ac, char **av)
 {
-	if (ac != 2)
+	if (ac != 3)
 		return 1;
-	create_server(atoi(av[1]));
+	create_server(atoi(av[1]), std::string(av[2]));
 	return 0;
 }

@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2023/11/28 18:17:10 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/01/15 16:04:13 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,6 +36,7 @@ PRV_DIR		=	private
 SRC			=							\
 				${addprefix server/,	\
 					${addprefix class/,	\
+						Server.cpp		\
 					}					\
 					server.cpp			\
 				}						\
