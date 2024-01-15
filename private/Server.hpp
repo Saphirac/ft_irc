@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 16:45:32 by mcourtoi          #+#    #+#             */
-/*   Updated: 2023/11/28 18:16:18 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2023/12/23 02:33:30 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ private:
 	int	_port;
 	int	_socket;
 	sockaddr_in	_sock_addr;
+	socklen_t	_addr_len;
 	std::string	_password;
 	std::vector<Client *>	_clients;
 	std::vector<Channel *>	_channels;
@@ -52,6 +53,7 @@ public:
 	int	getSocket() const;
 	sockaddr_in const	&getSockAddr() const;
 	std::string const	&getPassword() const;
+	socklen_t const	&getSockLen() const;
 	std::vector<Client*> const	&getClients() const;
 	std::vector<Channel*> const	&getChannels() const;
 
@@ -60,6 +62,7 @@ public:
 	void	setPort(int const port);
 	void	setSocket(int const socket);
 	void	setSockAddr(sockaddr_in const &addr);
+	void	setSockLen();
 	void	setPassword(std::string const &password);
 	void	setClients(std::vector<Client*> const &clients);
 	void	setChannels(std::vector<Channel*> const &channels);

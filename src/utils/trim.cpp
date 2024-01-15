@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 16:38:54 by mcourtoi          #+#    #+#             */
-/*   Updated: 2023/11/28 18:34:29 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2023/12/09 17:36:58 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,6 @@ std::string trim(std::string const &str)
 	std::string::size_type start = str.find_first_not_of(" \t\r\n");
 	std::string::size_type end = str.find_last_not_of(" \t\r\n");
 
-	std::cout << "start : [" << start << "]\n";
-	std::cout << "end : [" << end << "]\n";
 	if (start == std::string::npos || end == std::string::npos)
 		return "";
 
