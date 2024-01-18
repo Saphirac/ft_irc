@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 16:45:32 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/15 16:03:19 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/19 21:40:46 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,10 +45,24 @@ private:
 	std::string	_password;
 	std::vector<Client *>	_clients;
 	std::vector<Channel *>	_channels;
+	int	_epoll_socket;
+	struct epoll_event	_server_event;
+	
+	class ProblemWithSocket : public std::exception {
+	public:
+	virtual const char* what() const noexcept override {
+		return "Problem with socket"; }
+	};
+
+	class ProblemWithSockAddr : public std::exception {
+	public:
+	virtual const char* what() const noexcept override {
+		return "Problem with SockAddr structure creation / assignation"; }
+	};
 
 public:
 
-	Server(int const port, std::string const password);
+	Server(int const port, std::string const password, std::string const name);
 	~Server();
 
 	// Getters //
@@ -61,6 +75,8 @@ public:
 	socklen_t const	&getSockLen() const;
 	std::vector<Client*> const	&getClients() const;
 	std::vector<Channel*> const	&getChannels() const;
+	int	getEpollSocket() const;
+	struct epoll_event	getEpollEvent() const;
 
 	// Setters //
 	void	setName(std::string const &name);
@@ -72,6 +88,14 @@ public:
 	void	setPassword(std::string const &password);
 	void	setClients(std::vector<Client*> const &clients);
 	void	setChannels(std::vector<Channel*> const &channels);
+	void	setEpollSocket();
+	void	setEpollEvent();
+
+	// Others
+
+	int	create_and_set_socket();
+	sockaddr_in	bind_assign_sockaddr();
+	void	init_server();
 	
 };
 

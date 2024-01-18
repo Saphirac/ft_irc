@@ -6,15 +6,16 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/15 16:06:39 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/19 21:27:28 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-Server::Server(int const port, std::string const password) : 
+Server::Server(int const port, std::string const password, std::string const name) : 
 _port(port),
-_password(password)
+_password(password),
+_name(name)
 {
 	if (DEBUG)
 		std::cout << "Server constructor called\n";
@@ -91,6 +92,13 @@ std::vector<Channel *> const	&Server::getChannels() const
 	return this->_channels;
 }
 
+int	Server::getEpollSocket() const
+{
+	if (DEBUG)
+		std::cout << "getEpollSocket() member function of server called\n";
+	return this->_epoll_socket;
+}
+
 // Setters //
 
 void	Server::setName(std::string const &name)
@@ -154,4 +162,53 @@ void	Server::setChannels(std::vector<Channel*> const &channels)
 	if (DEBUG)
 		std::cout << "setChannels() member function of server called\n";
 	this->_channels = channels;
+}
+
+void	Server::setEpollSocket(int fd)
+{
+	if (DEBUG)
+		std::cout << "setEpollSocket() member function of server called\n";
+	this->_epoll_socket = fd;
+}
+
+/**
+ * @brief Create a socket object
+ * 
+ * @todo create an exception to be thrown for more proper use
+ * 
+ * @return socket create / if failure exit with EXIT_FAILURE
+ */
+
+int	Server::create_and_set_socket()
+{
+	this->_socket = socket(AF_INET, SOCK_STREAM, 0);
+	if (this->_socket == -1)
+		throw Server::ProblemWithSocket();
+	return fd_socket;
+}
+
+/**
+ * @brief create a struct sockaddr to listen to chosen port on any addresses  
+ * 
+ * @param fd_socket 
+ * @return sockaddr_in& 
+ */
+sockaddr_in	Server::bind_assign_sockaddr()
+{
+	sockaddr_in	sock_addr;
+	sock_addr.sin_family = AF_INET;
+	sock_addr.sin_port = htons(this->_port); 
+	sock_addr.sin_addr.s_addr = INADDR_ANY;
+
+	if (bind(this->_socket, (struct sockaddr *)&sock_addr, sizeof(sock_addr)) == -1)
+		throw Server::ProblemWithSockAddr();
+	this->_sock_addr = sock_addr;
+	return sock_addr;
+}
+
+void	Server::init_server()
+{
+	this->create_and_set_socket();
+	this->bind_assign_sockaddr();
+	this->setSockLen();
 }

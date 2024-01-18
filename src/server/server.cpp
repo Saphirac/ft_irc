@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/26 15:55:39 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/15 16:36:53 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/19 21:39:54 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,48 +20,8 @@
 #include <cerrno>
 #include <sys/types.h>
 #include "irc.hpp"
+#include <sys/epoll.h>
 #include "Server.hpp"
-
-/**
- * @brief Create a socket object
- * 
- * @todo create an exception to be thrown for more proper use
- * 
- * @return socket create / if failure exit with EXIT_FAILURE
- */
-
-int	create_socket()
-{
-	int fd_socket = socket(AF_INET, SOCK_STREAM, 0);
-	if (fd_socket == -1)
-	{
-		std::cerr << "Failed to create socket. errno: " << errno << std::endl;
-		// TODO: Change this exit with an exception
-		exit (EXIT_FAILURE);
-	}
-	return fd_socket;
-}
-
-/**
- * @brief create a struct sockaddr to listen to chosen port on any addresses  
- * 
- * @param fd_socket 
- * @return sockaddr_in& 
- */
-sockaddr_in	bind_assign_sockaddr(int fd_socket, int chosen_addr)
-{
-	sockaddr_in	sock_addr;
-	sock_addr.sin_family = AF_INET;
-	sock_addr.sin_port = htons(chosen_addr); 
-	sock_addr.sin_addr.s_addr = INADDR_ANY;
-
-	if (bind(fd_socket, (struct sockaddr *)&sock_addr, sizeof(sock_addr)) == -1)
-	{
-		std::cerr << "Failed to bind address. errno: " << errno << std::endl;
-		exit (EXIT_FAILURE);
-	}
-	return sock_addr;
-}
 
 void	send_welcome_message(int connection)
 {
@@ -82,6 +42,26 @@ void	send_welcome_message(int connection)
 	// send welcome msg 04
 	response = ":ircserv 004 mcourtoi :ircserv 1.0 -none- itkol\r\n";
 	send(connection, response.c_str(), response.size(), 0);
+}
+
+int	create_epoll()
+{
+	int	epoll_fd = epoll_create1(0);
+	if (epoll_fd == -1)
+	{	
+		std::cerr << "Problem with epoll fd creation." << std::endl;
+		exit (EXIT_FAILURE);
+	}
+	return epoll_fd;
+}
+
+void	ctrl_epoll(int epoll_fd, Server *myserver)
+{
+	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, myserver->getSocket(), myserver->getServerEvent()) == -1)
+	{
+		std::cerr << "Problem with error_ctl()." << std::endl;
+		exit (EXIT_FAILURE);
+	}
 }
 
 void	read_and_respond(int connection)
@@ -116,21 +96,11 @@ void	read_and_respond(int connection)
 	}
 }
 
-void	init_server(int chosen_addr, Server *myserver)
-{
-	myserver->setPort(chosen_addr);
-	myserver->setSocket(create_socket());
-	myserver->setSockAddr(bind_assign_sockaddr(myserver->getSocket(), myserver->getPort()));
-	myserver->setSockLen();
-	myserver->setName("MyServer");
-}
-
 Server	*create_server(int chosen_addr, std::string password)
 {
-	Server *myserver = new Server(chosen_addr, password);
+	Server *myserver = new Server(chosen_addr, password, "MyServer");
 
-	std::cout << "hello\n";
-	init_server(chosen_addr, myserver);
+	myserver->init_server();
 	if (listen(myserver->getSocket(), 10) < 0) 
 	{
 		std::cout << "Failed to listen on socket. errno: " << errno << std::endl;
