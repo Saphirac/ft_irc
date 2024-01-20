@@ -3,16 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   irc.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2023/11/24 19:32:51 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/20 03:59:51 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef IRC
-# define IRC
+#ifndef IRC_HPP
+# define IRC_HPP
 
 # include <iostream>
+
+int mainProgram(void);
 
 #endif
