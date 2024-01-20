@@ -23,8 +23,7 @@ LIB_DIR		=	lib
 #######################################
 #              LIBRARIES              #
 #######################################
-FT_IRC_A				=	ft_irc.a
-FT_IRC_A				:=	${addprefix ${LIB_DIR}/, ${FT_IRC_A}}
+FT_IRC_A				=	libirc.a
 
 
 ######################################
@@ -33,13 +32,22 @@ FT_IRC_A				:=	${addprefix ${LIB_DIR}/, ${FT_IRC_A}}
 SRC         =                           \
                 main.cpp
 
+LIB_SRC		= 	\
+				${addprefix ${LIB_DIR}/, \
+					hello.cpp \
+				}
+
 ######################################
 #            OBJECT FILES            #
 ######################################
 OBJ         =   ${SRC:.cpp=.o}
 OBJ         :=  ${addprefix ${OBJ_DIR}/, ${OBJ}}
 
+LIB_OBJ		=	${LIB_SRC:.cpp=.o}
+LIB_OBJ		:=	${addprefix ${OBJ_DIR}/, ${LIB_OBJ}}
+
 DEP         =   ${OBJ:.o=.d}
+LIB_DEP		=	${LIB_OBJ:.o=.d}
 
 #######################################
 #                FLAGS                #
@@ -59,23 +67,20 @@ endif
 #######################################
 #                RULES                #
 #######################################
-${NAME}: ${OBJ}
-	${LINK} $^ ${OUTPUT_OPTION}
-
 all: ${NAME}
 
--include ${DEP}
+${NAME}: ${OBJ} ${FT_IRC_A}
+	${LINK} $^ ${OUTPUT_OPTION}
+
+-include ${DEP} ${LIB_DEP}
 
 ${OBJ_DIR}/%.o: 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/%.cpp
 	@${MKDIR} ${@D}
 	${CXX} $< ${CXXFLAGS} ${OUTPUT_OPTION}
 
-${FT_IRC_A}: ${OBJ}
-	${MKDIR} -p lib
-	ar rcs ${FT_IRC_A} ${OBJ}
-
-lib: ${FT_IRC_A}
+${FT_IRC_A}: ${LIB_OBJ}
+	ar rcs ${FT_IRC_A} ${LIB_OBJ}
 
 clean:
 	${RM} ${OBJ_DIR} ${NAME} ${FT_IRC_A} vgcore.*

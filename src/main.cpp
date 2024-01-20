@@ -3,22 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2023/11/24 19:31:43 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/20 18:46:11 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "irc.hpp"
 
-int mainProgram(void)
-{
-	std::cout << "hello world!\n";
-	return 0;
-}
+
 
 int main(void)
 {
-	return mainProgram();
+	return hello();
 }
