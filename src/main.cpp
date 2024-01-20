@@ -12,8 +12,13 @@
 
 #include "irc.hpp"
 
-int main(void)
+int mainProgram(void)
 {
 	std::cout << "hello world!\n";
 	return 0;
+}
+
+int main(void)
+{
+	return mainProgram();
 }
