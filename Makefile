@@ -18,6 +18,14 @@ NAME        =   ft_irc
 SRC_DIR     =   src
 OBJ_DIR     =   obj
 PRV_DIR     =   private
+LIB_DIR		=	lib
+
+#######################################
+#              LIBRARIES              #
+#######################################
+FT_IRC_A				=	ft_irc.a
+FT_IRC_A				:=	${addprefix ${LIB_DIR}/, ${FT_IRC_A}}
+
 
 ######################################
 #            SOURCE FILES            #
@@ -63,11 +71,17 @@ ${OBJ_DIR}/%.o: ${SRC_DIR}/%.cpp
 	@${MKDIR} ${@D}
 	${CXX} $< ${CXXFLAGS} ${OUTPUT_OPTION}
 
+${FT_IRC_A}: ${OBJ}
+	${MKDIR} -p lib
+	ar rcs ${FT_IRC_A} ${OBJ}
+
+lib: ${FT_IRC_A}
+
 clean:
-	${RM} ${OBJ_DIR} ${NAME} vgcore.*
+	${RM} ${OBJ_DIR} ${NAME} ${FT_IRC_A} vgcore.*
 
 fclean:
-	${RM} ${OBJ_DIR} ${NAME} vgcore.*
+	${RM} ${OBJ_DIR} ${NAME} ${FT_IRC_A} vgcore.*
 
 re: clean all
 
