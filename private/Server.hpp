@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 16:45:32 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/19 21:40:46 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/20 19:45:44 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,14 @@
 //# include "Client.hpp"
 # include <sys/types.h>
 # include <netinet/in.h>
+#include <map>
 
 class Client;
 class Channel;
+
+// TODO : change this to a proper value
+
+# define MAX_CLIENTS 3
 
 // Class //
 
@@ -44,9 +49,11 @@ private:
 	socklen_t	_addr_len;
 	std::string	_password;
 	std::vector<Client *>	_clients;
+	std::map<int, Client *>	_client_socket;
+	std::map<std::stringz, Client *>	_client_nick;
 	std::vector<Channel *>	_channels;
 	int	_epoll_socket;
-	struct epoll_event	_server_event;
+	struct epoll_event	*_epoll_event;
 	
 	class ProblemWithSocket : public std::exception {
 	public:
@@ -76,7 +83,7 @@ public:
 	std::vector<Client*> const	&getClients() const;
 	std::vector<Channel*> const	&getChannels() const;
 	int	getEpollSocket() const;
-	struct epoll_event	getEpollEvent() const;
+	struct epoll_event	*getEpollEvent() const;
 
 	// Setters //
 	void	setName(std::string const &name);
@@ -88,7 +95,7 @@ public:
 	void	setPassword(std::string const &password);
 	void	setClients(std::vector<Client*> const &clients);
 	void	setChannels(std::vector<Channel*> const &channels);
-	void	setEpollSocket();
+	void	setEpollSocket(int fd);
 	void	setEpollEvent();
 
 	// Others
