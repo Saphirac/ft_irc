@@ -1,0 +1,3 @@
+[submodule "ft_irc_test"]
+	path = ft_irc_test
+	url = https://github.com/gle-mini/ft_irc_test.git
