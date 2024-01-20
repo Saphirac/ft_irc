@@ -6,7 +6,7 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/20 03:59:51 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/01/20 18:35:04 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,6 @@
 
 # include <iostream>
 
-int mainProgram(void);
+int hello(void);
 
 #endif
