@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 16:45:32 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/20 19:45:44 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/21 15:55:09 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ class Channel;
  * @brief class Server to contain everything I need for my server
  * _port, password etc.
  * 
- * @todo maybe choose a better type than int
+ * @todo maybe choose a better type than int and std::string for client
  * 		do a proper default constructor if void
  */
 
@@ -50,7 +50,7 @@ private:
 	std::string	_password;
 	std::vector<Client *>	_clients;
 	std::map<int, Client *>	_client_socket;
-	std::map<std::stringz, Client *>	_client_nick;
+	std::map<std::string, Client *>	_client_nick;
 	std::vector<Channel *>	_channels;
 	int	_epoll_socket;
 	struct epoll_event	*_epoll_event;

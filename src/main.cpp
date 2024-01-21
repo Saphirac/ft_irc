@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/15 16:09:40 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/21 15:58:14 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,20 @@
 #include <cstdlib>
 #include "Server.hpp"
 
+/**
+ * @brief Launch irc server
+ * 
+ * // TODO : create a checker for the arguments
+ * // TODO : create a catcher for exceptions
+ * @param ac 
+ * @param av 
+ * @return int 
+ */
+
 int main(int ac, char **av)
 {
 	if (ac != 3)
 		return 1;
-	create_server(atoi(av[1]), std::string(av[2]));
+	Server *myserver = new Server(atoi(av[1]), std::string(av[2]), "MyServer");
 	return 0;
 }
