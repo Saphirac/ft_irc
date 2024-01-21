@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/20 17:33:58 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/21 21:34:50 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,16 @@ _name(name)
 {
 	if (DEBUG)
 		std::cout << "Server constructor called\n";
+	this->init_server();
+	this->create_server();
 }
 
 Server::~Server()
 {
 	if (DEBUG)
 		std::cout << "Server destructor called\n";
+	//close(connection);
+	close(this->_socket);
 }
 
 // Getters //
@@ -178,6 +182,11 @@ void	Server::setEpollSocket(int fd)
 	this->_epoll_socket = fd;
 }
 
+/**
+ * @brief this function is intended to set the epoll_event struct for the server socket
+ * 
+ * @return struct epoll_event 
+ */
 struct epoll_event	Server::setEpollEvent()
 {
 	if (DEBUG)
@@ -189,17 +198,14 @@ struct epoll_event	Server::setEpollEvent()
 /**
  * @brief Create a socket object
  * 
- * @todo create an exception to be thrown for more proper use
- * 
- * @return socket create / if failure exit with EXIT_FAILURE
+ * @throw Server::ProblemWithSocket
  */
 
-int	Server::create_and_set_socket()
+void	Server::create_and_set_socket()
 {
 	this->_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_socket == -1)
 		throw Server::ProblemWithSocket();
-	return fd_socket;
 }
 
 /**
@@ -221,11 +227,22 @@ sockaddr_in	Server::bind_assign_sockaddr()
 	return sock_addr;
 }
 
+/**
+ * @brief init server by creating a socket, binding it to a port and listening to it
+ * 
+ * // TODO : throw exceptions instead of exit
+ * 
+ */
 void	Server::init_server()
 {
 	this->create_and_set_socket();
 	this->bind_assign_sockaddr();
 	this->setSockLen();
+	if (listen(this->_socket, 10) < 0) 
+	{
+		std::cout << "Failed to listen on socket. errno: " << errno << std::endl;
+		exit(EXIT_FAILURE);
+	}
 }
 
 // Init epoll //
@@ -254,9 +271,9 @@ int	create_epoll()
  * @param epoll_fd 
  * @param myserver 
  */
-void	Server::ctrl_epoll(int epoll_fd)
+void	Server::ctrl_epoll_add(int epoll_fd, int socket, struct epoll_event *e_event)
 {
-	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, this->_socket, this->_epoll_event) == -1)
+	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, socket, e_event) == -1)
 	{
 		std::cerr << "Problem with error_ctl()." << std::endl;
 		exit (EXIT_FAILURE);
@@ -298,6 +315,47 @@ void	read_and_respond(int connection)
 }
 
 /**
+ * @brief add new client to the list of clients
+ * 
+ * // TODO : change exit failure with exception
+ * // TODO : use a client with a handshake bool to check if nickname and other received input is correct
+ * 
+ */
+void	Server::handle_new_connection()
+{
+	int	client_socket;
+	struct sockaddr_in	client_addr;
+	socklen_t	client_addr_len = sizeof(client_addr);
+
+	client_socket = accept(this->_socket, (struct sockaddr *)&client_addr, &client_addr_len);
+	if (client_socket == -1)
+	{
+		std::cerr << "Problem with accept()." << std::endl;
+		exit (EXIT_FAILURE);
+	}
+	
+	std::string input = read_first_message(client_socket);
+	if (!input)
+	{
+		std::cerr << "Problem with read_first_message()." << std::endl;
+		return ;
+	}
+	
+	std::string nickname = get_nickname(input);
+	if (check_nickname(nickname))
+	{
+		std::cerr << "Problem with chosen nickname." << std::endl;
+		return ;
+	}
+	
+	this->_clients->push_back(new Client(client_socket, client_addr));
+	this->_client_socket[client_socket] = this->_clients.back();
+	this->_clients.back()->setEvent();
+	ctrl_epoll_add(this->_epoll_socket, client_socket, this->_clients.back()->getEvent());
+	this->send_welcome_message(client_socket);
+}
+
+/**
  * @brief create a loop to manage new incoming connections or messages
  * 
  * @param myserver 
@@ -319,30 +377,15 @@ void	Server::epoll_loop()
 		if (events[i].data.fd = this->_socket)
 			handle_new_connection();
 		else
-			handle_client_event(myserver->getClients()[events[i].data.fd]);
+			handle_client_event(this->_client_socket[events[i].data.fd]);
 	}
 }
 
-Server	*create_server(int chosen_addr, std::string password)
+void	Server::create_server()
 {
-	Server *myserver = new Server(chosen_addr, password, "MyServer");
-
-	myserver->init_server();
-	if (listen(myserver->getSocket(), 10) < 0) 
-	{
-		std::cout << "Failed to listen on socket. errno: " << errno << std::endl;
-		exit(EXIT_FAILURE);
-	}
-
-	myserver->setEpollSocket(create_epoll());
-	myserver->setEpollEvent();
-	ctrl_epoll(myserver->getEpollEvent(), myserver);
+	this->_epoll_socket = create_epoll();
+	this->setEpollEvent();
+	ctrl_epoll_add(this->_epoll_socket, this->_socket, this->_epoll_event);
 	
-	
-	read_and_respond(connection);
-
-	close(connection);
-	close(myserver->getSocket());
-
-	return myserver;
+	//read_and_respond(connection);
 }
