@@ -67,10 +67,10 @@ endif
 #######################################
 #                RULES                #
 #######################################
-all: ${NAME}
-
 ${NAME}: ${OBJ} ${FT_IRC_A}
 	${LINK} $^ ${OUTPUT_OPTION}
+
+all: ${NAME}
 
 -include ${DEP} ${LIB_DEP}
 
