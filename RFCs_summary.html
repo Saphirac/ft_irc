@@ -7,7 +7,7 @@
 	<body>
 		<h1 id="table_of_content">Table of contents</h1>
 		<ul>
-			<li><a href="#table_of_contents">Table of contents</a></li>
+			<li><a href="#table_of_content">Table of contents</a></li>
 			<li><a href="#introduction">Introduction</a></li>
 			<li><a href="#server">Server</a>
 				<ul>
@@ -27,20 +27,52 @@
 			<li><a href="#channels">Channels</a>
 				<ul>
 					<li><a href="#channel_name">Name</a></li>
-					<li><a href="#topic">Topic</a></li>
+					<li><a href="#channel_topic">Topic</a></li>
 					<li><a href="#channel_modes">Modes</a></li>
 				</ul>
 			</li>
 			<li><a href="#messages">Messages</a></li>
 				<ul>
 					<li><a href="#prefix">Prefix</a></li>
-					<li><a href="#command">Command</a></li>
-					<li><a href="#parameters">Parameters</a></li>
+					<li><a href="#parameter_list">Parameter_list</a></li>
 				</ul>
 			<li><a href="#commands">Commands</a></li>
-			<li><a href="#numeric-replies">Numeric replies</a></li>
 				<ul>
-					<li><a href="#registration">Registration</a></li>
+					<li><a href="#command_pass">PASS</a></li>
+					<li><a href="#command_nick">NICK</a></li>
+					<li><a href="#command_user">USER</a></li>
+					<li><a href="#command_oper">OPER</a></li>
+					<li><a href="#command_mode">MODE</a></li>
+					<li><a href="#command_quit">QUIT</a></li>
+					<li><a href="#command_join">JOIN</a></li>
+					<li><a href="#command_part">PART</a></li>
+					<li><a href="#command_topic">TOPIC</a></li>
+					<li><a href="#command_names">NAMES</a></li>
+					<li><a href="#command_list">LIST</a></li>
+					<li><a href="#command_invite">INVITE</a></li>
+					<li><a href="#command_kick">KICK</a></li>
+					<li><a href="#command_privmsg">PRIVMSG</a></li>
+					<li><a href="#command_notice">NOTICE</a></li>
+					<li><a href="#command_motd">MOTD</a></li>
+					<li><a href="#command_version">VERSION</a></li>
+					<li><a href="#command_time">TIME</a></li>
+					<li><a href="#command_info">INFO</a></li>
+					<li><a href="#command_who">WHO</a></li>
+					<li><a href="#command_whois">WHOIS</a></li>
+					<li><a href="#command_kill">KILL</a></li>
+					<li><a href="#command_ping">PING</a></li>
+					<li><a href="#command_pong">PONG</a></li>
+					<li><a href="#command_error">ERROR</a></li>
+					<li><a href="#command_away">AWAY</a></li>
+					<li><a href="#command_die">DIE</a></li>
+					<li><a href="#command_restart">RESTART</a></li>
+					<li><a href="#command_wallops">WALLOPS</a></li>
+					<li><a href="#command_ison">ISON</a></li>
+
+				</ul>
+			<li><a href="#replies">Replies</a></li>
+				<ul>
+					<li><a href="#registration1">Registration</a></li>
 					<li><a href="#infos">Infos</a></li>
 					<li><a href="#errors">Errors</a></li>
 				</ul>
@@ -87,7 +119,7 @@
 		<figure>
 			<figcaption>The server name must:</figcaption>
 			<ul>
-				<li>be at most 63 octets long.</li>
+				<li>be at most 63 characters long.</li>
 				<li>be formated as follows:
 					<!-- #region: ABNF -->
 					<details>
@@ -147,6 +179,7 @@
 				<li>their <a href="#nickname">nickname</a></li>
 				<li>their <a href="#hostname">hostname</a></li>
 				<li>their <a href="#username">username</a></li>
+				<li>their <a href="#realname">realname</a></li>
 				<li>their <a href="#user_modes">modes</a></li>
 			</ul>
 		</figure>
@@ -242,6 +275,28 @@
 			<!-- #endregion -->
 		</figure>
 
+		<h2 id="realname">Realname</h2>
+		<p>
+			Realnames are the real names of the users.<br>
+			For example, if a user's real name is "John Doe",<br>
+			then their realname will be "John Doe".
+		</p>
+		<figure>
+			<figcaption>Every realname must be formatted as follows:</figcaption>
+			<!-- #region: ABNF -->
+			<details>
+				<summary>
+					<code id="abnf_realname">
+						<b>realname</b> = 1*nolfcr
+					</code>
+				</summary>
+				<blockquote>
+					1 or more <code><a href="#abnf_nolfcr">nolfcr</a></code>
+				</blockquote>
+			</details>
+			<!-- #endregion -->
+		</figure>
+
 		<h2 id="user_modes">Modes</h2>
 		<p>
 			User modes are flags that indicate different states about the user.<br>
@@ -282,24 +337,6 @@
 			</details>
 			<!-- #endregion -->
 		</figure>
-		<figure>
-			<figcaption>
-				Every set of modes related to a user that is received or sent by the server<br>
-				must be formatted as follows:
-			</figcaption>
-			<!-- #region: ABNF -->
-			<details>
-				<summary>
-					<code id="abnf_umode_set">
-						<b>umode-set</b> = *umode
-					</code>
-				</summary>
-				<blockquote>
-					0 or more <code><a href="#abnf_umode">umodes</a></code>
-				</blockquote>
-			</details>
-			<!-- #endregion -->
-		</figure>
 
 		<h2 id="user_mask">Mask</h2>
 		<p>A mask is a way to identify a user without any possible ambiguity.</p>
@@ -334,7 +371,7 @@
 			</figcaption>
 			<ul>
 				<li>their <a href="#channel_name">name</a></li>
-				<li>their <a href="#topic">topic</a></li>
+				<li>their <a href="#channel_topic">topic</a></li>
 				<li>their <a href="#channel_modes">modes</a></li>
 				<li>a <b>list of users</b> that are on that channel</li>
 			</ul>
@@ -388,7 +425,7 @@
 			</ul>
 		</figure>
 
-		<h2 id="topic">Topic</h2>
+		<h2 id="channel_topic">Topic</h2>
 		<p>
 			Topics are a short description about the channel. Most of the time,<br>
 			it describes the main subject that is discussed in the channel.
@@ -409,6 +446,10 @@
 			</details>
 			<!-- #endregion -->
 		</figure>
+		<p>
+			Note that the topic may be an empty string,<br>
+			in which case it is assumed that the channel has no topic.
+		</p>
 
 		<h2 id="channel_modes">Modes</h2>
 		<p>
@@ -458,27 +499,57 @@
 			</details>
 			<!-- #endregion -->
 		</figure>
+
+		<h3 id="channel_mode_parameters">Parameters</h3>
+		<p>
+			Some channel modes require some parameters. Among the channel modes listed above,<br>
+			there are those that require some parameters:
+		</p>
+		<ul>
+			<li>
+				<code>+b</code> : takes 1 or more <a href="#user_mask">user masks</a>
+				to add to the banlist of a channel
+			</li>
+			<li>
+				<code>-b</code> : takes 1 or more <a href="#user_mask">user masks</a>
+				to remove from the banlist of a channel
+			</li>
+			<li>
+				<code>+k</code> : takes 1 key to set for a channel, rejecting new users to join it<br>
+				unless they provide the correct key.
+			</li>
+			<li>
+				<code>+l</code> : takes 1 number to set the maximum number of users present in a channel
+			</li>
+			<li>
+				<code>+o</code> : takes 1 or more <a href="#user_mask">user masks</a>
+				to add to the chanoplist of a channel
+			</li>
+			<li>
+				<code>-o</code> : takes 1 or more <a href="#user_mask">user masks</a>
+				to remove from the chanoplist of a channel
+			</li>
+		</ul>
 		<figure>
 			<figcaption>
-				Every set of modes related to a channel that is received or sent by the server<br>
-				must be formatted as follows:
+				Thus, depending on the channel modes it is about,<br>
+				the channel mode parameters must be formatted as follows:
 			</figcaption>
 			<!-- #region: ABNF -->
 			<details>
 				<summary>
-					<code id="abnf_cmode_set">
-						<b>cmode-set</b> = *cmode
+					<code id="abnf_cmode_param">
+						<b>cmode-param</b> = umask / key / limit
 					</code>
 				</summary>
 				<blockquote>
-					0 or more <code><a href="#abnf_cmode">cmodes</a></code>
+					Either 1 <code><a href="#abnf_umask">umask</a></code>
+					or 1 <code><a href="#abnf_key">key</a></code>
+					or 1 <code><a href="#abnf_limit">limit</a></code>
 				</blockquote>
 			</details>
 			<!-- #endregion -->
 		</figure>
-
-		<h3 id="channel_mode_parameters">Parameters</h3>
-		<!-- TODO: Write this section + Write the ABNF of `cmode-params` -->
 
 		<h1 id="messages">Messages</h1>
 		<figure>
@@ -489,8 +560,8 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_message">
-								<b>message</b> = [ %x3a prefix space ] command [ params ] crlf
+							<code>
+								<b>message</b> = [ %x3a prefix space ] ( command / reply ) [ parameter-list ] crlf
 							</code>
 						</summary>
 						<blockquote>
@@ -502,8 +573,11 @@
 										<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
 									</ol>
 								</li>
-								<li>Contain 1 <code><a href="#abnf_command">command</a></code></li>
-								<li>Contain 0 or 1 <code><a href="#abnf_params">params</a></code></li>
+								<li>
+									Contain either 1 <code><a href="#abnf_command">command</a></code>
+									or 1 <code><a href="#abnf_reply">reply</a></code>
+								</li>
+								<li>Contain 0 or 1 <code><a href="#abnf_parameter_list">parameter-list</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_crlf">crlf</a></code></li>
 							</ol>
 						</blockquote>
@@ -560,31 +634,14 @@
 			<ul>
 				<li>it has a format error</li>
 				<li>it identifies an unknown client</li>
-				<li>it identifies a known client that is not the one who sent the message<br>
+				<li>
+					it identifies a known client that is not the one who sent the message<br>
 					In this last case, the server should drop the connection with the client who sent it
 				</li>
 			</ul>
 		</figure>
 
-		<h2 id="command">Command</h2>
-		<figure>
-			<figcaption>The command part of the message must be formatted as follows:</figcaption>
-			<!-- #region: ABNF -->
-			<details>
-				<summary>
-					<code id="abnf_command">
-						<b>command</b> = IRC-command / numeric-reply
-					</code>
-				</summary>
-				<blockquote>
-					Either 1 <code><a href="#abnf_irc_command">IRC-command</a></code>,
-					or 1 <code><a href="#abnf_numeric_reply">numeric-reply</a></code>
-				</blockquote>
-			</details>
-			<!-- #endregion -->
-		</figure>
-
-		<h2 id="parameters">Parameters</h2>
+		<h2 id="parameter_list">Parameter list</h2>
 		<figure>
 			<figcaption>
 				The parameters part of the message must be formatted as either one of the following:
@@ -592,9 +649,9 @@
 			<!-- #region: Explained ABNF notation -->
 			<details>
 				<summary>
-					<code id="abnf_params">
-						<b>params</b> = *13( space middle ) [ space %x3a trailing ]<br>
-						<b>params</b> =/ 14( space middle ) [ space [ %x3a ] trailing ]
+					<code id="abnf_parameter_list">
+						<b>parameter-list</b> = *13( space middle ) [ space %x3a trailing ]<br>
+						<b>parameter-list</b> =/ 14( space middle ) [ space [ %x3a ] trailing ]
 					</code>
 				</summary>
 				<blockquote>
@@ -641,9 +698,665 @@
 		</figure>
 
 		<h1 id="commands">Commands</h1>
-		<!-- TODO: Write this section + Write the ABNF of `irc-command` -->
+		<p>
+			Commands are the main way to communicate with the server.<br>
+			They are used to perform several actions such as sending messages,<br>
+			joining channels, changing nicknames, etc...
+		</p>
+		<figure>
+			<figcaption>
+				Every command that is received or sent by the server must be formatted as follows:
+			</figcaption>
+			<!-- #region: ABNF -->
+			<details>
+				<summary>
+					<code id="abnf_command">
+						<b>command</b> = 1*uppercase
+					</code>
+				</summary>
+				<blockquote>
+					1 or more <code><a href="#abnf_uppercase">uppercases</a></code>
+				</blockquote>
+			</details>
+			<!-- #endregion -->
+		</figure>
+		<p>
+			There is a list of the different commands that we must implement below.
+		</p>
 
-		<h1 id="numeric-replies">Numeric replies</h1>
+		<h2 id="command_pass">PASS</h2>
+		<p>
+			The PASS command can be used only during the registration process.<br>
+			It is an optional command, depending on whether the server<br>
+			that the client tries to connect to is password-protected or not.<br>
+			The PASS command can only be sent <b>once</b> per connection.<br>
+			When the server receives a PASS command, it must check<br>
+			if the given password matches the configured one.<br>
+			If it does, then the connection is authenticated.<br>
+			Otherwise, the connection is closed.
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					password
+				</code>
+			</summary>
+			<blockquote>
+					1 <code><a href="#abnf_password">password</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
+			<li><a href="#err_alreadyregistered">ERR_ALREADYREGISTERED</a></li>
+		</ul>
+
+		<h2 id="command_nick">NICK</h2>
+		<p>
+			The NICK command is used to change the nickname of a user.<br>
+			When the server receives a NICK command, it must check<br>
+			if the given nickname is valid and not already in use.<br>
+			If it is, then the nickname of the user is changed to the given one.<br>
+			Otherwise, an appropriate error reply is sent back to the client.
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					nick
+				</code>
+			</summary>
+			<blockquote>
+					1 <code><a href="#abnf_nick">nick</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#err_nonicknamegiven">ERR_NONICKNAMEGIVEN</a></li>
+			<li><a href="#err_erroneusnickname">ERR_ERRONEUSNICKNAME</a></li>
+			<li><a href="#err_nicknameinuse">ERR_NICKNAMEINUSE</a></li>
+		</ul>
+
+		<h2 id="command_user">USER</h2>
+		<p>
+			The USER command must be used only during the registration process.<br>
+			It must be sent only <b>once</b> per connection.<br>
+			When the server receives a USER command, it must check<br>
+			if the given username and hostname are valid.<br>
+			If they are, then the username and hostname of the user are set to the given ones.<br>
+			Otherwise, an appropriate error reply is sent back to the client.
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					user space umode-mask space host space %x3a realname
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_user">user</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_umode_mask">umode-mask</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_host">host</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+					<li>Contain 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+					<li>Contain 1 <code><a href="#abnf_realname">realname</a></code></li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<p>
+			The <code>umode-mask</code> component is a numeric value<br>
+			that represents the initial user modes of the user.<br>
+		</p>
+		<figure>
+			<figcaption>It must be formatted as follows:</figcaption>
+			<!-- #region: ABNF -->
+			<details>
+				<summary>
+					<code id="abnf_umode_mask">
+						<b>umode-mask</b> = %x30 / %x34 / %x38 / "12"
+					</code>
+				</summary>
+				<blockquote>
+					Either 1 of the following:
+					<ul>
+						<li>1 octet that has any value among the following:</li>
+						<ul>
+							<li><code>0x30</code> (<code>0</code>)</li>
+							<li><code>0x34</code> (<code>4</code>)</li>
+							<li><code>0x38</code> (<code>8</code>)</li>
+						</ul>
+						<li>The string <code>"12"</code></li>
+					</ul>
+				</blockquote>
+			</details>
+			<!-- #endregion -->
+		</figure>
+		<p>
+			This numeric value is actually a bit mask,<br>
+			where each bit represents a specific user mode.<br>
+			However, only 2 of them are able to be set by the USER command:<br>
+		</p>
+		<ul>
+			<li>the bit at the index 2, which represents the `i` user mode</li>
+			<li>the bit at the index 3, which represents the `w` user mode</li>
+		</ul>
+		<p>
+			For example, if the <code>umode-mask</code> component is <code>"8"</code>,<br>
+			<code>8</code> being <code>00001000</code> in binary, then the `w` user mode will be set,<br>
+			while the `i` user mode will not.
+		</p>
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
+			<li><a href="#err_alreadyregistered">ERR_ALREADYREGISTERED</a></li>
+		</ul>
+
+		<h2 id="command_oper">OPER</h2>
+		<p>
+			The OPER command is used to authenticate a user as an IRC operator.<br>
+			When the server receives an OPER command, it must check<br>
+			if the given username-password association matches any<br>
+			of the configured ones.<br>
+			If it does, then the server must send back a <a href="#rpl_youreoper">RPL_YOUREOPER</a><br>
+			to the client, followed by a <a href="#command_mode">MODE</a> command to indicate them
+			their new modes.
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					user space password
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_user">user</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_password">password</a></code></li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_youreoper">RPL_YOUREOPER</a></li>
+			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
+			<li><a href="#err_passwdmismatch">ERR_PASSWDMISMATCH</a></li>
+			<li><a href="#err_nooperhost">ERR_NOOPERHOST</a></li>
+		</ul>
+
+		<h2 id="command_mode">MODE</h2>
+		<p>
+			The MODE command is a dual purpose command in IRC.<br>
+			It is used to modify both user modes and channel modes.<br>
+			When the server receives a MODE command, it must first determine<br>
+			whether it is targeting a user or a channel.<br>
+		</p>
+
+		<h3>User</h3>
+		<p>
+			If the target is a user, then the server must check<br>
+			that both the given nickname and the sender nickname are the same.<br>
+			If they are, then the server must finally check<br>
+			that the given mode changes are valid.<br>
+			If they are, then the server must apply them.<br>
+			Otherwise, an appropriate error reply is sent back to the client.
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					nick space *( ( %x2b / %x2d ) *umode )
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+					<li>Contain 0 or more pattern, which must:</li>
+					<ol>
+						<li>
+							Start with 1 octet that has either the value <code>0x2b</code> (<code>+</code>)<br>
+							or the value <code>0x2d</code> (<code>-</code>)
+						</li>
+						<li>Contain 0 or more <code><a href="#abnf_umode">umode</a></code></li>
+					</ol>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_umodeis">RPL_UMODEIS</a></li>
+			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
+			<li><a href="#err_umodeunknownflag">ERR_UMODEUNKNOWNFLAG</a></li>
+			<li><a href="#err_usersdontmatch">ERR_USERSDONTMATCH</a></li>
+		</ul>
+
+		<h3>Channel</h3>
+		<p>
+			If the target is a channel, then the server must check<br>
+			that the given channel exists.<br>
+			If it does, then the server must check<br>
+			that the sender is either one of its channel operator or its creator.<br>
+			If they are, then the server must finally check<br>
+			that the given mode changes are valid.<br>
+			If they are, then the server must apply them.<br>
+			Otherwise, an appropriate error reply is sent back to the client.
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					channel space *( ( %x2b / %x2d ) *cmode *( space cmode-param ) )
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+					<li>Contain 0 or more pattern, which must:</li>
+					<ol>
+						<li>
+							Start with 1 octet that has either the value <code>0x2b</code> (<code>+</code>)<br>
+							or the value <code>0x2d</code> (<code>-</code>)
+						</li>
+						<li>Contain 0 or more <code><a href="#abnf_cmode">cmode</a></code></li>
+						<li>Contain 0 or more pattern, which must:</li>
+						<ol>
+							<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+							<li>Contain 1 <code><a href="#abnf_cmode_param">cmode-param</a></code></li>
+						</ol>
+					</ol>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_channelmodeis">RPL_CHANNELMODEIS</a></li>
+			<li><a href="#rpl_invitelist">RPL_INVITELIST</a></li>
+			<li><a href="#rpl_endofinvitelist">RPL_ENDOFINVITELIST</a></li>
+			<li><a href="#rpl_banlist">RPL_BANLIST</a></li>
+			<li><a href="#rpl_endofbanlist">RPL_ENDOFBANLIST</a></li>
+			<li><a href="#err_usernotinchannel">ERR_USERNOTINCHANNEL</a></li>
+			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
+			<li><a href="#err_keyset">ERR_KEYSET</a></li>
+			<li><a href="#err_unknownmode">ERR_UNKNOWNMODE</a></li>
+			<li><a href="#err_nochanmodes">ERR_NOCHANMODES</a></li>
+			<li><a href="#err_chanoprivsneeded">ERR_CHANOPRIVSNEEDED</a></li>
+		</ul>
+
+		<h2 id="command_quit">QUIT</h2>
+		<p>
+			The QUIT command is used to disconnect a client from the server.<br>
+			When the server receives a QUIT command,<br>
+			it must send back an <a href="#command_error">ERROR</a> message to the client,<br>
+			to confirm that they are about to be disconnected.<br>
+			Then, it must close the connection with the client,<br>
+			remove them from every channel they were in, and then<br>
+			remove them from its list of known clients.<br>
+			Finally, the server must send a QUIT message<br>
+			to every channel that the user was in,<br>
+			to inform them of the user's departure.<br>
+			<br>
+			<b>Note</b>: for each <a href="#command_error">ERROR</a> and QUIT message sent by the server,<br>
+			the server must pass in parameter either the given quit message if there is one,<br>
+			or a default one if there is not.
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					[ quit-message ]
+				</code>
+			</summary>
+			<blockquote>
+				0 or 1 pattern, which must:
+				<ol>
+					<li>Start with 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+					<li>Contain 1 <code><a href="#abnf_quit_message">quit-message</a></code></li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<p>None</p>
+
+		<h2 id="command_join">JOIN</h2>
+		<p>
+			The JOIN command is used to make a user join a channel.<br>
+			When the server receives a JOIN command, for every given channel,<br>
+			it must do the following routine:<br>
+			<p>
+				Check that the given channel exists.<br>
+				If it does, then check that the user isn't already in it.<br>
+				If they are, then stop the routine here.<br>
+				Else, check that the given channel is neither full,<br>
+				nor marked as invite-only.<br>
+				If it isn't, then check that the user hasn't reached<br>
+				the maximum number of channels they can join yet.<br>
+				If they haven't, then check that the user isn't banned<br>
+				from the channel.<br>
+				If they aren't, and if the given channel has the `k` mode set,<br>
+				then check that the user provided the correct key.<br>
+				If they did, then add the user to the channel,<br>
+				and finally, send back the following to the client in this order:
+				<ol>
+					<li>A JOIN message, to confirm that the user have successfully joined the given channel</li>
+					<li>A <a href="#rpl_topic">RPL_TOPIC</a> to indicate the topic of the joined channel</li>
+					<li>
+						The result of the <a href="#command_names">NAMES</a> command with the joined channel<br>
+						passed in parameter
+					</li>
+				</ol>
+				Otherwise, an appropriate error reply is sent back to the client.
+			</p>
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					channel *( %x2c channel ) [ space key *( %x2c key ) ] / %x30
+				</code>
+			</summary>
+			<blockquote>
+				Either 1 of the following:
+				<ul>
+					<li>1 pattern, which must:
+						<ol>
+							<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+							<li>Contain 0 or more patterns, which must:
+								<ol>
+									<li>Start with 1 octet that has the value <code>0x2c</code> (<code>,</code>)</li>
+									<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
+								</ol>
+							</li>
+							<li>Contain 0 or 1 pattern, which must:
+								<ol>
+									<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+									<li>Contain 1 <code><a href="#abnf_key">key</a></code></li>
+									<li>Contain 0 or more patterns, which must:
+										<ol>
+											<li>Start with 1 octet that has the value <code>0x2c</code> (<code>,</code>)</li>
+											<li>Contain 1 <code><a href="#abnf_key">key</a></code></li>
+										</ol>
+									</li>
+								</ol>
+							</li>
+						</ol>
+					</li>
+					<li>1 octet that has the value <code>0x30</code> (<code>0</code>)</li>
+				</ul>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_topic">RPL_TOPIC</a></li>
+			<li><a href="#err_nosuchchannel">ERR_NOSUCHCHANNEL</a></li>
+			<li><a href="#err_toomanychannels">ERR_TOOMANYCHANNELS</a></li>
+			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
+			<li><a href="#err_channelisfull">ERR_CHANNELISFULL</a></li>
+			<li><a href="#err_inviteonlychan">ERR_INVITEONLYCHAN</a></li>
+			<li><a href="#err_bannedfromchan">ERR_BANNEDFROMCHAN</a></li>
+			<li><a href="#err_badchannelkey">ERR_BADCHANNELKEY</a></li>
+			<li><a href="#err_badchanmask">ERR_BADCHANMASK</a></li>
+		</ul>
+
+		<h2 id="command_part">PART</h2>
+		<p>
+			The PART command is used to make a user leave a channel.<br>
+			When the server receives a PART command, for every given channel,<br>
+			it must do the following routine:<br>
+			<p>
+				Check that the given channel exists.<br>
+				If it does, then check that the user is in it.<br>
+				If they are, then remove the user from the channel,<br>
+				send back a PART message to the client,<br>
+				to confirm that they have successfully left the given channel,<br>
+				and finally, send a PART message to every user<br>
+				that are present in the given channel,<br>
+				to inform them of the user's departure.<br>
+				Otherwise, an appropriate error reply<br>
+				is sent back to the client.<br>
+				<br>
+				<b>Note</b>: for each PART message sent by the server,<br>
+				the server must pass in parameter either the given part message if there is one,<br>
+				or a default one if there is not.
+			</p>
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					channel *( %x2c channel ) [ space part-message ]
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+					<li>Contain 0 or more patterns, which must:
+						<ol>
+							<li>Start with 1 octet that has the value <code>0x2c</code> (<code>,</code>)</li>
+							<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
+						</ol>
+					</li>
+					<li>Contain 0 or 1 pattern, which must:
+						<ol>
+							<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+							<li>Contain 1 <code><a href="#abnf_part_message">part-message</a></code></li>
+						</ol>
+					</li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#err_nosuchchannel">ERR_NOSUCHCHANNEL</a></li>
+			<li><a href="#err_notonchannel">ERR_NOTONCHANNEL</a></li>
+			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
+		</ul>
+
+		<h2 id="command_topic">TOPIC</h2>
+		<p>
+			The TOPIC command is used to set, unset, or change the topic of a channel.<br>
+			When the server receives a TOPIC command, it must check that the given channel exists.<br>
+			If it does, then the server must check that the user is in it.<br>
+			If they are, then the server must check if there is a given topic to set.
+			<ul>
+				<li>
+					If there is, then the server must check if the `t` channel mode is set.<br>
+					If it is, then the server must check that the user is a channel operator.<br>
+					If they are, or if the `t` channel mode is not set,<br>
+					then the server must set the topic of the channel to the given one,<br>
+					and finally, send back a TOPIC message to every user<br>
+					that are present in the given channel,<br>
+					to inform them of the new topic of the channel.
+				</li>
+				<li>
+					If there is not, then the server must check whether the current topic<br>
+					of the given channel is an empty string.<br>
+					If it is, then the server must send back a <a href="#rpl_notopic">RPL_NOTOPIC</a><br>
+					to the client, to indicate that the given channel has no topic.<br>
+					Else, the server must send back a <a href="#rpl_topic">RPL_TOPIC</a><br>
+					to the client, to indicate the topic of the given channel.
+				</li>
+			</ul>
+			Otherwise, an appropriate error reply is sent back to the client.<br>
+			<br>
+			<b>Note</b>: for each TOPIC message sent by the server,<br>
+			the server must pass in parameter the given topic.
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					channel [ " :" topic ]
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+					<li>Contain 0 or 1 pattern, which must:
+						<ol>
+							<li>Start with the string <code>" :"</code></li>
+							<li>Contain 1 <code><a href="#abnf_topic">topic</a></code></li>
+						</ol>
+					</li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_notopic">RPL_NOTOPIC</a></li>
+			<li><a href="#rpl_topic">RPL_TOPIC</a></li>
+			<li><a href="#err_notonchannel">ERR_NOTONCHANNEL</a></li>
+			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
+			<li><a href="#err_chanoprivsneeded">ERR_CHANOPRIVSNEEDED</a></li>
+		</ul>
+
+		<h2 id="command_names">NAMES</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					[ channel *( %x2c channel ) ]
+				</code>
+			</summary>
+			<blockquote>
+				0 or 1 pattern, which must:
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+					<li>Contain 0 or more patterns, which must:
+						<ol>
+							<li>Start with 1 octet that has the value <code>0x2c</code> (<code>,</code>)</li>
+							<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
+						</ol>
+					</li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_namreply">RPL_NAMREPLY</a></li>
+			<li><a href="#rpl_endofnames">RPL_ENDOFNAMES</a></li>
+		</ul>
+
+		<h2 id="command_list">LIST</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					[ channel *( %x2c channel ) ]
+				</code>
+			</summary>
+			<blockquote>
+				0 or 1 pattern, which must:
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+					<li>Contain 0 or more patterns, which must:
+						<ol>
+							<li>Start with 1 octet that has the value <code>0x2c</code> (<code>,</code>)</li>
+							<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
+						</ol>
+					</li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_list">RPL_LIST</a></li>
+			<li><a href="#rpl_listend">RPL_LISTEND</a></li>
+		</ul>
+
+		<h2 id="command_invite">INVITE</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					nick space channel
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_away">RPL_AWAY</a></li>
+			<li><a href="#rpl_inviting">RPL_INVITING</a></li>
+			<li><a href="#err_nosuchnick">ERR_NOSUCHNICK</a></li>
+			<li><a href="#err_notonchannel">ERR_NOTONCHANNEL</a></li>
+			<li><a href="#err_useronchannel">ERR_USERONCHANNEL</a></li>
+			<li><a href="#err_chanoprivsneeded">ERR_CHANOPRIVSNEEDED</a></li>
+		</ul>
+
+		<h1 id="replies">Replies</h1>
 		<p>
 			Most of the messages that the server receives from a client<br>
 			generate a reply to that client from the server to indicate<br>
@@ -651,13 +1364,13 @@
 		</p>
 		<figure>
 			<figcaption>
-				Every numeric reply that is received or sent by the server must be formatted as follows:
+				Every reply that is received or sent by the server must be formatted as follows:
 			</figcaption>
 			<!-- #region: ABNF -->
 			<details>
 				<summary>
-					<code id="abnf_numeric_reply">
-						<b>numeric-reply</b> = 3digit
+					<code id="abnf_reply">
+						<b>reply</b> = 3digit
 					</code>
 				</summary>
 				<blockquote>
@@ -667,13 +1380,13 @@
 			<!-- #endregion -->
 		</figure>
 		<p>
-			Numeric replies are not allowed to originate from a client.<br>
+			Replies are not allowed to originate from a client.<br>
 			Any such messages received by the server must be silently discarded.<br>
 			<br>
-			There is a list of the different numeric replies that we will need below.
+			There is a list of the different replies that we must implement need below.
 		</p>
 
-		<h2 id="registration">Registration</h2>
+		<h2 id="registration1">Registration</h2>
 		<table>
 			<tr>
 				<th>Number</th>
@@ -687,18 +1400,14 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_welcome">
-								":Welcome to the Internet Relay Network " nick %x21 user %x40 host
+							<code>
+								":Welcome to the Internet Relay Network " umask
 							</code>
 						</summary>
 						<blockquote>
 							<ol>
 								<li>Start with the string <code>":Welcome to the Internet Relay Network "</code></li>
-								<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
-								<li>Contain 1 octet that has the value <code>0x21</code> (<code>!</code>)</li>
-								<li>Contain 1 <code><a href="#abnf_user">user</a></code></li>
-								<li>Contain 1 octet that has the value <code>0x40</code> (<code>@</code>)</li>
-								<li>Contain 1 <code><a href="#abnf_host">host</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_umask">umask</a></code></li>
 							</ol>
 						</blockquote>
 					</details>
@@ -712,7 +1421,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_yourhost">
+							<code>
 								":Your host is " server ", running version " version
 							</code>
 						</summary>
@@ -735,7 +1444,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_created">
+							<code>
 								":This server was created " date
 							</code>
 						</summary>
@@ -756,8 +1465,8 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_myinfo">
-								server space version space umode-set space cmode-set
+							<code>
+								server space version space *umode space *cmode
 							</code>
 						</summary>
 						<blockquote>
@@ -766,9 +1475,9 @@
 								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_version">version</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
-								<li>Contain 1 <code><a href="#abnf_umode_set">umode-set</a></code></li>
+								<li>Contain 0 or more <code><a href="#abnf_umode">umode</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
-								<li>Contain 1 <code><a href="#abnf_cmode_set">cmode-set</a></code></li>
+								<li>Contain 0 or more <code><a href="#abnf_cmode">cmode</a></code></li>
 							</ol>
 						</blockquote>
 					</details>
@@ -790,8 +1499,8 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_umodeis">
-								nick " :" [ %x2b ] umode-set
+							<code>
+								nick " :" [ %x2b ] *umode
 							</code>
 						</summary>
 						<blockquote>
@@ -799,7 +1508,7 @@
 								<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
 								<li>Contain the string <code>" :"</code></li>
 								<li>Contain 0 or 1 octet that has the value <code>0x2b</code> (<code>+</code>)</li>
-								<li>Contain 1 <code><a href="#abnf_umode_set">umode-set</a></code></li>
+								<li>Contain 0 or more <code><a href="#abnf_umode">umode</a></code></li>
 							</ol>
 						</blockquote>
 					</details>
@@ -813,7 +1522,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_away">
+							<code>
 								nick " :" away-message
 							</code>
 						</summary>
@@ -828,6 +1537,47 @@
 					<!-- #endregion -->
 				</td>
 			</tr>
+			<tr id="rpl_list">
+				<td>322</td>
+				<td><b>RPL_LIST</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								channel user-count " :" topic
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_user_count">user-count</a></code></li>
+								<li>Contain the string <code>" :"</code></li>
+								<li>Contain 1 <code><a href="#abnf_topic">topic</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_listend">
+				<td>323</td>
+				<td><b>RPL_LISTEND</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								" :End of LIST"
+							</code>
+						</summary>
+						<blockquote>
+							Match the string <code>" :End of LIST"</code>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
 			<tr id="rpl_channelmodeis">
 				<td>324</td>
 				<td><b>RPL_CHANNELMODEIS</b></td>
@@ -835,17 +1585,17 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_channelmodeis">
-								channel space cmode-set space cmode-params
+							<code>
+								channel space *cmode space *cmode-param
 							</code>
 						</summary>
 						<blockquote>
 							<ol>
 								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
-								<li>Contain 1 <code><a href="#abnf_cmode_set">cmode-set</a></code></li>
+								<li>Contain 0 or more <code><a href="#abnf_cmode">cmode</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
-								<li>Contain 1 <code><a href="#abnf_cmode_params">cmode-params</a></code></li>
+								<li>Contain 0 or more <code><a href="#abnf_cmode_param">cmode-param</a></code></li>
 							</ol>
 						</blockquote>
 					</details>
@@ -859,7 +1609,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_notopic">
+							<code>
 								channel " :No topic is set"
 							</code>
 						</summary>
@@ -880,7 +1630,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_topic">
+							<code>
 								channel " :" topic
 							</code>
 						</summary>
@@ -902,7 +1652,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_inviting">
+							<code>
 								channel space nick
 							</code>
 						</summary>
@@ -924,7 +1674,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_invitelist">
+							<code>
 								channel space invite-mask
 							</code>
 						</summary>
@@ -946,7 +1696,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_endofinvitelist">
+							<code>
 								channel " :End of channel invite list"
 							</code>
 						</summary>
@@ -960,6 +1710,67 @@
 					<!-- #endregion -->
 				</td>
 			</tr>
+			<tr id="rpl_namreply">
+				<td>353</td>
+				<td><b>RPL_NAMREPLY</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								( %x2a / %x3d / %x40 ) channel " :" [ %x2b / %x40 ] nick *( space [ %x2b / %x40 ] nick )
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>
+									Start with 1 octet that has either the value <code>0x2a</code> (<code>*</code>)<br>
+									or the value <code>0x3d</code> (<code>=</code>)
+									or the value <code>0x40</code> (<code>@</code>)
+								</li>
+								<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :"</code></li>
+								<li>
+									Contain 0 or 1 octet that has either the value <code>0x2b</code> (<code>+</code>)<br>
+									or the value <code>0x40</code> (<code>@</code>)
+								</li>
+								<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
+								<li>Contain 0 or more pattern, which must:
+									<ol>
+										<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+										<li>
+											Contain 0 or 1 octet that has either the value <code>0x2b</code> (<code>+</code>)<br>
+											or the value <code>0x40</code> (<code>@</code>)
+										</li>
+										<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
+									</ol>
+								</li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_endofnames">
+				<td>366</td>
+				<td><b>RPL_ENDOFNAMES</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								channel " :End of NAMES list"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :End of NAMES list"</code></li>
+							</ol>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
 			<tr id="rpl_banlist">
 				<td>367</td>
 				<td><b>RPL_BANLIST</b></td>
@@ -967,7 +1778,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_banlist">
+							<code>
 								channel space umask
 							</code>
 						</summary>
@@ -989,7 +1800,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_endofbanlist">
+							<code>
 								channel " :End of channel ban list"
 							</code>
 						</summary>
@@ -1010,7 +1821,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_motd">
+							<code>
 								":- " trailing
 							</code>
 						</summary>
@@ -1030,7 +1841,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_motdstart">
+							<code>
 								":- " server " Message of the day - "
 							</code>
 						</summary>
@@ -1052,7 +1863,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_endofmotd">
+							<code>
 								":End of MOTD command"
 							</code>
 						</summary>
@@ -1070,7 +1881,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_rpl_youreoper">
+							<code>
 								":You are now an IRC operator"
 							</code>
 						</summary>
@@ -1097,7 +1908,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_nosuchnick">
+							<code>
 								nick " :No such nick/channel"
 							</code>
 						</summary>
@@ -1118,7 +1929,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_nosuchchannel">
+							<code>
 								channel " :No such channel"
 							</code>
 						</summary>
@@ -1139,7 +1950,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_cannotsendtochan">
+							<code>
 								channel " :Cannot send to channel"
 							</code>
 						</summary>
@@ -1160,7 +1971,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_toomanychannels">
+							<code>
 								channel " :You have joined too many channels"
 							</code>
 						</summary>
@@ -1181,7 +1992,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_toomanytargets">
+							<code>
 								target " :" error-code " recipients. " abort-message
 							</code>
 						</summary>
@@ -1205,14 +2016,14 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_norecipient">
-								":No recipient given (" irc-command %x29
+							<code>
+								":No recipient given (" command %x29
 							</code>
 						</summary>
 						<blockquote>
 							<ol>
 								<li>Start with the string <code>":No recipient given ("</code></li>
-								<li>Contain 1 <code><a href="#abnf_irc_command">irc-command</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_command">command</a></code></li>
 								<li>Contain 1 octet that has the value <code>0x29</code> (<code>)</code>)</li>
 							</ol>
 						</blockquote>
@@ -1226,7 +2037,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_notexttosend">
+							<code>
 								":No text to send"
 							</code>
 						</summary>
@@ -1244,7 +2055,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_nonicknamegiven">
+							<code>
 								":No nickname given"
 							</code>
 						</summary>
@@ -1262,7 +2073,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_erroneusnickname">
+							<code>
 								nick " :Erroneous nickname"
 							</code>
 						</summary>
@@ -1283,7 +2094,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_nicknameinuse">
+							<code>
 								nick " :Nickname already in use"
 							</code>
 						</summary>
@@ -1304,7 +2115,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_usernotinchannel">
+							<code>
 								nick space channel " :They aren't on that channel"
 							</code>
 						</summary>
@@ -1327,7 +2138,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_notonchannel">
+							<code>
 								channel " :You're not on that channel"
 							</code>
 						</summary>
@@ -1348,7 +2159,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_useronchannel">
+							<code>
 								user space channel " :is already on channel"
 							</code>
 						</summary>
@@ -1371,13 +2182,13 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_needmoreparams">
-								irc-command " :Not enough parameters"
+							<code>
+								command " :Not enough parameters"
 							</code>
 						</summary>
 						<blockquote>
 							<ol>
-								<li>Start with 1 <code><a href="#abnf_irc_command">irc-command</a></code></li>
+								<li>Start with 1 <code><a href="#abnf_command">command</a></code></li>
 								<li>Contain the string <code>" :Not enough parameters"</code></li>
 							</ol>
 						</blockquote>
@@ -1392,7 +2203,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_alreadyregistered">
+							<code>
 								":Unauthorized command (already registered)"
 							</code>
 						</summary>
@@ -1410,7 +2221,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_passwdmismatch">
+							<code>
 								":Password incorrect"
 							</code>
 						</summary>
@@ -1428,7 +2239,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_keyset">
+							<code>
 								channel " :Channel key already set"
 							</code>
 						</summary>
@@ -1449,7 +2260,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_channelisfull">
+							<code>
 								channel " :Cannot join channel (+l)"
 							</code>
 						</summary>
@@ -1470,7 +2281,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_unknownmode">
+							<code>
 								cmode " :is unknown mode char to me for " channel
 							</code>
 						</summary>
@@ -1492,7 +2303,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_inviteonlychan">
+							<code>
 								channel " :Cannot join channel (+i)"
 							</code>
 						</summary>
@@ -1513,7 +2324,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_bannedfromchan">
+							<code>
 								channel " :Cannot join channel (+b)"
 							</code>
 						</summary>
@@ -1534,7 +2345,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_badchannelkey">
+							<code>
 								channel " :Cannot join channel (+k)"
 							</code>
 						</summary>
@@ -1555,7 +2366,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_badchanmask">
+							<code>
 								channel " :Bad Channel Mask"
 							</code>
 						</summary>
@@ -1568,6 +2379,25 @@
 					<!-- #endregion -->
 				</td>
 			</tr>
+			<tr id="err_nochanmodes">
+				<td>477</td>
+				<td><b>ERR_NOCHANMODES</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							channel " :Channel doesn't support modes"
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain the string <code>" :Channel doesn't support modes"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
 			<tr id="err_chanoprivsneeded">
 				<td>482</td>
 				<td><b>ERR_CHANOPRIVSNEEDED</b></td>
@@ -1575,7 +2405,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_chanoprivsneeded">
+							<code>
 								channel " :You're not channel operator"
 							</code>
 						</summary>
@@ -1596,7 +2426,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_nooperhost">
+							<code>
 								":No O-lines for your host"
 							</code>
 						</summary>
@@ -1614,7 +2444,7 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_umodeunknownflag">
+							<code>
 								":Unknown MODE flag"
 							</code>
 						</summary>
@@ -1625,14 +2455,14 @@
 					<!-- #endregion -->
 				</td>
 			</tr>
-			<tr id="err_userdontmatch">
+			<tr id="err_usersdontmatch">
 				<td>502</td>
 				<td><b>ERR_USERSDONTMATCH</b></td>
 				<td>
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							<code id="abnf_err_userdontmatch">
+							<code>
 								":Cannot change mode for other users"
 							</code>
 						</summary>
@@ -1705,7 +2535,7 @@
 				</code>
 			</summary>
 			<blockquote>
-				Either 1 <a href="#lowercase">lowercase</a> or 1 <a href="#uppercase">uppercase</a>
+				Either 1 <a href="#abnf_lowercase">lowercase</a> or 1 <a href="#abnf_uppercase">uppercase</a>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
@@ -1826,7 +2656,7 @@
 				</code>
 			</summary>
 			<blockquote>
-				1 or more <code><a href="#digit">digits</a></code>
+				1 or more <code><a href="#abnf_digit">digits</a></code>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
@@ -1893,12 +2723,12 @@
 			<blockquote>
 				<ol>
 					<li>
-						Start with either 1 <code><a href="#letter">letter</a></code>
-						or 1 <code><a href="#digit">digit</a></code>
+						Start with either 1 <code><a href="#abnf_letter">letter</a></code>
+						or 1 <code><a href="#abnf_digit">digit</a></code>
 					</li>
 					<li>
-						Contain 0 or more <code><a href="#letter">letters</a></code>
-						and/or <code><a href="#digit">digits</a></code><br>
+						Contain 0 or more <code><a href="#abnf_letter">letters</a></code>
+						and/or <code><a href="#abnf_digit">digits</a></code><br>
 						and/or octets that have the value <code>0x2d</code> (<code>-</code>)
 					</li>
 				</ol>
@@ -1966,6 +2796,93 @@
 			</blockquote>
 		</details>
 		<!-- #endregion -->
+		<!-- #region: ABNF of `key` -->
+		<details>
+			<summary>
+				<code id="abnf_key">
+					<b>key</b> = middle
+				</code>
+			</summary>
+			<blockquote>
+				1 <code><a href="#abnf_middle">middle</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `limit` -->
+		<details>
+			<summary>
+				<code id="abnf_limit">
+					<b>limit</b> = 1*digit
+				</code>
+			</summary>
+			<blockquote>
+				1 or more <code><a href="#abnf_digit">digits</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `password` -->
+		<details>
+			<summary>
+				<code id="abnf_password">
+					<b>password</b> = middle / %x3a trailing
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with either 1 <code><a href="#abnf_middle">middle</a></code>
+						or 1 pattern, which must:</li>
+					<ol>
+						<li>Start with 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+						<li>Contain 1 <code><a href="#abnf_trailing">trailing</a></code></li>
+					</ol>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `quit-message` -->
+		<details>
+			<summary>
+				<code id="abnf_quit_message">
+					<b>quit-message</b> = middle / %x3a trailing
+				</code>
+			</summary>
+			<blockquote>
+				Either 1 <code><a href="#abnf_middle">middle</a></code> or 1 pattern, which must:
+				<ol>
+					<li>Start with 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+					<li>Contain 1 <code><a href="#abnf_trailing">trailing</a></code></li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNG of `part-message` -->
+		<details>
+			<summary>
+				<code id="abnf_part_message">
+					<b>part-message</b> = middle / %3a trailing
+				</code>
+			</summary>
+			<blockquote>
+				Either 1 <code><a href="#abnf_middle">middle</a></code> or 1 pattern, which must:
+				<ol>
+					<li>Start with 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+					<li>Contain 1 <code><a href="#abnf_trailing">trailing</a></code></li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `user-count` -->
+		<details>
+			<summary>
+				<code id="abnf_user_count">
+					<b>user-count</b> = 1*digit
+				</code>
+			</summary>
+			<blockquote>
+				1 or more <code><a href="#abnf_digit">digits</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
 		<!-- #region: ABNF of `date` -->
 		<details>
 			<summary>
@@ -1981,6 +2898,18 @@
 					<li>Contain 1 octet that has the value <code>0x2d</code> (<code>-</code>)</li>
 					<li>Contain 1 <code><a href="#abnf_day">day</a></code></li>
 				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `invite-mask` -->
+		<details>
+			<summary>
+				<code id="abnf_invite_mask">
+					<b>invite-mask</b> = umask
+				</code>
+			</summary>
+			<blockquote>
+				1 <code><a href="#abnf_umask">umask</a></code>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
