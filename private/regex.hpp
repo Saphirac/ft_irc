@@ -1,9 +1,65 @@
 #ifndef REGEX_HPP
 # define REGEX_HPP
 
-#include <stdio.h>								// printfs
-#include <string.h>								// memory operations like memcmp() memset()
+#include <stdio.h>
+#include <string.h>
 #include <cstring>
+
+/****************************************************************************/
+// Basic definitions of types. Feel free to remove if you have them already defined.
+
+#ifndef FALSE
+	#define	FALSE		(0)
+#endif
+#ifndef TRUE
+	#define	TRUE		(1)
+#endif
+#ifndef MAX
+	#define MAX(a,b)	((a) > (b) ? (a) : (b))
+#endif
+typedef unsigned char		MYBOOL, UCHAR;		// Feel free to change boolean to 'int' or C++ 'bool'. 
+
+typedef signed int INT32;			// Linux
+#define nullptr NULL				// Linux
+
+/****************************************************************************/
+// Fast Comparison of 8,16,32 bits int - without branching. Use in loops where speed is crucial. 
+#define		   is_int_negative(       num1     ) ((((INT32) (num1)        )&0x80000000)>>31)	// (num1<0   ) ? 1 : 0
+inline INT32 is_int_notZero( INT32  num1     ){	return is_int_negative(num1|-num1); }			// (num1!=0  ) ? 1 : 0, Since (-X)|X is 0 for X==0 and negative for every other X.
+#define		   is_int_notEqual(	   num1,num2)	is_int_notZero(num1^num2)						// (num1!=num2)? 1 : 0
+#define		   is_int_equal(	   num1,num2)	(is_int_notZero(num1^num2)^0x1)					// (num1==num2)? 1 : 0
+#define        is_int_inRange(i,L,U)  ((((INT32((i)-(L)))|(INT32((U)-(i))))^0x80000000)>>31)	// ((i>=L)&&(i<=U) ? 1 : 0
+#define        isDigit(               chr)       is_int_inRange(chr,'0','9')					// ('9'>=chr>='0') ? 1 : 0
+
+#define STRCPY_S_SUCCESS 0
+#define STRCPY_S_INVALID_ARGUMENT 1
+#define STRCPY_S_BUFFER_TOO_SMALL 2
+
+/****************************************************************************/
+// Define the types of special regex character commands (as bits). 
+#define		TYPE_CHAR				(0)			// Default 0 -  Single character. Like: A b 7 .
+#define     TYPE_PREFIX				(1)			// Sepcial '\\' command for Abbreviations and using special characters. like \\?. This is the only command that actually uses 2 characters
+#define     TYPE_SUFFIX				(2)			// Command has iteration suffix like a*, z+, b{3,5} 
+#define     TYPE_OPEN				(4)			// Left Parentheses: On of the following { ( [ . This rule opens a sub expression
+#define     TYPE_CLOSE				(8)			// Right parentheses: } ) ]
+#define     TYPE_RECURSION			(16)		// Termination of recursive call. (command is a suffix of previous one. Like previous is 'A' and current is '{2}') Todo: Not used yet
+
+#define		NO_MATCH				(-1)		// Returned when regular expression cannot be matched to the string.
+
+/****************************************************************************/
+// Define a command structure (single language rule)
+typedef struct{
+    char	id;			// The character which represennts the command. Like: * ? [
+    char	attr;		// Type of the command. Can be combination of above types
+    void*	f;			// Pointer to function which proccesses the current command. Polymorphism (C style)
+} Cmd;
+
+#define cmdLength(  cmd)		(1 + ((cmd)->attr&TYPE_PREFIX))		// All commands take 1 character + optional prefix character
+#define    isSuffix(cmd)		(     (cmd)->attr&TYPE_SUFFIX)		// Does current command is a suffix of previous one. Like previous is 'A' and current is '{2}'
+#define    isOpen(  cmd)        (     (cmd)->attr&TYPE_OPEN  )		// Does this command opens a sub expression
+#define get_cmd(c)               get_cmd_byChar[(c)&0x7F]			// Get the command strucutre by character. For '(' will return '(' command
+#define isReservedSymbol(c)      (get_cmd(c)->id != 0)				// Is the given character a reserved symbol (used as regex command)
+
 
 
 /**

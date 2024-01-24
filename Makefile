@@ -34,6 +34,9 @@ SRC         =                           \
 
 LIB_SRC		= 	\
 				${addprefix ${LIB_DIR}/, \
+					${addprefix regex/, \
+						regex.cpp \
+					} \
 					hello.cpp \
 				}
 

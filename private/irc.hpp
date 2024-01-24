@@ -14,6 +14,7 @@
 # define IRC_HPP
 
 # include <iostream>
+# include "regex.hpp"
 
 int hello(void);
 
