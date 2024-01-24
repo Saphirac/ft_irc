@@ -942,3 +942,40 @@ const char* tCompiledRegex::search(const char* sampleString, int* resLen) const{
 	*resLen = match(pattern, sampleString, endPattern);					// Try to match pattern to empty string (since we didn't allow it before).
      return (*resLen>= 0) ? sampleString : NULL;						// Empty sample string was matched to pattern (like a*b*c*) (if==0). Otherwise no match
 };
+
+/****************************************************************************/
+/**************************Unit Test Function *******************************/
+/****************************************************************************/
+
+void regex_debug(const char* pattern, const char* sampleString, const char* trueAnswer){
+	int   len = 0;
+	char  output[256];
+	const char* res;
+	const char error[] = "@NO";
+	const char empty[] = "";
+
+	res =  regex_search(pattern, sampleString, &len);
+	if (len>0){			memcpy(output,res, len); output[len] = '\0';	}
+	else if (len==0)	memcpy(output,empty,strlen(empty)+1);
+	else				memcpy(output,error,strlen(error)+1);	
+	// Print only errors
+	if (strcmp(output,trueAnswer))		fprintf(stderr,"Error: Reg:%s\t\t in %s\t\t : %s,\n", pattern, sampleString, output);
+	else								fprintf(stderr,"Test OK!\n");
+}
+
+int regex_test(const char* pattern, const char* sampleString, const char* trueAnswer){
+	int   len = 0;
+	char  output[256];
+	const char* res;
+	const char error[] = "@NO";
+	const char empty[] = "";
+
+	res =  regex_search(pattern, sampleString, &len);
+	if (len>0){			memcpy(output,res, len); output[len] = '\0';	}
+	else if (len==0)	memcpy(output,empty,strlen(empty)+1);
+	else				memcpy(output,error,strlen(error)+1);	
+	// Print only errors
+	if (strcmp(output,trueAnswer))
+		return 1;
+	return 0;
+}
