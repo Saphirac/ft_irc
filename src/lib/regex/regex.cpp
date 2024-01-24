@@ -1,4 +1,3 @@
-// Includes
 #include "regex.hpp"
 
 /**
@@ -8,32 +7,17 @@
  * converting it from an ASCII character to its corresponding integer value and building the integer result. 
  * The function assumes the string represents a non-negative integer and does not handle negative signs or non-numeric characters.
  *
- * @param s constant character pointer to the C-style string to be converted.
+ * @param str constant character pointer to the C-style string to be converted.
  * @return The integer value of the string. Returns 0 if the string does not start with a digit.
  */ 
-static int ft_fast_atoi(const char* s){			// Read positive integer from string. Like "123" is converted to 123.
+static inline int ft_fast_atoi(const char* str)
+{
 	int resI = 0;															
-	for (;isDigit(*s); s++)
-		resI = resI*10 + (s[0]-'0');
+	for (;isDigit(*str); str++)
+		resI = resI*10 + (str[0]-'0');
 	return resI;
 }
 
-
-/****************************************************************************/
-// Total there are 6 functions
-// First parameter is the pattern. Second is the sample string and optional third is pointer to the end of the pattern
-// Each one returns the number of consumed characters in sample string or NO_MATCH if inapplicable 
-// (like 'a+' was applied on 'bbb'). Note 'a*' can be applied on 'bbb' and it consumes zero characters.
-static inline int c_achar(	 const char* pat, const char* sam);					 // Handling single char comparison. Like 'b'
-static inline int c_any(	 const char* pat, const char* sam);					 // Handlling 'any' comparison. '.'  Note: '.' may consume few bytes (1 char) when working with unicodes, and only 1 byte (= 1 char) for ascii.
-static inline int c_extended(const char* pat, const char* sam);					 // Handaling special extended abreviations starting with '\\'
-static inline int c_group(	 const char* pat, const char* sam);					 // Sub pattern. Grouping characters. Like (the) when searching inside 'I am the master of the realm'
-static inline int c_option(	 const char* pat, const char* sam);					 // Selection of one option to match [aA]ce mathces both words: Ace and ace
-static inline int c_multi(	 const char* pat, const char* sam, const char* endp);// Multiple occurance of the character. Like A+, A* A{4} A?
-
-// Define pointers to functions that process the special commands. 2 Types
-typedef int (*Stand_Func)(const char* pat, const char* sam                 );	// Standard functions and characters like () . [] \\ A 7 ....
-typedef int (*SuffixFunc)(const char* pat, const char* sam,const char* endp);	// Suffix functions for multiple occurences like * + ? {}
 
 // Inverse table of the above (given a character like '*', 'C', '\' get the appropriate command). We use a look up table for all possible ASCII characters
 static const Cmd* get_cmd_byChar[128];
@@ -122,7 +106,7 @@ static const Cmd cmd_tbl[] = {
 /****************************** Aux functions *******************************/
 /****************************************************************************/
 // Custom implementation of strcpy_s
-static inline int strcpy_s(char* dest, size_t destSize, const char* src) {
+int strcpy_s(char* dest, size_t destSize, const char* src) {
     if (dest == nullptr || destSize == 0) {
         return STRCPY_S_INVALID_ARGUMENT;
     }
@@ -142,7 +126,7 @@ static inline int strcpy_s(char* dest, size_t destSize, const char* src) {
 /**
  * @brief Initializes the regex mechanism's command lookup table.
  * 
- * This static inline function is responsible for setting up the `get_cmd_byChar` lookup table used 
+ * This function is responsible for setting up the `get_cmd_byChar` lookup table used 
  * in regex processing. It populates the table with pointers to command structures (`Cmd`) based on 
  * their identifiers. This initialization is required for the efficient execution of regex commands 
  * during pattern matching. The function ensures that it only initializes the table once.
@@ -163,7 +147,7 @@ static inline int strcpy_s(char* dest, size_t destSize, const char* src) {
  *   init_regex_mechanism_private();
  */
 // Initialize the get_cmd_byChar[] look up table
-static inline void init_regex_mechanism_private(void){
+void init_regex_mechanism_private(void){
     if (isInitialized) return;
     const Cmd* cmd = cmd_tbl, *end = cmd_tbl;
     while (end->id) end++; // Find the last default command (character processing) and store it in 'end'
@@ -182,7 +166,7 @@ static inline void init_regex_mechanism_private(void){
 /**
  * @brief Finds the end of a null-terminated string.
  * 
- * This static inline function scans through a given string to locate its end, 
+ * This function scans through a given string to locate its end, 
  * defined as the null character ('\0') that terminates standard C strings. 
  * It iteratively moves through the string until it encounters this null character.
  *
@@ -204,7 +188,7 @@ static inline void init_regex_mechanism_private(void){
  *   // 'end' points to the null character at the end of "Hello World"
  */
 // Find the end of the string.
-static inline const char* endOfString(const char *str){
+const char* endOfString(const char *str){
 	while (*str) str++;
 	return str;
 }
@@ -212,7 +196,7 @@ static inline const char* endOfString(const char *str){
 /**
  * @brief Finds the first occurrence of a specified character in a string.
  * 
- * This static inline function searches through a given string to find the first occurrence of 
+ * This function searches through a given string to find the first occurrence of 
  * a specified character. It iterates over the string until it finds the character or reaches the 
  * end of the string.
  *
@@ -239,7 +223,7 @@ static inline const char* endOfString(const char *str){
  *   }
  */
 // Find first occurence of character in the string. Returns the poitner in 'str' starting at 'c' or NULL if not found
-static inline const char* findFirstCinS(const char *str, const char c){
+const char* findFirstCinS(const char *str, const char c){
 	while ((*str)&&(*str-c)) str++;
 	return (*str) ? str : NULL;
 }
@@ -247,7 +231,7 @@ static inline const char* findFirstCinS(const char *str, const char c){
 /**
  * @brief Finds the end of a regex expression enclosed within parentheses, including nested structures.
  * 
- * This static inline function is used to locate the end of an expression within parentheses 
+ * This function is used to locate the end of an expression within parentheses 
  * in a regex pattern. It handles nested parentheses by tracking the depth of nesting, ensuring 
  * the correct identification of the enclosing right parenthesis. The function is designed to work 
  * with uncompiled regex patterns ('_uc' suffix), reading and processing the pattern in real-time.
@@ -277,7 +261,7 @@ static inline const char* findFirstCinS(const char *str, const char c){
 //          the [a*(1+3)[z@][aa]] expression.
 // Note: handles nested parentheses by remembring the parentheses depth. Example: (((X)Y)Z)A  - X is in depth 3, Z - in depth 1, A in depth zero.
 // Extension _uc means uncompiled. needs to read forward in real time to find the end of the expression.
-static inline const char* findExpressionEnd_uc(const char *p, const char rp){
+const char* findExpressionEnd_uc(const char *p, const char rp){
 	char	lp  = *p;															// left parethesis
 	int		depth  = 1;															// amount of '('- amount of ')'.
 	MYBOOL	isValidCommand = TRUE;												//  \\[ doesn't count as valid parentheses since it should be treated as part of the text.
@@ -291,7 +275,7 @@ static inline const char* findExpressionEnd_uc(const char *p, const char rp){
 /**
  * @brief Finds the end of a regex expression or a sub-expression within a union set.
  * 
- * This static inline function is an extension of the standard regex parsing mechanism and 
+ * This function is an extension of the standard regex parsing mechanism and 
  * is specifically designed to handle union sets (alternations) in regex patterns. It treats 
  * the '|' symbol as a delimiter for sub-expressions within a union set, enabling the parsing 
  * of each alternative expression within parentheses. The '_uc' suffix indicates that this 
@@ -323,7 +307,7 @@ static inline const char* findExpressionEnd_uc(const char *p, const char rp){
 // This method considers the symbol '|' as closing parentheses. So (aab|ccd|ef) will return 'aab' as first expression.
 //          On the second execution will return 'ccd' and on the third will return 'ef'.
 // Extension _uc means uncompiled. needs to read forward in real time to find the end of the expression.
-static inline const char* findExpressionEnd_UnionSet_uc(const char *p, const char lp, const char rp){
+const char* findExpressionEnd_UnionSet_uc(const char *p, const char lp, const char rp){
 	int		depth  = 1;						
 	MYBOOL	isValidCommand = TRUE;			
 	for (p++; (*p!='\0')&&(depth!=0); p++){
@@ -378,7 +362,7 @@ static const char* goToNextPat_uc(const char* cur){
  * of each expression in the pattern and handles special constructs like union sets in parentheses (e.g., '(A|B|C)'). 
  * The function assumes that the provided pattern is legal and correctly formatted.
  *
- * @param pat Pointer to the null-terminated string containing the regex pattern to be compiled.
+ * @param pattern Pointer to the null-terminated string containing the regex pattern to be compiled.
  * 
  * @return const char* Returns a pointer to the end of the pattern if the compilation is successful, 
  *         or NULL if there is a failure in the compilation process.
@@ -404,26 +388,26 @@ static const char* goToNextPat_uc(const char* cur){
 /****************************** Compilation *********************************/
 /****************************************************************************/
 // Assumes the pattern is legal. Compiles it into 'C'. Returns the end of the pattern on success or NULL on failure.
-const char* tCompiledRegex::compile(const char *pat){
+const char* tCompiledRegex::compile(const char *pattern){
 	init_regex_mechanism_private();
-	start = pat;																			// Pointer to the pattern
+	start = pattern;																			// Pointer to the pattern
 	// For each 'OPEN' rules calculate the length of the expression. Todo: make it O(n) instead of O(n^2) for worst case of "((((((((((A))))))))))"
-	for (int i = 0; *pat; pat++, i++)
-		exprLen[i]   = (UCHAR)(goToNextPat_uc(pat) - pat);									// 'i' is alwyas equals to (pat - start). Initialize the length of current 
-	end = pat;
+	for (int i = 0; *pattern; pattern++, i++)
+		exprLen[i]   = (UCHAR)(goToNextPat_uc(pattern) - pattern);									// 'i' is alwyas equals to (pattern - start). Initialize the length of current 
+	end = pattern;
 	
 	// For each '(' ')' rules calculate union set if relevant. Like (A(z*)A|BB|CC)
 	memset(unionLen,0,sizeof(*unionLen)*(end-start));
-	pat = start;
-	for (int i = 0; *pat; pat++, i++){
-		if ((*pat!='|')||(pat[-1]=='\\'))													// We don't care about non unions.
+	pattern = start;
+	for (int i = 0; *pattern; pattern++, i++){
+		if ((*pattern!='|')||(pattern[-1]=='\\'))													// We don't care about non unions.
 			unionLen[i] = exprLen[i];
 		else if (unionLen[i]==0){															// If we already calculated the length for current union, skip it.
 			// We are by definition at the first union. Example: For (AA|BB|CC), We are at |BB|CC). 
 			int open;
-			for (open = i-1; start + open + exprLen[open] <= pat; open--);					// Go backwards until we find the '(' of the current union. 
-			// OK, now start+open points exactly to the '(' that opened a union. Moreover 'pat' points to the first '|'
-			const char *next = pat, *cur = start+open;										// Iterate over all the '|' and for each store the length until the next '|'
+			for (open = i-1; start + open + exprLen[open] <= pattern; open--);					// Go backwards until we find the '(' of the current union. 
+			// OK, now start+open points exactly to the '(' that opened a union. Moreover 'pattern' points to the first '|'
+			const char *next = pattern, *cur = start+open;										// Iterate over all the '|' and for each store the length until the next '|'
 			while (*next =='|'){
 				unionLen[cur-start] = (UCHAR)(next - cur + 1);								// Mark the current '|'
 				cur = next;																	// Advance to the next '|' or the terminating ')'
@@ -443,24 +427,24 @@ static const char*	 		 EOS = NULL;				// Pointer to the end of current processed
 /****************************************************************************/
 // Main method. Matches pattern to sample string. Returns the number of used characters
 // Or NO_MATCH if impossible to match.
-// 'endp' is pointer to the end of the pattern.
+// 'endpattern' is pointer to the end of the pattern.
 // Declaration of the main mehtod is needed since it is recursivly called.
-static int match(const char* pat, const char* sam, const char* endp);
+static int match(const char* pattern, const char* sample, const char* endpattern);
 
 /**
  * @brief Always returns a successful match for any single character comparison.
  * 
- * This static inline function is part of a regular expression matching system and is used 
+ * This function is part of a regular expression matching system and is used 
  * to handle the '.' character in regex patterns, which matches any single character. 
- * The function ignores the actual characters at 'pat' and 'sam' and always returns a success code.
+ * The function ignores the actual characters at 'pattern' and 'sample' and always returns a success code.
  *
- * @param pat Pointer to the current position in the regex pattern (not used in this function).
- * @param sam Pointer to the current character in the string being matched (not used in this function).
+ * @param pattern Pointer to the current position in the regex pattern (not used in this function).
+ * @param sample Pointer to the current character in the string being matched (not used in this function).
  * 
  * @return int Always returns 1, indicating a successful match of any single character.
  *
  * The operation of this function is straightforward:
- * - It does not perform any actual comparison between 'pat' and 'sam'.
+ * - It does not perform any actual comparison between 'pattern' and 'sample'.
  * - Regardless of the input, it returns 1, representing a successful match.
  * - This is in line with the behavior of the '.' character in regular expressions, which matches any character.
  *
@@ -471,22 +455,22 @@ static int match(const char* pat, const char* sam, const char* endp);
  *   // match will always be 1 for any sampleChar
  */
 // Any char comparison is always true
-static inline int c_any(	const char* pat, const char* sam){
-	(void)pat;
-	(void)sam;
+int c_any(	const char* pattern, const char* sample){
+	(void)pattern;
+	(void)sample;
 	return 1;
 }
 
 /**
  * @brief Compares a single character from a regex pattern with a character from a string.
  * 
- * This static inline function is designed for the simple task of comparing a single character 
- * from a regex pattern ('pat') with a single character from a string ('sam'). It's used in the 
+ * This function is designed for the simple task of comparing a single character 
+ * from a regex pattern ('pattern') with a single character from a string ('sample'). It's used in the 
  * context of regular expression processing where more complex patterns are not involved, and a 
  * straightforward character-to-character comparison is needed.
  *
- * @param pat Pointer to the character in the regex pattern to be matched.
- * @param sam Pointer to the character in the string to be compared against the pattern character.
+ * @param pattern Pointer to the character in the regex pattern to be matched.
+ * @param sample Pointer to the character in the string to be compared against the pattern character.
  * 
  * @return int Returns 1 if the characters match, or NO_MATCH if they do not.
  *
@@ -506,21 +490,21 @@ static inline int c_any(	const char* pat, const char* sam){
  *   }
  */
 // Single char comparison. Match uses one charactr. Wrong returns NO_MATCH.
-static inline int c_achar(const char* pat, const char* sam){
-	return (*pat == *sam) ? 1 : NO_MATCH;
+int c_achar(const char* pattern, const char* sample){
+	return (*pattern == *sample) ? 1 : NO_MATCH;
 }
 
 /**
  * @brief Matches a string segment against a group of alternatives in a regular expression pattern.
  * 
- * This static inline function handles matching a segment of a string ('sam') against a group of 
+ * This function handles matching a segment of a string ('sample') against a group of 
  * alternatives in a regular expression pattern enclosed within parentheses and separated by '|'. 
  * It iteratively attempts to match each alternative in the group until a successful match is found.
  *
- * @param pat Pointer to the beginning of the regex group pattern (right after the opening parenthesis).
- * @param sam Pointer to the segment of the string to be matched against the group.
+ * @param pattern Pointer to the beginning of the regex group pattern (right after the opening parenthesis).
+ * @param sample Pointer to the segment of the string to be matched against the group.
  * 
- * @return int The number of characters consumed from 'sam' if a successful match is found for any of the alternatives,
+ * @return int The number of characters consumed from 'sample' if a successful match is found for any of the alternatives,
  *         otherwise returns NO_MATCH.
  *
  * The function operates as follows:
@@ -541,31 +525,31 @@ static inline int c_achar(const char* pat, const char* sam){
  *       // Process the match
  *   }
  */
-static inline int c_group(	const char* pat, const char* sam){
-	const char *close = compiledRegexPtr->getExpressionEnd_UnionSet(pat);
+int c_group(	const char* pattern, const char* sample){
+	const char *close = compiledRegexPtr->getExpressionEnd_UnionSet(pattern);
     if (!close)  return NO_MATCH;						// Could not match the paretheses. Wrong expresion. Exit
 	int nCharsMatched;
 	while (close[-1]=='|'){
-		nCharsMatched = match(pat+1, sam, close-1);		// +1 and -1 remove the parentheses
+		nCharsMatched = match(pattern+1, sample, close-1);		// +1 and -1 remove the parentheses
 		if (nCharsMatched >= 0)
 			return nCharsMatched;
-		pat   = close-1;								// Advance to the next alternative
-		close = compiledRegexPtr->getExpressionEnd_UnionSet(pat);
+		pattern   = close-1;								// Advance to the next alternative
+		close = compiledRegexPtr->getExpressionEnd_UnionSet(pattern);
 		if (!close)  return NO_MATCH;					// Could not match the paretheses. Wrong expresion. Exit
 	}
-    return match(pat+1, sam, close-1);					// Execute the final alternative.
+    return match(pattern+1, sample, close-1);					// Execute the final alternative.
 }
 
 /**
  * @brief Matches a string character against predefined regular expression abbreviations.
  * 
- * This static inline function handles the matching of a single character in a string ('sam') against 
+ * This function handles the matching of a single character in a string ('sample') against 
  * a set of predefined regular expression abbreviations (e.g., '\d' for digits, '\w' for word characters). 
  * These abbreviations represent common character classes in regex. The function expands these abbreviations 
  * into their full regex form and then performs the match.
  *
- * @param pat Pointer to the regex pattern, positioned at the abbreviation character (e.g., 'd' in '\d').
- * @param sam Pointer to the character in the string to be matched against the abbreviation.
+ * @param pattern Pointer to the regex pattern, positioned at the abbreviation character (e.g., 'd' in '\d').
+ * @param sample Pointer to the character in the string to be matched against the abbreviation.
  * 
  * @return int Returns the result of the match function, which is the number of characters matched (usually 1 or 0),
  *         or returns NO_MATCH in case of failure. If the abbreviation is unknown, it falls back to character comparison.
@@ -587,10 +571,10 @@ static inline int c_group(	const char* pat, const char* sam){
  *   }
  */
 // All possible abbreviations
-static inline int c_extended(	const char* pat, const char* sam){
+int c_extended(	const char* pattern, const char* sample){
 	#define ABB_LENGTH  (32)
     char abbr[ABB_LENGTH] = "";    
-    switch (*++pat){
+    switch (*++pattern){
         case 'd':	strcpy_s(abbr, ABB_LENGTH, "[0-9]");			break;	// Digit
         case 'D':   strcpy_s(abbr, ABB_LENGTH, "[^0-9]");			break;  // Non-digit
         case 'x':   strcpy_s(abbr, ABB_LENGTH, "[0-9A-Fa-f]");		break;	// Hex digit
@@ -609,20 +593,20 @@ static inline int c_extended(	const char* pat, const char* sam){
         case 'S':	strcpy_s(abbr, ABB_LENGTH, "[^ \t\r\n\v\f]");	break;
     }
 
-    if (*abbr)	return match(abbr, sam, endOfString(abbr));
-    else		return c_achar(pat,sam);						// Unknown abbreviation. Just assume that it is a character comparison
+    if (*abbr)	return match(abbr, sample, endOfString(abbr));
+    else		return c_achar(pattern,sample);						// Unknown abbreviation. Just assume that it is a character comparison
 }
 
 /**
  * @brief Matches a single character in a string against a set of characters or ranges defined in a regex pattern.
  * 
- * This static inline function is designed to handle character class expressions in regex, 
+ * This function is designed to handle character class expressions in regex, 
  * where a character in a string is matched against a set of allowed (or disallowed) characters 
  * specified within square brackets in the pattern (e.g., '[a-z]', '[^0-9]'). It supports ranges, 
  * individual characters, and negation.
  *
- * @param pat Pointer to the beginning of the character class pattern segment (just after the opening '[').
- * @param sam Pointer to the character in the string to be matched against the character class.
+ * @param pattern Pointer to the beginning of the character class pattern segment (just after the opening '[').
+ * @param sample Pointer to the character in the string to be matched against the character class.
  * 
  * @return int Returns 1 if the character matches the pattern, or NO_MATCH if it doesn't. 
  *         In case of a negation pattern (e.g., '[^a-z]'), returns 1 if the character does not match the pattern.
@@ -630,7 +614,7 @@ static inline int c_extended(	const char* pat, const char* sam){
  * The function works as follows:
  * - Parses the character class pattern to identify ranges (e.g., 'a-z'), individual characters, 
  *   and the presence of a negation operator ('^') at the start.
- * - Iteratively checks if the character from the string ('sam') matches any of the specified ranges 
+ * - Iteratively checks if the character from the string ('sample') matches any of the specified ranges 
  *   or characters in the pattern.
  * - Handles escaped characters (e.g., '\-') within the pattern.
  * - Implements negation logic: if the pattern starts with '^', the match criteria are inverted.
@@ -646,34 +630,34 @@ static inline int c_extended(	const char* pat, const char* sam){
  *   }
  */
 // Chose one of the options in []. Like [\\-0-9$_#]
-static inline  int c_option(	const char* pat, const char* sam){
+ int c_option(	const char* pattern, const char* sample){
     const char *from  = NULL;									// If we have [a-z]		'from' is 'a', 'to' is 'z'
     const char *to	  = NULL;									// If we have [qQ]		'from' is 'q' and 'Q', 'to' is not needed
-	const char *close = compiledRegexPtr->getExpressionEnd(pat);// Extract the expression inside the [] parentheses
-	pat++; close--;												// +1 and -1 remove the parentheses	
-    int negationOp = ((*pat == '^') ? NO_MATCH : 1);			// Check for negation flag. Invert character [^a-z], representing negation operator
+	const char *close = compiledRegexPtr->getExpressionEnd(pattern);// Extract the expression inside the [] parentheses
+	pattern++; close--;												// +1 and -1 remove the parentheses	
+    int negationOp = ((*pattern == '^') ? NO_MATCH : 1);			// Check for negation flag. Invert character [^a-z], representing negation operator
 	if (negationOp<0)
-		pat++;
+		pattern++;
 
-    while (pat < close){		
-        if (*pat == '-' && from){								// Check for range selection. Like 0-9, where we already have the from
-			to = pat + 1;										// Find the 'to'
+    while (pattern < close){		
+        if (*pattern == '-' && from){								// Check for range selection. Like 0-9, where we already have the from
+			to = pattern + 1;										// Find the 'to'
             if (*to == '\\')  to++;								// Comparison with reserved character. like \-  or \*			
 			// Test for range			
-            if is_int_inRange(*sam,*from,*to)				
+            if is_int_inRange(*sample,*from,*to)				
                 return negationOp;								// We have found a match. If 'not' is active than this is a violation of the pattern			
-            pat = to + 1;										// So *sam didn't match the current range, try the next range. Like a-z and A-Z
+            pattern = to + 1;										// So *sample didn't match the current range, try the next range. Like a-z and A-Z
             continue;
         }
 
-        from = pat;												// Beggining of the pattern. Initialize 'from'
+        from = pattern;												// Beggining of the pattern. Initialize 'from'
         if (*from == '\\'){ 
-			from++; pat++;										// Comparison with reserved character. like \\* or \\?			
+			from++; pattern++;										// Comparison with reserved character. like \\* or \\?			
 		}
 		
-        if (*sam == *from)
+        if (*sample == *from)
             return negationOp;									// Comparison of single letter. Like [a-ZAB]
-        pat++;
+        pattern++;
     }
     return -negationOp;											// We tested all the options and nothing was mathing.  
 }
@@ -686,11 +670,11 @@ static inline  int c_option(	const char* pat, const char* sam){
  * with a segment of a given string. It calculates the minimum and maximum number of repetitions 
  * allowed for the pattern and tries to match accordingly.
  *
- * @param pat Pointer to the beginning of the regex pattern segment to be matched.
- * @param sam Pointer to the segment of the string against which the pattern is to be matched.
- * @param endp Pointer to the end of the regex pattern segment.
+ * @param pattern Pointer to the beginning of the regex pattern segment to be matched.
+ * @param sample Pointer to the segment of the string against which the pattern is to be matched.
+ * @param endpattern Pointer to the end of the regex pattern segment.
  * 
- * @return int The number of characters consumed from 'sam' if a successful match is found,
+ * @return int The number of characters consumed from 'sample' if a successful match is found,
  *         otherwise returns NO_MATCH.
  *
  * The function operates as follows:
@@ -711,15 +695,15 @@ static inline  int c_option(	const char* pat, const char* sam){
  *   }
  */
 // Multiple occurence of a character
-static inline int c_multi(	const char* pat, const char* sam, const char* endp){
-    const Cmd* cmd = get_cmd(*pat);
+int c_multi(	const char* pattern, const char* sample, const char* endpattern){
+    const Cmd* cmd = get_cmd(*pattern);
     int   nCharsMatched;														// How many characters the multi repitition consumed.
     int   nRestCharsMatched = NO_MATCH;											// How many characters the rest of the pattern consumes (if it exists).
     int   nRepitions;															// Counter, how many repititions were made up to now in a loop
-    const char* start_sam = sam;
+    const char* start_sam = sample;
     const char *ends      = EOS;												// Get the end of the sample (stored in cache, instead of recalculation)
 	const char *foundMatchAt = NULL;											// We already found a match but want to try and find a longer matching string
-	const char *multi    = compiledRegexPtr->getExpressionEnd(pat);				// Multi occurence pattern: {}, *,?,+
+	const char *multi    = compiledRegexPtr->getExpressionEnd(pattern);				// Multi occurence pattern: {}, *,?,+
     const char *next_pat = compiledRegexPtr->getExpressionEnd(multi);			// The rest of the pattern.
 
 	// Calculate Min/Max numbers of needed occurences
@@ -746,7 +730,7 @@ static inline int c_multi(	const char* pat, const char* sam, const char* endp){
 
 	// If (min==0), we first try to match the rest of pattern
 	if ((min==0)&&(*next_pat)){
-		nRestCharsMatched = match(next_pat, sam, endp);
+		nRestCharsMatched = match(next_pat, sample, endpattern);
 		if (nRestCharsMatched>=0)			
 			foundMatchAt = start_sam + nRestCharsMatched;	// Yes! The rest of the sample string matches the rest of the pattern. But maybe we can do more repititions and still be fine. like '.*b' matched to 'ab' but can also match  'abccqqb'
 		// Note: if nRestCharsMatched==0 than the rest of the pattern can be matched to an empty string. Success is guaranteed. Now we want to match as much repititions as we can. Like 'a*b?' was matched to first character of 'aaaz' but can be matched to 'aaa'.
@@ -754,8 +738,8 @@ static inline int c_multi(	const char* pat, const char* sam, const char* endp){
 
 	// OK. We need to take at least one repitiotion. Enter the loop
 	nRepitions = 0;
-    while (sam < ends){
-        nCharsMatched = ((Stand_Func)cmd->f)(pat, sam);									// Find the pattern for the i'th time.
+    while (sample < ends){
+        nCharsMatched = ((StandFunc)cmd->f)(pattern, sample);									// Find the pattern for the i'th time.
         if (nCharsMatched < 0){			
 			// No more repetitions are possible
 			if (nRepitions < min) return NO_MATCH;										// We need at least 'min' but failed
@@ -766,9 +750,9 @@ static inline int c_multi(	const char* pat, const char* sam, const char* endp){
 				// Else We have found a good solution right now and no more iterations possible. Return the good solution.
 				return (foundMatchAt) ? (int)(foundMatchAt-start_sam) : NO_MATCH; 
 			}
-			return (int)(sam-start_sam);												// Macth found. Use 'nRepitions'
+			return (int)(sample-start_sam);												// Macth found. Use 'nRepitions'
 		}        
-        sam += nCharsMatched;															// Found 'i' repitiotions. Advance pointers
+        sample += nCharsMatched;															// Found 'i' repitiotions. Advance pointers
         nRepitions++;
 
         if (nRepitions < min) continue;													// If we still havent reached the minimal amount of repititions than continue to gather more repetitions.
@@ -777,15 +761,15 @@ static inline int c_multi(	const char* pat, const char* sam, const char* endp){
 		// pattern can be matched. If not we will look for more occurences.
 		// Otherwise we will use the current amount of occurences.
         if (*next_pat){
-            nRestCharsMatched = match(next_pat, sam, endp);
+            nRestCharsMatched = match(next_pat, sample, endpattern);
             if (nRestCharsMatched>=0)
-				foundMatchAt = sam + nRestCharsMatched;									// See explanation of the code line 'foundMatchAt = start_sam + nRestCharsMatched;' above
+				foundMatchAt = sample + nRestCharsMatched;									// See explanation of the code line 'foundMatchAt = start_sam + nRestCharsMatched;' above
         }
 		
 	    if (nRepitions == max){															// Check the maximal limit of repititions.
 			if  (*next_pat)
 				return (foundMatchAt) ? (int)(foundMatchAt-start_sam) : NO_MATCH;		// See explanation for this exact code line above 
-			return (int)(sam-start_sam);												// Macth found. Use maximal possible amounts of repitions.
+			return (int)(sample-start_sam);												// Macth found. Use maximal possible amounts of repitions.
 		}
 	}
 
@@ -794,29 +778,29 @@ static inline int c_multi(	const char* pat, const char* sam, const char* endp){
 
 	if ((*next_pat)&&(nRestCharsMatched < 0))
 		return (foundMatchAt) ? (int)(foundMatchAt-start_sam) : NO_MATCH;				// Sample string terminated and the rest of the pattern cannot be matched to an empty string. If we found a good solution return it. Otherwise no solution for matching	
-    return (int)(sam-start_sam);														// No following patterns that require aditional characters and we got enough iterations. like a*z? on a string of 'aaaa'
+    return (int)(sample-start_sam);														// No following patterns that require aditional characters and we got enough iterations. like a*z? on a string of 'aaaa'
 }
 
 
 /**
  * @brief Attempts to match a given regular expression pattern to a string from its beginning.
  * 
- * This function matches a regular expression pattern against the beginning of a string ('sam'). 
+ * This function matches a regular expression pattern against the beginning of a string ('sample'). 
  * It handles various regex constructs including standard characters, special characters, and suffixes 
- * like '*', '+', '?', and '{x,y}'. The function returns the number of characters from 'sam' that match 
+ * like '*', '+', '?', and '{x,y}'. The function returns the number of characters from 'sample' that match 
  * the pattern. A return value of 0 indicates a successful match with zero occurrences (e.g., 'a?' matched to 'bc').
  *
- * @param pat Pointer to the beginning of the regex pattern.
- * @param sam Pointer to the beginning of the string to be matched against the pattern.
- * @param endp Pointer to the end of the regex pattern.
+ * @param pattern Pointer to the beginning of the regex pattern.
+ * @param sample Pointer to the beginning of the string to be matched against the pattern.
+ * @param endpattern Pointer to the end of the regex pattern.
  * 
- * @return int The number of characters consumed from 'sam' if the match is successful, 
+ * @return int The number of characters consumed from 'sample' if the match is successful, 
  *         otherwise returns NO_MATCH (defined constant) to indicate failure.
  *
  * The function works as follows:
  * - It iteratively processes each part of the pattern, handling suffix expressions and standard characters.
  * - If it encounters a suffix (like '*', '?', '{x,y}', '+'), it applies the respective logic.
- * - For standard characters, it matches them against the corresponding characters in 'sam'.
+ * - For standard characters, it matches them against the corresponding characters in 'sample'.
  * - The function handles invalid or null patterns by returning NO_MATCH.
  * - It also accounts for complex scenarios like nested patterns or recursion (future enhancements mentioned).
  * 
@@ -831,37 +815,37 @@ static inline int c_multi(	const char* pat, const char* sam, const char* endp){
  *   }
  */
 
-// Match pattern to the 'sam' string from its beginning. 
+// Match pattern to the 'sample' string from its beginning. 
 // Returns the amount of consumed characters if match was successfull. Otherwise returns NO_MATCH.
 // Note: 0 means successfull match. For example 'a?' is matched to 'bc' with zero occurences of 'a'
-static int match(const char* pat, const char* sam, const char* endp){
+static int match(const char* pattern, const char* sample, const char* endpattern){
     const Cmd* cmd;
     int  nCharsMatched;
-    const char* start_sam = sam, *next_pat;
+    const char* start_sam = sample, *next_pat;
 
-	if (!pat)
+	if (!pattern)
 		return NO_MATCH;												// NULL pattern is illegal
-    while (pat < endp){		
-        next_pat  = compiledRegexPtr->getExpressionEnd(pat);			// Find next pattern to see if it is a suffix like *, {x,y},?,+
+    while (pattern < endpattern){		
+        next_pat  = compiledRegexPtr->getExpressionEnd(pattern);			// Find next pattern to see if it is a suffix like *, {x,y},?,+
 		if (next_pat==NULL)
 			return NO_MATCH;											// Wrong regular expression. For example '(A)))'
 		cmd = get_cmd(*next_pat);										// Check the next command if it is a suffix
 		if (isSuffix(cmd)){												// 'cmd' is indeed a suffix. like 'z{3,7}'. Activate {3,7} on pattern 'z'.
-			int matchedLen = ((SuffixFunc)cmd->f)(pat, sam, endp);		// Execute the suffix
-			return (matchedLen>=0) ? (int)(sam-start_sam) + matchedLen : NO_MATCH;
+			int matchedLen = ((SuffixFunc)cmd->f)(pattern, sample, endpattern);		// Execute the suffix
+			return (matchedLen>=0) ? (int)(sample-start_sam) + matchedLen : NO_MATCH;
         }
         else{															// No suffix
-			cmd = get_cmd(*pat);
+			cmd = get_cmd(*pattern);
 			// if (cmd->attr&TYPE_RECURSION){ To do: Handle the the case of the bug (.*)AB is not matched to 'ZAB' because .* consumes 3 letters
-            nCharsMatched = ((Stand_Func)cmd->f)(pat, sam);
+            nCharsMatched = ((StandFunc)cmd->f)(pattern, sample);
             if (nCharsMatched < 0) 
 				return NO_MATCH;										// If matching failed return NO_MATCH.
 			
-            sam += nCharsMatched;										// Advance to next pattern
-            pat = next_pat;
+            sample += nCharsMatched;										// Advance to next pattern
+            pattern = next_pat;
         }
     }
-    return (int)(sam-start_sam);
+    return (int)(sample-start_sam);
 }
 
 /**

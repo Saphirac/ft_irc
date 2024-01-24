@@ -60,7 +60,17 @@ typedef struct{
 #define get_cmd(c)               get_cmd_byChar[(c)&0x7F]			// Get the command strucutre by character. For '(' will return '(' command
 #define isReservedSymbol(c)      (get_cmd(c)->id != 0)				// Is the given character a reserved symbol (used as regex command)
 
+/**
+ * Define pointers to functions that process the special commands.
+ * Standard functions and characters like () . [] \\ A 7 and son one ...	
+*/
+typedef int (*StandFunc)(const char* pattern, const char* sample);	
 
+/**
+ * Define pointers to functions that process the special commands.
+ * Suffix functions for multiple occurences like * + ? {}
+*/
+typedef int (*SuffixFunc)(const char* pattern, const char* sample,const char* endpattern);
 
 /**
  * Struct: tCompiledRegex
@@ -105,6 +115,22 @@ public:
 };
 
 const char* regex_search(const char* pattern, const char* sampleString, int* resLen);
+
+/**
+ * There are 6 predicate functions.
+ * 
+ * - First parameter is the pattern. 
+ * - Second is the sample string and optional third is pointer to the end of the pattern 
+ * - Each one returns the number of consumed characters in sample string or NO_MATCH if inapplicable 
+ * (like 'a+' was applied on 'bbb'). Note 'a*' can be applied on 'bbb' and it consumes zero characters.
+ * */ 
+// 
+int c_achar(	 const char* pattern, const char* sample);
+int c_any(	 const char* pattern, const char* sample);
+int c_extended(const char* pattern, const char* sample);
+int c_group(	 const char* pattern, const char* sample);
+int c_option(	 const char* pattern, const char* sample);
+int c_multi(	 const char* pattern, const char* sample, const char* endpattern);
 
 
 #endif
