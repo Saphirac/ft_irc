@@ -1,27 +1,9 @@
 #include "regex.hpp"
 
-/**
- * Converts a string to an integer.
- * 
- * This function reads a positive integer from a C-style string. It iterates through each character of the string,
- * converting it from an ASCII character to its corresponding integer value and building the integer result. 
- * The function assumes the string represents a non-negative integer and does not handle negative signs or non-numeric characters.
- *
- * @param str constant character pointer to the C-style string to be converted.
- * @return The integer value of the string. Returns 0 if the string does not start with a digit.
- */ 
-static inline int ft_fast_atoi(const char* str)
-{
-	int resI = 0;															
-	for (;isDigit(*str); str++)
-		resI = resI*10 + (str[0]-'0');
-	return resI;
-}
-
 
 // Inverse table of the above (given a character like '*', 'C', '\' get the appropriate command). We use a look up table for all possible ASCII characters
 static const Cmd* get_cmd_byChar[128];
-static int        isInitialized = 0;								// Was the look up table above initialized
+static int        isInitialized = 0;
 
 /**
  * @brief Defines a table of commands representing regex rules.
@@ -49,8 +31,6 @@ static int        isInitialized = 0;								// Was the look up table above initi
  *   // The regex engine uses this table to find the appropriate command and function
  *   // for each character or construct in a regex pattern.
  */
-// Define the table of command (regex rules). For each id, it's length, type of command and processing function
-// Rules of commands: TYPE_CLOSE follows TYPE_OPEN immediately in command table
 static const Cmd cmd_tbl[] = {
     { '(', TYPE_OPEN|TYPE_RECURSION,     (void*)c_group },
     { ')', TYPE_CLOSE|TYPE_RECURSION,    (void*)NULL },
@@ -66,6 +46,29 @@ static const Cmd cmd_tbl[] = {
     { '.', TYPE_CHAR,                   (void*)c_any },
     { 0, TYPE_CHAR,                     (void*)c_achar },
 };
+
+/**
+ * Converts a string to an integer.
+ * 
+ * This function reads a positive integer from a C-style string. It iterates through each character of the string,
+ * converting it from an ASCII character to its corresponding integer value and building the integer result. 
+ * The function assumes the string represents a non-negative integer and does not handle negative signs or non-numeric characters.
+ *
+ * @param str constant character pointer to the C-style string to be converted.
+ * @return The integer value of the string. Returns 0 if the string does not start with a digit.
+ */ 
+static inline int ft_fast_atoi(const char* str)
+{
+	int resI = 0;															
+	for (;isDigit(*str); str++)
+		resI = resI*10 + (str[0]-'0');
+	return resI;
+}
+
+
+/****************************************************************************/
+/*************************** Auxiliary functions ****************************/
+/****************************************************************************/
 
 /**
  * @brief Custom implementation of the `strcpy_s` function for safe string copying.
@@ -102,10 +105,6 @@ static const Cmd cmd_tbl[] = {
  *       // String copied successfully
  *   }
  */
-/****************************************************************************/
-/****************************** Aux functions *******************************/
-/****************************************************************************/
-// Custom implementation of strcpy_s
 int strcpy_s(char* dest, size_t destSize, const char* src) {
     if (dest == nullptr || destSize == 0) {
         return STRCPY_S_INVALID_ARGUMENT;
@@ -124,7 +123,7 @@ int strcpy_s(char* dest, size_t destSize, const char* src) {
 
 
 /**
- * @brief Initializes the regex mechanism's command lookup table.
+ * @brief Initializes the regex mechanism's command get_cmd_byChar[] lookup table.
  * 
  * This function is responsible for setting up the `get_cmd_byChar` lookup table used 
  * in regex processing. It populates the table with pointers to command structures (`Cmd`) based on 
@@ -146,19 +145,18 @@ int strcpy_s(char* dest, size_t destSize, const char* src) {
  *   // Before processing any regex patterns
  *   init_regex_mechanism_private();
  */
-// Initialize the get_cmd_byChar[] look up table
 void init_regex_mechanism_private(void){
-    if (isInitialized) return;
+    if (isInitialized)
+		return;
     const Cmd* cmd = cmd_tbl, *end = cmd_tbl;
-    while (end->id) end++; // Find the last default command (character processing) and store it in 'end'
+    while (end->id)
+		end++;
 
     for (int i = 0; i < 128; i++)
-        get_cmd_byChar[i] = end; // Set the whole lookup table to point to the default command
+        get_cmd_byChar[i] = end;
 
-    for (; cmd < end; cmd++) {
-        // Cast cmd->id to int before using it as an index
-        get_cmd_byChar[static_cast<unsigned char>(cmd->id)] = cmd; // For all the real commands set an entry in the lookup table
-    }
+    for (; cmd < end; cmd++)
+        get_cmd_byChar[static_cast<unsigned char>(cmd->id)] = cmd;
 
     isInitialized = TRUE;
 }
@@ -184,11 +182,11 @@ void init_regex_mechanism_private(void){
  *
  * Example Usage:
  *   const char* str = "Hello World";
- *   const char* end = endOfString(str);
+ *   const char* end = end_of_string(str);
  *   // 'end' points to the null character at the end of "Hello World"
  */
 // Find the end of the string.
-const char* endOfString(const char *str){
+const char* end_of_string(const char *str){
 	while (*str) str++;
 	return str;
 }
@@ -215,7 +213,7 @@ const char* endOfString(const char *str){
  * Example Usage:
  *   const char* str = "Hello World";
  *   char findChar = 'W';
- *   const char* position = findFirstCinS(str, findChar);
+ *   const char* position = find_first_c_in_s(str, findChar);
  *   if (position) {
  *       // Character found
  *   } else {
@@ -223,7 +221,7 @@ const char* endOfString(const char *str){
  *   }
  */
 // Find first occurence of character in the string. Returns the poitner in 'str' starting at 'c' or NULL if not found
-const char* findFirstCinS(const char *str, const char c){
+const char* find_first_c_in_s(const char *str, const char c){
 	while ((*str)&&(*str-c)) str++;
 	return (*str) ? str : NULL;
 }
@@ -261,15 +259,17 @@ const char* findFirstCinS(const char *str, const char c){
 //          the [a*(1+3)[z@][aa]] expression.
 // Note: handles nested parentheses by remembring the parentheses depth. Example: (((X)Y)Z)A  - X is in depth 3, Z - in depth 1, A in depth zero.
 // Extension _uc means uncompiled. needs to read forward in real time to find the end of the expression.
-const char* findExpressionEnd_uc(const char *p, const char rp){
-	char	lp  = *p;															// left parethesis
-	int		depth  = 1;															// amount of '('- amount of ')'.
-	MYBOOL	isValidCommand = TRUE;												//  \\[ doesn't count as valid parentheses since it should be treated as part of the text.
-	for (p++; is_int_notZero(*p)&is_int_notZero(depth); p++){
-		depth += isValidCommand * (is_int_equal(*p,lp) - is_int_equal(*p,rp));	// Update the depth only if parenthesis is valid. each 'lp' causes +1, rp causes -1
-		isValidCommand = is_int_notEqual(*p,'\\');			// If current charachter == '\' than the parentheses become invalid
+const char* findExpressionEnd_uc(const char *p, const char rp)
+{
+	char	lp  = *p;
+	int		depth  = 1;
+	MYBOOL	isValidCommand = TRUE;
+	for (p++; is_int_notZero(*p)&is_int_notZero(depth); p++)
+	{
+		depth += isValidCommand * (is_int_equal(*p,lp) - is_int_equal(*p,rp));
+		isValidCommand = is_int_notEqual(*p,'\\');
 	}
-	return (depth==0) ? p : NULL;							// (depth==0) -> Expresion parentheses was matched, otherwise end of string reached and Parentheses are not balanced
+	return (depth==0) ? p : NULL;
 }
 
 /**
@@ -354,6 +354,11 @@ static const char* goToNextPat_uc(const char* cur){
 	return cur + cmdLength(cmd);						// Just skip the command
 }
 
+
+/****************************************************************************/
+/****************************** Compilation *********************************/
+/****************************************************************************/
+
 /**
  * @brief Compiles a regular expression pattern for later use in matching.
  * 
@@ -384,10 +389,6 @@ static const char* goToNextPat_uc(const char* cur){
  *       // Compilation successful
  *   }
  */
-/****************************************************************************/
-/****************************** Compilation *********************************/
-/****************************************************************************/
-// Assumes the pattern is legal. Compiles it into 'C'. Returns the end of the pattern on success or NULL on failure.
 const char* tCompiledRegex::compile(const char *pattern){
 	init_regex_mechanism_private();
 	start = pattern;																			// Pointer to the pattern
@@ -560,7 +561,7 @@ int c_group(	const char* pattern, const char* sample){
  * - Handles various standard regex abbreviations like '\d', '\w', '\s', and their negated forms '\D', '\W', '\S'.
  * - If the abbreviation is unknown, it defaults to a basic character comparison.
  * 
- * Note: The function assumes the use of other components like 'endOfString' and 'c_achar' for processing.
+ * Note: The function assumes the use of other components like 'end_of_string' and 'c_achar' for processing.
  *
  * Example Usage:
  *   const char* pattern = "\\d"; // represents a digit
@@ -593,7 +594,7 @@ int c_extended(	const char* pattern, const char* sample){
         case 'S':	strcpy_s(abbr, ABB_LENGTH, "[^ \t\r\n\v\f]");	break;
     }
 
-    if (*abbr)	return match(abbr, sample, endOfString(abbr));
+    if (*abbr)	return match(abbr, sample, end_of_string(abbr));
     else		return c_achar(pattern,sample);						// Unknown abbreviation. Just assume that it is a character comparison
 }
 
@@ -711,8 +712,8 @@ int c_multi(	const char* pattern, const char* sample, const char* endpattern){
     switch (*multi){
         case '{':  // For range of repetition: {4} or {4-8}
             {
-                const char* comma = findFirstCinS(multi, ',');
-				const char* rEnd  = findFirstCinS(multi, '}');
+                const char* comma = find_first_c_in_s(multi, ',');
+				const char* rEnd  = find_first_c_in_s(multi, '}');
 				// Read the minimum value
                 min = ft_fast_atoi(multi+1);
 				// If comma exists inside {} than read also the maximum value
@@ -919,7 +920,7 @@ const char* tCompiledRegex::search(const char* sampleString, int* resLen) const{
 	compiledRegexPtr	   = this;										// Store 'this' as current regex
 	const char* pattern    = start;
 	const char* endPattern = end;
-	const char* endOfSearch= EOS = endOfString(sampleString);			// When comparint the pattern to sample string we will search the entire sample.
+	const char* endOfSearch= EOS = end_of_string(sampleString);			// When comparint the pattern to sample string we will search the entire sample.
 	if (pattern == endPattern){											// Empty pattern is matched with zero length matching		
 		*resLen = 0;
 		return sampleString;
