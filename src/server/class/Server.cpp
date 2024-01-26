@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/26 03:42:54 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/26 03:49:17 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -337,6 +337,47 @@ void	Server::handle_client_event(Client *client)
 	std::cout << "Received " << bytes_read << " bytes from client." << std::endl;
 	parse_command(buffer, client);
 	client->getCmd().execCommand();
+}
+
+/**
+ * @brief add new client to the list of clients
+ * 
+ * // TODO : change exit failure with exception
+ * // TODO : use a client with a handshake bool to check if nickname and other received input is correct
+ * 
+ */
+void	Server::handle_new_connection()
+{
+	int	client_socket;
+	struct sockaddr_in	client_addr;
+	socklen_t	client_addr_len = sizeof(client_addr);
+
+	client_socket = accept(this->_socket, (struct sockaddr *)&client_addr, &client_addr_len);
+	if (client_socket == -1)
+	{
+		std::cerr << "Problem with accept()." << std::endl;
+		exit (EXIT_FAILURE);
+	}
+	
+	std::string input = read_first_message(client_socket);
+	if (!input)
+	{
+		std::cerr << "Problem with read_first_message()." << std::endl;
+		return ;
+	}
+	
+	std::string nickname = get_nickname(input);
+	if (check_nickname(nickname))
+	{
+		std::cerr << "Problem with chosen nickname." << std::endl;
+		return ;
+	}
+	
+	this->_clients->push_back(new Client(client_socket, client_addr));
+	this->_client_socket[client_socket] = this->_clients.back();
+	this->_clients.back()->setEvent();
+	ctrl_epoll_add(this->_epoll_socket, client_socket, this->_clients.back()->getEvent());
+	this->send_welcome_message(client_socket);
 }
 
 /**
