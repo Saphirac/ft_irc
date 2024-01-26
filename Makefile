@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2023/11/24 19:29:45 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/01/15 16:04:13 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,7 @@ RM			=	rm -rf
 ######################################
 #             EXECUTABLE             #
 ######################################
-NAME		=	ft_irc
+NAME		=	ircserv
 
 #######################################
 #             DIRECTORIES             #
@@ -34,6 +34,15 @@ PRV_DIR		=	private
 #            SOURCE FILES            #
 ######################################
 SRC			=							\
+				${addprefix server/,	\
+					${addprefix class/,	\
+						Server.cpp		\
+					}					\
+					server.cpp			\
+				}						\
+				${addprefix utils/,		\
+					trim.cpp			\
+				}						\
 				main.cpp
 
 ######################################
