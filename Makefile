@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/01/15 16:04:13 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/01/26 04:12:59 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,17 +33,19 @@ PRV_DIR		=	private
 ######################################
 #            SOURCE FILES            #
 ######################################
-SRC			=							\
-				${addprefix server/,	\
-					${addprefix class/,	\
-						Server.cpp		\
-					}					\
-					server.cpp			\
-				}						\
-				${addprefix utils/,		\
-					trim.cpp			\
-				}						\
-				main.cpp
+SRC	=							\
+		${addprefix server/,	\
+			${addprefix class/,	\
+				Server.cpp		\
+				Client.cpp		\
+				Channel.cpp		\
+				Command.cpp		\
+			}					\
+		}						\
+		${addprefix utils/,		\
+			trim.cpp			\
+		}						\
+		main.cpp
 
 ######################################
 #            OBJECT FILES            #

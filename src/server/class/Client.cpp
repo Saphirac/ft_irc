@@ -6,16 +6,14 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 02:53:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/21 21:06:20 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/26 04:37:16 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-Client::Client(int const socket, sockaddr_in sock_addr, int const name, int const nickname) :
+Client::Client(int const socket, int const name, int const nickname) :
 _socket(socket),
 _name(name),
 _nickname(nickname),
-_sock_addr(sock_addr),
-_addr_len(sizeof(sockaddr_in))
 {
 	if (DEBUG)
 		std::cout << "Client constructor called\n";
@@ -57,11 +55,32 @@ struct epoll_event	*Client::getEvent(void) const
 	return this->_client_event;
 }
 
-int Client::getSockAddr(void) const
+bool	Client::getIsComplete() const
 {
 	if (DEBUG)
-		std::cout << "getSockAddr() member function of client called\n";
-	return this->_sock_addr;
+		std::cout << "getIsComplete() member function of client called\n";
+	return this->_is_complete;
+}
+
+std::string	Client::getInput() const
+{
+	if (DEBUG)
+		std::cout << "getInput() member function of client called\n";
+	return this->_input;
+}
+
+bool	Client::getIsInputComplete() const
+{
+	if (DEBUG)
+		std::cout << "getIsInputComplete() member function of client called\n";
+	return this->_is_input_complete;
+}
+
+Command	*Client::getCommand() const
+{
+	if (DEBUG)
+		std::cout << "getCommand() member function of client called\n";
+	return this->_command;
 }
 
 // Setters //
@@ -96,11 +115,32 @@ void	Client::setEvent()
 	this->_client_event->data.fd = this->_socket;
 }
 
-void	Client::setSockAddr(sockaddr_in const &addr)
+void	Client::setIsComplete(bool const yesno)
 {
 	if (DEBUG)
-		std::cout << "setSockAddr() member function of client called\n";
-	this->_sock_addr = addr;
+		std::cout << "setIsComplete() member function of client called\n";
+	this->_is_complete = yesno;
+}
+
+void	Client::setInput(std::string const input)
+{
+	if (DEBUG)
+		std::cout << "setInput() member function of client called\n";
+	this->_input = input;
+}
+
+void	Client::setIsInputComplete(bool const yesno)
+{
+	if (DEBUG)
+		std::cout << "setIsInputComplete() member function of client called\n";
+	this->_is_input_complete = yesno;
+}
+
+void	Client::setCommand(Command *command)
+{
+	if (DEBUG)
+		std::cout << "setCommand() member function of client called\n";
+	this->_command = command;
 }
 
 // Methods //

@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/26 03:39:17 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/26 03:42:34 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/26 04:08:25 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ private:
 
 public:
 
-	Command(std::string const cmd, std::string const args, std::string const prefix, std::string const trailing, std::string const full, Server *server);
+	Command(std::string const cmd, std::string const args, std::string const prefix, std::string const full, Server *server);
 	~Command();
 	
 	std::string	getCmd() const;
@@ -50,6 +50,4 @@ public:
 	void		setPrefix(std::string const prefix);
 	void		setFull(std::string const full);
 	void		setServer(Server *server);
-
-	void		execCommand();
 };
