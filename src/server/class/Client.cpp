@@ -6,14 +6,18 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 02:53:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/26 04:37:16 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/28 13:30:11 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-Client::Client(int const socket, int const name, int const nickname) :
+#include "Client.hpp"
+
+Client::Client(int const socket, struct sockaddr_in *sock_addr, std::string const name, std::string const nickname) :
 _socket(socket),
 _name(name),
 _nickname(nickname),
+_sock_addr(sock_addr),
+_addr_len(sizeof(sock_addr))
 {
 	if (DEBUG)
 		std::cout << "Client constructor called\n";
@@ -83,6 +87,20 @@ Command	*Client::getCommand() const
 	return this->_command;
 }
 
+struct sockaddr_in	*Client::getSockAddr(void) const
+{
+	if (DEBUG)
+		std::cout << "getSockAddr() member function of client called\n";
+	return this->_sock_addr;
+}
+
+socklen_t	Client::getSockLen(void) const
+{
+	if (DEBUG)
+		std::cout << "getSockLen() member function of client called\n";
+	return this->_addr_len;
+}
+
 // Setters //
 
 void	Client::setSocket(int const socket)
@@ -141,6 +159,20 @@ void	Client::setCommand(Command *command)
 	if (DEBUG)
 		std::cout << "setCommand() member function of client called\n";
 	this->_command = command;
+}
+
+void	Client::setSockAddr(struct sockaddr_in *addr)
+{
+	if (DEBUG)
+		std::cout << "setSockAddr() member function of client called\n";
+	this->_sock_addr = addr;
+}
+
+void	Client::setSockLen()
+{
+	if (DEBUG)
+		std::cout << "setSockLen() member function of client called\n";
+	this->_addr_len = sizeof(this->_sock_addr);
 }
 
 // Methods //

@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 16:45:32 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/26 04:36:00 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/28 13:24:48 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,7 @@ public:
 	void	ctrl_epoll_add(int epoll_fd, int socket, struct epoll_event *e_event);
 	void	handle_client_event(Client *client);
 	void	handle_new_connection();
+	void	epoll_loop();
 };
 
 int		create_epoll();

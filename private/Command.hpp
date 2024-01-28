@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/26 03:39:17 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/26 04:08:25 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/28 13:32:40 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,3 +51,5 @@ public:
 	void		setFull(std::string const full);
 	void		setServer(Server *server);
 };
+
+#endif

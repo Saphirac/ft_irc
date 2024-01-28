@@ -6,11 +6,12 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/26 04:38:15 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/28 16:20:17 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include <cstdio>
 
 Server::Server(int const port, std::string const name, std::string const password) : 
 _port(port),
@@ -193,6 +194,7 @@ void	Server::setEpollSocket(int fd)
  */
 void	Server::setEpollEvent()
 {
+	this->_epoll_event = new epoll_event;
 	if (DEBUG)
 		std::cout << "getEpollEvent() member function of server called\n";
 	this->_epoll_event->events = EPOLLIN;
@@ -241,7 +243,7 @@ struct sockaddr_in	Server::bind_assign_sockaddr()
 /**
  * @brief init server by creating a socket, binding it to a port and listening to it
  * 
- * // TODO : throw exceptions instead of exit
+ * // TODO : throw exceptions bytes_readinstead of exit
  * 
  */
 void	Server::init_server()
@@ -311,7 +313,18 @@ void	Server::handle_client_event(Client *client)
 		return;
 	}
 	buffer[bytes_read] = '\0';
-	std::cout << "Received " << bytes_read << " bytes from client." << std::endl;
+	std::cout << "Received " << buffer << '\n' << bytes_read <<" bytes from client : " << client->getSocket() << std::endl;
+}
+
+void	send_test_message(int client_socket)
+{
+	std::string	message = "Hello from server!";
+	std::cout << "New connection from : " << client_socket << std::endl;
+	if (send(client_socket, message.c_str(), message.size(), 0) == -1)
+	{
+		std::cerr << "Problem with send()." << std::endl;
+		exit (EXIT_FAILURE);
+	}
 }
 
 /**
@@ -334,11 +347,11 @@ void	Server::handle_new_connection()
 		exit (EXIT_FAILURE);
 	}
 	
-	this->_clients.push_back(new Client(client_socket, client_addr));
+	this->_clients.push_back(new Client(client_socket, &client_addr, "TmpName", "TmpNickname"));
 	this->_client_socket[client_socket] = this->_clients.back();
 	this->_clients.back()->setEvent();
 	ctrl_epoll_add(this->_epoll_socket, client_socket, this->_clients.back()->getEvent());
-	this->send_test_message(client_socket);
+	send_test_message(client_socket);
 }
 
 /**
@@ -351,16 +364,16 @@ void	Server::epoll_loop()
 	int	fds_ready;
 	struct epoll_event	events[MAX_CLIENTS];
 
-	fds_ready = epoll_wait(this->_socket, events, MAX_CLIENTS, -1);
+	fds_ready = epoll_wait(this->_epoll_socket, events, MAX_CLIENTS, -1);
 	if (fds_ready == -1)
 	{
-		std::cerr << "Problem with epoll_wait()." << std::endl;
+		std::cerr << "Problem with epoll_wait() : " << errno << std::endl;
 		exit (EXIT_FAILURE);
 	}
 
 	for (int i = 0; i < fds_ready; i++)
 	{
-		if (events[i].data.fd = this->_socket)
+		if (events[i].data.fd == this->_socket)
 			handle_new_connection(); 
 		else
 			handle_client_event(this->_client_socket[events[i].data.fd]);
