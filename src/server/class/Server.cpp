@@ -6,28 +6,26 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/26 03:49:17 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/01/28 16:20:17 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include <cstdio>
 
-Server::Server(int const port, std::string const password, std::string const name) : 
+Server::Server(int const port, std::string const name, std::string const password) : 
 _port(port),
-_password(password),
-_name(name)
+_name(name),
+_password(password)
 {
 	if (DEBUG)
 		std::cout << "Server constructor called\n";
-	this->init_server();
-	this->create_server();
 }
 
 Server::~Server()
 {
 	if (DEBUG)
 		std::cout << "Server destructor called\n";
-	//close(connection);
 	close(this->_socket);
 }
 
@@ -61,7 +59,7 @@ int	Server::getSocket() const
 	return this->_socket;
 }
 
-sockaddr_in const	&Server::getSockAddr() const
+struct sockaddr_in const	&Server::getSockAddr() const
 {
 	if (DEBUG)
 		std::cout << "getSockAddr() member function of server called\n";
@@ -110,6 +108,13 @@ struct epoll_event	*Server::getEpollEvent() const
 	return this->_epoll_event;
 }
 
+bool	Server::getShutdown() const
+{
+	if (DEBUG)
+		std::cout << "getShutdown() member function of server called\n";
+	return this->_shutdown;
+}
+
 // Setters //
 
 void	Server::setName(std::string const &name)
@@ -140,7 +145,7 @@ void	Server::setSocket(int const socket)
 	this->_socket = socket;
 }
 
-void	Server::setSockAddr(sockaddr_in const &addr)
+void	Server::setSockAddr(struct sockaddr_in const &addr)
 {
 	if (DEBUG)
 		std::cout << "setSockAddr() member function of server called\n";
@@ -187,12 +192,20 @@ void	Server::setEpollSocket(int fd)
  * 
  * @return struct epoll_event 
  */
-struct epoll_event	Server::setEpollEvent()
+void	Server::setEpollEvent()
 {
+	this->_epoll_event = new epoll_event;
 	if (DEBUG)
 		std::cout << "getEpollEvent() member function of server called\n";
 	this->_epoll_event->events = EPOLLIN;
 	this->_epoll_event->data.fd = this->_socket;
+}
+
+void	Server::setShutdown(bool const yesno)
+{
+	if (DEBUG)
+		std::cout << "setShutdown() member function of server called\n";
+	this->_shutdown = yesno;
 }
 
 /**
@@ -214,9 +227,9 @@ void	Server::create_and_set_socket()
  * @param fd_socket 
  * @return sockaddr_in& 
  */
-sockaddr_in	Server::bind_assign_sockaddr()
+struct sockaddr_in	Server::bind_assign_sockaddr()
 {
-	sockaddr_in	sock_addr;
+	struct sockaddr_in	sock_addr;
 	sock_addr.sin_family = AF_INET;
 	sock_addr.sin_port = htons(this->_port); 
 	sock_addr.sin_addr.s_addr = INADDR_ANY;
@@ -230,7 +243,7 @@ sockaddr_in	Server::bind_assign_sockaddr()
 /**
  * @brief init server by creating a socket, binding it to a port and listening to it
  * 
- * // TODO : throw exceptions instead of exit
+ * // TODO : throw exceptions bytes_readinstead of exit
  * 
  */
 void	Server::init_server()
@@ -280,45 +293,11 @@ void	Server::ctrl_epoll_add(int epoll_fd, int socket, struct epoll_event *e_even
 	}
 }
 
-// Init Server //
-
-/**
- * @brief add new client to the list of clients
- * 
- * // TODO : change exit failure with exception
- * // TODO : use a client with a handshake bool to check if nickname and other received input is correct
- * 
- */
-void	Server::handle_new_connection()
-{
-	int	client_socket;
-	struct sockaddr_in	client_addr;
-	socklen_t	client_addr_len = sizeof(client_addr);
-
-	client_socket = accept(this->_socket, (struct sockaddr *)&client_addr, &client_addr_len);
-	if (client_socket == -1)
-	{
-		std::cerr << "Problem with accept()." << std::endl;
-		exit (EXIT_FAILURE);
-	}
-	
-	this->_clients->push_back(new Client(client_socket, client_addr));
-	this->_clients->back().getConnectionInfo(this);
-	if (this->_clients->back().getIsComplete() == false)
-	{
-		std::cerr << "Client connection incomplete." << std::endl;
-		return;
-	}
-	
-	this->_client_socket[client_socket] = this->_clients.back();
-	this->_clients.back()->setEvent();
-	ctrl_epoll_add(this->_epoll_socket, client_socket, this->_clients.back()->getEvent());
-	this->send_welcome_message(client_socket);
-}
+// Init server //
 
 void	Server::handle_client_event(Client *client)
 {
-	std::string	buffer;
+	char	buffer[513];
 	int		bytes_read;
 
 	bytes_read = recv(client->getSocket(), buffer, 512, 0);
@@ -334,9 +313,18 @@ void	Server::handle_client_event(Client *client)
 		return;
 	}
 	buffer[bytes_read] = '\0';
-	std::cout << "Received " << bytes_read << " bytes from client." << std::endl;
-	parse_command(buffer, client);
-	client->getCmd().execCommand();
+	std::cout << "Received " << buffer << '\n' << bytes_read <<" bytes from client : " << client->getSocket() << std::endl;
+}
+
+void	send_test_message(int client_socket)
+{
+	std::string	message = "Hello from server!";
+	std::cout << "New connection from : " << client_socket << std::endl;
+	if (send(client_socket, message.c_str(), message.size(), 0) == -1)
+	{
+		std::cerr << "Problem with send()." << std::endl;
+		exit (EXIT_FAILURE);
+	}
 }
 
 /**
@@ -359,25 +347,11 @@ void	Server::handle_new_connection()
 		exit (EXIT_FAILURE);
 	}
 	
-	std::string input = read_first_message(client_socket);
-	if (!input)
-	{
-		std::cerr << "Problem with read_first_message()." << std::endl;
-		return ;
-	}
-	
-	std::string nickname = get_nickname(input);
-	if (check_nickname(nickname))
-	{
-		std::cerr << "Problem with chosen nickname." << std::endl;
-		return ;
-	}
-	
-	this->_clients->push_back(new Client(client_socket, client_addr));
+	this->_clients.push_back(new Client(client_socket, &client_addr, "TmpName", "TmpNickname"));
 	this->_client_socket[client_socket] = this->_clients.back();
 	this->_clients.back()->setEvent();
 	ctrl_epoll_add(this->_epoll_socket, client_socket, this->_clients.back()->getEvent());
-	this->send_welcome_message(client_socket);
+	send_test_message(client_socket);
 }
 
 /**
@@ -390,16 +364,16 @@ void	Server::epoll_loop()
 	int	fds_ready;
 	struct epoll_event	events[MAX_CLIENTS];
 
-	fds_ready = epoll_wait(this->_socket, events, MAX_CLIENTS, -1);
+	fds_ready = epoll_wait(this->_epoll_socket, events, MAX_CLIENTS, -1);
 	if (fds_ready == -1)
 	{
-		std::cerr << "Problem with epoll_wait()." << std::endl;
+		std::cerr << "Problem with epoll_wait() : " << errno << std::endl;
 		exit (EXIT_FAILURE);
 	}
 
 	for (int i = 0; i < fds_ready; i++)
 	{
-		if (events[i].data.fd = this->_socket)
+		if (events[i].data.fd == this->_socket)
 			handle_new_connection(); 
 		else
 			handle_client_event(this->_client_socket[events[i].data.fd]);
@@ -411,6 +385,7 @@ void	Server::create_server()
 	this->_epoll_socket = create_epoll();
 	this->setEpollEvent();
 	ctrl_epoll_add(this->_epoll_socket, this->_socket, this->_epoll_event);
-	
+	while (this->_shutdown == false)
+		epoll_loop();
 	//read_and_respond(connection);
 }
