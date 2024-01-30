@@ -755,9 +755,13 @@
 		<p>
 			The NICK command is used to change the nickname of a user.<br>
 			When the server receives a NICK command, it must check<br>
-			if the given nickname is valid and not already in use.<br>
-			If it is, then the nickname of the user is changed to the given one.<br>
-			Otherwise, an appropriate error reply is sent back to the client.
+			that the given nickname is valid and not already in use.<br>
+			Then the server must change the nickname of the user to the given one.<br>
+			Finnaly, the server must send back a NICK command to the user<br>
+			to confirm that their nickname has been changed.<br>
+			<br>
+			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+			is sent back to the client, and the process is aborted.
 		</p>
 
 		<h4>Parameters</h4>
@@ -786,9 +790,12 @@
 			The USER command must be used only during the registration process.<br>
 			It must be sent only <b>once</b> per connection.<br>
 			When the server receives a USER command, it must check<br>
-			if the given username and hostname are valid.<br>
-			If they are, then the username and hostname of the user are set to the given ones.<br>
-			Otherwise, an appropriate error reply is sent back to the client.
+			that the given username and hostname are valid.<br>
+			Then the server must set the username and the hostname of the user<br>
+			to the given ones.<br>
+			<br>
+			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+			is sent back to the client, and the process is aborted.
 		</p>
 
 		<h4>Parameters</h4>
@@ -866,11 +873,14 @@
 		<p>
 			The OPER command is used to authenticate a user as an IRC operator.<br>
 			When the server receives an OPER command, it must check<br>
-			if the given username-password association matches any<br>
+			that the given username-password association matches any<br>
 			of the configured ones.<br>
-			If it does, then the server must send back a <a href="#rpl_youreoper">RPL_YOUREOPER</a><br>
+			Then the server must send back a <a href="#rpl_youreoper">RPL_YOUREOPER</a><br>
 			to the client, followed by a <a href="#command_mode">MODE</a> command to indicate them
-			their new modes.
+			their new modes.<br>
+			<br>
+			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+			is sent back to the client, and the process is aborted.
 		</p>
 
 		<h4>Parameters</h4>
@@ -911,10 +921,11 @@
 		<p>
 			If the target is a user, then the server must check<br>
 			that both the given nickname and the sender nickname are the same.<br>
-			If they are, then the server must finally check<br>
-			that the given mode changes are valid.<br>
-			If they are, then the server must apply them.<br>
-			Otherwise, an appropriate error reply is sent back to the client.
+			Then the server must check that the given mode changes are valid.<br>
+			Then the server must finally apply them.<br>
+			<br>
+			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+			is sent back to the client, and the process is aborted.
 		</p>
 
 		<h4>Parameters</h4>
@@ -954,12 +965,13 @@
 		<p>
 			If the target is a channel, then the server must check<br>
 			that the given channel exists.<br>
-			If it does, then the server must check<br>
-			that the sender is either one of its channel operator or its creator.<br>
-			If they are, then the server must finally check<br>
-			that the given mode changes are valid.<br>
-			If they are, then the server must apply them.<br>
-			Otherwise, an appropriate error reply is sent back to the client.
+			Then the server must check that the sender is<br>
+			either one of its channel operator or its creator.<br>
+			Then the server must check that the given mode changes are valid.<br>
+			Then the server must finally apply them.<br>
+			<br>
+			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+			is sent back to the client, and the process is aborted.
 		</p>
 
 		<h4>Parameters</h4>
@@ -1045,31 +1057,31 @@
 		<h2 id="command_join">JOIN</h2>
 		<p>
 			The JOIN command is used to make a user join a channel.<br>
-			When the server receives a JOIN command, for every given channel,<br>
+			When the server receives a JOIN command, for each given channel,<br>
 			it must do the following routine:<br>
 			<p>
-				Check that the given channel exists.<br>
-				If it does, then check that the user isn't already in it.<br>
+				Check that the channel exists.<br>
+				Then check that the user isn't already in it.<br>
 				If they are, then stop the routine here.<br>
-				Else, check that the given channel is neither full,<br>
-				nor marked as invite-only.<br>
-				If it isn't, then check that the user hasn't reached<br>
-				the maximum number of channels they can join yet.<br>
-				If they haven't, then check that the user isn't banned<br>
-				from the channel.<br>
-				If they aren't, and if the given channel has the `k` mode set,<br>
-				then check that the user provided the correct key.<br>
-				If they did, then add the user to the channel,<br>
-				and finally, send back the following to the client in this order:
+				Check that the channel is neither full, nor marked as invite-only.<br>
+				Then check that the user hasn't reached the maximum number of channels<br>
+				that they can join yet.<br>
+				Then check that the user isn't banned from the channel.<br>
+				If the channel has the `k` mode set, then check that the user provided the correct key.<br>
+				Then add the user to the channel.<br>
+				Finally, send back the following to the client in this order:
 				<ol>
-					<li>A JOIN message, to confirm that the user have successfully joined the given channel</li>
+					<li>A JOIN message, to confirm that the user have successfully joined the channel</li>
 					<li>A <a href="#rpl_topic">RPL_TOPIC</a> to indicate the topic of the joined channel</li>
 					<li>
 						The result of the <a href="#command_names">NAMES</a> command with the joined channel<br>
 						passed in parameter
 					</li>
 				</ol>
-				Otherwise, an appropriate error reply is sent back to the client.
+				<br>
+				<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+				is sent back to the client, the process for the current channel is aborted,<br>
+				and the process for the next given channel starts.
 			</p>
 		</p>
 
@@ -1129,23 +1141,25 @@
 		<h2 id="command_part">PART</h2>
 		<p>
 			The PART command is used to make a user leave a channel.<br>
-			When the server receives a PART command, for every given channel,<br>
+			When the server receives a PART command, for each given channel,<br>
 			it must do the following routine:<br>
 			<p>
-				Check that the given channel exists.<br>
-				If it does, then check that the user is in it.<br>
-				If they are, then remove the user from the channel,<br>
+				Check that the channel exists.<br>
+				Then check that the user is in it.<br>
+				Then remove the user from the channel,<br>
 				send back a PART message to the client,<br>
-				to confirm that they have successfully left the given channel,<br>
+				to confirm that they have successfully left the channel,<br>
 				and finally, send a PART message to every user<br>
-				that are present in the given channel,<br>
+				that are present in the channel,<br>
 				to inform them of the user's departure.<br>
-				Otherwise, an appropriate error reply<br>
-				is sent back to the client.<br>
 				<br>
 				<b>Note</b>: for each PART message sent by the server,<br>
 				the server must pass in parameter either the given part message if there is one,<br>
-				or a default one if there is not.
+				or a default one if there is not.<br>
+				<br>
+				<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+				is sent back to the client, the process for the current channel is aborted,<br>
+				and the process for the next given channel starts.
 			</p>
 		</p>
 
@@ -1188,14 +1202,13 @@
 		<p>
 			The TOPIC command is used to set, unset, or change the topic of a channel.<br>
 			When the server receives a TOPIC command, it must check that the given channel exists.<br>
-			If it does, then the server must check that the user is in it.<br>
-			If they are, then the server must check if there is a given topic to set.
+			Then the server must check that the user is in it.<br>
+			Then the server must check if there is a given topic to set.
 			<ul>
 				<li>
 					If there is, then the server must check if the `t` channel mode is set.<br>
 					If it is, then the server must check that the user is a channel operator.<br>
-					If they are, or if the `t` channel mode is not set,<br>
-					then the server must set the topic of the channel to the given one,<br>
+					Then the server must set the topic of the channel to the given one,<br>
 					and finally, send back a TOPIC message to every user<br>
 					that are present in the given channel,<br>
 					to inform them of the new topic of the channel.
@@ -1209,10 +1222,12 @@
 					to the client, to indicate the topic of the given channel.
 				</li>
 			</ul>
-			Otherwise, an appropriate error reply is sent back to the client.<br>
 			<br>
 			<b>Note</b>: for each TOPIC message sent by the server,<br>
-			the server must pass in parameter the given topic.
+			the server must pass in parameter the given topic.<br>
+			<br>
+			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+			is sent back to the client, and the process is aborted.
 		</p>
 
 		<h4>Parameters</h4>
@@ -1249,7 +1264,34 @@
 
 		<h2 id="command_names">NAMES</h2>
 		<p>
-			<!-- TODO: write the description of the command -->
+			The NAMES command is used to list the users<br>
+			that are present in 1 or more given channels.<br>
+			In the absence of parameters, the command must list<br>
+			the users that are present in every channel the user is in.<br>
+			When the server receives a NAMES command, it must check<br>
+			whether a parameter list is given.<br>
+			<ul>
+				<li>If there is, then for each given channel, the server must do the following routine:
+					<p>
+						Check that the channel exists.<br>
+						Then check that the user is in it.<br>
+						Then send back a <a href="#rpl_namesreply">RPL_NAMESREPLY</a><br>
+						to the client, to indicate the users that are present in the channel.<br>
+					</p>
+				</li>
+				<li>
+					If there is not, then for each channel the user is in,<br>
+					the server must send back a <a href="#rpl_namesreply">RPL_NAMESREPLY</a><br>
+					to the client, to indicate the users that are present in the channel.
+				</li>
+			</ul>
+			Finally, the server must send back a <a href="#rpl_endofnames">RPL_ENDOFNAMES</a><br>
+			to the client, to indicate the end of the NAMES list.<br>
+			<br>
+			<b>Note</b>: for each assertion, if it fails,<br>
+			then no error reply is sent back to the client,<br>
+			the process for the current channel is aborted,<br>
+			and the process for the next given channel starts.
 		</p>
 
 		<h4>Parameters</h4>
@@ -1277,13 +1319,36 @@
 
 		<h4>Replies</h4>
 		<ul>
-			<li><a href="#rpl_namreply">RPL_NAMREPLY</a></li>
+			<li><a href="#rpl_namesreply">RPL_NAMESREPLY</a></li>
 			<li><a href="#rpl_endofnames">RPL_ENDOFNAMES</a></li>
 		</ul>
 
 		<h2 id="command_list">LIST</h2>
 		<p>
-			<!-- TODO: write the description of the command -->
+			The LIST command is used to list the channels and their informations.<br>
+			When the server receives a LIST command, it must check<br>
+			whether a parameter list is given.<br>
+			<ul>
+				<li>If there is, then for each given channel, the server must do the following routine:
+					<p>
+						Check that the channel exists.<br>
+						Send back a <a href="#rpl_list">RPL_LIST</a><br>
+						to the client, to indicate the channel and its informations.<br>
+					</p>
+				</li>
+				<li>
+					If there is not, then for each existing channel,<br>
+					the server must send back a <a href="#rpl_list">RPL_LIST</a><br>
+					to the client, to indicate the channel and its informations.
+				</li>
+			</ul>
+			Finally, the server must send back a <a href="#rpl_listend">RPL_LISTEND</a><br>
+			to the client, to indicate the end of the LIST.<br>
+			<br>
+			<b>Note</b>: for each assertion, if it fails,<br>
+			then no error reply is sent back to the client,<br>
+			the process for the current channel is aborted,<br>
+			and the process for the next given channel starts.
 		</p>
 
 		<h4>Parameters</h4>
@@ -1317,7 +1382,25 @@
 
 		<h2 id="command_invite">INVITE</h2>
 		<p>
-			<!-- TODO: write the description of the command -->
+			The INVITE command is used to invite a user to a channel.<br>
+			When the server receives an INVITE command, it must check<br>
+			that the given nickname exists.<br>
+			Then the server must check that the inviting user<br>
+			is in the given channel.<br>
+			Then the server must check that the invited user<br>
+			is not already in the given channel nor banned from it.<br>
+			Then the server must check if the given channel is invite-only.<br>
+			If it is, then the server must check that the inviting user<br>
+			is a channel operator.<br>
+			Then the server must check if the invited user is marked as away.<br>
+			If they are, then the server must send back a <a href="#rpl_away">RPL_AWAY</a><br>
+			to the inviting user, to indicate that the invited user is away.<br>
+			Else, the server must forward the INVITE command to the invited user,<br>
+			and finally, send back a <a href="#rpl_inviting">RPL_INVITING</a><br>
+			to the inviting user, to indicate that the invited user has been invited.<br>
+			<br>
+			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+			is sent back to the inviting user, and the process is aborted.
 		</p>
 
 		<h4>Parameters</h4>
@@ -2292,9 +2375,9 @@
 					<!-- #endregion -->
 				</td>
 			</tr>
-			<tr id="rpl_namreply">
+			<tr id="rpl_namesreply">
 				<td>353</td>
-				<td><b>RPL_NAMREPLY</b></td>
+				<td><b>RPL_NAMESREPLY</b></td>
 				<td>
 					<!-- #region: ABNF -->
 					<details>
