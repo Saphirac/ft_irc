@@ -98,7 +98,7 @@
 			<br>
 			Note that we are using the
 			<a href="https://en.wikipedia.org/wiki/Augmented_Backus%E2%80%93Naur_form">
-				Augmented Backus–Naur form
+				Augmented Backus-Naur form
 			</a>
 			to represent<br>
 			the grammar rules that apply to the different components of the IRC protocol.<br>
@@ -1030,15 +1030,11 @@
 		<details>
 			<summary>
 				<code>
-					[ colon quit-message ]
+					[ quit-message ]
 				</code>
 			</summary>
 			<blockquote>
-				0 or 1 pattern, which must:
-				<ol>
-					<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
-					<li>Contain 1 <code><a href="#abnf_quit_message">quit-message</a></code></li>
-				</ol>
+				0 or 1 <code><a href="#abnf_quit_message">quit-message</a></code>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
@@ -1362,7 +1358,7 @@
 		<details>
 			<summary>
 				<code>
-					channel *( comma channel ) space user *( comma user ) [ space colon comment ]
+					channel *( comma channel ) space user *( comma user ) [ space comment ]
 				</code>
 			</summary>
 			<blockquote>
@@ -1385,7 +1381,6 @@
 					<li>Contain 0 or 1 pattern, which must:
 						<ol>
 							<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
-							<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
 							<li>Contain 1 <code><a href="#abnf_comment">comment</a></code></li>
 						</ol>
 					</li>
@@ -1555,6 +1550,228 @@
 			<li><a href="#rpl_endofwhois">RPL_ENDOFWHOIS</a></li>
 			<li><a href="#err_nosuchnick">ERR_NOSUCHNICK</a></li>
 			<li><a href="#err_nonicknamegiven">ERR_NONICKNAMEGIVEN</a></li>
+		</ul>
+
+		<h2 id="command_kill">KILL</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					nick space comment
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_comment">comment</a></code></li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#err_nosuchnick">ERR_NOSUCHNICK</a></li>
+			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
+			<li><a href="#err_noprivileges">ERR_NOPRIVILEGES</a></li>
+		</ul>
+
+		<h2 id="command_ping">PING</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					colon token
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_token">token</a></code></li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#err_noorigin">ERR_NOORIGIN</a></li>
+			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
+		</ul>
+
+		<h2 id="command_pong">PONG</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					[ server space ] colon token
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 0 or 1 pattern, which must:
+						<ol>
+							<li>Start with 1 <code><a href="#abnf_server">server</a></code></li>
+							<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+						</ol>
+					</li>
+					<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_token">token</a></code></li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#err_noorigin">ERR_NOORIGIN</a></li>
+		</ul>
+
+		<h2 id="command_error">ERROR</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					error-message
+				</code>
+			</summary>
+			<blockquote>
+					1 <code><a href="#abnf_error_message">error-message</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<p>None</p>
+
+		<h2 id="command_away">AWAY</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					[ custom-away-message ]
+				</code>
+			</summary>
+			<blockquote>
+				0 or 1 <code><a href="#abnf_custom_away_message">custom-away-message</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_unaway">RPL_UNAWAY</a></li>
+			<li><a href="#rpl_nowaway">RPL_NOWAWAY</a></li>
+		</ul>
+
+		<h2 id="command_die">DIE</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<p>None</p>
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#err_noprivileges">ERR_NOPRIVILEGES</a></li>
+		</ul>
+
+		<h2 id="command_restart">RESTART</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<p>None</p>
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#err_noprivileges">ERR_NOPRIVILEGES</a></li>
+		</ul>
+
+		<h2 id="command_wallops">WALLOPS</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					text-to-be-sent
+				</code>
+			</summary>
+			<blockquote>
+				1 <code><a href="#abnf_text_to_be_sent">text-to-be-sent</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
+			<li><a href="#err_noprivileges">ERR_NOPRIVILEGES</a></li>
+		</ul>
+
+		<h2 id="command_ison">ISON</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					nick *( space nick )
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+					<li>Contain 0 or more patterns, which must:
+						<ol>
+							<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+							<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
+						</ol>
+					</li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_ison">RPL_ISON</a></li>
+			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
 		</ul>
 
 		<h1 id="replies">Replies</h1>
@@ -1735,6 +1952,73 @@
 								<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_trailing">away-message</a></code></li>
 							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_ison">
+				<td>303</td>
+				<td><b>RPL_ISON</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								colon [ nick *( space nick ) ]
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
+								<li>Contain 0 or 1 pattern, which must:
+									<ol>
+										<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+										<li>Contain 0 or more pattern, which must:
+											<ol>
+												<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+												<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
+											</ol>
+										</li>
+									</ol>
+								</li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_unaway">
+				<td>305</td>
+				<td><b>RPL_UNAWAY</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								":You are no longer marked as being away"
+							</code>
+						</summary>
+						<blockquote>
+							Match the string <code>":You are no longer marked as being away"</code>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_nowaway">
+				<td>306</td>
+				<td><b>RPL_NOWAWAY</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								":You have been marked as being away"
+							</code>
+						</summary>
+						<blockquote>
+							Match the string <code>":You have been marked as being away"</code>
 						</blockquote>
 					</details>
 					<!-- #endregion -->
@@ -1991,7 +2275,7 @@
 					<details>
 						<summary>
 							<code id="abnf_rpl_version">
-								version space server space colon comment
+								version space server space colon version-comments
 							</code>
 						</summary>
 						<blockquote>
@@ -2001,7 +2285,7 @@
 								<li>Contain 1 <code><a href="#abnf_server">server</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
-								<li>Contain 1 <code><a href="#abnf_comment">comment</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_version_comments">version-comments</a></code></li>
 							</ol>
 						</blockquote>
 					</details>
@@ -2341,6 +2625,24 @@
 								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
 								<li>Contain the string <code>" :You have joined too many channels"</code></li>
 							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_noorigin">
+				<td>409</td>
+				<td><b>ERR_NOORIGIN</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								":No origin specified"
+							</code>
+						</summary>
+						<blockquote>
+							Match the string <code>":No origin specified"</code>
 						</blockquote>
 					</details>
 					<!-- #endregion -->
@@ -2749,6 +3051,24 @@
 								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
 								<li>Contain the string <code>" :Channel doesn't support modes"</code></li>
 							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_noprivileges">
+				<td>481</td>
+				<td><b>ERR_NOPRIVILEGES</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								":Permission Denied- You're not an IRC operator"
+							</code>
+						</summary>
+						<blockquote>
+							Match the string <code>":Permission Denied- You're not an IRC operator"</code>
 						</blockquote>
 					</details>
 					<!-- #endregion -->
@@ -3381,6 +3701,27 @@
 			</blockquote>
 		</details>
 		<!-- #endregion -->
+		<!-- #region: ABNF of `param` -->
+		<details>
+			<summary>
+				<code id="abnf_param">
+					<b>param</b> = middle / colon trailing
+				</code>
+			</summary>
+			<blockquote>
+				Either 1 of the following:
+				<ul>
+					<li>1 <code><a href="#abnf_middle">middle</a></code></li>
+					<li>1 pattern, which must:
+						<ol>
+							<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
+							<li>Contain 1 <code><a href="#abnf_trailing">trailing</a></code></li>
+						</ol>
+					</li>
+				</ul>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
 		<!-- #region: ABNF of `key` -->
 		<details>
 			<summary>
@@ -3409,18 +3750,11 @@
 		<details>
 			<summary>
 				<code id="abnf_password">
-					<b>password</b> = middle / colon trailing
+					<b>password</b> = param
 				</code>
 			</summary>
 			<blockquote>
-				<ol>
-					<li>Start with either 1 <code><a href="#abnf_middle">middle</a></code>
-						or 1 pattern, which must:</li>
-					<ol>
-						<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
-						<li>Contain 1 <code><a href="#abnf_trailing">trailing</a></code></li>
-					</ol>
-				</ol>
+				1 <code><a href="#abnf_param">param</a></code>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
@@ -3428,15 +3762,11 @@
 		<details>
 			<summary>
 				<code id="abnf_quit_message">
-					<b>quit-message</b> = middle / colon trailing
+					<b>quit-message</b> = param
 				</code>
 			</summary>
 			<blockquote>
-				Either 1 <code><a href="#abnf_middle">middle</a></code> or 1 pattern, which must:
-				<ol>
-					<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
-					<li>Contain 1 <code><a href="#abnf_trailing">trailing</a></code></li>
-				</ol>
+				1 <code><a href="#abnf_param">param</a></code>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
@@ -3444,15 +3774,35 @@
 		<details>
 			<summary>
 				<code id="abnf_part_message">
-					<b>part-message</b> = middle / colon trailing
+					<b>part-message</b> = param
 				</code>
 			</summary>
 			<blockquote>
-				Either 1 <code><a href="#abnf_middle">middle</a></code> or 1 pattern, which must:
-				<ol>
-					<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
-					<li>Contain 1 <code><a href="#abnf_trailing">trailing</a></code></li>
-				</ol>
+				1 <code><a href="#abnf_param">param</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `error-message` -->
+		<details>
+			<summary>
+				<code id="abnf_error_message">
+					<b>error-message</b> = param
+				</code>
+			</summary>
+			<blockquote>
+				1 <code><a href="#abnf_param">param</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `custom-away-message` -->
+		<details>
+			<summary>
+				<code id="abnf_custom_away_message">
+					<b>custom-away-message</b> = param
+				</code>
+			</summary>
+			<blockquote>
+				1 <code><a href="#abnf_param">param</a></code>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
@@ -3460,11 +3810,11 @@
 		<details>
 			<summary>
 				<code id="abnf_comment">
-					<b>comment</b> = trailing
+					<b>comment</b> = param
 				</code>
 			</summary>
 			<blockquote>
-				1 <code><a href="#abnf_trailing">trailing</a></code>
+				1 <code><a href="#abnf_param">param</a></code>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
@@ -3532,29 +3882,32 @@
 		<details>
 			<summary>
 				<code id="abnf_text_to_be_sent">
-					<b>text-to-be-sent</b> = trailing
+					<b>text-to-be-sent</b> = param
 				</code>
 			</summary>
 			<blockquote>
-				1 <code><a href="#abnf_trailing">trailing</a></code>
+				1 <code><a href="#abnf_param">param</a></code>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
-		<!-- #region: ABNF of `local-time` -->
+		<!-- #region: ABNF of `token` -->
 		<details>
 			<summary>
-				<code id="abnf_local_time">
-					<b>local-time</b> = day-of-the-week space hours colon minutes
+				<code id="abnf_token">
+					<b>token</b> = middle / colon 1*nolfcr
 				</code>
 			</summary>
 			<blockquote>
-				<ol>
-					<li>Start with 1 <code><a href="#abnf_day_of_the_week">day-of-the-week</a></code></li>
-					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
-					<li>Contain 1 <code><a href="#abnf_hours">hours</a></code></li>
-					<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
-					<li>Contain 1 <code><a href="#abnf_minutes">minutes</a></code></li>
-				</ol>
+				Either 1 of the following:
+				<ul>
+					<li>1 <code><a href="#abnf_middle">middle</a></code></li>
+					<li>1 pattern, which must:
+						<ol>
+							<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
+							<li>Contain 1 or more <code><a href="#abnf_nolfcr">nolfcr</a></code></li>
+						</ol>
+					</li>
+				</ul>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
@@ -3572,6 +3925,24 @@
 					<li>Contain 1 <code><a href="#abnf_month">month</a></code></li>
 					<li>Contain 1 <code><a href="#abnf_dash">dash</a></code></li>
 					<li>Contain 1 <code><a href="#abnf_day">day</a></code></li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `local-time` -->
+		<details>
+			<summary>
+				<code id="abnf_local_time">
+					<b>local-time</b> = day-of-the-week space hours colon minutes
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_day_of_the_week">day-of-the-week</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_hours">hours</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_minutes">minutes</a></code></li>
 				</ol>
 			</blockquote>
 		</details>
@@ -3609,6 +3980,18 @@
 			</summary>
 			<blockquote>
 				1 <code><a href="#abnf_user_mask">user-mask</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `version-comments` -->
+		<details>
+			<summary>
+				<code id="abnf_version_comments">
+					<b>version-comments</b> = trailing
+				</code>
+			</summary>
+			<blockquote>
+				1 <code><a href="#abnf_trailing">trailing</a></code>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
