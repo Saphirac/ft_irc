@@ -57,7 +57,6 @@
 					<li><a href="#command_version">VERSION</a></li>
 					<li><a href="#command_time">TIME</a></li>
 					<li><a href="#command_info">INFO</a></li>
-					<li><a href="#command_who">WHO</a></li>
 					<li><a href="#command_whois">WHOIS</a></li>
 					<li><a href="#command_kill">KILL</a></li>
 					<li><a href="#command_ping">PING</a></li>
@@ -125,7 +124,7 @@
 					<details>
 						<summary>
 							<code id="abnf_server">
-								<b>server</b> = shortname *( %x2e shortname )
+								<b>server</b> = shortname *( dot shortname )
 							</code>
 						</summary>
 						<blockquote>
@@ -133,7 +132,7 @@
 								<li>Start with 1 <code><a href="#abnf_shortname">shortname</a></code></li>
 								<li>Contain 0 or more patterns, which must:
 									<ol>
-										<li>Start with 1 octet that has the value <code>0x2e</code> (<code>.</code>)</li>
+										<li>Start with 1 <code><a href="#abnf_dot">dot</a></code></li>
 										<li>Contain 1 <code><a href="#abnf_shortname">shortname</a></code></li>
 									</ol>
 								</li>
@@ -152,7 +151,7 @@
 			<details>
 				<summary>
 				<code id="abnf_version">
-					<b>version</b> = 1*digit *( %x2e 1*digit )
+					<b>version</b> = 1*digit *( dot 1*digit )
 				</code>
 			</summary>
 			<blockquote>
@@ -160,7 +159,7 @@
 					<li>Start with 1 or more <code><a href="#abnf_digit">digits</a></code></li>
 					<li>Contain 0 or more patterns, which must:
 						<ol>
-							<li>Start with 1 octet that has the value <code>0x2e</code> (<code>.</code>)</li>
+							<li>Start with 1 <code><a href="#abnf_dot">dot</a></code> (<code>.</code>)</li>
 							<li>Contain 1 or more <code><a href="#abnf_digit">digits</a></code></li>
 						</ol>
 					</li>
@@ -200,7 +199,7 @@
 					<details>
 						<summary>
 							<code id="abnf_nick">
-								<b>nick</b> = ( letter / special ) *8( letter / digit / special / %x2d )
+								<b>nick</b> = ( letter / special ) *8( letter / digit / special / dash )
 							</code>
 						</summary>
 						<blockquote>
@@ -213,7 +212,7 @@
 									Contain 0 or more up to 8 <code><a href="#abnf_letter">letters</a></code>
 									and/or <code><a href="#abnf_digit">digits</a></code><br>
 									and/or <code><a href="#abnf_special">specials</a></code>
-									and/or octets that have the value <code>0x2d</code> (<code>-</code>)
+									and/or <code><a href="#abnf_dash">dashes</a></code> (<code>-</code>)
 								</li>
 							</ol>
 						</blockquote>
@@ -235,7 +234,7 @@
 			<details>
 				<summary>
 					<code id="abnf_host">
-						<b>host</b> = shortname *( %x2e shortname )
+						<b>host</b> = shortname *( dot shortname )
 					</code>
 				</summary>
 				<blockquote>
@@ -243,7 +242,7 @@
 						<li>Start with 1 <code><a href="#abnf_shortname">shortname</a></code></li>
 						<li>Contain 0 or more patterns, which must:
 							<ol>
-								<li>Start with 1 octet that has the value <code>0x2e</code> (<code>.</code>)</li>
+								<li>Start with 1 <code><a href="#abnf_dot">dot</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_shortname">shortname</a></code></li>
 							</ol>
 						</li>
@@ -347,16 +346,16 @@
 			<!-- #region: ABNF -->
 			<details>
 				<summary>
-					<code id="abnf_umask">
-						<b>umask</b> = nick %x21 user %x40 host
+					<code id="abnf_user_mask">
+						<b>user-mask</b> = nick bang user at host
 					</code>
 				</summary>
 				<blockquote>
 					<ol>
 						<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
-						<li>Contain 1 octet that has the value <code>0x21</code> (<code>!</code>)</li>
+						<li>Contain 1 <code><a href="#abnf_bang">bang</a></code></li>
 						<li>Contain 1 <code><a href="#abnf_user">user</a></code></li>
-						<li>Contain 1 octet that has the value <code>0x40</code> (<code>@</code>)</li>
+						<li>Contain 1 <code><a href="#abnf_at">at</a></code></li>
 						<li>Contain 1 <code><a href="#abnf_host">host</a></code></li>
 					</ol>
 				</blockquote>
@@ -388,23 +387,19 @@
 					<details>
 						<summary>
 							<code id="abnf_channel">
-								<b>channel</b> = ( %x23 / %x26 / %x2b / ( %x21 channelid ) ) chanstring [ %x3a chanstring ]
+								<b>channel</b> = ( hash / and / plus / ( bang channelid ) ) chanstring [ colon chanstring ]
 							</code>
 						</summary>
 						<blockquote>
 							<ol>
 								<li>Start with either 1 of the following:
 									<ul>
-										<li>1 octet that has any value among the following:
-											<ul>
-												<li><code>0x23</code> (<code>#</code>)</li>
-												<li><code>0x26</code> (<code>&</code>)</li>
-												<li><code>0x2b</code> (<code>+</code>)</li>
-											</ul>
-										</li>
+										<li>1 <code><a href="#abnf_hash">hash</a></code></li>
+										<li>1 <code><a href="#abnf_and">and</a></code></li>
+										<li>1 <code><a href="#abnf_plus">plus</a></code></li>
 										<li>1 pattern, which must:
 											<ol>
-												<li>Start with 1 octet that has the value <code>0x21</code> (<code>!</code>)</li>
+												<li>Start with 1 <code><a href="#abnf_bang">bang</a></code></li>
 												<li>Contain 1 <code><a href="#abnf_channelid">channelid</a></code></li>
 											</ol>
 										</li>
@@ -413,7 +408,7 @@
 								<li>Contain 1 <code><a href="#abnf_chanstring">chanstring</a></code></li>
 								<li>Contain 0 or 1 pattern, which must:
 									<ol>
-										<li>Start with 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+										<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
 										<li>Contain 1 <code><a href="#abnf_chanstring">chanstring</a></code></li>
 									</ol>
 								</li>
@@ -539,11 +534,11 @@
 			<details>
 				<summary>
 					<code id="abnf_cmode_param">
-						<b>cmode-param</b> = umask / key / limit
+						<b>cmode-param</b> = user-mask / key / limit
 					</code>
 				</summary>
 				<blockquote>
-					Either 1 <code><a href="#abnf_umask">umask</a></code>
+					Either 1 <code><a href="#abnf_user_mask">user-mask</a></code>
 					or 1 <code><a href="#abnf_key">key</a></code>
 					or 1 <code><a href="#abnf_limit">limit</a></code>
 				</blockquote>
@@ -561,14 +556,14 @@
 					<details>
 						<summary>
 							<code>
-								<b>message</b> = [ %x3a prefix space ] ( command / reply ) [ parameter-list ] crlf
+								<b>message</b> = [ colon prefix space ] ( command / reply ) [ parameter-list ] crlf
 							</code>
 						</summary>
 						<blockquote>
 							<ol>
 								<li>Start with 0 or 1 pattern, which must:
 									<ol>
-										<li>Start with 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+										<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
 										<li>Contain 1 <code><a href="#abnf_prefix">prefix</a></code></li>
 										<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
 									</ol>
@@ -600,7 +595,7 @@
 			<details>
 				<summary>
 					<code id="abnf_prefix">
-						<b>prefix</b> = server / nick [ [ %x21 user ] %x40 host ] 
+						<b>prefix</b> = server / nick [ [ bang user ] at host ] 
 					</code>
 				</summary>
 				<blockquote>
@@ -611,11 +606,11 @@
 							<ol>
 								<li>Start with 0 or 1 pattern, which must:
 									<ol>
-										<li>Start with 1 octet that has the value <code>0x21</code> (<code>!</code>)</li>
+										<li>Start with 1 <code><a href="#abnf_bang">bang</a></code></li>
 										<li>Contain 1 <code><a href="#abnf_user">user</a></code></li>
 									</ol>
 								</li>
-								<li>Contain 1 octet that has the value <code>0x40</code> (<code>@</code>)</li>
+								<li>Contain 1 <code><a href="#abnf_at">at</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_host">host</a></code></li>
 							</ol>
 						</li>
@@ -650,8 +645,8 @@
 			<details>
 				<summary>
 					<code id="abnf_parameter_list">
-						<b>parameter-list</b> = *13( space middle ) [ space %x3a trailing ]<br>
-						<b>parameter-list</b> =/ 14( space middle ) [ space [ %x3a ] trailing ]
+						<b>parameter-list</b> = *13( space middle ) [ space colon trailing ]<br>
+						<b>parameter-list</b> =/ 14( space middle ) [ space [ colon ] trailing ]
 					</code>
 				</summary>
 				<blockquote>
@@ -668,7 +663,7 @@
 								<li>Contain 0 or 1 pattern, which must:
 									<ol>
 										<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
-										<li>Contain 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+										<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
 										<li>Contain 1 <code><a href="#abnf_trailing">trailing</a></code></li>
 									</ol>
 								</li>
@@ -685,7 +680,7 @@
 								<li>Contain 0 or 1 pattern, which must:
 									<ol>
 										<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
-										<li>Contain 0 or 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+										<li>Contain 0 or 1 <code><a href="#abnf_colon">colon</a></code></li>
 										<li>Contain 1 <code><a href="#abnf_trailing">trailing</a></code></li>
 									</ol>
 								</li>
@@ -801,7 +796,7 @@
 		<details>
 			<summary>
 				<code>
-					user space umode-mask space host space %x3a realname
+					user space umode-mask space host space colon realname
 				</code>
 			</summary>
 			<blockquote>
@@ -812,7 +807,7 @@
 					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
 					<li>Contain 1 <code><a href="#abnf_host">host</a></code></li>
 					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
-					<li>Contain 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+					<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
 					<li>Contain 1 <code><a href="#abnf_realname">realname</a></code></li>
 				</ol>
 			</blockquote>
@@ -927,7 +922,7 @@
 		<details>
 			<summary>
 				<code>
-					nick space *( ( %x2b / %x2d ) *umode )
+					nick space *( ( plus / dash ) *umode )
 				</code>
 			</summary>
 			<blockquote>
@@ -937,8 +932,8 @@
 					<li>Contain 0 or more pattern, which must:</li>
 					<ol>
 						<li>
-							Start with 1 octet that has either the value <code>0x2b</code> (<code>+</code>)<br>
-							or the value <code>0x2d</code> (<code>-</code>)
+							Start with either 1 <code><a href="#abnf_plus">plus</a></code>
+							or 1 <code><a href="#abnf_dash">dash</a></code>
 						</li>
 						<li>Contain 0 or more <code><a href="#abnf_umode">umode</a></code></li>
 					</ol>
@@ -972,7 +967,7 @@
 		<details>
 			<summary>
 				<code>
-					channel space *( ( %x2b / %x2d ) *cmode *( space cmode-param ) )
+					channel space *( ( plus / dash ) *cmode *( space cmode-param ) )
 				</code>
 			</summary>
 			<blockquote>
@@ -982,8 +977,8 @@
 					<li>Contain 0 or more pattern, which must:</li>
 					<ol>
 						<li>
-							Start with 1 octet that has either the value <code>0x2b</code> (<code>+</code>)<br>
-							or the value <code>0x2d</code> (<code>-</code>)
+							Start with either 1 <code><a href="#abnf_plus">plus</a></code>
+							or 1 <code><a href="#abnf_dash">dash</a></code>
 						</li>
 						<li>Contain 0 or more <code><a href="#abnf_cmode">cmode</a></code></li>
 						<li>Contain 0 or more pattern, which must:</li>
@@ -1035,13 +1030,13 @@
 		<details>
 			<summary>
 				<code>
-					[ quit-message ]
+					[ colon quit-message ]
 				</code>
 			</summary>
 			<blockquote>
 				0 or 1 pattern, which must:
 				<ol>
-					<li>Start with 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+					<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
 					<li>Contain 1 <code><a href="#abnf_quit_message">quit-message</a></code></li>
 				</ol>
 			</blockquote>
@@ -1087,7 +1082,7 @@
 		<details>
 			<summary>
 				<code>
-					channel *( %x2c channel ) [ space key *( %x2c key ) ] / %x30
+					channel *( comma channel ) [ space key *( comma key ) ] / %x30
 				</code>
 			</summary>
 			<blockquote>
@@ -1098,7 +1093,7 @@
 							<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
 							<li>Contain 0 or more patterns, which must:
 								<ol>
-									<li>Start with 1 octet that has the value <code>0x2c</code> (<code>,</code>)</li>
+									<li>Start with 1 <code><a href="#abnf_comma">comma</a></code></li>
 									<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
 								</ol>
 							</li>
@@ -1108,7 +1103,7 @@
 									<li>Contain 1 <code><a href="#abnf_key">key</a></code></li>
 									<li>Contain 0 or more patterns, which must:
 										<ol>
-											<li>Start with 1 octet that has the value <code>0x2c</code> (<code>,</code>)</li>
+											<li>Start with 1 <code><a href="#abnf_comma">comma</a></code></li>
 											<li>Contain 1 <code><a href="#abnf_key">key</a></code></li>
 										</ol>
 									</li>
@@ -1163,7 +1158,7 @@
 		<details>
 			<summary>
 				<code>
-					channel *( %x2c channel ) [ space part-message ]
+					channel *( comma channel ) [ space part-message ]
 				</code>
 			</summary>
 			<blockquote>
@@ -1171,7 +1166,7 @@
 					<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
 					<li>Contain 0 or more patterns, which must:
 						<ol>
-							<li>Start with 1 octet that has the value <code>0x2c</code> (<code>,</code>)</li>
+							<li>Start with 1 <code><a href="#abnf_comma">comma</a></code></li>
 							<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
 						</ol>
 					</li>
@@ -1229,7 +1224,7 @@
 		<details>
 			<summary>
 				<code>
-					channel [ " :" topic ]
+					channel [ space colon topic ]
 				</code>
 			</summary>
 			<blockquote>
@@ -1237,7 +1232,8 @@
 					<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
 					<li>Contain 0 or 1 pattern, which must:
 						<ol>
-							<li>Start with the string <code>" :"</code></li>
+							<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+							<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
 							<li>Contain 1 <code><a href="#abnf_topic">topic</a></code></li>
 						</ol>
 					</li>
@@ -1265,7 +1261,7 @@
 		<details>
 			<summary>
 				<code>
-					[ channel *( %x2c channel ) ]
+					[ channel *( comma channel ) ]
 				</code>
 			</summary>
 			<blockquote>
@@ -1274,7 +1270,7 @@
 					<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
 					<li>Contain 0 or more patterns, which must:
 						<ol>
-							<li>Start with 1 octet that has the value <code>0x2c</code> (<code>,</code>)</li>
+							<li>Start with 1 <code><a href="#abnf_comma">comma</a></code></li>
 							<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
 						</ol>
 					</li>
@@ -1299,7 +1295,7 @@
 		<details>
 			<summary>
 				<code>
-					[ channel *( %x2c channel ) ]
+					[ channel *( comma channel ) ]
 				</code>
 			</summary>
 			<blockquote>
@@ -1308,7 +1304,7 @@
 					<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
 					<li>Contain 0 or more patterns, which must:
 						<ol>
-							<li>Start with 1 octet that has the value <code>0x2c</code> (<code>,</code>)</li>
+							<li>Start with 1 <code><a href="#abnf_comma">comma</a></code></li>
 							<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
 						</ol>
 					</li>
@@ -1356,6 +1352,211 @@
 			<li><a href="#err_chanoprivsneeded">ERR_CHANOPRIVSNEEDED</a></li>
 		</ul>
 
+		<h2 id="command_kick">KICK</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					channel *( comma channel ) space user *( comma user ) [ space colon comment ]
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+					<li>Contain 0 or more patterns, which must:
+						<ol>
+							<li>Start with 1 <code><a href="#abnf_comma">comma</a></code></li>
+							<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
+						</ol>
+					</li>
+					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_user">user</a></code></li>
+					<li>Contain 0 or more patterns, which must:
+						<ol>
+							<li>Start with 1 <code><a href="#abnf_comma">comma</a></code></li>
+							<li>Contain 1 <code><a href="#abnf_user">user</a></code></li>
+						</ol>
+					</li>
+					<li>Contain 0 or 1 pattern, which must:
+						<ol>
+							<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+							<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
+							<li>Contain 1 <code><a href="#abnf_comment">comment</a></code></li>
+						</ol>
+					</li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#err_nosuchchannel">ERR_NOSUCHCHANNEL</a></li>
+			<li><a href="#err_usernotinchannel">ERR_USERNOTINCHANNEL</a></li>
+			<li><a href="#err_notonchannel">ERR_NOTONCHANNEL</a></li>
+			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
+			<li><a href="#err_badchanmask">ERR_BADCHANMASK</a></li>
+			<li><a href="#err_chanoprivsneeded">ERR_CHANOPRIVSNEEDED</a></li>
+		</ul>
+
+		<h2 id="command_privmsg">PRIVMSG</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					msg-target space colon text-to-be-sent
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_msg_target">msg-target</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_text_to_be_sent">text-to-be-sent</a></code></li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_away">RPL_AWAY</a></li>
+			<li><a href="#err_nosuchnick">ERR_NOSUCHNICK</a></li>
+			<li><a href="#err_cannotsendtochan">ERR_CANNOTSENDTOCHAN</a></li>
+			<li><a href="#err_norecipient">ERR_NORECIPIENT</a></li>
+			<li><a href="#err_notexttosend">ERR_NOTEXTTOSEND</a></li>
+		</ul>
+
+		<h2 id="command_notice">NOTICE</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					msg-target space colon text-to-be-sent
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_msg_target">msg-target</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_text_to_be_sent">text-to-be-sent</a></code></li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<p>None</p>
+
+		<h2 id="command_motd">MOTD</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<p>None</p>
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_motd">RPL_MOTD</a></li>
+			<li><a href="#rpl_motdstart">RPL_MOTDSTART</a></li>
+			<li><a href="#rpl_endofmotd">RPL_ENDOFMOTD</a></li>
+			<li><a href="#err_nomotd">ERR_NOMOTD</a></li>
+		</ul>
+
+		<h2 id="command_version">VERSION</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<p>None</p>
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_version">RPL_VERSION</a></li>
+		</ul>
+
+		<h2 id="command_time">TIME</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<p>None</p>
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_time">RPL_TIME</a></li>
+		</ul>
+
+		<h2 id="command_info">INFO</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<p>None</p>
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_info">RPL_INFO</a></li>
+			<li><a href="#rpl_endofinfo">RPL_ENDOFINFO</a></li>
+		</ul>
+
+		<h2 id="command_whois">WHOIS</h2>
+		<p>
+			<!-- TODO: write the description of the command -->
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					nick *( comma nick )
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+					<li>Contain 0 or more patterns, which must:
+						<ol>
+							<li>Start with 1 <code><a href="#abnf_comma">comma</a></code></li>
+							<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
+						</ol>
+					</li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_away">RPL_AWAY</a></li>
+			<li><a href="#rpl_whoisuser">RPL_WHOISUSER</a></li>
+			<li><a href="#rpl_whoisoperator">RPL_WHOISOPERATOR</a></li>
+			<li><a href="#rpl_endofwhois">RPL_ENDOFWHOIS</a></li>
+			<li><a href="#err_nosuchnick">ERR_NOSUCHNICK</a></li>
+			<li><a href="#err_nonicknamegiven">ERR_NONICKNAMEGIVEN</a></li>
+		</ul>
+
 		<h1 id="replies">Replies</h1>
 		<p>
 			Most of the messages that the server receives from a client<br>
@@ -1401,13 +1602,13 @@
 					<details>
 						<summary>
 							<code>
-								":Welcome to the Internet Relay Network " umask
+								":Welcome to the Internet Relay Network " user-mask
 							</code>
 						</summary>
 						<blockquote>
 							<ol>
 								<li>Start with the string <code>":Welcome to the Internet Relay Network "</code></li>
-								<li>Contain 1 <code><a href="#abnf_umask">umask</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_user_mask">user-mask</a></code></li>
 							</ol>
 						</blockquote>
 					</details>
@@ -1500,14 +1701,15 @@
 					<details>
 						<summary>
 							<code>
-								nick " :" [ %x2b ] *umode
+								nick space colon [ plus ] *umode
 							</code>
 						</summary>
 						<blockquote>
 							<ol>
 								<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
-								<li>Contain the string <code>" :"</code></li>
-								<li>Contain 0 or 1 octet that has the value <code>0x2b</code> (<code>+</code>)</li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
+								<li>Contain 0 or 1 <code><a href="#abnf_plus">plus</a></code></li>
 								<li>Contain 0 or more <code><a href="#abnf_umode">umode</a></code></li>
 							</ol>
 						</blockquote>
@@ -1523,14 +1725,83 @@
 					<details>
 						<summary>
 							<code>
-								nick " :" away-message
+								nick space colon away-message
 							</code>
 						</summary>
 						<blockquote>
 							<ol>
 								<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
-								<li>Contain the string <code>" :"</code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_trailing">away-message</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_whoisuser">
+				<td>311</td>
+				<td><b>RPL_WHOISUSER</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								nick space user space host " * :" realname
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_user">user</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_host">host</a></code></li>
+								<li>Contain the string <code>" * :"</code></li>
+								<li>Contain 1 <code><a href="#abnf_realname">realname</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_whoisoperator">
+				<td>313</td>
+				<td><b>RPL_WHOISOPERATOR</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								nick " :is an IRC operator"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+								<li>Contain the string <code>" :is an IRC operator"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_endofwhois">
+				<td>318</td>
+				<td><b>RPL_ENDOFWHOIS</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								nick " :End of WHOIS list"
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+								<li>Contain the string <code>" :End of WHOIS list"</code></li>
 							</ol>
 						</blockquote>
 					</details>
@@ -1545,14 +1816,15 @@
 					<details>
 						<summary>
 							<code>
-								channel user-count " :" topic
+								channel user-count space colon topic
 							</code>
 						</summary>
 						<blockquote>
 							<ol>
 								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_user_count">user-count</a></code></li>
-								<li>Contain the string <code>" :"</code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_topic">topic</a></code></li>
 							</ol>
 						</blockquote>
@@ -1568,11 +1840,11 @@
 					<details>
 						<summary>
 							<code>
-								" :End of LIST"
+								":End of LIST"
 							</code>
 						</summary>
 						<blockquote>
-							Match the string <code>" :End of LIST"</code>
+							Match the string <code>":End of LIST"</code>
 						</blockquote>
 					</details>
 					<!-- #endregion -->
@@ -1631,13 +1903,14 @@
 					<details>
 						<summary>
 							<code>
-								channel " :" topic
+								channel space colon topic
 							</code>
 						</summary>
 						<blockquote>
 							<ol>
 								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
-								<li>Contain the string <code>" :"</code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_topic">topic</a></code></li>
 							</ol>
 						</blockquote>
@@ -1710,6 +1983,31 @@
 					<!-- #endregion -->
 				</td>
 			</tr>
+			<tr id="rpl_version">
+				<td>351</td>
+				<td><b>RPL_VERSION</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code id="abnf_rpl_version">
+								version space server space colon comment
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_version">version</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_server">server</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_comment">comment</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
 			<tr id="rpl_namreply">
 				<td>353</td>
 				<td><b>RPL_NAMREPLY</b></td>
@@ -1718,29 +2016,30 @@
 					<details>
 						<summary>
 							<code>
-								( %x2a / %x3d / %x40 ) channel " :" [ %x2b / %x40 ] nick *( space [ %x2b / %x40 ] nick )
+								( star / equal / at ) channel space colon [ plus / at ] nick *( space [ plus / at ] nick )
 							</code>
 						</summary>
 						<blockquote>
 							<ol>
 								<li>
-									Start with 1 octet that has either the value <code>0x2a</code> (<code>*</code>)<br>
-									or the value <code>0x3d</code> (<code>=</code>)
-									or the value <code>0x40</code> (<code>@</code>)
+									Start with either 1 <code><a href="#abnf_star">star</a></code>
+									or 1 <code><a href="#abnf_equal">equal</a></code>
+									or 1 <code><a href="#abnf_at">at</a></code>
 								</li>
 								<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
-								<li>Contain the string <code>" :"</code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
 								<li>
-									Contain 0 or 1 octet that has either the value <code>0x2b</code> (<code>+</code>)<br>
-									or the value <code>0x40</code> (<code>@</code>)
+									Contain 0 or 1 pattern, which is either 1 <code><a href="#abnf_plus">plus</a></code>
+									or 1 <code><a href="#abnf_at">at</a></code>
 								</li>
 								<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
 								<li>Contain 0 or more pattern, which must:
 									<ol>
 										<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
 										<li>
-											Contain 0 or 1 octet that has either the value <code>0x2b</code> (<code>+</code>)<br>
-											or the value <code>0x40</code> (<code>@</code>)
+											Contain 0 or 1 pattern, which is either 1 <code><a href="#abnf_plus">plus</a></code>
+											or 1 <code><a href="#abnf_at">at</a></code>
 										</li>
 										<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
 									</ol>
@@ -1779,14 +2078,14 @@
 					<details>
 						<summary>
 							<code>
-								channel space umask
+								channel space user-mask
 							</code>
 						</summary>
 						<blockquote>
 							<ol>
 								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
-								<li>Contain 1 <code><a href="#abnf_umask">umask</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_user_mask">user-mask</a></code></li>
 							</ol>
 						</blockquote>
 					</details>
@@ -1814,6 +2113,27 @@
 					<!-- #endregion -->
 				</td>
 			</tr>
+			<tr id="rpl_info">
+				<td>371</td>
+				<td><b>RPL_INFO</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								colon single-info
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_single_info">single-info</a></code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
 			<tr id="rpl_motd">
 				<td>372</td>
 				<td><b>RPL_MOTD</b></td>
@@ -1822,17 +2142,35 @@
 					<details>
 						<summary>
 							<code>
-								":- " trailing
+								":- " motd-text
 							</code>
 						</summary>
 						<blockquote>
 							<ol>
 								<li>Sart with the string <code>":- "</code></li>
-								<li>Contain 1 <code><a href="#abnf_trailing">trailing</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_motd_text">motd-text</a></code></li>
 							</ol>
 						</blockquote>
 					</details>
 					<!-- #endregion -->
+			</tr>
+			<tr id="rpl_endofinfo">
+				<td>374</td>
+				<td><b>RPL_ENDOFINFO</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								":End of INFO list"
+							</code>
+						</summary>
+						<blockquote>
+							Match the string <code>":End of INFO list"</code>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
 			</tr>
 			<tr id="rpl_motdstart">
 				<td>375</td>
@@ -1887,6 +2225,29 @@
 						</summary>
 						<blockquote>
 							Match the string <code>":You are now an IRC operator"</code>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_time">
+				<td>391</td>
+				<td><b>RPL_TIME</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								server space colon local-time
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_server">server</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_local_time">local-time</a></code></li>
+							</ol>
 						</blockquote>
 					</details>
 					<!-- #endregion -->
@@ -1985,30 +2346,6 @@
 					<!-- #endregion -->
 				</td>
 			</tr>
-			<tr id="err_toomanytargets">
-				<td>407</td>
-				<td><b>ERR_TOOMANYTARGETS</b></td>
-				<td>
-					<!-- #region: ABNF -->
-					<details>
-						<summary>
-							<code>
-								target " :" error-code " recipients. " abort-message
-							</code>
-						</summary>
-						<blockquote>
-							<ol>
-								<li>Start with 1 <code><a href="#abnf_target">target</a></code></li>
-								<li>Contain the string <code>" :"</code></li>
-								<li>Contain 1 <code><a href="#abnf_error_code">error-code</a></code></li>
-								<li>Contain the string <code>" recipients. "</code></li>
-								<li>Contain 1 <code><a href="#abnf_abort_message">abort-message</a></code></li>
-							</ol>
-						</blockquote>
-					</details>
-					<!-- #endregion -->
-				</td>
-			</tr>
 			<tr id="err_norecipient">
 				<td>411</td>
 				<td><b>ERR_NORECIPIENT</b></td>
@@ -2045,6 +2382,23 @@
 							Match the string <code>":No text to send"</code>
 						</blockquote>
 					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="err_nomotd">
+				<td>422</td>
+				<td><b>ERR_NOMOTD</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								":MOTD File is missing"
+							</code>
+						</summary>
+						<blockquote>
+							Match the string <code>":MOTD File is missing"</code>
+						</blockquote>
 					<!-- #endregion -->
 				</td>
 			</tr>
@@ -2386,7 +2740,9 @@
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
-							channel " :Channel doesn't support modes"
+							<code>
+								channel " :Channel doesn't support modes"
+							</code>
 						</summary>
 						<blockquote>
 							<ol>
@@ -2485,6 +2841,150 @@
 			</summary>
 			<blockquote>
 				1 octet that has the value <code>0x20</code> (<code> </code>)
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `bang` -->
+		<details>
+			<summary>
+				<code id="abnf_bang">
+					<b>bang</b> = %x21
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has the value <code>0x21</code> (<code>!</code>)
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `hash` -->
+		<details>
+			<summary>
+				<code id="abnf_hash">
+					<b>hash</b> = %x23
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has the value <code>0x23</code> (<code>#</code>)
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `percent` -->
+		<details>
+			<summary>
+				<code id="abnf_percent">
+					<b>percent</b> = %x25
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has the value <code>0x25</code> (<code>%</code>)
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `and` -->
+		<details>
+			<summary>
+				<code id="abnf_and">
+					<b>and</b> = %x26
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has the value <code>0x26</code> (<code>&</code>)
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `star` -->
+		<details>
+			<summary>
+				<code id="abnf_star">
+					<b>star</b> = %x2a
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has the value <code>0x2a</code> (<code>*</code>)
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `plus` -->
+		<details>
+			<summary>
+				<code id="abnf_plus">
+					<b>plus</b> = %x2b
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has the value <code>0x2b</code> (<code>+</code>)
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `comma` -->
+		<details>
+			<summary>
+				<code id="abnf_comma">
+					<b>comma</b> = %x2c
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has the value <code>0x2c</code> (<code>,</code>)
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `dash` -->
+		<details>
+			<summary>
+				<code id="abnf_dash">
+					<b>dash</b> = %x2d
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has the value <code>0x2d</code> (<code>-</code>)
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `dot` -->
+		<details>
+			<summary>
+				<code id="abnf_dot">
+					<b>dot</b> = %x2e
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has the value <code>0x2e</code> (<code>.</code>)
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `colon` -->
+		<details>
+			<summary>
+				<code id="abnf_colon">
+					<b>colon</b> = %x3a
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has the value <code>0x3a</code> (<code>:</code>)
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `equal` -->
+		<details>
+			<summary>
+				<code id="abnf_equal">
+					<b>equal</b> = %x3d
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has the value <code>0x3d</code> (<code>=</code>)
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `at` -->
+		<details>
+			<summary>
+				<code id="abnf_at">
+					<b>at</b> = %x40
+				</code>
+			</summary>
+			<blockquote>
+				1 octet that has the value <code>0x40</code> (<code>@</code>)
 			</blockquote>
 		</details>
 		<!-- #endregion -->
@@ -2670,15 +3170,23 @@
 			<blockquote>
 				Either 1 of the following:
 				<ul>
-					<li>
-						1 octet that has the value <code>0x30</code> (<code>0</code>) followed by 1 octet<br>
-						that has any value between <code>0x31</code> (<code>1</code>)
-						and <code>0x39</code> (<code>9</code>) both included
+					<li>1 pattern, which must:
+						<ol>
+							<li>Start with 1 octet that has the value <code>0x30</code> (<code>0</code>)</li>
+							<li>
+								Contain 1 octet that has any value between <code>0x31</code> (<code>1</code>)
+								and <code>0x39</code> (<code>9</code>) both included
+							</li>
+						</ol> 
 					</li>
-					<li>
-						1 octet that has the value <code>0x31</code> (<code>1</code>) followed by 1 octet<br>
-						that has any value between <code>0x30</code> (<code>0</code>)
-						and <code>0x32</code> (<code>2</code>) both included
+					<li>1 pattern, which must:
+						<ol>
+							<li>Start with 1 octet that has the value <code>0x31</code> (<code>1</code>)</li>
+							<li>
+								Contain 1 octet that has any value between <code>0x30</code> (<code>0</code>)
+								and <code>0x32</code> (<code>2</code>) both included
+							</li>
+						</ol>
 					</li>
 				</ul>
 			</blockquote>
@@ -2714,11 +3222,88 @@
 			</blockquote>
 		</details>
 		<!-- #endregion -->
+		<!-- #region: ABNF of `day-of-the-week` -->
+		<details>
+			<summary>
+				<code id="abnf_day_of_the_week">
+					<b>day-of-the-week</b> = "Mon" / "Tue" / "Wed" / "Thu" / "Fri" / "Sat" / "Sun"
+				</code>
+			</summary>
+			<blockquote>
+				Match either 1 of the following strings:
+				<ul>
+					<li><code>"Mon"</code></li>
+					<li><code>"Tue"</code></li>
+					<li><code>"Wed"</code></li>
+					<li><code>"Thu"</code></li>
+					<li><code>"Fri"</code></li>
+					<li><code>"Sat"</code></li>
+					<li><code>"Sun"</code></li>
+				</ul>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `hours` -->
+		<details>
+			<summary>
+				<code id="abnf_hours">
+					<b>hours</b> = %x30-31 %x30-39 / %x32 %x30-33
+				</code>
+			</summary>
+			<blockquote>
+				Either 1 of the following:
+				<ul>
+					<li>1 pattern, which must:
+						<ol>
+							<li>
+								Start with 1 octet that has either the value <code>0x30</code> (<code>0</code>)
+								or the value <code>0x31</code> (<code>1</code>)
+							</li>
+							<li>
+								Contain 1 octet that has any value between <code>0x30</code> (<code>0</code>)
+								and <code>0x39</code> (<code>9</code>) both included
+							</li>
+						</ol>
+					</li>
+					<li>1 pattern, which must:
+						<ol>
+							<li>Start with 1 octet that has the value <code>0x32</code> (<code>2</code>)</li>
+							<li>
+								Contain 1 octet that has any value between <code>0x30</code> (<code>0</code>)
+								and <code>0x33</code> (<code>3</code>) both included
+							</li>
+						</ol>
+					</li>
+				</ul>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `minutes` -->
+		<details>
+			<summary>
+				<code id="abnf_minutes">
+					<b>minutes</b> = %x30-35 %x30-39
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>
+						Start with 1 octet that has any value between <code>0x30</code> (<code>0</code>)
+						and <code>0x35</code> (<code>5</code>) both included
+					</li>
+					<li>
+						Contain 1 octet that has any value between <code>0x30</code> (<code>0</code>)
+						and <code>0x39</code> (<code>9</code>) both included
+					</li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
 		<!-- #region: ABNF of `shortname` -->
 		<details>
 			<summary>
 				<code id="abnf_shortname">
-					<b>shortname</b> = ( letter / digit ) *( letter / digit / %x2d )
+					<b>shortname</b> = ( letter / digit ) *( letter / digit / dash )
 			</summary>
 			<blockquote>
 				<ol>
@@ -2729,7 +3314,7 @@
 					<li>
 						Contain 0 or more <code><a href="#abnf_letter">letters</a></code>
 						and/or <code><a href="#abnf_digit">digits</a></code><br>
-						and/or octets that have the value <code>0x2d</code> (<code>-</code>)
+						and/or <code><a href="#abnf_dash">dashes</a></code>
 					</li>
 				</ol>
 			</blockquote>
@@ -2824,7 +3409,7 @@
 		<details>
 			<summary>
 				<code id="abnf_password">
-					<b>password</b> = middle / %x3a trailing
+					<b>password</b> = middle / colon trailing
 				</code>
 			</summary>
 			<blockquote>
@@ -2832,7 +3417,7 @@
 					<li>Start with either 1 <code><a href="#abnf_middle">middle</a></code>
 						or 1 pattern, which must:</li>
 					<ol>
-						<li>Start with 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+						<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
 						<li>Contain 1 <code><a href="#abnf_trailing">trailing</a></code></li>
 					</ol>
 				</ol>
@@ -2843,13 +3428,13 @@
 		<details>
 			<summary>
 				<code id="abnf_quit_message">
-					<b>quit-message</b> = middle / %x3a trailing
+					<b>quit-message</b> = middle / colon trailing
 				</code>
 			</summary>
 			<blockquote>
 				Either 1 <code><a href="#abnf_middle">middle</a></code> or 1 pattern, which must:
 				<ol>
-					<li>Start with 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+					<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
 					<li>Contain 1 <code><a href="#abnf_trailing">trailing</a></code></li>
 				</ol>
 			</blockquote>
@@ -2859,14 +3444,134 @@
 		<details>
 			<summary>
 				<code id="abnf_part_message">
-					<b>part-message</b> = middle / %3a trailing
+					<b>part-message</b> = middle / colon trailing
 				</code>
 			</summary>
 			<blockquote>
 				Either 1 <code><a href="#abnf_middle">middle</a></code> or 1 pattern, which must:
 				<ol>
-					<li>Start with 1 octet that has the value <code>0x3a</code> (<code>:</code>)</li>
+					<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
 					<li>Contain 1 <code><a href="#abnf_trailing">trailing</a></code></li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `comment` -->
+		<details>
+			<summary>
+				<code id="abnf_comment">
+					<b>comment</b> = trailing
+				</code>
+			</summary>
+			<blockquote>
+				1 <code><a href="#abnf_trailing">trailing</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `msg-to` -->
+		<details>
+			<summary>
+				<code id="abnf_msg_to">
+					<b>msg-to</b> =/ server / host / channel / nick / user-mask<br>
+					<b>msg-to</b> =/ user percent host / user [ percent host ] at server
+				</code>
+			</summary>
+			<blockquote>
+				Either 1 of the following:
+				<ul>
+					<li>1 <code><a href="#abnf_server">server</a></code></li>
+					<li>1 <code><a href="#abnf_host">host</a></code></li>
+					<li>1 <code><a href="#abnf_channel">channel</a></code></li>
+					<li>1 <code><a href="#abnf_nick">nick</a></code></li>
+					<li>1 <code><a href="#abnf_user_mask">user-mask</a></code></li>
+					<li>1 pattern, which must:
+						<ol>
+							<li>Start with 1 <code><a href="#abnf_user">user</a></code></li>
+							<li>Contain 1 <code><a href="#abnf_percent">percent</a></code></li>
+							<li>Contain 1 <code><a href="#abnf_host">host</a></code></li>
+						</ol>
+					</li>
+					<li>1 pattern, which must:
+						<ol>
+							<li>Start with 1 <code><a href="#abnf_user">user</a></code></li>
+							<li>Contain 0 or 1 pattern, which must:
+								<ol>
+									<li>Start with 1 <code><a href="#abnf_percent">percent</a></code></li>
+									<li>Contain 1 <code><a href="#abnf_host">host</a></code></li>
+								</ol>
+							</li>
+							<li>Contain 1 <code><a href="#abnf_at">at</a></code></li>
+							<li>Contain 1 <code><a href="#abnf_server">server</a></code></li>
+						</ol>
+					</li>
+				</ul>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `msg-target` -->
+		<details>
+			<summary>
+				<code id="abnf_msg_target">
+					<b>msg-target</b> = msg-to *( comma msg-to )
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_msg_to">msg-to</a></code></li>
+					<li>Contain 0 or more patterns, which must:
+						<ol>
+							<li>Start with 1 <code><a href="#abnf_comma">comma</a></code> (<code>,</code>)</li>
+							<li>Contain 1 <code><a href="#abnf_msg_to">msg-to</a></code></li>
+						</ol>
+					</li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `text-to-be-sent` -->
+		<details>
+			<summary>
+				<code id="abnf_text_to_be_sent">
+					<b>text-to-be-sent</b> = trailing
+				</code>
+			</summary>
+			<blockquote>
+				1 <code><a href="#abnf_trailing">trailing</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `local-time` -->
+		<details>
+			<summary>
+				<code id="abnf_local_time">
+					<b>local-time</b> = day-of-the-week space hours colon minutes
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_day_of_the_week">day-of-the-week</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_hours">hours</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_minutes">minutes</a></code></li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `date` -->
+		<details>
+			<summary>
+				<code id="abnf_date">
+					<b>date</b> = year dash month dash day
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_year">year</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_dash">dash</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_month">month</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_dash">dash</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_day">day</a></code></li>
 				</ol>
 			</blockquote>
 		</details>
@@ -2883,21 +3588,15 @@
 			</blockquote>
 		</details>
 		<!-- #endregion -->
-		<!-- #region: ABNF of `date` -->
+		<!-- #region: ABNF of `away-message` -->
 		<details>
 			<summary>
-				<code id="abnf_date">
-					<b>date</b> = year %x2d month %x2d day
+				<code id="abnf_away_message">
+					<b>away-message</b> = trailing
 				</code>
 			</summary>
 			<blockquote>
-				<ol>
-					<li>Start with 1 <code><a href="#abnf_year">year</a></code></li>
-					<li>Contain 1 octet that has the value <code>0x2d</code> (<code>-</code>)</li>
-					<li>Contain 1 <code><a href="#abnf_month">month</a></code></li>
-					<li>Contain 1 octet that has the value <code>0x2d</code> (<code>-</code>)</li>
-					<li>Contain 1 <code><a href="#abnf_day">day</a></code></li>
-				</ol>
+				1 <code><a href="#abnf_trailing">trailing</a></code>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
@@ -2905,11 +3604,35 @@
 		<details>
 			<summary>
 				<code id="abnf_invite_mask">
-					<b>invite-mask</b> = umask
+					<b>invite-mask</b> = user-mask
 				</code>
 			</summary>
 			<blockquote>
-				1 <code><a href="#abnf_umask">umask</a></code>
+				1 <code><a href="#abnf_user_mask">user-mask</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `single-info` -->
+		<details>
+			<summary>
+				<code id="abnf_single_info">
+					<b>single-info</b> = trailing
+				</code>
+			</summary>
+			<blockquote>
+				1 <code><a href="#abnf_trailing">trailing</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `motd-text` -->
+		<details>
+			<summary>
+				<code id="abnf_motd_text">
+					<b>motd-text</b> = trailing
+				</code>
+			</summary>
+			<blockquote>
+				1 <code><a href="#abnf_trailing">trailing</a></code>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
