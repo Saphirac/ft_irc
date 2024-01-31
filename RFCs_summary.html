@@ -585,7 +585,7 @@
 		<h2 id="prefix">Prefix</h2>
 		<p>
 			The purpose of the prefix is to explicitly indicate the true origin of a received message.<br>
-			However, the prefix is <mark>optionnal</mark>, and thus, if a received message has no prefix,<br>
+			However, the prefix is <mark>optional</mark>, and thus, if a received message has no prefix,<br>
 			it is assumed that its true origin is the connection from which it was received.<br>
 		</p>
 		<figure>
@@ -756,7 +756,7 @@
 			When the server receives a NICK message, it must check<br>
 			that the given nickname is valid and not already in use.<br>
 			Then the server must change the nickname of the user to the given one.<br>
-			Finnaly, the server must send back a NICK message to the user<br>
+			Finally, the server must send back a NICK message to the user<br>
 			to confirm that their nickname has been changed.<br>
 			<br>
 			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
@@ -1374,7 +1374,7 @@
 
 		<h2 id="command_list">LIST</h2>
 		<p>
-			The LIST command is used to list the channels and their informations.<br>
+			The LIST command is used to list the channels and their information.<br>
 			When the server receives a LIST message, it must check<br>
 			whether a parameter list is given.<br>
 			<ul>
@@ -1382,13 +1382,13 @@
 					<p>
 						Check that the channel exists.<br>
 						Send back a <a href="#rpl_list">RPL_LIST</a><br>
-						to the client, to indicate the channel and its informations.<br>
+						to the client, to indicate the channel and its information.<br>
 					</p>
 				</li>
 				<li>
 					If there is not, then for each existing channel,<br>
 					the server must send back a <a href="#rpl_list">RPL_LIST</a><br>
-					to the client, to indicate the channel and its informations.
+					to the client, to indicate the channel and its information.
 				</li>
 			</ul>
 			Finally, the server must send back a <a href="#rpl_listend">RPL_LISTEND</a><br>
@@ -1731,14 +1731,14 @@
 
 		<h2 id="command_info">INFO</h2>
 		<p>
-			The INFO command is used to get the informations about the server:<br>
+			The INFO command is used to get the information about the server:<br>
 			its version, when it was compiled, when it was started,<br>
-			and other miscellaneaous informations which may be considered to be relevant.<br>
+			and other miscellaneaous information which may be considered to be relevant.<br>
 			When the server receives an INFO message,<br>
 			it must send back 1 or more <a href="#rpl_info">RPL_INFO</a> to the client,<br>
-			to indicate them the informations about the server.<br>
+			to indicate them the information about the server.<br>
 			Then, the server must send back a <a href="#rpl_endofinfo">RPL_ENDOFINFO</a> to the client,<br>
-			to indicate them the end of the informations about the server.<br>
+			to indicate them the end of the information about the server.<br>
 		</p>
 
 		<h4>Parameters</h4>
@@ -1752,13 +1752,13 @@
 
 		<h2 id="command_whois">WHOIS</h2>
 		<p>
-			The WHOIS command is used to get informations about a user.<br>
+			The WHOIS command is used to get information about a user.<br>
 			When the server receives a WHOIS message, for each given nickname,<br>
 			the server must do the following routine:<br>
 			<p>
 				Check that the given nickname exists, and that its user is not marked as invisible.<br>
 				Then send back a <a href="#rpl_whoisuser">RPL_WHOISUSER</a> to the client,<br>
-				to indicate them the user's informations.<br>
+				to indicate them the user's information.<br>
 				If the target user is an IRC operator,<br>
 				then send back a <a href="#rpl_whoisoperator">RPL_WHOISOPERATOR</a> to the client,<br>
 				to indicate them that the target user is an IRC operator.<br>
@@ -1768,7 +1768,7 @@
 				Then send back 0 or more <a href="#rpl_whoischannels">RPL_WHOISCHANNELS</a> to the client,<br>
 				to indicate them the channels in which the target user is.<br>
 				Finally, send back a <a href="#rpl_endofwhois">RPL_ENDOFWHOIS</a> to the client,<br>
-				to indicate them the end of the WHOIS informations.<br>
+				to indicate them the end of the WHOIS information.<br>
 				<br>
 				<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
 				is sent back to the client, and the process is aborted.
