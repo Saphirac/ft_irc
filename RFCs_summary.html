@@ -42,6 +42,7 @@
 					<li><a href="#command_nick">NICK</a></li>
 					<li><a href="#command_user">USER</a></li>
 					<li><a href="#command_oper">OPER</a></li>
+					<li><a href="#command_away">AWAY</a></li>
 					<li><a href="#command_mode">MODE</a></li>
 					<li><a href="#command_quit">QUIT</a></li>
 					<li><a href="#command_join">JOIN</a></li>
@@ -58,16 +59,14 @@
 					<li><a href="#command_time">TIME</a></li>
 					<li><a href="#command_info">INFO</a></li>
 					<li><a href="#command_whois">WHOIS</a></li>
+					<li><a href="#command_ison">ISON</a></li>
 					<li><a href="#command_kill">KILL</a></li>
-					<li><a href="#command_ping">PING</a></li>
-					<li><a href="#command_pong">PONG</a></li>
-					<li><a href="#command_error">ERROR</a></li>
-					<li><a href="#command_away">AWAY</a></li>
 					<li><a href="#command_die">DIE</a></li>
 					<li><a href="#command_restart">RESTART</a></li>
 					<li><a href="#command_wallops">WALLOPS</a></li>
-					<li><a href="#command_ison">ISON</a></li>
-
+					<li><a href="#command_ping">PING</a></li>
+					<li><a href="#command_pong">PONG</a></li>
+					<li><a href="#command_error">ERROR</a></li>
 				</ul>
 			<li><a href="#replies">Replies</a></li>
 				<ul>
@@ -909,6 +908,48 @@
 			<li><a href="#err_nooperhost">ERR_NOOPERHOST</a></li>
 		</ul>
 
+		<h2 id="command_away">AWAY</h2>
+		<p>
+			The AWAY command is used to mark/unmark a user as away.<br>
+			It also allows the user to choose a custom away message.<br>
+			When the server receives an AWAY message, it must check<br>
+			whether a parameter is given.<br>
+			<ul>
+				<li>
+					If there is, then the server must set the away message for the client to it,<br>
+					set the `a` mode for the user, and send back a <a href="#rpl_nowaway">RPL_NOWAWAY</a>
+					to the client,<br>
+					to indicate them that they are now marked as away.<br>
+				</li>
+				<li>
+					If there is not, then the server must unset the away message for the client,<br>
+					unset the `a` mode for the user, and send back a <a href="#rpl_unaway">RPL_UNAWAY</a>
+					to the client,<br>
+					to indicate them that they are no longer marked as away.<br>
+				</li>
+			</ul>
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					[ custom-away-message ]
+				</code>
+			</summary>
+			<blockquote>
+				0 or 1 <code><a href="#abnf_custom_away_message">custom-away-message</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_unaway">RPL_UNAWAY</a></li>
+			<li><a href="#rpl_nowaway">RPL_NOWAWAY</a></li>
+		</ul>
+
 		<h2 id="command_mode">MODE</h2>
 		<p>
 			The MODE command is a dual purpose command in IRC.<br>
@@ -1038,7 +1079,7 @@
 			remove them from every channel they were in, and then<br>
 			remove them from its list of known clients.<br>
 			Finally, the server must send a QUIT message<br>
-			to every channel that the user was in,<br>
+			to every channel in which the user was,<br>
 			to inform them of the user's departure.<br>
 			<br>
 			<b>Note</b>: for each <a href="#command_error">ERROR</a> and QUIT message sent by the server,<br>
@@ -1711,7 +1752,27 @@
 
 		<h2 id="command_whois">WHOIS</h2>
 		<p>
-			<!-- TODO: write the description of the command -->
+			The WHOIS command is used to get informations about a user.<br>
+			When the server receives a WHOIS message, for each given nickname,<br>
+			the server must do the following routine:<br>
+			<p>
+				Check that the given nickname exists, and that its user is not marked as invisible.<br>
+				Then send back a <a href="#rpl_whoisuser">RPL_WHOISUSER</a> to the client,<br>
+				to indicate them the user's informations.<br>
+				If the target user is an IRC operator,<br>
+				then send back a <a href="#rpl_whoisoperator">RPL_WHOISOPERATOR</a> to the client,<br>
+				to indicate them that the target user is an IRC operator.<br>
+				If the target user is marked as away,<br>
+				then send back a <a href="#rpl_away">RPL_AWAY</a> to the client,<br>
+				to indicate them that the target user is away.<br>
+				Then send back 0 or more <a href="#rpl_whoischannels">RPL_WHOISCHANNELS</a> to the client,<br>
+				to indicate them the channels in which the target user is.<br>
+				Finally, send back a <a href="#rpl_endofwhois">RPL_ENDOFWHOIS</a> to the client,<br>
+				to indicate them the end of the WHOIS informations.<br>
+				<br>
+				<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+				is sent back to the client, and the process is aborted.
+			</p>
 		</p>
 
 		<h4>Parameters</h4>
@@ -1742,13 +1803,68 @@
 			<li><a href="#rpl_whoisuser">RPL_WHOISUSER</a></li>
 			<li><a href="#rpl_whoisoperator">RPL_WHOISOPERATOR</a></li>
 			<li><a href="#rpl_endofwhois">RPL_ENDOFWHOIS</a></li>
+			<li><a href="#rpl_whoischannels">RPL_WHOISCHANNELS</a></li>
 			<li><a href="#err_nosuchnick">ERR_NOSUCHNICK</a></li>
 			<li><a href="#err_nonicknamegiven">ERR_NONICKNAMEGIVEN</a></li>
 		</ul>
 
+		<h2 id="command_ison">ISON</h2>
+		<p>
+			The ISON command is used to check whether a nickname is present on the server.<br>
+			When the server receives an ISON message, it must check that at least 1 nickname is given.<br>
+			Then the server must send back a <a href="#rpl_ison">RPL_ISON</a><br>
+			to the client, with a list of nicknames in parameter,<br>
+			to indicate them which nicknames are present on the server.<br>
+			<br>
+			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+			is sent back to the client, and the process is aborted.
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					nick *( space nick )
+				</code>
+			</summary>
+			<blockquote>
+				<ol>
+					<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+					<li>Contain 0 or more patterns, which must:
+						<ol>
+							<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+							<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
+						</ol>
+					</li>
+				</ol>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#rpl_ison">RPL_ISON</a></li>
+			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
+		</ul>
+
 		<h2 id="command_kill">KILL</h2>
 		<p>
-			<!-- TODO: write the description of the command -->
+			The KILL command is used to disconnect a client from the server.<br>
+			When the server receives a KILL message, it must check<br>
+			that the killing user is an IRC operator.<br>
+			Then the server must check that the given nickname exists.<br>
+			Then the server must forward the KILL message to the target user,<br>
+			to inform them that they are about to be disconnected.<br>
+			Then the server must close the connection with the target user,<br>
+			remove them from every channel they were in, and then<br>
+			remove them from its list of known clients.<br>
+			Finally, the server must send a KILL message<br>
+			to every channel in which the target user was,<br>
+			to inform them of the user's departure.<br>
+			<br>
+			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+			is sent back to the client, and the process is aborted.
 		</p>
 
 		<h4>Parameters</h4>
@@ -1776,9 +1892,98 @@
 			<li><a href="#err_noprivileges">ERR_NOPRIVILEGES</a></li>
 		</ul>
 
+		<h2 id="command_die">DIE</h2>
+		<p>
+			The DIE command is used to shutdown the server.<br>
+			When the server receives a DIE message, it must check<br>
+			that the sending user is an IRC operator.<br>
+			Then the server must forward the DIE message<br>
+			to every client that is connected to it,<br>
+			to inform them that the server is about to shutdown.<br>
+			Then the server must remove every user from the channels in which they are,<br>
+			remove them from its list of known clients,<br>
+			and close the connection with every client that is connected to it.<br>
+			Finally, the server must shutdown.<br>
+			<br>
+			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+			is sent back to the client, and the process is aborted.
+		</p>
+
+		<h4>Parameters</h4>
+		<p>None</p>
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#err_noprivileges">ERR_NOPRIVILEGES</a></li>
+		</ul>
+
+		<h2 id="command_restart">RESTART</h2>
+		<p>
+			The RESTART command is used to restart the server.<br>
+			When the server receives a RESTART message, it must check<br>
+			that the sending user is an IRC operator.<br>
+			Then the server must forward the RESTART message<br>
+			to every client that is connected to it,<br>
+			to inform them that the server is about to restart.<br>
+			Then the server must remove every user from the channels in which they are,<br>
+			remove them from its list of known clients,<br>
+			and close the connection with every client that is connected to it.<br>
+			Finally, the server must restart.<br>
+			<br>
+			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+			is sent back to the client, and the process is aborted.
+		</p>
+
+		<h4>Parameters</h4>
+		<p>None</p>
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#err_noprivileges">ERR_NOPRIVILEGES</a></li>
+		</ul>
+
+		<h2 id="command_wallops">WALLOPS</h2>
+		<p>
+			The WALLOPS command is used to send a message<br>
+			to all connected users who have the `w` mode set.<br>
+			When the server receives a WALLOPS message, it must check<br>
+			that the sending user is an IRC operator.<br>
+			Then the server must forward the WALLOPS message<br>
+			to every client that has the `w` mode set,<br>
+			to inform them of the message.<br>
+			<br>
+			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+			is sent back to the client, and the process is aborted.
+		</p>
+
+		<h4>Parameters</h4>
+		<!-- #region: ABNF -->
+		<details>
+			<summary>
+				<code>
+					text-to-be-sent
+				</code>
+			</summary>
+			<blockquote>
+				1 <code><a href="#abnf_text_to_be_sent">text-to-be-sent</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+
+		<h4>Replies</h4>
+		<ul>
+			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
+			<li><a href="#err_noprivileges">ERR_NOPRIVILEGES</a></li>
+		</ul>
+
 		<h2 id="command_ping">PING</h2>
 		<p>
-			<!-- TODO: write the description of the command -->
+			The PING command is used to check if a connection is still alive.<br>
+			When the server receives a PING message, it must check<br>
+			that a token is given in parameter.<br>
+			Then the server must send back <a href="#command_pong">PONG</a> message<br>
+			to the client, with that same token in parameter,<br>
+			to indicate them that the connection is still alive.<br>
 		</p>
 
 		<h4>Parameters</h4>
@@ -1806,7 +2011,17 @@
 
 		<h2 id="command_pong">PONG</h2>
 		<p>
-			<!-- TODO: write the description of the command -->
+			The PONG command is used as a reply to a previous PING message.<br>
+			When the server receives a PONG message, it must check<br>
+			that both a server is given as the origin in parameter<br>
+			and a token is given in parameter.<br>
+			Then the server must check that the given server is itself.<br>
+			Then the server must check that the given token is the same<br>
+			as the one given in the previous PING message, sent by the server to the client.<br>
+			Then the server must update the time of the last activity of the client.<br>
+			<br>
+			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+			is sent back to the client, and the process is aborted.
 		</p>
 
 		<h4>Parameters</h4>
@@ -1839,7 +2054,11 @@
 
 		<h2 id="command_error">ERROR</h2>
 		<p>
-			<!-- TODO: write the description of the command -->
+			Usually, the ERROR command is used to report serious or fatal errors<br>
+			from a server to another, but in our case, its only use is to inform the client<br>
+			that the server is about to disconnect them.<br>
+			Our server is not supposed to receive any ERROR message.<br>
+			If it happens, it must be silently ignored.<br>
 		</p>
 
 		<h4>Parameters</h4>
@@ -1858,115 +2077,6 @@
 
 		<h4>Replies</h4>
 		<p>None</p>
-
-		<h2 id="command_away">AWAY</h2>
-		<p>
-			<!-- TODO: write the description of the command -->
-		</p>
-
-		<h4>Parameters</h4>
-		<!-- #region: ABNF -->
-		<details>
-			<summary>
-				<code>
-					[ custom-away-message ]
-				</code>
-			</summary>
-			<blockquote>
-				0 or 1 <code><a href="#abnf_custom_away_message">custom-away-message</a></code>
-			</blockquote>
-		</details>
-		<!-- #endregion -->
-
-		<h4>Replies</h4>
-		<ul>
-			<li><a href="#rpl_unaway">RPL_UNAWAY</a></li>
-			<li><a href="#rpl_nowaway">RPL_NOWAWAY</a></li>
-		</ul>
-
-		<h2 id="command_die">DIE</h2>
-		<p>
-			<!-- TODO: write the description of the command -->
-		</p>
-
-		<h4>Parameters</h4>
-		<p>None</p>
-
-		<h4>Replies</h4>
-		<ul>
-			<li><a href="#err_noprivileges">ERR_NOPRIVILEGES</a></li>
-		</ul>
-
-		<h2 id="command_restart">RESTART</h2>
-		<p>
-			<!-- TODO: write the description of the command -->
-		</p>
-
-		<h4>Parameters</h4>
-		<p>None</p>
-
-		<h4>Replies</h4>
-		<ul>
-			<li><a href="#err_noprivileges">ERR_NOPRIVILEGES</a></li>
-		</ul>
-
-		<h2 id="command_wallops">WALLOPS</h2>
-		<p>
-			<!-- TODO: write the description of the command -->
-		</p>
-
-		<h4>Parameters</h4>
-		<!-- #region: ABNF -->
-		<details>
-			<summary>
-				<code>
-					text-to-be-sent
-				</code>
-			</summary>
-			<blockquote>
-				1 <code><a href="#abnf_text_to_be_sent">text-to-be-sent</a></code>
-			</blockquote>
-		</details>
-		<!-- #endregion -->
-
-		<h4>Replies</h4>
-		<ul>
-			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
-			<li><a href="#err_noprivileges">ERR_NOPRIVILEGES</a></li>
-		</ul>
-
-		<h2 id="command_ison">ISON</h2>
-		<p>
-			<!-- TODO: write the description of the command -->
-		</p>
-
-		<h4>Parameters</h4>
-		<!-- #region: ABNF -->
-		<details>
-			<summary>
-				<code>
-					nick *( space nick )
-				</code>
-			</summary>
-			<blockquote>
-				<ol>
-					<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
-					<li>Contain 0 or more patterns, which must:
-						<ol>
-							<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
-							<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
-						</ol>
-					</li>
-				</ol>
-			</blockquote>
-		</details>
-		<!-- #endregion -->
-
-		<h4>Replies</h4>
-		<ul>
-			<li><a href="#rpl_ison">RPL_ISON</a></li>
-			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
-		</ul>
 
 		<h1 id="replies">Replies</h1>
 		<p>
@@ -2280,6 +2390,37 @@
 							<ol>
 								<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
 								<li>Contain the string <code>" :End of WHOIS list"</code></li>
+							</ol>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
+				</td>
+			</tr>
+			<tr id="rpl_whoischannels">
+				<td>319</td>
+				<td><b>RPL_WHOISCHANNELS</b></td>
+				<td>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								nick space colon [ at ] channel *( space [ at ] channel )
+							</code>
+						</summary>
+						<blockquote>
+							<ol>
+								<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
+								<li>Contain 0 or 1 <code><a href="#abnf_at">at</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
+								<li>Contain 0 or more patterns, which must:
+									<ol>
+										<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+										<li>Contain 0 or 1 <code><a href="#abnf_at">at</a></code></li>
+										<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
+									</ol>
+								</li>
 							</ol>
 						</blockquote>
 					</details>
