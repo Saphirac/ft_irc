@@ -725,7 +725,7 @@
 			It is an optional command, depending on whether the server<br>
 			that the client tries to connect to is password-protected or not.<br>
 			The PASS command can only be sent <b>once</b> per connection.<br>
-			When the server receives a PASS command, it must check<br>
+			When the server receives a PASS message, it must check<br>
 			if the given password matches the configured one.<br>
 			If it does, then the connection is authenticated.<br>
 			Otherwise, the connection is closed.
@@ -754,10 +754,10 @@
 		<h2 id="command_nick">NICK</h2>
 		<p>
 			The NICK command is used to change the nickname of a user.<br>
-			When the server receives a NICK command, it must check<br>
+			When the server receives a NICK message, it must check<br>
 			that the given nickname is valid and not already in use.<br>
 			Then the server must change the nickname of the user to the given one.<br>
-			Finnaly, the server must send back a NICK command to the user<br>
+			Finnaly, the server must send back a NICK message to the user<br>
 			to confirm that their nickname has been changed.<br>
 			<br>
 			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
@@ -789,7 +789,7 @@
 		<p>
 			The USER command must be used only during the registration process.<br>
 			It must be sent only <b>once</b> per connection.<br>
-			When the server receives a USER command, it must check<br>
+			When the server receives a USER message, it must check<br>
 			that the given username and hostname are valid.<br>
 			Then the server must set the username and the hostname of the user<br>
 			to the given ones.<br>
@@ -872,11 +872,11 @@
 		<h2 id="command_oper">OPER</h2>
 		<p>
 			The OPER command is used to authenticate a user as an IRC operator.<br>
-			When the server receives an OPER command, it must check<br>
+			When the server receives an OPER message, it must check<br>
 			that the given username-password association matches any<br>
 			of the configured ones.<br>
 			Then the server must send back a <a href="#rpl_youreoper">RPL_YOUREOPER</a><br>
-			to the client, followed by a <a href="#command_mode">MODE</a> command to indicate them
+			to the client, followed by a <a href="#command_mode">MODE</a> message to indicate them
 			their new modes.<br>
 			<br>
 			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
@@ -913,7 +913,7 @@
 		<p>
 			The MODE command is a dual purpose command in IRC.<br>
 			It is used to modify both user modes and channel modes.<br>
-			When the server receives a MODE command, it must first determine<br>
+			When the server receives a MODE message, it must first determine<br>
 			whether it is targeting a user or a channel.<br>
 		</p>
 
@@ -921,8 +921,12 @@
 		<p>
 			If the target is a user, then the server must check<br>
 			that both the given nickname and the sender nickname are the same.<br>
-			Then the server must check that the given mode changes are valid.<br>
-			Then the server must finally apply them.<br>
+			Then the server must check if there are any mode changes to apply.<br>
+			If there aren't, then the server must send back a <a href="#rpl_umodeis">RPL_UMODEIS</a><br>
+			to the client to inform them of their current user modes.<br>
+			Else, the server must check that the given mode changes are valid.<br>
+			Then the server must finally apply them, and send back a MODE message<br>
+			to the client to confirm that their modes have been changed.<br>
 			<br>
 			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
 			is sent back to the client, and the process is aborted.
@@ -965,10 +969,15 @@
 		<p>
 			If the target is a channel, then the server must check<br>
 			that the given channel exists.<br>
-			Then the server must check that the sender is<br>
+			Then the server must check if there are any mode changes to apply.<br>
+			If there aren't, then the server must send back a
+			<a href="#rpl_channelmodeis">RPL_CHANNELMODEIS</a><br>
+			to the client to inform them of the current channel modes.<br>
+			Else, the server must check that the sender is<br>
 			either one of its channel operator or its creator.<br>
 			Then the server must check that the given mode changes are valid.<br>
-			Then the server must finally apply them.<br>
+			Then the server must finally apply them, and send back a MODE message<br>
+			to every user that is in the channel to inform them of the changes.<br>
 			<br>
 			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
 			is sent back to the client, and the process is aborted.
@@ -979,7 +988,7 @@
 		<details>
 			<summary>
 				<code>
-					channel space *( ( plus / dash ) *cmode *( space cmode-param ) )
+					channel *( space ( plus / dash ) *cmode *( space cmode-param ) )
 				</code>
 			</summary>
 			<blockquote>
@@ -1011,7 +1020,7 @@
 			<li><a href="#rpl_endofinvitelist">RPL_ENDOFINVITELIST</a></li>
 			<li><a href="#rpl_banlist">RPL_BANLIST</a></li>
 			<li><a href="#rpl_endofbanlist">RPL_ENDOFBANLIST</a></li>
-			<li><a href="#err_usernotinchannel">ERR_USERNOTINCHANNEL</a></li>
+			<li><a href="#err_usernotonchannel">ERR_USERNOTONCHANNEL</a></li>
 			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
 			<li><a href="#err_keyset">ERR_KEYSET</a></li>
 			<li><a href="#err_unknownmode">ERR_UNKNOWNMODE</a></li>
@@ -1022,7 +1031,7 @@
 		<h2 id="command_quit">QUIT</h2>
 		<p>
 			The QUIT command is used to disconnect a client from the server.<br>
-			When the server receives a QUIT command,<br>
+			When the server receives a QUIT message,<br>
 			it must send back an <a href="#command_error">ERROR</a> message to the client,<br>
 			to confirm that they are about to be disconnected.<br>
 			Then, it must close the connection with the client,<br>
@@ -1057,7 +1066,7 @@
 		<h2 id="command_join">JOIN</h2>
 		<p>
 			The JOIN command is used to make a user join a channel.<br>
-			When the server receives a JOIN command, for each given channel,<br>
+			When the server receives a JOIN message, for each given channel,<br>
 			it must do the following routine:<br>
 			<p>
 				Check that the channel exists.<br>
@@ -1135,13 +1144,12 @@
 			<li><a href="#err_inviteonlychan">ERR_INVITEONLYCHAN</a></li>
 			<li><a href="#err_bannedfromchan">ERR_BANNEDFROMCHAN</a></li>
 			<li><a href="#err_badchannelkey">ERR_BADCHANNELKEY</a></li>
-			<li><a href="#err_badchanmask">ERR_BADCHANMASK</a></li>
 		</ul>
 
 		<h2 id="command_part">PART</h2>
 		<p>
 			The PART command is used to make a user leave a channel.<br>
-			When the server receives a PART command, for each given channel,<br>
+			When the server receives a PART message, for each given channel,<br>
 			it must do the following routine:<br>
 			<p>
 				Check that the channel exists.<br>
@@ -1201,7 +1209,7 @@
 		<h2 id="command_topic">TOPIC</h2>
 		<p>
 			The TOPIC command is used to set, unset, or change the topic of a channel.<br>
-			When the server receives a TOPIC command, it must check that the given channel exists.<br>
+			When the server receives a TOPIC message, it must check that the given channel exists.<br>
 			Then the server must check that the user is in it.<br>
 			Then the server must check if there is a given topic to set.
 			<ul>
@@ -1268,7 +1276,7 @@
 			that are present in 1 or more given channels.<br>
 			In the absence of parameters, the command must list<br>
 			the users that are present in every channel the user is in.<br>
-			When the server receives a NAMES command, it must check<br>
+			When the server receives a NAMES message, it must check<br>
 			whether a parameter list is given.<br>
 			<ul>
 				<li>If there is, then for each given channel, the server must do the following routine:
@@ -1326,7 +1334,7 @@
 		<h2 id="command_list">LIST</h2>
 		<p>
 			The LIST command is used to list the channels and their informations.<br>
-			When the server receives a LIST command, it must check<br>
+			When the server receives a LIST message, it must check<br>
 			whether a parameter list is given.<br>
 			<ul>
 				<li>If there is, then for each given channel, the server must do the following routine:
@@ -1383,7 +1391,7 @@
 		<h2 id="command_invite">INVITE</h2>
 		<p>
 			The INVITE command is used to invite a user to a channel.<br>
-			When the server receives an INVITE command, it must check<br>
+			When the server receives an INVITE message, it must check<br>
 			that the given nickname exists.<br>
 			Then the server must check that the inviting user<br>
 			is in the given channel.<br>
@@ -1395,7 +1403,7 @@
 			Then the server must check if the invited user is marked as away.<br>
 			If they are, then the server must send back a <a href="#rpl_away">RPL_AWAY</a><br>
 			to the inviting user, to indicate that the invited user is away.<br>
-			Else, the server must forward the INVITE command to the invited user,<br>
+			Else, the server must forward the INVITE message to the invited user,<br>
 			and finally, send back a <a href="#rpl_inviting">RPL_INVITING</a><br>
 			to the inviting user, to indicate that the invited user has been invited.<br>
 			<br>
@@ -1433,7 +1441,54 @@
 
 		<h2 id="command_kick">KICK</h2>
 		<p>
-			<!-- TODO: write the description of the command -->
+			The KICK command is used to remove a user from a channel.<br>
+			When the server receives a KICK message, it must first check<br>
+			that the given parameters fall into one of the following cases:<br>
+			<ul>
+				<li>
+					There is 1 channel, and 1 or more targets to kick.<br>
+					In that case, the server must check that the channel exists.<br>
+					Then the server must check that the kicking user is in the channel<br>
+					and is either a channel operator or the creator of the channel.<br>
+					Then, for each target, the server must do the following routine:<br>
+					<p>
+						Check that the target is present on the channel.<br>
+						Then remove the target from the channel,<br>
+						forward the KICK message to the target,<br>
+						to inform them that they have been kicked,<br>
+						and finally send a KICK message to every user<br>
+						that are present in the channel,<br>
+						to inform them of the target's departure.<br>
+					</p>
+					<p>
+						<b>Note</b>: for each assertion before the above routine,<br>
+						if it fails, then an appropriate error reply is sent back to the client,<br>
+						and the process is aborted.
+					</p>
+				</li>
+				<li>
+					There are 2 or more channels, and the same number of targets to kick.<br>
+					In that case, for each position `p` from first to last,<br>
+					the server must do the following routine:<br>
+					<p>
+						Check that the channel at position `p` exists.<br>
+						Then check that the kicking user is in it<br>
+						and is either a channel operator or the creator of the channel.<br>
+						Then check that the target at position `p` is present on the channel.<br>
+						Then remove the target from the channel,<br>
+						forward the KICK message to the target,<br>
+						to inform them that they have been kicked,<br>
+						and finally send a KICK message to every user<br>
+						that are present in the channel,<br>
+						to inform them of the target's departure.<br>
+					</p>
+				</li>
+			</ul>
+			<br>
+			<b>Note</b>: for each assertion during the above routines,<br>
+			if it fails, then an appropriate error reply is sent back to the client,<br>
+			the process for the current target is aborted,<br>
+			and the process for the next target starts.
 		</p>
 
 		<h4>Parameters</h4>
@@ -1441,7 +1496,7 @@
 		<details>
 			<summary>
 				<code>
-					channel *( comma channel ) space user *( comma user ) [ space comment ]
+					channel *( comma channel ) space kick-target *( comma kick-target ) [ space comment ]
 				</code>
 			</summary>
 			<blockquote>
@@ -1454,11 +1509,11 @@
 						</ol>
 					</li>
 					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
-					<li>Contain 1 <code><a href="#abnf_user">user</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_kick_target">kick-target</a></code></li>
 					<li>Contain 0 or more patterns, which must:
 						<ol>
 							<li>Start with 1 <code><a href="#abnf_comma">comma</a></code></li>
-							<li>Contain 1 <code><a href="#abnf_user">user</a></code></li>
+							<li>Contain 1 <code><a href="#abnf_kick_target">kick-target</a></code></li>
 						</ol>
 					</li>
 					<li>Contain 0 or 1 pattern, which must:
@@ -1475,16 +1530,47 @@
 		<h4>Replies</h4>
 		<ul>
 			<li><a href="#err_nosuchchannel">ERR_NOSUCHCHANNEL</a></li>
-			<li><a href="#err_usernotinchannel">ERR_USERNOTINCHANNEL</a></li>
+			<li><a href="#err_usernotonchannel">ERR_USERNOTONCHANNEL</a></li>
 			<li><a href="#err_notonchannel">ERR_NOTONCHANNEL</a></li>
 			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
-			<li><a href="#err_badchanmask">ERR_BADCHANMASK</a></li>
 			<li><a href="#err_chanoprivsneeded">ERR_CHANOPRIVSNEEDED</a></li>
 		</ul>
 
 		<h2 id="command_privmsg">PRIVMSG</h2>
 		<p>
-			<!-- TODO: write the description of the command -->
+			The PRIVMSG command is used to send private messages between users<br>
+			as well as to send messages to channels.<br>
+			When the server receives a PRIVMSG message, it must first check<br>
+			that at least 1 target and 1 text to be sent are given.<br>
+			Then, for each given target, the server must do the following routine:<br>
+			<p>
+				Determine whether the target is a channel or a user:<br>
+				<ul>
+					<li>
+						In case of a channel, then check that it exists.<br>
+						Then check whether the `n` mode is set for the channel.<br>
+						If it is, then check that the sending user is in the channel.<br>
+						Then forward the PRIVMSG message to every user<br>
+						that are present in the channel.
+					</li>
+					<li>
+						In case of a user, then check that they exist.<br>
+						Then check whether the target user is marked as away.<br>
+						If they are, then send back a <a href="#rpl_away">RPL_AWAY</a><br>
+						to the sending user, to indicate them that the target user is away.<br>
+						Else, forward the PRIVMSG message to the target user.
+					</li>
+				</ul>
+			</p>
+			<br>
+			<b>Note</b>: for each assertion before the above routine,<br>
+			if it fails, then an appropriate error reply is sent back to the client,<br>
+			and the process is aborted.<br>
+			<br>
+			<b>Note</b>: for each assertion during the above routine,<br>
+			if it fails, then an appropriate error reply is sent back to the client,<br>
+			the process for the current target is aborted,<br>
+			and the process for the next target starts.
 		</p>
 
 		<h4>Parameters</h4>
@@ -1492,14 +1578,13 @@
 		<details>
 			<summary>
 				<code>
-					msg-target space colon text-to-be-sent
+					msg-target space text-to-be-sent
 				</code>
 			</summary>
 			<blockquote>
 				<ol>
 					<li>Start with 1 <code><a href="#abnf_msg_target">msg-target</a></code></li>
 					<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
-					<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
 					<li>Contain 1 <code><a href="#abnf_text_to_be_sent">text-to-be-sent</a></code></li>
 				</ol>
 			</blockquote>
@@ -1517,7 +1602,9 @@
 
 		<h2 id="command_notice">NOTICE</h2>
 		<p>
-			<!-- TODO: write the description of the command -->
+			The NOTICE command is similar to the <a href="#command_privmsg">PRIVMSG</a> command.<br>
+			The only difference with the <a href="#command_privmsg">PRIVMSG</a> command is that<br>
+			automatic replies must never be sent in response to a NOTICE message.<br>
 		</p>
 
 		<h4>Parameters</h4>
@@ -1544,7 +1631,18 @@
 
 		<h2 id="command_motd">MOTD</h2>
 		<p>
-			<!-- TODO: write the description of the command -->
+			The MOTD command is used to get the Message Of The Day of the server.<br>
+			When the server receives a MOTD message, it must check<br>
+			that there is a configured Message Of The Day to send.<br>
+			Then, the server must send back a <a href="#rpl_motdstart">RPL_MOTDSTART</a><br>
+			to the client, to indicate them the start of the Message Of The Day.<br>
+			Then, the server must send back 1 or more <a href="#rpl_motd">RPL_MOTD</a><br>
+			to the client, to indicate them the Message Of The Day.<br>
+			Finally, the server must send back a <a href="#rpl_endofmotd">RPL_ENDOFMOTD</a><br>
+			to the client, to indicate them the end of the Message Of The Day.<br>
+			<br>
+			<b>Note</b>: for each assertion, if it fails, then an appropriate error reply<br>
+			is sent back to the client, and the process is aborted.
 		</p>
 
 		<h4>Parameters</h4>
@@ -1560,7 +1658,10 @@
 
 		<h2 id="command_version">VERSION</h2>
 		<p>
-			<!-- TODO: write the description of the command -->
+			The VERSION command is used to get the version of the server.<br>
+			When the server receives a VERSION message,<br>
+			it must send back a <a href="#rpl_version">RPL_VERSION</a> to the client,<br>
+			to indicate them the version of the server.
 		</p>
 
 		<h4>Parameters</h4>
@@ -1573,7 +1674,10 @@
 
 		<h2 id="command_time">TIME</h2>
 		<p>
-			<!-- TODO: write the description of the command -->
+			The TIME command is used to get the local time of the server.<br>
+			When the server receives a TIME message,<br>
+			it must send back a <a href="#rpl_time">RPL_TIME</a> to the client,<br>
+			to indicate them the local time of the server.
 		</p>
 
 		<h4>Parameters</h4>
@@ -1586,7 +1690,14 @@
 
 		<h2 id="command_info">INFO</h2>
 		<p>
-			<!-- TODO: write the description of the command -->
+			The INFO command is used to get the informations about the server:<br>
+			its version, when it was compiled, when it was started,<br>
+			and other miscellaneaous informations which may be considered to be relevant.<br>
+			When the server receives an INFO message,<br>
+			it must send back 1 or more <a href="#rpl_info">RPL_INFO</a> to the client,<br>
+			to indicate them the informations about the server.<br>
+			Then, the server must send back a <a href="#rpl_endofinfo">RPL_ENDOFINFO</a> to the client,<br>
+			to indicate them the end of the informations about the server.<br>
 		</p>
 
 		<h4>Parameters</h4>
@@ -2847,9 +2958,9 @@
 					<!-- #endregion -->
 				</td>
 			</tr>
-			<tr id="err_usernotinchannel">
+			<tr id="err_usernotonchannel">
 				<td>441</td>
-				<td><b>ERR_USERNOTINCHANNEL</b></td>
+				<td><b>ERR_USERNOTONCHANNEL</b></td>
 				<td>
 					<!-- #region: ABNF -->
 					<details>
@@ -3095,26 +3206,6 @@
 							</ol>
 						</blockquote>
 					</details>
-					<!-- #endregion -->
-				</td>
-			</tr>
-			<tr id="err_badchanmask">
-				<td>476</td>
-				<td><b>ERR_BADCHANMASK</b></td>
-				<td>
-					<!-- #region: ABNF -->
-					<details>
-						<summary>
-							<code>
-								channel " :Bad Channel Mask"
-							</code>
-						</summary>
-						<blockquote>
-							<ol>
-								<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
-								<li>Contain the string <code>" :Bad Channel Mask"</code></li>
-							</ol>
-						</blockquote>
 					<!-- #endregion -->
 				</td>
 			</tr>
@@ -3455,6 +3546,18 @@
 			</blockquote>
 		</details>
 		<!-- #endregion -->
+		<!-- #region: ABNF of `number` -->
+		<details>
+			<summary>
+				<code id="abnf_number">
+					<b>number</b> = 1*digit
+				</code>
+			</summary>
+			<blockquote>
+				1 or more <code><a href="#abnf_digit">digits</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
 		<!-- #region: ABNF of `special` -->
 		<details>
 			<summary>
@@ -3551,15 +3654,39 @@
 			</blockquote>
 		</details>
 		<!-- #endregion -->
+		<!-- #region: ABNF of `user-count` -->
+		<details>
+			<summary>
+				<code id="abnf_user_count">
+					<b>user-count</b> = number
+				</code>
+			</summary>
+			<blockquote>
+				1 <code><a href="#abnf_number">number</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `limit` -->
+		<details>
+			<summary>
+				<code id="abnf_limit">
+					<b>limit</b> = number
+				</code>
+			</summary>
+			<blockquote>
+				1 <code><a href="#abnf_number">number</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
 		<!-- #region: ABNF of `year` -->
 		<details>
 			<summary>
 				<code id="abnf_year">
-					<b>year</b> = 1*digit
+					<b>year</b> = number
 				</code>
 			</summary>
 			<blockquote>
-				1 or more <code><a href="#abnf_digit">digits</a></code>
+				1 <code><a href="#abnf_number">number</a></code>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
@@ -3650,7 +3777,7 @@
 		<details>
 			<summary>
 				<code id="abnf_hours">
-					<b>hours</b> = %x30-31 %x30-39 / %x32 %x30-33
+					<b>hours</b> = %x30-31 digit / %x32 %x30-33
 				</code>
 			</summary>
 			<blockquote>
@@ -3662,10 +3789,7 @@
 								Start with 1 octet that has either the value <code>0x30</code> (<code>0</code>)
 								or the value <code>0x31</code> (<code>1</code>)
 							</li>
-							<li>
-								Contain 1 octet that has any value between <code>0x30</code> (<code>0</code>)
-								and <code>0x39</code> (<code>9</code>) both included
-							</li>
+							<li>Contain 1 <code><a href="#abnf_digit">digit</a></code></li>
 						</ol>
 					</li>
 					<li>1 pattern, which must:
@@ -3685,7 +3809,7 @@
 		<details>
 			<summary>
 				<code id="abnf_minutes">
-					<b>minutes</b> = %x30-35 %x30-39
+					<b>minutes</b> = %x30-35 digit
 				</code>
 			</summary>
 			<blockquote>
@@ -3694,10 +3818,7 @@
 						Start with 1 octet that has any value between <code>0x30</code> (<code>0</code>)
 						and <code>0x35</code> (<code>5</code>) both included
 					</li>
-					<li>
-						Contain 1 octet that has any value between <code>0x30</code> (<code>0</code>)
-						and <code>0x39</code> (<code>9</code>) both included
-					</li>
+					<li>Contain 1 <code><a href="#abnf_digit">digit</a></code></li>
 				</ol>
 			</blockquote>
 		</details>
@@ -3784,6 +3905,39 @@
 			</blockquote>
 		</details>
 		<!-- #endregion -->
+		<!-- #region: ABNF of `key` -->
+		<details>
+			<summary>
+				<code id="abnf_key">
+					<b>key</b> = middle
+				</code>
+			</summary>
+			<blockquote>
+				1 <code><a href="#abnf_middle">middle</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
+		<!-- #region: ABNF of `token` -->
+		<details>
+			<summary>
+				<code id="abnf_token">
+					<b>token</b> = middle / colon 1*nolfcr
+				</code>
+			</summary>
+			<blockquote>
+				Either 1 of the following:
+				<ul>
+					<li>1 <code><a href="#abnf_middle">middle</a></code></li>
+					<li>1 pattern, which must:
+						<ol>
+							<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
+							<li>Contain 1 or more <code><a href="#abnf_nolfcr">nolfcr</a></code></li>
+						</ol>
+					</li>
+				</ul>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
 		<!-- #region: ABNF of `param` -->
 		<details>
 			<summary>
@@ -3805,27 +3959,15 @@
 			</blockquote>
 		</details>
 		<!-- #endregion -->
-		<!-- #region: ABNF of `key` -->
+		<!-- #region: ABNF of `comment` -->
 		<details>
 			<summary>
-				<code id="abnf_key">
-					<b>key</b> = middle
+				<code id="abnf_comment">
+					<b>comment</b> = param
 				</code>
 			</summary>
 			<blockquote>
-				1 <code><a href="#abnf_middle">middle</a></code>
-			</blockquote>
-		</details>
-		<!-- #endregion -->
-		<!-- #region: ABNF of `limit` -->
-		<details>
-			<summary>
-				<code id="abnf_limit">
-					<b>limit</b> = 1*digit
-				</code>
-			</summary>
-			<blockquote>
-				1 or more <code><a href="#abnf_digit">digits</a></code>
+				1 <code><a href="#abnf_param">param</a></code>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
@@ -3877,6 +4019,18 @@
 			</blockquote>
 		</details>
 		<!-- #endregion -->
+		<!-- #region: ABNF of `text-to-be-sent` -->
+		<details>
+			<summary>
+				<code id="abnf_text_to_be_sent">
+					<b>text-to-be-sent</b> = param
+				</code>
+			</summary>
+			<blockquote>
+				1 <code><a href="#abnf_param">param</a></code>
+			</blockquote>
+		</details>
+		<!-- #endregion -->
 		<!-- #region: ABNF of `custom-away-message` -->
 		<details>
 			<summary>
@@ -3889,15 +4043,20 @@
 			</blockquote>
 		</details>
 		<!-- #endregion -->
-		<!-- #region: ABNF of `comment` -->
+		<!-- #region: ABNF of `kick-target` -->
 		<details>
 			<summary>
-				<code id="abnf_comment">
-					<b>comment</b> = param
+				<code id="abnf_kick_target">
+					<b>kick-target</b> = nick / user / user-mask
 				</code>
 			</summary>
 			<blockquote>
-				1 <code><a href="#abnf_param">param</a></code>
+				Either 1 of the following:
+				<ul>
+					<li>1 <code><a href="#abnf_nick">nick</a></code></li>
+					<li>1 <code><a href="#abnf_user">user</a></code></li>
+					<li>1 <code><a href="#abnf_user_mask">user-mask</a></code></li>
+				</ul>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
@@ -3961,39 +4120,6 @@
 			</blockquote>
 		</details>
 		<!-- #endregion -->
-		<!-- #region: ABNF of `text-to-be-sent` -->
-		<details>
-			<summary>
-				<code id="abnf_text_to_be_sent">
-					<b>text-to-be-sent</b> = param
-				</code>
-			</summary>
-			<blockquote>
-				1 <code><a href="#abnf_param">param</a></code>
-			</blockquote>
-		</details>
-		<!-- #endregion -->
-		<!-- #region: ABNF of `token` -->
-		<details>
-			<summary>
-				<code id="abnf_token">
-					<b>token</b> = middle / colon 1*nolfcr
-				</code>
-			</summary>
-			<blockquote>
-				Either 1 of the following:
-				<ul>
-					<li>1 <code><a href="#abnf_middle">middle</a></code></li>
-					<li>1 pattern, which must:
-						<ol>
-							<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
-							<li>Contain 1 or more <code><a href="#abnf_nolfcr">nolfcr</a></code></li>
-						</ol>
-					</li>
-				</ul>
-			</blockquote>
-		</details>
-		<!-- #endregion -->
 		<!-- #region: ABNF of `date` -->
 		<details>
 			<summary>
@@ -4027,18 +4153,6 @@
 					<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
 					<li>Contain 1 <code><a href="#abnf_minutes">minutes</a></code></li>
 				</ol>
-			</blockquote>
-		</details>
-		<!-- #endregion -->
-		<!-- #region: ABNF of `user-count` -->
-		<details>
-			<summary>
-				<code id="abnf_user_count">
-					<b>user-count</b> = 1*digit
-				</code>
-			</summary>
-			<blockquote>
-				1 or more <code><a href="#abnf_digit">digits</a></code>
 			</blockquote>
 		</details>
 		<!-- #endregion -->
