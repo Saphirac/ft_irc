@@ -4,3 +4,5 @@
 !include
 !.gitignore
 !Makefile
+!LICENSE
+!RFCs_summary.html
