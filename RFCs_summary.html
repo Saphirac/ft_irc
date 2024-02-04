@@ -748,6 +748,7 @@
 		<ul>
 			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
 			<li><a href="#err_alreadyregistered">ERR_ALREADYREGISTERED</a></li>
+			<li><a href="#err_passwordmismatch">ERR_PASSWORDMISMATCH</a></li>
 		</ul>
 
 		<h2 id="command_nick">NICK</h2>
@@ -904,7 +905,7 @@
 		<ul>
 			<li><a href="#rpl_youreoper">RPL_YOUREOPER</a></li>
 			<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
-			<li><a href="#err_passwdmismatch">ERR_PASSWDMISMATCH</a></li>
+			<li><a href="#err_passwordmismatch">ERR_PASSWORDMISMATCH</a></li>
 			<li><a href="#err_nooperhost">ERR_NOOPERHOST</a></li>
 		</ul>
 
@@ -3092,7 +3093,7 @@
 						<blockquote>
 							<ol>
 								<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
-								<li>Contain the string <code>" :Nickname already in use"</code></li>
+								<li>Contain the string <code>" :Nickname is already in use"</code></li>
 							</ol>
 						</blockquote>
 					</details>
@@ -3205,9 +3206,9 @@
 					<!-- #endregion -->
 				</td>
 			</tr>
-			<tr id="err_passwdmismatch">
+			<tr id="err_passwordmismatch">
 				<td>464</td>
-				<td><b>ERR_PASSWDMISMATCH</b></td>
+				<td><b>ERR_PASSWORDMISMATCH</b></td>
 				<td>
 					<!-- #region: ABNF -->
 					<details>

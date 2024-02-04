@@ -6,7 +6,7 @@
 #    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/01 20:28:14 by jodufour         ###   ########.fr        #
+#    Updated: 2024/02/04 05:10:18 by jodufour         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -49,6 +49,9 @@ SRC = \
 LIB_SRC = \
 	${addsuffix .cpp, \
 		${addprefix ${LIB_DIR}/, \
+			${addprefix class/, \
+				Client \
+			} \
 			${addprefix command/, \
 				away \
 				die \
@@ -80,6 +83,7 @@ LIB_SRC = \
 				wallops \
 				whois \
 			} \
+			format_reply \
 		} \
 	}
 
@@ -100,6 +104,7 @@ CXXFLAGS = \
 	-MMD -MP \
 	-Wshadow \
 	-std=c++98 \
+	-ferror-limit=1 \
 	-I${PRV_DIR} \
 	-I${INC_DIR}
 
