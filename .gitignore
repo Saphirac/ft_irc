@@ -2,4 +2,5 @@
 !src
 !private
 !.gitignore
+!.clang-format
 !Makefile
