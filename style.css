@@ -1,0 +1,17 @@
+html {
+	zoom: 125%;
+}
+
+summary::marker {
+	content: "";
+}
+
+table {
+	border-collapse: collapse;
+	table-layout: auto;
+}
+
+th, td {
+	border: 2px solid;
+	padding: 0.2em;
+}
