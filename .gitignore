@@ -4,3 +4,6 @@
 !.gitignore
 !.clang-format
 !Makefile
+!LICENSE
+!RFCs_summary.html
+!style.css
