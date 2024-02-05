@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/04 05:09:56 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/05 06:52:08 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ public:
 		std::string const &username = "",
 		std::string const &realname = "",
 		uint8_t const      modes = 0);
+	Client(Client const &src);
 
 	// Destructor
 	~Client(void);

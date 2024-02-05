@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/04 05:05:09 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/05 22:07:42 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @brief Constructs a new Client instance, initializing its fields with the given parameters.
+ * @brief Constructs a new Client instance, initializing its fields with given parameters.
  *
  * @param socket The socket of the client.
  * @param nickname The nickname of the client.
@@ -44,6 +44,23 @@ Client::Client(
 	_username(username),
 	_realname(realname),
 	_modes(modes)
+{
+}
+
+/**
+ * @brief Constructs a new Client instance, copying a given source Client instance.
+ *
+ * @param src The source Client instance to copy.
+ *
+ * @return The newly created Client instance.
+ */
+Client::Client(Client const &src) :
+	_socket(src._socket),
+	_nickname(src._nickname),
+	_hostname(src._hostname),
+	_username(src._username),
+	_realname(src._realname),
+	_modes(src._modes)
 {
 }
 

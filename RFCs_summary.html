@@ -191,7 +191,6 @@
 		<figure>
 			<figcaption>Every nickname must:</figcaption>
 			<ul>
-				<li>be unique</li>
 				<li>be at most 9 octets long.</li>
 				<li>be formatted as follows:
 					<!-- #region: ABNF -->
@@ -218,6 +217,7 @@
 					</details>
 					<!-- #endregion -->
 				</li>
+				<li>be unique</li>
 			</ul>
 		</figure>
 
@@ -769,11 +769,14 @@
 		<details>
 			<summary>
 				<code>
-					nick
+					[ colon ] nick
 				</code>
 			</summary>
 			<blockquote>
-					1 <code><a href="#abnf_nick">nick</a></code>
+				<ol>
+					<li>Start with 0 or 1 <code><a href="#abnf_colon">colon</a></code></li>
+					<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
+				</ol>
 			</blockquote>
 		</details>
 		<!-- #endregion -->

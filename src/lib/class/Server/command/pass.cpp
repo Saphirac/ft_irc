@@ -6,13 +6,13 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:23:54 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/04 05:17:43 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/05 20:40:09 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "UserMode.hpp"
-#include "class/Client.hpp"
-#include "libft_irc.hpp"
+#include "class/Server.hpp"
+#include "ft_irc.hpp"
 #include "replies.hpp"
 #include <iostream>
 
@@ -43,15 +43,17 @@ inline static bool error_already_registered(Client const &client)
 	return false;
 }
 
-// TODO: implement unit tests for this function
 /**
- * @brief Sends an ERR_NEEDMOREPARAMS reply to a given client, and closes their connection.
+ * @brief
+ * Sends an ERR_NEEDMOREPARAMS reply to a given client, closes their connection,
+ * and removes them from the list of known clients.
  *
+ * @param server The server to remove the client from.
  * @param client The client to send the reply to.
  *
  * @return true if a fatal error occured, false otherwise.
  */
-inline static bool error_need_more_parameters(Client &client)
+inline static bool error_need_more_parameters(Server &server, Client &client)
 {
 	std::string const message = format_reply(ERR_NEEDMOREPARAMS, "PASS");
 
@@ -65,18 +67,21 @@ inline static bool error_need_more_parameters(Client &client)
 		std::cerr << "Client::send_message() failed\n";
 		return true;
 	}
-	client.disconnect();
+	server.remove_client(client);
 	return false;
 }
 
 /**
- * @brief Sends an ERR_PASSWDMISMATCH reply to a given client, and closes their connection.
+ * @brief
+ * Sends an ERR_PASSWDMISMATCH reply to a given client, closes their connection,
+ * and removes them from the list of known clients.
  *
+ * @param server The server to remove the client from.
  * @param client The client to send the reply to.
  *
  * @return true if a fatal error occured, false otherwise.
  */
-inline static bool error_password_mismatch(Client &client)
+inline static bool error_password_mismatch(Server &server, Client &client)
 {
 	std::string const message = format_reply(ERR_PASSWDMISMATCH);
 
@@ -90,7 +95,7 @@ inline static bool error_password_mismatch(Client &client)
 		std::cerr << "Client::send_message() failed\n";
 		return true;
 	}
-	client.disconnect();
+	server.remove_client(client);
 	return false;
 }
 
@@ -104,20 +109,23 @@ inline static bool error_password_mismatch(Client &client)
  *
  * @return true if a fatal error occured, false otherwise.
  */
-bool pass(Client &sender, std::string const &parameters)
+bool Server::pass(Client &sender, std::string const &parameters)
 {
 	if (sender.has_already_sent_pass())
 		return error_already_registered(sender);
 
-	if (parameters.empty())
-		return error_need_more_parameters(sender);
+	std::string const password =
+		parameters[0] == ':' ? parameters.substr(1) : parameters.substr(0, parameters.find(' '));
 
-	std::string password = parameters[0] == ':' ? parameters.substr(1) : parameters.substr(0, parameters.find(' '));
+	if (password.empty())
+		return error_need_more_parameters(*this, sender);
 
 	if (password != SERVER_PASSWORD)
-		return error_password_mismatch(sender);
+		return error_password_mismatch(*this, sender);
 
 	sender.set_modes(1 << UserModePass);
 
 	return false;
 }
+
+// TODO: implement unit tests for this function

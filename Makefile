@@ -6,7 +6,7 @@
 #    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/04 05:10:18 by jodufour         ###   ########.fr        #
+#    Updated: 2024/02/05 20:46:07 by jodufour         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -50,38 +50,41 @@ LIB_SRC = \
 	${addsuffix .cpp, \
 		${addprefix ${LIB_DIR}/, \
 			${addprefix class/, \
+				${addprefix Server/, \
+					${addprefix command/, \
+						away \
+						die \
+						error \
+						info \
+						invite \
+						ison \
+						join \
+						kick \
+						kill \
+						list \
+						mode \
+						motd \
+						names \
+						nick \
+						notice \
+						oper \
+						part \
+						pass \
+						ping \
+						pong \
+						privmsg \
+						quit \
+						restart \
+						time \
+						topic \
+						user \
+						version \
+						wallops \
+						whois \
+					} \
+					core \
+				} \
 				Client \
-			} \
-			${addprefix command/, \
-				away \
-				die \
-				error \
-				info \
-				invite \
-				ison \
-				join \
-				kick \
-				kill \
-				list \
-				mode \
-				motd \
-				names \
-				nick \
-				notice \
-				oper \
-				part \
-				pass \
-				ping \
-				pong \
-				privmsg \
-				quit \
-				restart \
-				time \
-				topic \
-				user \
-				version \
-				wallops \
-				whois \
 			} \
 			format_reply \
 		} \
