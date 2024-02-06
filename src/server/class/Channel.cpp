@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/26 04:04:21 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/28 13:30:58 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/06 01:10:57 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ void Channel::removeClient(Client *client)
 		if (*it == client)
 		{
 			this->_clients.erase(it);
-			break ;
+			break;
 		}
 	}
 }
