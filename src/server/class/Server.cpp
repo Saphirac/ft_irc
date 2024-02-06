@@ -313,6 +313,9 @@ void Server::handle_client_event(Client *client)
 		return;
 	}
 	buffer[bytes_read] = '\0';
+	// std::string prefix = parse_prefix(buffer);
+	// std::string command = parse_cmd(buffer);
+	// std::string args = parse_args(buffer);
 	std::cout << "Received " << buffer << '\n'
 			  << bytes_read << " bytes from client : " << client->getSocket() << std::endl;
 }
