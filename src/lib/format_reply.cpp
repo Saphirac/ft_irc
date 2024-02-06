@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 21:49:58 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/05 22:10:27 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/06 01:31:05 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,9 +197,9 @@ inline static size_t convert_u(
  */
 std::string format_reply(int const reply_number...)
 {
-	ReplyIterator const reply = REPLIES.find(reply_number);
+	ReplyIterator const reply = replies.find(reply_number);
 
-	if (reply == REPLIES.end())
+	if (reply == replies.end())
 	{
 		std::cerr << "unknown reply number: " << std::setw(3) << std::setfill('0') << reply_number << '\n';
 		return "";

@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:23:54 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/05 20:40:09 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/06 01:23:58 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,23 +24,19 @@
  *
  * @param client The client to send the reply to.
  *
- * @return true if a fatal error occured, false otherwise.
+ * @return 0 upon success, or a positive error code upon failure.
  */
-inline static bool error_already_registered(Client const &client)
+inline static StatusCode error_already_registered(Client const &client)
 {
 	std::string const message = format_reply(ERR_ALREADYREGISTERED);
 
 	if (message.empty())
-	{
-		std::cerr << "format_reply() failed\n";
-		return true;
-	}
+		return ErrorFormatReply;
+
 	if (client.send_message(message) == -1)
-	{
-		std::cerr << "Client::send_message() failed\n";
-		return true;
-	}
-	return false;
+		return ErrorClientSendMessage;
+
+	return Success;
 }
 
 /**
@@ -51,24 +47,20 @@ inline static bool error_already_registered(Client const &client)
  * @param server The server to remove the client from.
  * @param client The client to send the reply to.
  *
- * @return true if a fatal error occured, false otherwise.
+ * @return 0 upon success, or a positive error code upon failure.
  */
-inline static bool error_need_more_parameters(Server &server, Client &client)
+inline static StatusCode error_need_more_parameters(Server &server, Client &client)
 {
 	std::string const message = format_reply(ERR_NEEDMOREPARAMS, "PASS");
 
 	if (message.empty())
-	{
-		std::cerr << "format_reply() failed\n";
-		return true;
-	}
+		return ErrorFormatReply;
+
 	if (client.send_message(message) == -1)
-	{
-		std::cerr << "Client::send_message() failed\n";
-		return true;
-	}
+		return ErrorClientSendMessage;
+
 	server.remove_client(client);
-	return false;
+	return Success;
 }
 
 /**
@@ -79,24 +71,20 @@ inline static bool error_need_more_parameters(Server &server, Client &client)
  * @param server The server to remove the client from.
  * @param client The client to send the reply to.
  *
- * @return true if a fatal error occured, false otherwise.
+ * @return 0 upon success, or a positive error code upon failure.
  */
-inline static bool error_password_mismatch(Server &server, Client &client)
+inline static StatusCode error_password_mismatch(Server &server, Client &client)
 {
 	std::string const message = format_reply(ERR_PASSWDMISMATCH);
 
 	if (message.empty())
-	{
-		std::cerr << "format_reply() failed\n";
-		return true;
-	}
+		return ErrorFormatReply;
+
 	if (client.send_message(message) == -1)
-	{
-		std::cerr << "Client::send_message() failed\n";
-		return true;
-	}
+		return ErrorClientSendMessage;
+
 	server.remove_client(client);
-	return false;
+	return Success;
 }
 
 /**
@@ -107,9 +95,9 @@ inline static bool error_password_mismatch(Server &server, Client &client)
  * @param sender The client that sent the command.
  * @param parameters The parameters that were passed to the command.
  *
- * @return true if a fatal error occured, false otherwise.
+ * @return 0 upon success, or a positive error code upon failure.
  */
-bool Server::pass(Client &sender, std::string const &parameters)
+StatusCode Server::pass(Client &sender, std::string const &parameters)
 {
 	if (sender.has_already_sent_pass())
 		return error_already_registered(sender);
@@ -124,8 +112,7 @@ bool Server::pass(Client &sender, std::string const &parameters)
 		return error_password_mismatch(*this, sender);
 
 	sender.set_modes(1 << UserModePass);
-
-	return false;
+	return Success;
 }
 
 // TODO: implement unit tests for this function

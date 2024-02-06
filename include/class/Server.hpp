@@ -6,13 +6,14 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/05 22:31:12 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/06 01:23:17 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include "StatusCode.hpp"
 #include "class/Client.hpp"
 #include <map>
 #include <vector>
@@ -36,8 +37,8 @@ public:
 	void add_client(Client const &client);
 	void remove_client(Client const &client);
 
-	bool nick(Client &sender, std::string const &parameters);
-	bool pass(Client &sender, std::string const &parameters);
+	StatusCode nick(Client &sender, std::string const &parameters);
+	StatusCode pass(Client &sender, std::string const &parameters);
 };
 
 #endif
