@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2023/11/24 19:29:45 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/01/26 04:12:59 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,7 +41,7 @@ FT_IRC_A				=	libirc.a
 ######################################
 #            SOURCE FILES            #
 ######################################
-SRC         =                           \
+SRC			=							\
 				${addprefix server/,	\
 					${addprefix class/,	\
 						Server.cpp		\
@@ -51,7 +51,7 @@ SRC         =                           \
 				${addprefix utils/,		\
 					trim.cpp			\
 				}						\
-                main.cpp
+				main.cpp
 
 LIB_SRC		= 	\
 				${addprefix ${LIB_DIR}/, \
