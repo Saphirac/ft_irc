@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/06 09:09:59 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/06 12:53:47 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -313,22 +313,40 @@ void Server::handle_client_event(Client *client)
 		return;
 	}
 	buffer[bytes_read] = '\0';
-	std::string prefix = parse_prefix(buffer);
-	std::string command = parse_cmd(buffer);
-	std::string args = parse_args(buffer);
 	std::cout << "Received " << buffer << '\n'
 			  << bytes_read << " bytes from client : " << client->getSocket() << std::endl;
 }
 
 void send_test_message(int client_socket)
 {
-	std::string message = "Hello from server!";
-	std::cout << "New connection from : " << client_socket << std::endl;
-	if (send(client_socket, message.c_str(), message.size(), 0) == -1)
+	char buffer[513];
+	int  bytes_read;
+
+	bytes_read = recv(client_socket, buffer, 512, 0);
+	if (bytes_read == -1)
 	{
-		std::cerr << "Problem with send()." << std::endl;
+		std::cerr << "Problem with recv()." << std::endl;
 		exit(EXIT_FAILURE);
 	}
+	std::cout << "here : [" << trim(std::string(buffer)) << "]" << std::endl;
+	if (trim(std::string(buffer)) == "CAP LS 302")
+	{
+		std::cout << "here\n";
+		std::cout << "Received " << buffer << '\n'
+				  << bytes_read << " bytes from client : " << client_socket << std::endl;
+		std::string message = "CAP * LS :multi-prefix sasl\n\r";
+		if (send(client_socket, message.c_str(), message.size(), 0) == -1)
+		{
+			std::cerr << "Problem with send()." << std::endl;
+			exit(EXIT_FAILURE);
+		}
+		if (send(client_socket, "CAP END\n\r", 9, 0) == -1)
+		{
+			std::cerr << "Problem with send()." << std::endl;
+			exit(EXIT_FAILURE);
+		}
+	}
+	std::cout << "New connection from : " << client_socket << std::endl;
 }
 
 /**

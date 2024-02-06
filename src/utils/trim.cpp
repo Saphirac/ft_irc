@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 16:38:54 by mcourtoi          #+#    #+#             */
-/*   Updated: 2023/12/09 17:36:58 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/06 12:54:21 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,5 @@ std::string trim(std::string const &str)
 
 	if (start == std::string::npos || end == std::string::npos)
 		return "";
-
 	return str.substr(start, end - start + 1);
 }
