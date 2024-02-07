@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 12:36:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/04 03:40:13 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/07 08:48:11 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,13 @@
 
 enum UserMode
 {
-	UserModeBot,
-	UserModeOperator,
-	UserModeAway,
-	UserModeInvisible,
-	UserModeWallops,
-	UserModePass,
+	Bot,
+	Away,
+	Invisible,
+	Operator,
+	WallopsListener,
+	AlreadySentPass,
+	AlreadySentUser,
 };
 
 #endif

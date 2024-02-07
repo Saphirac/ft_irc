@@ -6,25 +6,51 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/05 22:31:02 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/07 10:15:15 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
+#include <ctime>
 
 // ****************************************************************************************************************** //
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @brief Constructs a new Server instance, initializing its fields to be empty.
+ * @brief Constructs a new Server instance, initializing its fields with the given arguments.
+ *
+ * @param name The name of the server.
+ * @param version The version of the server.
+ * @param password The password of the server (required to connect to it).
  *
  * @return The newly created Server instance.
  */
-Server::Server(std::string const &servername) : _name(servername), _clients_by_socket(), _clients_by_nickname() {}
+Server::Server(std::string const &name, std::string const &version, std::string const &password) :
+	_name(name),
+	_version(version),
+	_password(password),
+	_creation_date(),
+	_creation_time(),
+	_compilation_date(__DATE__),
+	_compilation_time(__TIME__),
+	_clients_by_socket(),
+	_clients_by_nickname()
+{
+	time_t const raw_time = time(NULL);
+	tm const    *time_info = localtime(&raw_time);
+	char         buffer[80];
 
-// ****************************************************************************************************************** //
-//                                                     Destructor                                                     //
-// ****************************************************************************************************************** //
+	strftime(buffer, sizeof(buffer), "%Y-%m-%d", time_info);
+	this->_creation_date = buffer;
+	strftime(buffer, sizeof(buffer), "%H:%M:%S", time_info);
+	this->_creation_time = buffer;
+}
+
+// ******************************************************************************************************************
+// //
+//                                                     Destructor //
+// ******************************************************************************************************************
+// //
 Server::~Server(void) { this->_clients_by_socket.clear(); }
 
 // ***************************************************************************************************************** //
