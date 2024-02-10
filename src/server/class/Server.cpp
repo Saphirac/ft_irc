@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/06 12:53:47 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/10 12:09:31 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -293,6 +293,15 @@ void Server::ctrl_epoll_add(int epoll_fd, int socket, struct epoll_event *e_even
 	}
 }
 
+void	controlSocket(int socket, int operation)
+{
+	if (fcntl(socket, F_SETFL, operation) == -1)
+	{
+		std::perror("Error: Failed to control socket");
+		close(socket);
+	}
+}
+
 // Init server //
 
 void Server::handle_client_event(Client *client)
@@ -313,40 +322,52 @@ void Server::handle_client_event(Client *client)
 		return;
 	}
 	buffer[bytes_read] = '\0';
-	std::cout << "Received " << buffer << '\n'
-			  << bytes_read << " bytes from client : " << client->getSocket() << std::endl;
+}
+
+/**
+ * @brief send a message to a client
+ *
+ * // TODO : change exit failure with exception
+ * @param client_socket
+ * @param message
+ */
+void	send_message(int client_socket, std::string message)
+{
+	if (send(client_socket, message.c_str(), message.size(), 0) == -1)
+	{
+		std::cerr << "Problem with send()." << std::endl;
+		exit(EXIT_FAILURE);
+	}
 }
 
 void send_test_message(int client_socket)
 {
 	char buffer[513];
-	int  bytes_read;
+	int  bytes_read = 1;
 
-	bytes_read = recv(client_socket, buffer, 512, 0);
-	if (bytes_read == -1)
+	while (bytes_read > 0)
 	{
-		std::cerr << "Problem with recv()." << std::endl;
-		exit(EXIT_FAILURE);
-	}
-	std::cout << "here : [" << trim(std::string(buffer)) << "]" << std::endl;
-	if (trim(std::string(buffer)) == "CAP LS 302")
-	{
-		std::cout << "here\n";
-		std::cout << "Received " << buffer << '\n'
-				  << bytes_read << " bytes from client : " << client_socket << std::endl;
-		std::string message = "CAP * LS :multi-prefix sasl\n\r";
-		if (send(client_socket, message.c_str(), message.size(), 0) == -1)
+		bytes_read = recv(client_socket, buffer, 512, 0);
+		if (bytes_read == -1)
 		{
-			std::cerr << "Problem with send()." << std::endl;
+			std::cerr << "Problem with recv()." << std::endl;
 			exit(EXIT_FAILURE);
 		}
-		if (send(client_socket, "CAP END\n\r", 9, 0) == -1)
+		std::string rcv_msg = std::string(buffer);
+		rcv_msg.resize(bytes_read);
+		std::cout << "test : " << rcv_msg << '\n';
+		if (trim(rcv_msg) == "CAP LS 302")
 		{
-			std::cerr << "Problem with send()." << std::endl;
-			exit(EXIT_FAILURE);
+			std::cout << rcv_msg << '\n';
+			std::string message = ":ircserv CAP * LS :none\n\r";
+			send_message(client_socket, message);
+		}
+		if (trim(rcv_msg) == "JOIN :")
+		{
+			std::string message = ":ircserv Password required.\nTry /quote PASS <password>\n\r";
+			send_message(client_socket, message);
 		}
 	}
-	std::cout << "New connection from : " << client_socket << std::endl;
 }
 
 /**
@@ -368,6 +389,7 @@ void Server::handle_new_connection()
 		std::cerr << "Problem with accept()." << std::endl;
 		exit(EXIT_FAILURE);
 	}
+	//controlSocket(client_socket, O_NONBLOCK);
 
 	this->_clients.push_back(new Client(client_socket, &client_addr, "TmpName", "TmpNickname"));
 	this->_client_socket[client_socket] = this->_clients.back();
