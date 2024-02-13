@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/28 16:20:55 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/13 10:59:33 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include <cstdlib>
 #include "Server.hpp"
 #include <cstdio>
+#include "IrcMessage.hpp"
+#include <stdio.h>
 
 /**
  * @brief Launch irc server
@@ -27,8 +29,14 @@
 
 int main(int ac, char **av)
 {
-	if (ac != 3)
-		return 1;
+	//std::cerr << "incorrect number of args\n";
+	printf("here");
+	(void)ac;
+	(void)av;
+	/*if (ac != 4)
+		std::cout << "incorrect number of args\n";
+	IrcMessage test = parseIrcMessage(std::string(av[3]));
+	test.display();
 	Server *myserver = new Server(atoi(av[1]), std::string(av[2]), "MyServer");
 	try {
 		myserver->init_server();
@@ -38,5 +46,5 @@ int main(int ac, char **av)
 		std::cout << e.what() << std::endl;
 	}
 	printf("hi\n");
-	return 0;
+	return 0;*/
 }

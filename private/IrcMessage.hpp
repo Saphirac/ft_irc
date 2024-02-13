@@ -12,4 +12,6 @@ public:
     void display() const;
 };
 
+IrcMessage	parseIrcMessage(const std::string& message);
+
 #endif
