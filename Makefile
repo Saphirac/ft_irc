@@ -48,6 +48,7 @@ SRC			=							\
 						Client.cpp		\
 						Command.cpp		\
 						Channel.cpp		\
+						IrcMessage.cpp	\
 					}					\
 				}						\
 				${addprefix utils/,		\
@@ -60,6 +61,7 @@ LIB_SRC		= 	\
 					${addprefix regex/, \
 						regex.cpp \
 					} \
+					parse_irc_message.cpp \
 					hello.cpp \
 				}
 
