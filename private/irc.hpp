@@ -18,6 +18,7 @@
 # endif
 
 # include <iostream>
+# include <vector>
 # include "regex.hpp"
 
 int hello(void);
