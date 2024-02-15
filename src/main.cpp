@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/13 10:59:33 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/15 14:27:53 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,8 @@
 
 int main(int ac, char **av)
 {
-	//std::cerr << "incorrect number of args\n";
 	printf("here");
-	(void)ac;
-	(void)av;
-	/*if (ac != 4)
+	if (ac != 4)
 		std::cout << "incorrect number of args\n";
 	IrcMessage test = parseIrcMessage(std::string(av[3]));
 	test.display();
@@ -46,5 +43,5 @@ int main(int ac, char **av)
 		std::cout << e.what() << std::endl;
 	}
 	printf("hi\n");
-	return 0;*/
+	return 0;
 }

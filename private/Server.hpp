@@ -6,28 +6,28 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 16:45:32 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/28 13:24:48 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/15 14:42:55 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include "irc.hpp"
+# include "ft_irc.hpp"
 # include <vector>
 # include "Client.hpp"
 # include <sys/types.h>
 # include <netinet/in.h>
-#include <map>
-#include <sys/socket.h>
-#include <sys/epoll.h>
-#include <fcntl.h>
-#include <string>
-#include <stdlib.h>
-#include <errno.h>
-#include <netinet/ip.h>
-#include <sys/types.h>
-#include <unistd.h>
+# include <map>
+# include <sys/socket.h>
+# include <sys/epoll.h>
+# include <fcntl.h>
+# include <string>
+# include <stdlib.h>
+# include <errno.h>
+# include <netinet/ip.h>
+# include <sys/types.h>
+# include <unistd.h>
 
 class Client;
 class Channel;
