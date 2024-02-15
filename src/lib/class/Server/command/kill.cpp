@@ -1,29 +1,13 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   irc.hpp                                            :+:      :+:    :+:   */
+/*   kill.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/24 19:31:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/15 15:59:06 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/02/01 17:30:35 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/01 17:30:38 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef IRC_HPP
-# define IRC_HPP
-
-# ifndef DEBUG
-#  define DEBUG 0
-# endif
-
-# include <iostream>
-# include <vector>
-# include "regex.hpp"
-
-int hello(void);
-
-// Utils //
-std::string	trim(std::string const &str);
-
-#endif
+// TODO

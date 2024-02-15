@@ -1,0 +1,33 @@
+html {
+	zoom: 125%;
+}
+
+summary {
+	cursor: pointer;
+}
+
+summary:hover {
+	background-color: #e0e0e0;
+}
+
+code:target {
+	background-color: #abcbed;
+}
+
+tr:target {
+	background-color: #abcbed;
+}
+
+summary::marker {
+	content: "";
+}
+
+table {
+	border-collapse: collapse;
+	table-layout: auto;
+}
+
+th, td {
+	border: 2px solid;
+	padding: 0.2em;
+}
