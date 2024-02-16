@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   regex.cpp                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/02/17 14:04:50 by mcourtoi          #+#    #+#             */
+/*   Updated: 2024/02/17 14:04:52 by mcourtoi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "regex.hpp"
 
 // Inverse table of the above (given a character like '*', 'C', '\' get the appropriate command). We use a look up table

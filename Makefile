@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/15 14:39:44 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/02/17 17:50:35 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,37 +32,29 @@ LIB = lib${NAME}.a
 #######################################
 #             DIRECTORIES             #
 #######################################
-SRC_DIR     =   src
-OBJ_DIR     =   obj
-PRV_DIR     =   private
-LIB_DIR		=	lib
-
-#######################################
-#              LIBRARIES              #
-#######################################
-FT_IRC_A				=	libirc.a
-
+SRC_DIR	=	src
+OBJ_DIR	=	obj
+PRV_DIR	=	private
+LIB_DIR	=	lib
+INC_DIR =	include
 
 ######################################
 #            SOURCE FILES            #
 ######################################
-SRC			=							\
-				${addprefix server/,	\
-					${addprefix class/,	\
-						Server.cpp		\
-						Client.cpp		\
-						Command.cpp		\
-						Channel.cpp		\
-						IrcMessage.cpp	\
-					}					\
-				}						\
-				${addprefix utils/,		\
-					trim.cpp			\
-				}						\
-				main.cpp
-SRC = \
+SRC		=	\
 	${addsuffix .cpp, \
-		main \
+		${addprefix server/,	\
+			${addprefix class/,	\
+				Server		\
+				Client		\
+				Channel		\
+				IrcMessage	\
+			}	\
+		}	\
+		${addprefix utils/,	\
+			trim			\
+		}	\
+	main \
 	}
 
 LIB_SRC = \
@@ -96,33 +88,28 @@ LIB_SRC = \
 						restart \
 						time \
 						topic \
-						user \
 						version \
 						wallops \
 						whois \
+						cap \
 					} \
 					core \
 				} \
-				Client \
+			} \
+			${addprefix regex/, \
+						regex \
 			} \
 			format_reply \
+			parse_irc_message \
+			send_message \
 		} \
 	}
-
-LIB_SRC		= 	\
-				${addprefix ${LIB_DIR}/, \
-					${addprefix regex/, \
-						regex.cpp \
-					} \
-					parse_irc_message.cpp \
-					hello.cpp \
-				}
 
 ######################################
 #            OBJECT FILES            #
 ######################################
-    OBJ = ${addprefix ${OBJ_DIR}/,${SRC:.cpp=.o}}
-    DEP = ${OBJ:.o=.d}
+	OBJ = ${addprefix ${OBJ_DIR}/,${SRC:.cpp=.o}}
+	DEP = ${OBJ:.o=.d}
 LIB_OBJ = ${addprefix ${OBJ_DIR}/,${LIB_SRC:.cpp=.o}}
 LIB_DEP = ${LIB_OBJ:.o=.d}
 
@@ -148,7 +135,7 @@ endif
 #######################################
 .PHONY:	all clean fclean re fre
 
-${NAME}: ${LIB} ${OBJ}
+${NAME}: ${OBJ} ${LIB}
 	${LINK} $^ ${OUTPUT_OPTION}
 
 ${LIB}: ${LIB_OBJ}
@@ -156,7 +143,7 @@ ${LIB}: ${LIB_OBJ}
 
 all: ${LIB} ${NAME}
 
--include ${DEP} ${LIB_DEP}
+-include ${DEP}
 
 ${OBJ_DIR}/%.o: 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/%.cpp

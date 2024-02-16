@@ -1,7 +1,7 @@
 #include "IrcMessage.hpp"
-#include "irc.hpp"
+#include "ft_irc.hpp"
 
-IrcMessage parseIrcMessage(const std::string &message)
+IrcMessage parse_irc_message(const std::string &message)
 {
 	IrcMessage  ircMessage;
 	std::string temp;
@@ -10,12 +10,12 @@ IrcMessage parseIrcMessage(const std::string &message)
 	if (message[start] == ':')
 	{
 		end = message.find(' ', start);
-		ircMessage.prefix = message.substr(1, end - 1);
+		ircMessage.set_prefix(message.substr(1, end - 1));
 		start = end + 1;
 	}
 
 	end = message.find(' ', start);
-	ircMessage.command = message.substr(start, end - start);
+	ircMessage.set_command(message.substr(start, end - start));
 	start = end + 1;
 
 	bool lastParam = false;
@@ -30,18 +30,18 @@ IrcMessage parseIrcMessage(const std::string &message)
 		temp = message.substr(start, end - start);
 		if (lastParam)
 		{
-			ircMessage.params.push_back(temp.substr(1));
+			ircMessage.get_params()->push_back(temp.substr(1));
 		}
 		else
 		{
-			ircMessage.params.push_back(temp);
+			ircMessage.get_params()->push_back(temp);
 		}
 		start = end + 1;
 	}
 
 	if (!lastParam && start < message.length())
 	{
-		ircMessage.params.push_back(message.substr(start));
+		ircMessage.get_params()->push_back(message.substr(start));
 	}
 
 	return ircMessage;

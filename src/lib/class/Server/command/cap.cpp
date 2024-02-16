@@ -1,26 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   join.cpp                                           :+:      :+:    :+:   */
+/*   cap.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/17 13:59:11 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/02/16 13:43:54 by mcourtoi          #+#    #+#             */
+/*   Updated: 2024/02/17 13:59:54 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Server.hpp"
-
 // TODO
 
-StatusCode	Server::join(Client &sender, std::vector<std::string> const &parameters)
+#include "class/Server.hpp"
+
+StatusCode	Server::cap(Client &sender, std::vector<std::string> const &parameters)
 {
-	(void)parameters;
-	std::cout << "JOIN cmd called\n";
-	if (sender.get_is_pass() == false)
+	if (parameters.empty())
 	{
-		std::string message = ":ircserv Password required.\nTry /quote PASS <password>\n\r";
+		std::cerr << "Cap incomplete\n";
+		return ErrorClientSendMessage;
+	}
+	if (parameters[0] == "LS" && parameters[1] == "302")
+	{
+		std::string message = ":ircserv CAP * LS :none\n\r";
 		send_message(sender.get_socket(), message);
 	}
 	return Success;

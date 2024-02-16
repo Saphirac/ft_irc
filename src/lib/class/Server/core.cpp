@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/07 10:15:15 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/17 14:02:07 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
  *
  * @return The newly created Server instance.
  */
-Server::Server(std::string const &name, std::string const &version, std::string const &password) :
+/*Server::Server(std::string const &name, std::string const &version, std::string const &password) :
 	_name(name),
 	_version(version),
 	_password(password),
@@ -44,14 +44,14 @@ Server::Server(std::string const &name, std::string const &version, std::string 
 	this->_creation_date = buffer;
 	strftime(buffer, sizeof(buffer), "%H:%M:%S", time_info);
 	this->_creation_time = buffer;
-}
+}*/
 
 // ******************************************************************************************************************
 // //
 //                                                     Destructor //
 // ******************************************************************************************************************
 // //
-Server::~Server(void) { this->_clients_by_socket.clear(); }
+Server::~Server(void) { this->_clients_socket.clear(); }
 
 // ***************************************************************************************************************** //
 //                                              Public Member Functions                                              //
@@ -64,10 +64,10 @@ Server::~Server(void) { this->_clients_by_socket.clear(); }
 void Server::add_client(Client const &client)
 {
 	std::pair<std::map<int, Client>::iterator, bool> ret =
-		this->_clients_by_socket.insert(std::make_pair(client.get_socket(), client));
+		this->_clients_socket.insert(std::make_pair(client.get_socket(), client));
 
 	if (ret.second)
-		this->_clients_by_nickname.insert(std::make_pair(client.get_nickname(), &ret.first->second));
+		this->_clients_nick.insert(std::make_pair(client.get_nickname(), &ret.first->second));
 }
 
 /**
@@ -77,6 +77,6 @@ void Server::add_client(Client const &client)
  */
 void Server::remove_client(Client const &client)
 {
-	this->_clients_by_nickname.erase(client.get_nickname());
-	this->_clients_by_socket.erase(client.get_socket());
+	this->_clients_nick.erase(client.get_nickname());
+	this->_clients_socket.erase(client.get_socket());
 }

@@ -6,173 +6,161 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 02:53:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/06 01:11:03 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/18 00:24:48 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Client.hpp"
+#include "class/Client.hpp"
 
-Client::Client(int const socket, struct sockaddr_in *sock_addr, std::string const name, std::string const nickname) :
+Client::Client(
+	int const          socket,
+	std::string const &nickname,
+	std::string const &hostname,
+	std::string const &username,
+	std::string const &realname,
+	uint8_t const      modes) :
 	_socket(socket),
-	_name(name),
 	_nickname(nickname),
-	_sock_addr(sock_addr),
-	_addr_len(sizeof(sock_addr))
+	_hostname(hostname),
+	_username(username),
+	_realname(realname),
+	_modes(modes)
 {
 	if (DEBUG)
 		std::cout << "Client constructor called\n";
+}
+
+Client::Client(Client const &src) :
+	_socket(src._socket),
+	_messages(src._messages),
+	_nickname(src._nickname),
+	_hostname(src._hostname),
+	_username(src._username),
+	_realname(src._realname),
+	_modes(src._modes)
+{
+	if (DEBUG)
+		std::cout << "Client copy constructor called\n";
 }
 
 Client::~Client()
 {
 	if (DEBUG)
 		std::cout << "Client destructor called\n";
+	if (this->_socket != -1)
+		close(this->_socket);
+	// if (this->_epoll_event)
+	//	delete this->_epoll_event;
 }
 
 // Getters //
 
-int Client::getSocket(void) const
-{
-	if (DEBUG)
-		std::cout << "getSocket() member function of client called\n";
-	return this->_socket;
-}
-
-std::string Client::getName(void) const
-{
-	if (DEBUG)
-		std::cout << "getName() member function of client called\n";
-	return this->_name;
-}
-
-std::string Client::getNickname(void) const
-{
-	if (DEBUG)
-		std::cout << "getNickname() member function of client called\n";
-	return this->_nickname;
-}
-
-struct epoll_event *Client::getEvent(void) const
-{
-	if (DEBUG)
-		std::cout << "getEvent() member function of client called\n";
-	return this->_client_event;
-}
-
-bool Client::getIsComplete() const
-{
-	if (DEBUG)
-		std::cout << "getIsComplete() member function of client called\n";
-	return this->_is_complete;
-}
-
-std::string Client::getInput() const
-{
-	if (DEBUG)
-		std::cout << "getInput() member function of client called\n";
-	return this->_input;
-}
-
-bool Client::getIsInputComplete() const
-{
-	if (DEBUG)
-		std::cout << "getIsInputComplete() member function of client called\n";
-	return this->_is_input_complete;
-}
-
-Command *Client::getCommand() const
-{
-	if (DEBUG)
-		std::cout << "getCommand() member function of client called\n";
-	return this->_command;
-}
-
-struct sockaddr_in *Client::getSockAddr(void) const
-{
-	if (DEBUG)
-		std::cout << "getSockAddr() member function of client called\n";
-	return this->_sock_addr;
-}
-
-socklen_t Client::getSockLen(void) const
-{
-	if (DEBUG)
-		std::cout << "getSockLen() member function of client called\n";
-	return this->_addr_len;
-}
+int                 Client::get_socket(void) const { return this->_socket; }
+std::string const  &Client::get_messages(void) const { return this->_messages; }
+std::string const  &Client::get_nickname(void) const { return this->_nickname; }
+std::string const  &Client::get_hostname(void) const { return this->_hostname; }
+std::string const  &Client::get_username(void) const { return this->_username; }
+std::string const  &Client::get_realname(void) const { return this->_realname; }
+uint8_t             Client::get_modes(void) const { return this->_modes; }
+struct epoll_event *Client::get_epoll_event(void) const { return this->_epoll_event; }
+bool                Client::get_is_complete(void) const { return this->_is_complete; }
+bool                Client::get_is_msg_complete(void) const { return this->_is_msg_complete; }
+bool                Client::get_is_pass(void) const { return this->_pass; }
 
 // Setters //
 
-void Client::setSocket(int const socket)
-{
-	if (DEBUG)
-		std::cout << "setSocket() member function of client called\n";
-	this->_socket = socket;
-}
+void Client::set_socket(int const socket) { this->_socket = socket; }
+void Client::set_messages(std::string const &messages) { this->_messages = messages; }
+void Client::set_nickname(std::string const &nickname) { this->_nickname = nickname; }
+void Client::set_hostname(std::string const &hostname) { this->_hostname = hostname; }
+void Client::set_username(std::string const &username) { this->_username = username; }
+void Client::set_realname(std::string const &realname) { this->_realname = realname; }
+void Client::set_modes(uint8_t const modes) { this->_modes = modes; }
 
-void Client::setName(std::string const name)
-{
-	if (DEBUG)
-		std::cout << "setName() member function of client called\n";
-	this->_name = name;
-}
+void Client::set_is_complete(bool is_complete) { this->_is_complete = is_complete; }
+void Client::set_is_msg_complete(bool is_msg_complete) { this->_is_msg_complete = is_msg_complete; }
+void Client::set_is_pass(bool is_pass) { this->_pass = is_pass; }
 
-void Client::setNickname(std::string const nickname)
-{
-	if (DEBUG)
-		std::cout << "setNickname() member function of client called\n";
-	this->_nickname = nickname;
-}
-
-void Client::setEvent()
+void Client::set_epoll_event()
 {
 	if (DEBUG)
 		std::cout << "setEvent() member function of client called\n";
-	this->_client_event = new struct epoll_event;
-	this->_client_event->events = EPOLLIN;
-	this->_client_event->data.fd = this->_socket;
-}
-
-void Client::setIsComplete(bool const yesno)
-{
-	if (DEBUG)
-		std::cout << "setIsComplete() member function of client called\n";
-	this->_is_complete = yesno;
-}
-
-void Client::setInput(std::string const input)
-{
-	if (DEBUG)
-		std::cout << "setInput() member function of client called\n";
-	this->_input = input;
-}
-
-void Client::setIsInputComplete(bool const yesno)
-{
-	if (DEBUG)
-		std::cout << "setIsInputComplete() member function of client called\n";
-	this->_is_input_complete = yesno;
-}
-
-void Client::setCommand(Command *command)
-{
-	if (DEBUG)
-		std::cout << "setCommand() member function of client called\n";
-	this->_command = command;
-}
-
-void Client::setSockAddr(struct sockaddr_in *addr)
-{
-	if (DEBUG)
-		std::cout << "setSockAddr() member function of client called\n";
-	this->_sock_addr = addr;
-}
-
-void Client::setSockLen()
-{
-	if (DEBUG)
-		std::cout << "setSockLen() member function of client called\n";
-	this->_addr_len = sizeof(this->_sock_addr);
+	this->_epoll_event = new epoll_event;
+	printf("epoll_event address : %p\n", this->_epoll_event);
+	this->_epoll_event->events = EPOLLIN;
+	this->_epoll_event->data.fd = this->_socket;
 }
 
 // Methods //
+/**
+ * @brief Closes the socket of the Client instance.
+ */
+void Client::disconnect(void)
+{
+	close(this->_socket);
+	this->_socket = -1;
+}
+
+/**
+ * @brief Appends a given message to the messages of the Client instance.
+ *
+ * @param message The message to append.
+ */
+void Client::append_message(std::string const &message) { this->_messages += message + "\r\n"; }
+
+/**
+ * @brief Clears the messages of the Client instance.
+ */
+void Client::clear_messages(void) { this->_messages.clear(); }
+
+/**
+ * @brief Sets a given mode for the client.
+ *
+ * @param mode The mode to set.
+ */
+void Client::set_mode(UserMode const mode) { this->_modes |= 1 << mode; }
+
+/**
+ * @brief Clears a given mode for the client.
+ *
+ * @param mode The mode to clear.
+ */
+void Client::clear_mode(UserMode const mode) { this->_modes &= ~(1 << mode); }
+
+/**
+ * @brief Check whether the client has a given mode set.
+ *
+ * @param mode The mode to check.
+ *
+ * @return true if the client has the given mode set, false otherwise.
+ */
+bool Client::has_mode(UserMode const mode) const { return this->_modes & 1 << mode; }
+
+/**
+ * @brief Sends a given message on the socket of the Client instance.
+ *
+ * @param message The message to send.
+ *
+ * @return The number of bytes sent, or -1 if an error occurred.
+ */
+ssize_t Client::send_message(std::string const &message) const
+{
+	return send(this->_socket, message.c_str(), message.size(), 0);
+}
+
+/**
+ * @brief Sends the messages that are currently stored in the Client instance on its socket.
+ *
+ * @return The number of bytes sent, or -1 if an error occurred.
+ */
+ssize_t Client::send_messages(void) const
+{
+	return send(this->_socket, this->_messages.c_str(), this->_messages.size(), 0);
+}
+
+/**
+ * @brief Generates the user mask of the client.
+ *
+ * @return The user mask of the client.
+ */
+std::string Client::user_mask(void) const { return this->_nickname + "!" + this->_username + "@" + this->_hostname; }

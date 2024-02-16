@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/07 10:21:21 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/18 00:01:28 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,20 @@
 #define CLIENT_HPP
 
 #include "UserMode.hpp"
+#include "class/Server.hpp"
+#include <netinet/in.h>
 #include <stdint.h>
 #include <string>
 #include <unistd.h>
+
+class Server;
 
 class Client
 {
 private:
 	// Fields
-	int         _socket;
-	std::string _messages;
+	int                 _socket;
+	std::string         _messages;
 
 	std::string _nickname;
 	std::string _hostname;
@@ -31,15 +35,21 @@ private:
 	std::string _realname;
 	uint8_t     _modes;
 
+	struct epoll_event *_epoll_event;
+
+	bool _is_complete;
+	bool _is_msg_complete;
+	bool _pass;
+
 public:
 	// Constructors
 	Client(
-		int const          socket = -1,
-		std::string const &nickname = "",
-		std::string const &hostname = "",
-		std::string const &username = "",
-		std::string const &realname = "",
-		uint8_t const      modes = 0);
+		int const           socket = -1,
+		std::string const  &nickname = "",
+		std::string const  &hostname = "",
+		std::string const  &username = "",
+		std::string const  &realname = "",
+		uint8_t const       modes = 0);
 	Client(Client const &src);
 
 	// Destructor
@@ -54,6 +64,12 @@ public:
 	std::string const &get_realname(void) const;
 	uint8_t            get_modes(void) const;
 
+	struct epoll_event *get_epoll_event(void) const;
+
+	bool get_is_complete() const;
+	bool get_is_msg_complete() const;
+	bool get_is_pass() const;
+
 	// Mutators
 	void set_socket(int const socket);
 	void set_messages(std::string const &messages);
@@ -62,6 +78,11 @@ public:
 	void set_username(std::string const &username);
 	void set_realname(std::string const &realname);
 	void set_modes(uint8_t const modes);
+
+	void set_epoll_event();
+	void set_is_complete(bool const yesno);
+	void set_is_msg_complete(bool const yesno);
+	void set_is_pass(bool const yesno);
 
 	// Member functions
 	void disconnect(void);
