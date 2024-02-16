@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   nick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:22 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/07 10:26:56 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/16 14:23:12 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,12 +104,12 @@ StatusCode Server::nick(Client &sender, std::string const &parameters)
 	if (is_invalid_nickname(nickname))
 		return error_erroneus_nickname(sender, nickname);
 
-	if (this->_clients_by_nickname.count(nickname))
+	if (this->_clients_nick.count(nickname))
 		return error_nickname_in_use(sender, nickname);
 
-	this->_clients_by_nickname.erase(sender.get_nickname());
+	this->_clients_nick.erase(sender.get_nickname());
 	sender.set_nickname(nickname);
-	this->_clients_by_nickname[nickname] = &sender;
+	this->_clients_nick[nickname] = &sender;
 
 	sender.append_message("NICK " + nickname);
 	return Success;

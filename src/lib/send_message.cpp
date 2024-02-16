@@ -1,27 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   join.cpp                                           :+:      :+:    :+:   */
+/*   send_message.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/17 13:59:11 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/02/16 17:22:46 by mcourtoi          #+#    #+#             */
+/*   Updated: 2024/02/17 15:02:07 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
 
-// TODO
-
-StatusCode	Server::join(Client &sender, std::vector<std::string> const &parameters)
+/**
+ * @brief send a message to a client
+ *
+ * // TODO : change exit failure with exception
+ * @param client_socket
+ * @param message
+ */
+void	send_message(int client_socket, std::string message)
 {
-	(void)parameters;
-	std::cout << "JOIN cmd called\n";
-	if (sender.get_is_pass() == false)
+	if (send(client_socket, message.c_str(), message.size(), 0) == -1)
 	{
-		std::string message = ":ircserv Password required.\nTry /quote PASS <password>\n\r";
-		send_message(sender.get_socket(), message);
+		std::cerr << "Problem with send()." << std::endl;
+		exit(EXIT_FAILURE);
 	}
-	return Success;
 }

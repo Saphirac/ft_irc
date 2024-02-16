@@ -1,7 +1,7 @@
 #include "IrcMessage.hpp"
-#include "irc.hpp"
+#include "ft_irc.hpp"
 
-IrcMessage parseIrcMessage(const std::string &message)
+IrcMessage parse_irc_message(const std::string &message)
 {
 	IrcMessage  ircMessage;
 	std::string temp;

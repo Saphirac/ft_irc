@@ -6,15 +6,15 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/26 04:04:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/01/26 04:04:54 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/17 15:01:13 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
 
-# include "Server.hpp"
-# include "Client.hpp"
+# include "class/Server.hpp"
+# include "class/Client.hpp"
 
 class	Server;
 class	Client;

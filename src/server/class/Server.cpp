@@ -6,17 +6,19 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/13 10:36:48 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/17 19:12:52 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
+#include "class/Server.hpp"
+#include "IrcMessage.hpp"
 #include <cstdio>
 
-Server::Server(int const port, std::string const name, std::string const password) :
+Server::Server(int const port, std::string const name, std::string const password, bool shutdown) :
 	_port(port),
 	_name(name),
-	_password(password)
+	_password(password),
+	_shutdown(shutdown)
 {
 	if (DEBUG)
 		std::cout << "Server constructor called\n";
@@ -31,182 +33,51 @@ Server::~Server()
 
 // Getters //
 
-std::string const &Server::getName() const
-{
-	if (DEBUG)
-		std::cout << "getName() member function of server called\n";
-	return this->_name;
-}
+int Server::get_port(void) const { return this->_port; }
+int Server::get_socket(void) const { return this->_socket; }
+int Server::get_epoll_socket(void) const { return this->_epoll_socket; }
 
-int Server::getIp() const
-{
-	if (DEBUG)
-		std::cout << "getIp() member function of server called\n";
-	return this->_ip;
-}
+std::string const &Server::get_name(void) const { return this->_name; }
+std::string const &Server::get_creation_date(void) const { return this->_creation_date; }
+std::string const &Server::get_creation_time(void) const { return this->_creation_time; }
+std::string const &Server::get_compilation_date(void) const { return this->_compilation_date; }
+std::string const &Server::get_compilation_time(void) const { return this->_compilation_time; }
+std::string const &Server::get_password(void) const { return this->_password; }
 
-int Server::getPort() const
-{
-	if (DEBUG)
-		std::cout << "getPort() member function of server called\n";
-	return this->_port;
-}
+struct epoll_event       *Server::get_epoll_event(void) const { return this->_epoll_event; }
+struct sockaddr_in const &Server::get_sock_addr(void) const { return this->_sock_addr; }
+socklen_t const          &Server::get_sock_len(void) const { return this->_sock_len; }
 
-int Server::getSocket() const
-{
-	if (DEBUG)
-		std::cout << "getSocket() member function of server called\n";
-	return this->_socket;
-}
+std::map<int, Client> const           &Server::get_clients_socket(void) const { return this->_clients_socket; }
+std::map<std::string, Client *> const &Server::get_clients_nick(void) const { return this->_clients_nick; }
+std::vector<Channel *> const          &Server::get_channels(void) const { return this->_channels; }
 
-struct sockaddr_in const &Server::getSockAddr() const
-{
-	if (DEBUG)
-		std::cout << "getSockAddr() member function of server called\n";
-	return this->_sock_addr;
-}
-
-socklen_t const &Server::getSockLen() const
-{
-	if (DEBUG)
-		std::cout << "getSockLen() member function of server called\n";
-	return this->_addr_len;
-}
-
-std::string const &Server::getPassword() const
-{
-	if (DEBUG)
-		std::cout << "getPassword() member function of server called\n";
-	return this->_password;
-}
-
-std::vector<Client *> const &Server::getClients() const
-{
-	if (DEBUG)
-		std::cout << "getClients() member function of server called\n";
-	return this->_clients;
-}
-
-std::vector<Channel *> const &Server::getChannels() const
-{
-	if (DEBUG)
-		std::cout << "getChannels() member function of server called\n";
-	return this->_channels;
-}
-
-int Server::getEpollSocket() const
-{
-	if (DEBUG)
-		std::cout << "getEpollSocket() member function of server called\n";
-	return this->_epoll_socket;
-}
-
-struct epoll_event *Server::getEpollEvent() const
-{
-	if (DEBUG)
-		std::cout << "getEpollEvent() member function of server called\n";
-	return this->_epoll_event;
-}
-
-bool Server::getShutdown() const
-{
-	if (DEBUG)
-		std::cout << "getShutdown() member function of server called\n";
-	return this->_shutdown;
-}
+bool Server::get_shutdown(void) const { return this->_shutdown; }
 
 // Setters //
 
-void Server::setName(std::string const &name)
-{
-	if (DEBUG)
-		std::cout << "setName() member function of server called\n";
-	this->_name = name;
-}
+void Server::set_socket(int const socket) { this->_socket = socket; }
+void Server::set_epoll_socket(int const epoll_socket) { this->_epoll_socket = epoll_socket; }
+void Server::set_port(int const port) { this->_port = port; }
 
-void Server::setIp(int const ip)
-{
-	if (DEBUG)
-		std::cout << "getChannels() member function of server called\n";
-	this->_ip = ip;
-}
+void Server::set_name(std::string const &name) { this->_name = name; }
+void Server::set_creation_date(std::string const &creation_date) { this->_creation_date = creation_date; }
+void Server::set_creation_time(std::string const &creation_time) { this->_creation_time = creation_time; }
+void Server::set_compilation_date(std::string const &compilation_date) { this->_compilation_date = compilation_date; }
+void Server::set_compilation_time(std::string const &compilation_time) { this->_compilation_time = compilation_time; }
+void Server::set_password(std::string const &password) { this->_password = password; }
 
-void Server::setPort(int const port)
-{
-	if (DEBUG)
-		std::cout << "setPort() member function of server called\n";
-	this->_port = port;
-}
+void Server::set_sock_addr(struct sockaddr_in const &sock_addr) { this->_sock_addr = sock_addr; }
+void Server::set_sock_len() { this->_sock_len = sizeof(this->_sock_addr); }
 
-void Server::setSocket(int const socket)
+void Server::set_clients_socket(std::map<int, Client> const &clients_socket) { this->_clients_socket = clients_socket; }
+void Server::set_clients_nick(std::map<std::string, Client *> const &clients_nick)
 {
-	if (DEBUG)
-		std::cout << "setSocket() member function of server called\n";
-	this->_socket = socket;
+	this->_clients_nick = clients_nick;
 }
+void Server::set_channels(std::vector<Channel *> const &channels) { this->_channels = channels; }
 
-void Server::setSockAddr(struct sockaddr_in const &addr)
-{
-	if (DEBUG)
-		std::cout << "setSockAddr() member function of server called\n";
-	this->_sock_addr = addr;
-}
-
-void Server::setSockLen()
-{
-	if (DEBUG)
-		std::cout << "setSockLen() member function of server called\n";
-	this->_addr_len = sizeof(this->_sock_addr);
-}
-
-void Server::setPassword(std::string const &password)
-{
-	if (DEBUG)
-		std::cout << "setPassword() member function of server called\n";
-	this->_password = password;
-}
-
-void Server::setClients(std::vector<Client *> const &clients)
-{
-	if (DEBUG)
-		std::cout << "setClients() member function of server called\n";
-	this->_clients = clients;
-}
-
-void Server::setChannels(std::vector<Channel *> const &channels)
-{
-	if (DEBUG)
-		std::cout << "setChannels() member function of server called\n";
-	this->_channels = channels;
-}
-
-void Server::setEpollSocket(int fd)
-{
-	if (DEBUG)
-		std::cout << "setEpollSocket() member function of server called\n";
-	this->_epoll_socket = fd;
-}
-
-/**
- * @brief this function is intended to set the epoll_event struct for the server socket
- *
- * @return struct epoll_event
- */
-void Server::setEpollEvent()
-{
-	this->_epoll_event = new epoll_event;
-	if (DEBUG)
-		std::cout << "getEpollEvent() member function of server called\n";
-	this->_epoll_event->events = EPOLLIN;
-	this->_epoll_event->data.fd = this->_socket;
-}
-
-void Server::setShutdown(bool const yesno)
-{
-	if (DEBUG)
-		std::cout << "setShutdown() member function of server called\n";
-	this->_shutdown = yesno;
-}
+void Server::set_shutdown(bool const shutdown) { this->_shutdown = shutdown; }
 
 /**
  * @brief Create a socket object
@@ -219,6 +90,20 @@ void Server::create_and_set_socket()
 	this->_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_socket == -1)
 		throw Server::ProblemWithSocket();
+}
+
+/**
+ * @brief this function is intended to set the epoll_event struct for the server socket
+ *
+ * @return struct epoll_event
+ */
+void Server::set_epoll_event()
+{
+	this->_epoll_event = new epoll_event;
+	if (DEBUG)
+		std::cout << "set_epoll_event() member function of server called\n";
+	this->_epoll_event->events = EPOLLIN;
+	this->_epoll_event->data.fd = this->_socket;
 }
 
 /**
@@ -250,7 +135,7 @@ void Server::init_server()
 {
 	this->create_and_set_socket();
 	this->bind_assign_sockaddr();
-	this->setSockLen();
+	this->set_sock_len();
 	if (listen(this->_socket, 10) < 0)
 	{
 		std::cout << "Failed to listen on socket. errno: " << errno << std::endl;
@@ -288,17 +173,22 @@ void Server::ctrl_epoll_add(int epoll_fd, int socket, struct epoll_event *e_even
 {
 	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, socket, e_event) == -1)
 	{
-		std::cerr << "Problem with error_ctl()." << std::endl;
+		std::cerr << "errno : " << strerror(errno) << std::endl;
 		exit(EXIT_FAILURE);
 	}
 }
 
-void	controlSocket(int socket, int operation)
+void control_socket(int socket)
 {
-	if (fcntl(socket, F_SETFL, operation) == -1)
+	int flags = fcntl(socket, F_GETFL, 0);
+	if (flags == -1)
 	{
-		std::perror("Error: Failed to control socket");
-		close(socket);
+		std::cerr << "Erreur lors de la récupération des flags du socket." << std::endl;
+	}
+	flags |= O_NONBLOCK;
+	if (fcntl(socket, F_SETFL, flags) == -1)
+	{
+		std::cerr << "Erreur lors du passage du socket en mode non bloquant." << std::endl;
 	}
 }
 
@@ -309,7 +199,7 @@ void Server::handle_client_event(Client *client)
 	char buffer[513];
 	int  bytes_read;
 
-	bytes_read = recv(client->getSocket(), buffer, 512, 0);
+	bytes_read = recv(client->get_socket(), buffer, 512, 0);
 	if (bytes_read == -1)
 	{
 		std::cerr << "Problem with recv()." << std::endl;
@@ -318,56 +208,16 @@ void Server::handle_client_event(Client *client)
 	if (bytes_read == 0)
 	{
 		std::cout << "Client disconnected." << std::endl;
-		close(client->getSocket());
+		close(client->get_socket());
 		return;
 	}
 	buffer[bytes_read] = '\0';
-}
-
-/**
- * @brief send a message to a client
- *
- * // TODO : change exit failure with exception
- * @param client_socket
- * @param message
- */
-void	send_message(int client_socket, std::string message)
-{
-	if (send(client_socket, message.c_str(), message.size(), 0) == -1)
-	{
-		std::cerr << "Problem with send()." << std::endl;
-		exit(EXIT_FAILURE);
-	}
-}
-
-void send_test_message(int client_socket)
-{
-	char buffer[513];
-	int  bytes_read = 1;
-
-	while (bytes_read > 0)
-	{
-		bytes_read = recv(client_socket, buffer, 512, 0);
-		if (bytes_read == -1)
-		{
-			std::cerr << "Problem with recv()." << std::endl;
-			exit(EXIT_FAILURE);
-		}
-		std::string rcv_msg = std::string(buffer);
-		rcv_msg.resize(bytes_read);
-		std::cout << "test : " << rcv_msg << '\n';
-		if (trim(rcv_msg) == "CAP LS 302")
-		{
-			std::cout << rcv_msg << '\n';
-			std::string message = ":ircserv CAP * LS :none\n\r";
-			send_message(client_socket, message);
-		}
-		if (trim(rcv_msg) == "JOIN :")
-		{
-			std::string message = ":ircserv Password required.\nTry /quote PASS <password>\n\r";
-			send_message(client_socket, message);
-		}
-	}
+	IrcMessage test = parse_irc_message(std::string(buffer));
+	test.display();
+	if (test.get_command() == "CAP")
+		this->cap(*client, test.get_params());
+	else if (test.get_command() == "JOIN")
+		this->join(*client, test.get_params());
 }
 
 /**
@@ -389,13 +239,11 @@ void Server::handle_new_connection()
 		std::cerr << "Problem with accept()." << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	//controlSocket(client_socket, O_NONBLOCK);
-
-	this->_clients.push_back(new Client(client_socket, &client_addr, "TmpName", "TmpNickname"));
-	this->_client_socket[client_socket] = this->_clients.back();
-	this->_clients.back()->setEvent();
-	ctrl_epoll_add(this->_epoll_socket, client_socket, this->_clients.back()->getEvent());
-	send_test_message(client_socket);
+	control_socket(client_socket);
+	this->_clients_socket[client_socket] = Client(client_socket, "", "", "", "", &client_addr, 0);
+	this->_clients_socket[client_socket].set_epoll_event();
+	printf("test : %d\n", client_socket);
+	ctrl_epoll_add(this->_epoll_socket, client_socket, this->_clients_socket[client_socket].get_epoll_event());
 }
 
 /**
@@ -420,15 +268,19 @@ void Server::epoll_loop()
 		if (events[i].data.fd == this->_socket)
 			handle_new_connection();
 		else
-			handle_client_event(this->_client_socket[events[i].data.fd]);
+			handle_client_event(&this->_clients_socket[events[i].data.fd]);
 	}
 }
 
 void Server::create_server()
 {
 	this->_epoll_socket = create_epoll();
-	this->setEpollEvent();
+	printf("epoll_socket : %d\n", this->_epoll_socket);
+	this->set_epoll_event();
 	ctrl_epoll_add(this->_epoll_socket, this->_socket, this->_epoll_event);
-	while (this->_shutdown == false) epoll_loop();
+	while (this->_shutdown == false)
+	{
+		epoll_loop();
+	}
 	// read_and_respond(connection);
 }
