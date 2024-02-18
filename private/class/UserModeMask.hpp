@@ -1,13 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   away.cpp                                           :+:      :+:    :+:   */
+/*   UserModeMask.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/01 17:25:09 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/08 00:58:52 by jodufour         ###   ########.fr       */
+/*   Created: 2024/02/17 23:57:01 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/18 01:15:57 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// TODO
+#pragma once
+
+#include <stdint.h>
+#include <string>
+
+class UserModeMask : public std::string
+{
+public:
+	// Constructors
+	UserModeMask(std::string const &umode_mask = "");
+	UserModeMask(UserModeMask const &src);
+
+	// Destructor
+	~UserModeMask(void);
+
+	// Methods
+	bool is_valid(uint8_t const umodes) const;
+};

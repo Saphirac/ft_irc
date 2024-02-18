@@ -6,7 +6,7 @@
 #    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/05 20:46:07 by jodufour         ###   ########.fr        #
+#    Updated: 2024/02/19 00:22:38 by jodufour         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -85,6 +85,10 @@ LIB_SRC = \
 					core \
 				} \
 				Client \
+				Hostname \
+				Nickname \
+				UserModeMask \
+				Username \
 			} \
 			format_reply \
 		} \
@@ -103,13 +107,19 @@ LIB_DEP = ${LIB_OBJ:.o=.d}
 #######################################
 CXXFLAGS = \
 	-c \
-	-Wall -Wextra -Werror \
-	-MMD -MP \
+	-Wall \
+	-Wextra \
+	-Werror \
 	-Wshadow \
-	-std=c++98 \
+	-Wno-c99-designator \
+	-pedantic \
 	-ferror-limit=1 \
+	-std=c++98 \
+	-MMD \
+	-MP \
 	-I${PRV_DIR} \
 	-I${INC_DIR}
+
 
 ifeq (${DEBUG}, 1)
 	CXXFLAGS += -g -DDEBUG=1
@@ -129,6 +139,7 @@ ${LIB}: ${LIB_OBJ}
 all: ${LIB} ${NAME}
 
 -include ${DEP}
+-include ${LIB_DEP}
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/%.cpp
 	@${MKDIR} ${@D}

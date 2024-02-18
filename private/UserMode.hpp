@@ -5,23 +5,23 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/02 12:36:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/07 08:48:11 by jodufour         ###   ########.fr       */
+/*   Created: 2024/02/18 23:29:14 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/18 23:53:42 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef USERMODE_HPP
-#define USERMODE_HPP
+#pragma once
+
+#include <stdint.h>
 
 enum UserMode
 {
 	Bot,
+	LocalOperator,
 	Away,
 	Invisible,
-	Operator,
 	WallopsListener,
+	EndOfUserModes,
 	AlreadySentPass,
-	AlreadySentUser,
+	AlreadySentUser
 };
-
-#endif

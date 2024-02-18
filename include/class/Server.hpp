@@ -6,21 +6,25 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/07 10:14:55 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/18 22:31:29 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVER_HPP
-#define SERVER_HPP
+#pragma once
 
 #include "StatusCode.hpp"
 #include "class/Client.hpp"
 #include <map>
+#include <set>
 #include <vector>
 
 class Server
 {
 private:
+	// Shared fields
+	static std::set<std::string> const              _operator_hosts;
+	static std::map<std::string, std::string> const _operator_ids;
+
 	// Fields
 	std::string                     _name;
 	std::string                     _version;
@@ -45,7 +49,6 @@ public:
 
 	StatusCode nick(Client &sender, std::string const &parameters);
 	StatusCode pass(Client &sender, std::string const &parameters);
+	StatusCode oper(Client &sender, std::string const &parameters);
 	StatusCode user(Client &sender, std::string const &parameters);
 };
-
-#endif

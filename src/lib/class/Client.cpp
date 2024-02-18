@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/07 10:23:39 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/19 00:15:27 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @brief Constructs a new Client instance, initializing its fields with given parameters.
+ * @brief Constructs a new Client instance, initializing its fields with given arguments.
  *
  * @param socket The socket of the client.
  * @param nickname The nickname of the client.
@@ -31,12 +31,12 @@
  * @return The newly created Client instance.
  */
 Client::Client(
-	int const          socket,
-	std::string const &nickname,
-	std::string const &hostname,
-	std::string const &username,
-	std::string const &realname,
-	uint8_t            modes) :
+	int const       socket,
+	Nickname const &nickname,
+	Hostname const &hostname,
+	Username const &username,
+	Realname const &realname,
+	UserModes const modes) :
 	_socket(socket),
 	_messages(),
 	_nickname(nickname),
@@ -79,22 +79,22 @@ Client::~Client(void)
 // ***************************************************************************************************************** //
 int                Client::get_socket(void) const { return this->_socket; }
 std::string const &Client::get_messages(void) const { return this->_messages; }
-std::string const &Client::get_nickname(void) const { return this->_nickname; }
-std::string const &Client::get_hostname(void) const { return this->_hostname; }
-std::string const &Client::get_username(void) const { return this->_username; }
-std::string const &Client::get_realname(void) const { return this->_realname; }
-uint8_t            Client::get_modes(void) const { return this->_modes; }
+Nickname const    &Client::get_nickname(void) const { return this->_nickname; }
+Hostname const    &Client::get_hostname(void) const { return this->_hostname; }
+Username const    &Client::get_username(void) const { return this->_username; }
+Realname const    &Client::get_realname(void) const { return this->_realname; }
+UserModes          Client::get_modes(void) const { return this->_modes; }
 
 // ****************************************************************************************************************** //
 //                                                      Mutators                                                      //
 // ****************************************************************************************************************** //
 void Client::set_socket(int const socket) { this->_socket = socket; }
 void Client::set_messages(std::string const &messages) { this->_messages = messages; }
-void Client::set_nickname(std::string const &nickname) { this->_nickname = nickname; }
-void Client::set_hostname(std::string const &hostname) { this->_hostname = hostname; }
-void Client::set_username(std::string const &username) { this->_username = username; }
-void Client::set_realname(std::string const &realname) { this->_realname = realname; }
-void Client::set_modes(uint8_t const modes) { this->_modes = modes; }
+void Client::set_nickname(Nickname const &nickname) { this->_nickname = nickname; }
+void Client::set_hostname(Hostname const &hostname) { this->_hostname = hostname; }
+void Client::set_username(Username const &username) { this->_username = username; }
+void Client::set_realname(Realname const &realname) { this->_realname = realname; }
+void Client::set_modes(UserModes const modes) { this->_modes = modes; }
 
 // ***************************************************************************************************************** //
 //                                              Public Member Functions                                              //
@@ -125,14 +125,14 @@ void Client::clear_messages(void) { this->_messages.clear(); }
  *
  * @param mode The mode to set.
  */
-void Client::set_mode(UserMode const mode) { this->_modes |= 1 << mode; }
+void Client::set_mode(UserMode const mode) { this->_modes.set(mode); }
 
 /**
  * @brief Clears a given mode for the client.
  *
  * @param mode The mode to clear.
  */
-void Client::clear_mode(UserMode const mode) { this->_modes &= ~(1 << mode); }
+void Client::clear_mode(UserMode const mode) { this->_modes.clear(mode); }
 
 /**
  * @brief Check whether the client has a given mode set.
@@ -141,19 +141,7 @@ void Client::clear_mode(UserMode const mode) { this->_modes &= ~(1 << mode); }
  *
  * @return true if the client has the given mode set, false otherwise.
  */
-bool Client::has_mode(UserMode const mode) const { return this->_modes & 1 << mode; }
-
-/**
- * @brief Sends a given message on the socket of the Client instance.
- *
- * @param message The message to send.
- *
- * @return The number of bytes sent, or -1 if an error occurred.
- */
-ssize_t Client::send_message(std::string const &message) const
-{
-	return send(this->_socket, message.c_str(), message.size(), 0);
-}
+bool Client::has_mode(UserMode const mode) const { return this->_modes.is_set(mode); }
 
 /**
  * @brief Sends the messages that are currently stored in the Client instance on its socket.
