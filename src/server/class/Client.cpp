@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 02:53:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/18 00:24:48 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/18 03:19:34 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@ Client::Client(
 	_hostname(hostname),
 	_username(username),
 	_realname(realname),
-	_modes(modes)
+	_modes(modes),
+	_time_last_msg(std::clock())
 {
 	if (DEBUG)
 		std::cout << "Client constructor called\n";
@@ -66,6 +67,7 @@ struct epoll_event *Client::get_epoll_event(void) const { return this->_epoll_ev
 bool                Client::get_is_complete(void) const { return this->_is_complete; }
 bool                Client::get_is_msg_complete(void) const { return this->_is_msg_complete; }
 bool                Client::get_is_pass(void) const { return this->_pass; }
+std::clock_t        Client::get_time_last_msg(void) const { return this->_time_last_msg; }
 
 // Setters //
 
@@ -90,6 +92,8 @@ void Client::set_epoll_event()
 	this->_epoll_event->events = EPOLLIN;
 	this->_epoll_event->data.fd = this->_socket;
 }
+
+void Client::set_time_last_msg(void) { this->_time_last_msg = std::clock(); }
 
 // Methods //
 /**
@@ -164,3 +168,5 @@ ssize_t Client::send_messages(void) const
  * @return The user mask of the client.
  */
 std::string Client::user_mask(void) const { return this->_nickname + "!" + this->_username + "@" + this->_hostname; }
+
+std::clock_t Client::check_time_since_last_msg(void) const { return std::clock() - this->_time_last_msg; }

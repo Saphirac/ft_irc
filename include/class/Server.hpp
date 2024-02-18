@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/18 00:34:43 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/18 03:20:48 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,6 +157,7 @@ public:
 	void handle_client_event(Client *client);
 	void handle_new_connection();
 	void epoll_loop();
+	
 
 	struct sockaddr_in bind_assign_sockaddr();
 };

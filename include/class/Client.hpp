@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/18 00:01:28 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/18 03:19:02 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include "UserMode.hpp"
 #include "class/Server.hpp"
+#include <ctime>
 #include <netinet/in.h>
 #include <stdint.h>
 #include <string>
@@ -40,6 +41,8 @@ private:
 	bool _is_complete;
 	bool _is_msg_complete;
 	bool _pass;
+
+	std::clock_t _time_last_msg;
 
 public:
 	// Constructors
@@ -69,6 +72,7 @@ public:
 	bool get_is_complete() const;
 	bool get_is_msg_complete() const;
 	bool get_is_pass() const;
+	std::clock_t get_time_last_msg(void) const;
 
 	// Mutators
 	void set_socket(int const socket);
@@ -90,6 +94,7 @@ public:
 	void clear_messages(void);
 	void set_mode(UserMode const mode);
 	void clear_mode(UserMode const mode);
+	void set_time_last_msg(void);	
 
 	bool has_mode(UserMode const mode) const;
 
@@ -97,6 +102,9 @@ public:
 	ssize_t send_messages(void) const;
 
 	std::string user_mask(void) const;
+
+	std::clock_t check_time_since_last_msg(void) const;
+*
 };
 
 #endif

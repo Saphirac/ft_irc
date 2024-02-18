@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/18 00:31:09 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/19 13:19:29 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,6 +201,7 @@ void control_socket(int const socket)
 
 void Server::handle_client_event(Client *client)
 {
+	client->set_time_last_msg();
 	char buffer[513];
 	int  bytes_read;
 
@@ -247,6 +248,8 @@ void Server::handle_new_connection()
 	printf("epoll event adress : %p\n", this->_clients_socket[client_socket]->get_epoll_event());
 	ctrl_epoll_add(this->_epoll_socket, client_socket, this->_clients_socket[client_socket]->get_epoll_event());
 }
+
+
 
 /**
  * @brief create a loop to manage new incoming connections or messages
