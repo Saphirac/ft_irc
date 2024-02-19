@@ -3,84 +3,158 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
+#    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2023/11/29 16:17:17 by jodufour         ###   ########.fr        #
+#    Updated: 2024/02/17 17:50:35 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 ######################################
 #              COMMANDS              #
 ######################################
-CXX			=	c++
-LINK		=	clang++
-MKDIR		=	mkdir -p
-RM			=	rm -rf
+   AR = ${shell which ar} rcs
+  CXX = ${shell which c++}
+ LINK = ${shell which clang++}
+MKDIR =	${shell which mkdir} -p
+   RM = ${shell which rm} -rf
 
 ######################################
 #             EXECUTABLE             #
 ######################################
-NAME		=	ft_irc
+NAME = ft_irc
+
+#######################################
+#               LIBRARY               #
+#######################################
+LIB = lib${NAME}.a
 
 #######################################
 #             DIRECTORIES             #
 #######################################
-SRC_DIR		=	src
-OBJ_DIR		=	obj
-PRV_DIR		=	private
+SRC_DIR	=	src
+OBJ_DIR	=	obj
+PRV_DIR	=	private
+LIB_DIR	=	lib
+INC_DIR =	include
 
 ######################################
 #            SOURCE FILES            #
 ######################################
-SRC			=	\
-				main.cpp
+SRC		=	\
+	${addsuffix .cpp, \
+		${addprefix server/,	\
+			${addprefix class/,	\
+				Server		\
+				Client		\
+				Channel		\
+				IrcMessage	\
+			}	\
+		}	\
+		${addprefix utils/,	\
+			trim			\
+		}	\
+	main \
+	}
+
+LIB_SRC = \
+	${addsuffix .cpp, \
+		${addprefix ${LIB_DIR}/, \
+			${addprefix class/, \
+				${addprefix Server/, \
+					${addprefix command/, \
+						away \
+						die \
+						error \
+						info \
+						invite \
+						ison \
+						join \
+						kick \
+						kill \
+						list \
+						mode \
+						motd \
+						names \
+						nick \
+						notice \
+						oper \
+						part \
+						pass \
+						ping \
+						pong \
+						privmsg \
+						quit \
+						restart \
+						time \
+						topic \
+						version \
+						wallops \
+						whois \
+						cap \
+					} \
+					core \
+				} \
+			} \
+			${addprefix regex/, \
+						regex \
+			} \
+			format_reply \
+			parse_irc_message \
+			send_message \
+		} \
+	}
 
 ######################################
 #            OBJECT FILES            #
 ######################################
-OBJ			=	${SRC:.cpp=.o}
-OBJ			:=	${addprefix ${OBJ_DIR}/, ${OBJ}}
-
-DEP			=	${OBJ:.o=.d}
+	OBJ = ${addprefix ${OBJ_DIR}/,${SRC:.cpp=.o}}
+	DEP = ${OBJ:.o=.d}
+LIB_OBJ = ${addprefix ${OBJ_DIR}/,${LIB_SRC:.cpp=.o}}
+LIB_DEP = ${LIB_OBJ:.o=.d}
 
 #######################################
 #                FLAGS                #
 #######################################
-CXXFLAGS	=	-c
-CXXFLAGS	+=	-Wall -Wextra -Werror
-CXXFLAGS	+=	-MMD -MP
-CXXFLAGS	+=	-Wshadow
-CXXFLAGS	+=	-std=c++98
-CXXFLAGS	+=	-I${PRV_DIR}
+CXXFLAGS = \
+	-c \
+	-Wall -Wextra -Werror \
+	-MMD -MP \
+	-Wshadow \
+	-std=c++98 \
+	-ferror-limit=1 \
+	-I${PRV_DIR} \
+	-I${INC_DIR}
 
 ifeq (${DEBUG}, 1)
-	CXXFLAGS	+=	-g
-	CXXFLAGS	+=	-DDEBUG=1
+	CXXFLAGS += -g -DDEBUG=1
 endif
 
 #######################################
 #                RULES                #
 #######################################
-${NAME}: ${OBJ}
+.PHONY:	all clean fclean re fre
+
+${NAME}: ${OBJ} ${LIB}
 	${LINK} $^ ${OUTPUT_OPTION}
 
-all: ${NAME}
+${LIB}: ${LIB_OBJ}
+	${AR} $@ $^
+
+all: ${LIB} ${NAME}
 
 -include ${DEP}
 
+${OBJ_DIR}/%.o: 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/%.cpp
 	@${MKDIR} ${@D}
 	${CXX} $< ${CXXFLAGS} ${OUTPUT_OPTION}
 
 clean:
-	${RM} ${OBJ_DIR} ${NAME} vgcore.*
+	${RM} ${NAME} ${LIB} ${OBJ_DIR} vgcore.*
 
-fclean:
-	${RM} ${OBJ_DIR} ${NAME} vgcore.*
+fclean: clean
 
 re: clean all
 
 fre: fclean all
-
-.PHONY:	all clean fclean re fre

@@ -1,0 +1,30 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cap.cpp                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/02/16 13:43:54 by mcourtoi          #+#    #+#             */
+/*   Updated: 2024/02/17 13:59:54 by mcourtoi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+// TODO
+
+#include "class/Server.hpp"
+
+StatusCode	Server::cap(Client &sender, std::vector<std::string> const &parameters)
+{
+	if (parameters.empty())
+	{
+		std::cerr << "Cap incomplete\n";
+		return ErrorClientSendMessage;
+	}
+	if (parameters[0] == "LS" && parameters[1] == "302")
+	{
+		std::string message = ":ircserv CAP * LS :none\n\r";
+		send_message(sender.get_socket(), message);
+	}
+	return Success;
+}
