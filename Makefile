@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/17 17:50:35 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/02/19 13:25:57 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,7 +41,7 @@ INC_DIR =	include
 ######################################
 #            SOURCE FILES            #
 ######################################
-SRC		=	\
+SRC = \
 	${addsuffix .cpp, \
 		${addprefix server/,	\
 			${addprefix class/,	\
