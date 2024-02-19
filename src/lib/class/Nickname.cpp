@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 03:49:43 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 15:56:35 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/19 16:03:31 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,20 +17,12 @@
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @brief Constructs a new Nickname instance, initializing it with a given argument.
- *
  * @param nickname The nickname to initialize the instance with.
- *
- * @return The newly created Nickname instance.
  */
 Nickname::Nickname(std::string const &nickname) : std::string(nickname) {}
 
 /**
- * @brief Constructs a new Nickname instance, copying a given source Nickname instance.
- *
  * @param src The source Nickname instance to copy.
- *
- * @return The newly created Nickname instance.
  */
 Nickname::Nickname(Nickname const &src) : std::string(src) {}
 

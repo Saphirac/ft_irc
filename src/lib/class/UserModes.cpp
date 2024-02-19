@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/18 23:06:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 00:18:37 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/19 16:04:14 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,20 +17,12 @@
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @brief Constructs a new UserModes instance, initializing its inner field with a given argument.
- *
  * @param modes The modes to initialize the inner field with.
- *
- * @return The newly created UserModes instance.
  */
 UserModes::UserModes(_inner_type const modes) : _inner(modes) {}
 
 /**
- * @brief Constructs a new UserModes instance, copying a given source UserModes instance.
- *
  * @param src The source UserModes instance to copy.
- *
- * @return The newly created UserModes instance.
  */
 UserModes::UserModes(UserModes const &src) : _inner(src._inner) {}
 

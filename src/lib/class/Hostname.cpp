@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 23:06:37 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/17 23:26:34 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/19 16:03:08 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,20 +17,12 @@
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @brief Constructs a new Hostname instance, initializing its inner field with a given argument.
- *
  * @param hostname The hostname to initialize the inner field with.
- *
- * @return The newly created Hostname instance.
  */
 Hostname::Hostname(std::string const &hostname) : std::string(hostname) {}
 
 /**
- * @brief Constructs a new Hostname instance, copying a given source Hostname instance.
- *
  * @param src The source Hostname instance to copy.
- *
- * @return The newly created Hostname instance.
  */
 Hostname::Hostname(Hostname const &src) : std::string(src) {}
 

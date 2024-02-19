@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 15:03:39 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/19 16:02:22 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,22 +20,16 @@
 // ***************************************************************************************************************** //
 std::string const Client::_default_away_msg = "Coming back soon";
 
-// ******************************************************************************************************************
-// //
-//                                                    Constructors //
-// ******************************************************************************************************************
-// //
+// ****************************************************************************************************************** //
+//                                                    Constructors                                                    //
+// ****************************************************************************************************************** //
 /**
- * @brief Constructs a new Client instance, initializing its fields with given arguments.
- *
  * @param socket The socket of the client.
  * @param nickname The nickname of the client.
  * @param hostname The hostname of the client.
  * @param username The username of the client.
  * @param realname The realname of the client.
  * @param modes The modes of the client.
- *
- * @return The newly created Client instance.
  */
 Client::Client(
 	int const       socket,
@@ -56,11 +50,7 @@ Client::Client(
 }
 
 /**
- * @brief Constructs a new Client instance, copying a given source Client instance.
- *
  * @param src The source Client instance to copy.
- *
- * @return The newly created Client instance.
  */
 Client::Client(Client const &src) :
 	_socket(src._socket),

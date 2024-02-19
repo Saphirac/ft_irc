@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/16 04:23:02 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/19 16:05:42 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,9 @@ std::set<std::string> const Server::_operator_hosts =
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @brief Constructs a new Server instance, initializing its fields with the given arguments.
- *
  * @param name The name of the server.
  * @param version The version of the server.
  * @param password The password of the server (required to connect to it).
- *
- * @return The newly created Server instance.
  */
 Server::Server(std::string const &name, std::string const &version, std::string const &password) :
 	_name(name),
