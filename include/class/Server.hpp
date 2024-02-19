@@ -6,14 +6,14 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/18 03:20:48 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/19 13:23:46 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include "Client.hpp"
+#include "class/Client.hpp"
 #include "StatusCode.hpp"
 #include "ft_irc.hpp"
 #include <errno.h>
