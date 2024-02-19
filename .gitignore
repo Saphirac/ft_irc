@@ -1,6 +1,7 @@
 /*
 !src
 !private
+!include
 !.gitignore
 !Makefile
 !LICENSE
