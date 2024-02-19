@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 15:30:21 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/19 15:38:14 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,6 +148,8 @@ public:
 	void remove_client(Client const &client);
 
 	// Commands
+	
+	StatusCode away(Client &sender, std::string const &parameters);
 	StatusCode nick(Client &sender, std::string const &parameters);
 	StatusCode pass(Client &sender, std::string const &parameters);
 	StatusCode oper(Client &sender, std::string const &parameters);

@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:45 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/18 23:42:32 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/19 14:51:36 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,12 @@
  */
 inline static StatusCode error_need_more_parameters(Client &client)
 {
-	std::string const message = format_reply(ERR_NEEDMOREPARAMS, "OPER");
+	std::string const msg = format_reply(ERR_NEEDMOREPARAMS, "OPER");
 
-	if (message.empty())
+	if (msg.empty())
 		return ErrorFormatReply;
 
-	client.append_message(message);
+	client.append_to_msg_out(msg);
 	return Success;
 }
 
@@ -48,12 +48,12 @@ inline static StatusCode error_erroneus_username(void) { return Success; }
  */
 inline static StatusCode error_no_operator_host(Client &client)
 {
-	std::string const message = format_reply(ERR_NOOPERHOST);
+	std::string const msg = format_reply(ERR_NOOPERHOST);
 
-	if (message.empty())
+	if (msg.empty())
 		return ErrorFormatReply;
 
-	client.append_message(message);
+	client.append_to_msg_out(msg);
 	return Success;
 }
 
@@ -66,12 +66,12 @@ inline static StatusCode error_no_operator_host(Client &client)
  */
 inline static StatusCode error_password_mismatch(Client &client)
 {
-	std::string const message = format_reply(ERR_PASSWDMISMATCH);
+	std::string const msg = format_reply(ERR_PASSWDMISMATCH);
 
-	if (message.empty())
+	if (msg.empty())
 		return ErrorFormatReply;
 
-	client.append_message(message);
+	client.append_to_msg_out(msg);
 	return Success;
 }
 
@@ -84,13 +84,13 @@ inline static StatusCode error_password_mismatch(Client &client)
  */
 inline static StatusCode reply_you_are_operator(Client &client)
 {
-	std::string const message = format_reply(RPL_YOUREOPER);
+	std::string const msg = format_reply(RPL_YOUREOPER);
 
-	if (message.empty())
+	if (msg.empty())
 		return ErrorFormatReply;
 
-	client.append_message(message);
-	client.append_message("MODE " + client.get_nickname() + " +" + client.get_modes().to_string());
+	client.append_to_msg_out(msg);
+	client.append_to_msg_out("MODE " + client.get_nickname() + " +" + client.get_modes().to_string());
 	return Success;
 }
 

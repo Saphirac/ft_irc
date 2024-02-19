@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:23:54 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/18 23:55:21 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/19 14:56:27 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <iostream>
 
 /**
- * @brief Sends an ERR_ALREADYREGISTERED to a given client.
+ * @brief Sends an ERR_ALREADYREGISTERED to a client.
  *
  * @param client The client to send the reply to.
  *
@@ -24,18 +24,18 @@
  */
 inline static StatusCode error_already_registered(Client &client)
 {
-	std::string const message = format_reply(ERR_ALREADYREGISTERED);
+	std::string const msg = format_reply(ERR_ALREADYREGISTERED);
 
-	if (message.empty())
+	if (msg.empty())
 		return ErrorFormatReply;
 
-	client.append_message(message);
+	client.append_to_msg_out(msg);
 	return Success;
 }
 
 /**
  * @brief
- * Sends an ERR_NEEDMOREPARAMS to a given client, closes their connection,
+ * Sends an ERR_NEEDMOREPARAMS to a client, closes their connection,
  * and removes them from the list of known clients.
  *
  * @param server The server to remove the client from.
@@ -45,14 +45,17 @@ inline static StatusCode error_already_registered(Client &client)
  */
 inline static StatusCode error_need_more_parameters(Server &server, Client &client)
 {
-	std::string const message = format_reply(ERR_NEEDMOREPARAMS, "PASS");
+	std::string const msg = format_reply(ERR_NEEDMOREPARAMS, "PASS");
 
-	if (message.empty())
+	if (msg.empty())
 		return ErrorFormatReply;
 
-	client.append_message(message);
-	if (client.send_messages() == -1)
-		return ErrorClientSendMessages;
+	client.append_to_msg_out(msg);
+
+	StatusCode const status = client.send_msg_out();
+
+	if (status)
+		return status;
 
 	server.remove_client(client);
 	return Success;
@@ -60,7 +63,7 @@ inline static StatusCode error_need_more_parameters(Server &server, Client &clie
 
 /**
  * @brief
- * Sends an ERR_PASSWDMISMATCH to a given client, closes their connection,
+ * Sends an ERR_PASSWDMISMATCH to a client, closes their connection,
  * and removes them from the list of known clients.
  *
  * @param server The server to remove the client from.
@@ -70,14 +73,17 @@ inline static StatusCode error_need_more_parameters(Server &server, Client &clie
  */
 inline static StatusCode error_password_mismatch(Server &server, Client &client)
 {
-	std::string const message = format_reply(ERR_PASSWDMISMATCH);
+	std::string const msg = format_reply(ERR_PASSWDMISMATCH);
 
-	if (message.empty())
+	if (msg.empty())
 		return ErrorFormatReply;
 
-	client.append_message(message);
-	if (client.send_messages() == -1)
-		return ErrorClientSendMessages;
+	client.append_to_msg_out(msg);
+
+	StatusCode const status = client.send_msg_out();
+
+	if (status)
+		return status;
 
 	server.remove_client(client);
 	return Success;
@@ -85,7 +91,7 @@ inline static StatusCode error_password_mismatch(Server &server, Client &client)
 
 /**
  * @brief
- * Checks if the given password matches the configured one.
+ * Checks if the given password matches the configured one for the connection to the server.
  * The result will determine whether the client is allowed to finilise their connection.
  *
  * @param sender The client that sent the command.

@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:22 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 15:20:27 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/19 15:38:32 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <iostream>
 
 /**
- * @brief Sends an ERR_NONICKNAMEGIVEN to a given client.
+ * @brief Sends an ERR_NONICKNAMEGIVEN to a client.
  *
  * @param client The client to send the reply to.
  *
@@ -25,17 +25,17 @@
  */
 inline static StatusCode error_no_nickname_given(Client &client)
 {
-	std::string const message = format_reply(ERR_NONICKNAMEGIVEN);
+	std::string const msg = format_reply(ERR_NONICKNAMEGIVEN);
 
-	if (message.empty())
+	if (msg.empty())
 		return ErrorFormatReply;
 
-	client.append_message(message);
+	client.append_to_msg_out(msg);
 	return Success;
 }
 
 /**
- * @brief Sends an ERR_ERRONEUSNICKNAME to a given client.
+ * @brief Sends an ERR_ERRONEUSNICKNAME to a client.
  *
  * @param client The client to send the reply to.
  * @param nickname The nickname that caused the error.
@@ -44,17 +44,17 @@ inline static StatusCode error_no_nickname_given(Client &client)
  */
 inline static StatusCode error_erroneus_nickname(Client &client, std::string const &nickname)
 {
-	std::string const message = format_reply(ERR_ERRONEUSNICKNAME, &nickname);
+	std::string const msg = format_reply(ERR_ERRONEUSNICKNAME, &nickname);
 
-	if (message.empty())
+	if (msg.empty())
 		return ErrorFormatReply;
 
-	client.append_message(message);
+	client.append_to_msg_out(msg);
 	return Success;
 }
 
 /**
- * @brief Sends an ERR_NICKNAMEINUSE to a given client.
+ * @brief Sends an ERR_NICKNAMEINUSE to a client.
  *
  * @param client The client to send the reply to.
  * @param nickname The nickname that caused the error.
@@ -63,17 +63,17 @@ inline static StatusCode error_erroneus_nickname(Client &client, std::string con
  */
 inline static StatusCode error_nickname_in_use(Client &client, std::string const &nickname)
 {
-	std::string const message = format_reply(ERR_NICKNAMEINUSE, &nickname);
+	std::string const msg = format_reply(ERR_NICKNAMEINUSE, &nickname);
 
-	if (message.empty())
+	if (msg.empty())
 		return ErrorFormatReply;
 
-	client.append_message(message);
+	client.append_to_msg_out(msg);
 	return Success;
 }
 
 /**
- * @brief Changes the nickname of a given client.
+ * @brief Changes the nickname of a user.
  *
  * @param sender The client that sent the command.
  * @param parameters The parameters that were passed to the command.
@@ -97,7 +97,7 @@ StatusCode Server::nick(Client &sender, std::string const &parameters)
 	sender.set_nickname(nickname);
 	this->_clients_nick[nickname] = &sender;
 
-	sender.append_message("NICK " + nickname);
+	sender.append_to_msg_out("NICK " + nickname);
 	return Success;
 }
 // TODO: implement unit tests for this function

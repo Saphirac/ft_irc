@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 15:26:42 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/19 15:37:49 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "class/Server.hpp"
 #include <ctime>
 #include <netinet/in.h>
+#include "StatusCode.hpp"
 #include "class/Hostname.hpp"
 #include "class/Nickname.hpp"
 #include "class/Realname.hpp"
@@ -48,8 +49,12 @@ private:
 
 	std::clock_t _time_since_last_msg;
 	std::clock_t _time_since_last_ping;
+	std::string _away_msg;
 
 public:
+	// Shared fields
+	static std::string const _default_away_msg;
+
 	// Constructors
 	Client(
 		int const       socket = -1,
@@ -99,9 +104,13 @@ public:
 	void set_epoll_event();
 	void set_is_complete(bool const yesno);
 	void set_is_pass(bool const yesno);
+	void set_away_msg(std::string const &away_msg);
 
 	// Methods
 	void disconnect(void);
+	void append_to_msg_in(std::string const &s);
+	void append_to_msg_out(std::string const &msg);
+	void clear_msg_out(void);
 	void set_mode(UserMode const mode);
 	void clear_mode(UserMode const mode);
 
@@ -114,4 +123,6 @@ public:
 
 	std::clock_t check_time_since_last_msg(void) const;
 	std::clock_t check_time_since_last_ping(void) const;
+
+	StatusCode send_msg_out(void);
 };
