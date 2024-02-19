@@ -6,14 +6,17 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/07 10:56:04 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/18 23:55:50 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "abnf_components.hpp"
+#include "channel_modes.hpp"
 #include "class/Server.hpp"
+#include "class/UserModeMask.hpp"
 #include "ft_irc.hpp"
 #include "replies.hpp"
+#include "user_modes.hpp"
 #include <cstdlib>
 
 /**
@@ -72,66 +75,19 @@ inline static StatusCode error_not_authenticated(Server &server, Client const &c
  *
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
-inline static StatusCode error_need_more_parameters(Server &server, Client const &client)
+inline static StatusCode error_need_more_parameters(Server &server, Client &client)
 {
 	std::string const message = format_reply(ERR_NEEDMOREPARAMS, "USER");
 
 	if (message.empty())
 		return ErrorFormatReply;
 
-	if (client.send_message(message) == -1)
-		return ErrorClientSendMessage;
+	client.append_message(message);
+	if (client.send_messages() == -1)
+		return ErrorClientSendMessages;
 
 	server.remove_client(client);
 	return Success;
-}
-
-/**
- * @brief Checks whether a given username is invalid.
- *
- * @param username The username to check.
- *
- * @return true if the given username is invalid, false otherwise.
- */
-inline static bool is_invalid_username(std::string const &username) { return username.find('@') != std::string::npos; }
-
-/**
- * @brief Checks whether a given user mode mask is invalid.
- *
- * @param umode_mask The user mode mask to check.
- * @param umodes The `uint8_t` representation of the user mode mask.
- *
- * @return true if the given user mode mask is invalid, false otherwise.
- */
-inline static bool is_invalid_umode_mask(std::string const &umode_mask, uint8_t const umodes)
-{
-	return umode_mask.size() > 3 || umodes & ~12;
-}
-
-/**
- * @brief Checks whether a given hostname is invalid.
- *
- * @param hostname The hostname to check.
- *
- * @return true if the given hostname is invalid, false otherwise.
- */
-inline static bool is_invalid_hostname(std::string const &hostname)
-{
-	size_t pos = 0;
-
-	do
-	{
-		std::string const shortname = hostname.substr(pos, hostname.find('.'));
-
-		if ((letter + digit).find(shortname[0]) == std::string::npos
-		    || shortname.find_first_not_of(letter + digit + "-", 1) != std::string::npos)
-			return true;
-
-		pos += shortname.size() + 1;
-	}
-	while (hostname.find('.') != std::string::npos);
-
-	return false;
 }
 
 /**
@@ -163,18 +119,31 @@ inline static StatusCode reply_welcome(
 	std::string const &server_version,
 	std::string const &server_creation_date)
 {
-	std::string const messages[3] = {
-		format_reply(RPL_WELCOME, client.user_mask()),
-		format_reply(RPL_YOURHOST, server_name, server_version),
-		format_reply(RPL_CREATED, server_creation_date),
-	};
-	size_t const messages_len = sizeof(messages) / sizeof(*messages);
+	std::string const user_mask = client.user_mask();
+	std::string const welcome = format_reply(RPL_WELCOME, &user_mask);
 
-	for (size_t i = 0; i < messages_len; ++i)
-		if (messages[i].empty())
-			return ErrorFormatReply;
+	if (welcome.empty())
+		return ErrorFormatReply;
 
-	for (size_t i = 0; i < messages_len; ++i) client.append_message(messages[i]);
+	std::string const your_host = format_reply(RPL_YOURHOST, &server_name, &server_version);
+
+	if (your_host.empty())
+		return ErrorFormatReply;
+
+	std::string const created = format_reply(RPL_CREATED, &server_creation_date);
+
+	if (created.empty())
+		return ErrorFormatReply;
+
+	std::string const my_info = format_reply(RPL_MYINFO, &server_name, &server_version, user_modes, channel_modes);
+
+	if (my_info.empty())
+		return ErrorFormatReply;
+
+	client.append_message(welcome);
+	client.append_message(your_host);
+	client.append_message(created);
+	client.append_message(my_info);
 	return Success;
 }
 
@@ -201,29 +170,42 @@ StatusCode Server::user(Client &client, std::string const &parameters)
 
 	size_t            pos = 0;
 	std::string const first_parameters = parameters.substr(0, parameters.find(" :"));
-	std::string const username = first_parameters.substr(pos, first_parameters.find(' ', pos));
+	Username const    username = first_parameters.substr(pos, first_parameters.find(' ', pos));
+
+	if (username.empty())
+		return error_need_more_parameters(*this, client);
+	if (!username.is_valid())
+		return error_erroneus_argument(*this, client);
 
 	pos += username.size() + 1;
 
-	std::string const umode_mask = first_parameters.substr(pos, first_parameters.find(' ', pos));
+	UserModeMask const umode_mask = first_parameters.substr(pos, first_parameters.find(' ', pos));
 
-	pos += umode_mask.size() + 1;
-
-	std::string const hostname = first_parameters.substr(pos, first_parameters.find(' ', pos));
-
-	pos += hostname.size() + 1;
-
-	std::string const realname = parameters.size() == first_parameters.size()
-	                               ? first_parameters.substr(pos, first_parameters.find(' ', pos))
-	                               : parameters.substr(first_parameters.size() + 2);
-
-	if (username.empty() || umode_mask.empty() || hostname.empty() || realname.empty())
+	if (umode_mask.empty())
 		return error_need_more_parameters(*this, client);
 
 	uint8_t const umodes = static_cast<uint8_t>(strtol(umode_mask.c_str(), NULL, 10));
 
-	if (is_invalid_username(username) || is_invalid_umode_mask(umode_mask, umodes) || is_invalid_hostname(hostname))
+	if (!umode_mask.is_valid(umodes))
 		return error_erroneus_argument(*this, client);
+
+	pos += umode_mask.size() + 1;
+
+	Hostname const hostname = first_parameters.substr(pos, first_parameters.find(' ', pos));
+
+	if (hostname.empty())
+		return error_need_more_parameters(*this, client);
+	if (!hostname.is_valid())
+		return error_erroneus_argument(*this, client);
+
+	pos += hostname.size() + 1;
+
+	Realname const realname = parameters.size() == first_parameters.size()
+	                            ? first_parameters.substr(pos, first_parameters.find(' ', pos))
+	                            : parameters.substr(first_parameters.size() + 2);
+
+	if (realname.empty())
+		return error_need_more_parameters(*this, client);
 
 	client.set_username(username);
 	client.set_hostname(hostname);
@@ -233,6 +215,7 @@ StatusCode Server::user(Client &client, std::string const &parameters)
 	if (umodes & 1 << 3)
 		client.set_mode(WallopsListener);
 	client.set_mode(AlreadySentUser);
+
 	return reply_welcome(client, this->_name, this->_version, this->_creation_date);
 }
 // TODO: implement unit tests for this function

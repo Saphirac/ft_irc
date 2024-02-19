@@ -6,17 +6,21 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 14:52:09 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/19 15:26:42 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
+#pragma once
 
 #include "UserMode.hpp"
 #include "class/Server.hpp"
 #include <ctime>
 #include <netinet/in.h>
+#include "class/Hostname.hpp"
+#include "class/Nickname.hpp"
+#include "class/Realname.hpp"
+#include "class/UserModes.hpp"
+#include "class/Username.hpp"
 #include <stdint.h>
 #include <string>
 #include <unistd.h>
@@ -31,11 +35,11 @@ private:
 	std::string _msg_in;
 	std::string _msg_out;
 
-	std::string _nickname;
-	std::string _hostname;
-	std::string _username;
-	std::string _realname;
-	uint8_t     _modes;
+	Nickname  _nickname;
+	Hostname  _hostname;
+	Username  _username;
+	Realname  _realname;
+	UserModes _modes;
 
 	struct epoll_event *_epoll_event;
 
@@ -48,12 +52,12 @@ private:
 public:
 	// Constructors
 	Client(
-		int const          socket = -1,
-		std::string const &nickname = "",
-		std::string const &hostname = "",
-		std::string const &username = "",
-		std::string const &realname = "",
-		uint8_t const      modes = 0);
+		int const       socket = -1,
+		Nickname const &nickname = Nickname(),
+		Hostname const &hostname = Hostname(),
+		Username const &username = Username(),
+		Realname const &realname = Realname(),
+		UserModes const modes = UserModes());
 	Client(Client const &src);
 
 	// Destructor
@@ -63,11 +67,13 @@ public:
 	int                get_socket(void) const;
 	std::string const &get_msg_in(void) const;
 	std::string const &get_msg_out(void) const;
-	std::string const &get_nickname(void) const;
-	std::string const &get_hostname(void) const;
-	std::string const &get_username(void) const;
-	std::string const &get_realname(void) const;
-	uint8_t            get_modes(void) const;
+	
+	Nickname const &get_nickname(void) const;
+	Hostname const &get_hostname(void) const;
+	Username const &get_username(void) const;
+	Realname const &get_realname(void) const;
+	
+	UserModes            get_modes(void) const;
 
 	struct epoll_event *get_epoll_event(void) const;
 
@@ -80,11 +86,13 @@ public:
 	void set_socket(int const socket);
 	void set_msg_in(std::string const &messages);
 	void set_msg_out(std::string const &messages);
-	void set_nickname(std::string const &nickname);
-	void set_hostname(std::string const &hostname);
-	void set_username(std::string const &username);
-	void set_realname(std::string const &realname);
-	void set_modes(uint8_t const modes);
+	
+	void set_nickname(Nickname const &nickname);
+	void set_hostname(Hostname const &hostname);
+	void set_username(Username const &username);
+	void set_realname(Realname const &realname);
+	
+	void set_modes(UserModes const modes);
 	void set_time_last_msg(void);
 	void set_time_last_ping(void);
 
@@ -92,7 +100,7 @@ public:
 	void set_is_complete(bool const yesno);
 	void set_is_pass(bool const yesno);
 
-	// Member functions
+	// Methods
 	void disconnect(void);
 	void set_mode(UserMode const mode);
 	void clear_mode(UserMode const mode);
@@ -107,5 +115,3 @@ public:
 	std::clock_t check_time_since_last_msg(void) const;
 	std::clock_t check_time_since_last_ping(void) const;
 };
-
-#endif

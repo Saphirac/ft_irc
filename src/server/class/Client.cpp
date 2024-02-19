@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 02:53:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/19 14:52:22 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/19 15:32:57 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,11 @@
 
 Client::Client(
 	int const          socket,
-	std::string const &nickname,
-	std::string const &hostname,
-	std::string const &username,
-	std::string const &realname,
-	uint8_t const      modes) :
+	Nickname const &nickname,
+	Hostname const &hostname,
+	Username const &username,
+	Realname const &realname,
+	UserModes const      modes) :
 	_socket(socket),
 	_nickname(nickname),
 	_hostname(hostname),
@@ -63,11 +63,13 @@ Client::~Client()
 int                 Client::get_socket(void) const { return this->_socket; }
 std::string const  &Client::get_msg_in(void) const { return this->_msg_in; }
 std::string const  &Client::get_msg_out(void) const { return this->_msg_out; }
-std::string const  &Client::get_nickname(void) const { return this->_nickname; }
-std::string const  &Client::get_hostname(void) const { return this->_hostname; }
-std::string const  &Client::get_username(void) const { return this->_username; }
-std::string const  &Client::get_realname(void) const { return this->_realname; }
-uint8_t             Client::get_modes(void) const { return this->_modes; }
+
+Nickname const    &Client::get_nickname(void) const { return this->_nickname; }
+Hostname const    &Client::get_hostname(void) const { return this->_hostname; }
+Username const    &Client::get_username(void) const { return this->_username; }
+Realname const    &Client::get_realname(void) const { return this->_realname; }
+
+UserModes             Client::get_modes(void) const { return this->_modes; }
 struct epoll_event *Client::get_epoll_event(void) const { return this->_epoll_event; }
 bool                Client::get_is_complete(void) const { return this->_is_complete; }
 bool                Client::get_is_pass(void) const { return this->_pass; }
@@ -79,11 +81,13 @@ std::clock_t        Client::get_time_last_ping(void) const { return this->_time_
 void Client::set_socket(int const socket) { this->_socket = socket; }
 void Client::set_msg_in(std::string const &msg) { this->_msg_in = msg; }
 void Client::set_msg_out(std::string const &msg) { this->_msg_out = msg; }
-void Client::set_nickname(std::string const &nickname) { this->_nickname = nickname; }
-void Client::set_hostname(std::string const &hostname) { this->_hostname = hostname; }
-void Client::set_username(std::string const &username) { this->_username = username; }
-void Client::set_realname(std::string const &realname) { this->_realname = realname; }
-void Client::set_modes(uint8_t const modes) { this->_modes = modes; }
+
+void Client::set_nickname(Nickname const &nickname) { this->_nickname = nickname; }
+void Client::set_hostname(Hostname const &hostname) { this->_hostname = hostname; }
+void Client::set_username(Username const &username) { this->_username = username; }
+void Client::set_realname(Realname const &realname) { this->_realname = realname; }
+
+void Client::set_modes(UserModes const modes) { this->_modes = modes; }
 
 void Client::set_is_complete(bool is_complete) { this->_is_complete = is_complete; }
 void Client::set_is_pass(bool is_pass) { this->_pass = is_pass; }
@@ -93,7 +97,6 @@ void Client::set_epoll_event()
 	if (DEBUG)
 		std::cout << "setEvent() member function of client called\n";
 	this->_epoll_event = new epoll_event;
-	printf("epoll_event address : %p\n", this->_epoll_event);
 	this->_epoll_event->events = EPOLLIN;
 	this->_epoll_event->data.fd = this->_socket;
 }

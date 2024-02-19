@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/19 14:50:55 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/19 15:32:07 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,9 +176,6 @@ int create_epoll()
  */
 void Server::ctrl_epoll_add(int epoll_fd, int socket, struct epoll_event *e_event)
 {
-	printf("epoll_fd : %d\n socket : %d\n", epoll_fd, socket);
-	printf("epoll event adress : %p\n", e_event);
-
 	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, socket, e_event) == -1)
 	{
 		std::cerr << "errno : " << strerror(errno) << std::endl;
@@ -245,10 +242,8 @@ void Server::handle_new_connection()
 		exit(EXIT_FAILURE);
 	}
 	control_socket(client_socket);
-	this->_clients_socket[client_socket] = new Client(client_socket, "", "", "", "", 0);
+	this->_clients_socket[client_socket] = new Client(client_socket);
 	this->_clients_socket[client_socket]->set_epoll_event();
-	printf("epoll_fd : %d\n client_socket : %d\n", this->_epoll_socket, client_socket);
-	printf("epoll event adress : %p\n", this->_clients_socket[client_socket]->get_epoll_event());
 	ctrl_epoll_add(this->_epoll_socket, client_socket, this->_clients_socket[client_socket]->get_epoll_event());
 }
 

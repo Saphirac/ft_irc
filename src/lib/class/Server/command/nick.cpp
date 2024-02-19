@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:22 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/16 14:23:12 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/19 15:20:27 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,19 +35,6 @@ inline static StatusCode error_no_nickname_given(Client &client)
 }
 
 /**
- * @brief Checks whether a given nickname is invalid.
- *
- * @param nickname The nickname to check.
- *
- * @return true if the nickname is invalid, false otherwise.
- */
-inline static bool is_invalid_nickname(std::string const &nickname)
-{
-	return nickname.size() > 9 || (letter + special).find(nickname[0]) == std::string::npos
-	    || nickname.find_first_not_of(letter + digit + special, 1) != std::string::npos;
-}
-
-/**
  * @brief Sends an ERR_ERRONEUSNICKNAME to a given client.
  *
  * @param client The client to send the reply to.
@@ -57,7 +44,7 @@ inline static bool is_invalid_nickname(std::string const &nickname)
  */
 inline static StatusCode error_erroneus_nickname(Client &client, std::string const &nickname)
 {
-	std::string const message = format_reply(ERR_ERRONEUSNICKNAME, nickname.c_str());
+	std::string const message = format_reply(ERR_ERRONEUSNICKNAME, &nickname);
 
 	if (message.empty())
 		return ErrorFormatReply;
@@ -76,7 +63,7 @@ inline static StatusCode error_erroneus_nickname(Client &client, std::string con
  */
 inline static StatusCode error_nickname_in_use(Client &client, std::string const &nickname)
 {
-	std::string const message = format_reply(ERR_NICKNAMEINUSE, nickname.c_str());
+	std::string const message = format_reply(ERR_NICKNAMEINUSE, &nickname);
 
 	if (message.empty())
 		return ErrorFormatReply;
@@ -95,13 +82,12 @@ inline static StatusCode error_nickname_in_use(Client &client, std::string const
  */
 StatusCode Server::nick(Client &sender, std::string const &parameters)
 {
-	std::string const nickname =
-		parameters[0] == ':' ? parameters.substr(1) : parameters.substr(0, parameters.find(' '));
+	Nickname const nickname = parameters[0] == ':' ? parameters.substr(1) : parameters.substr(0, parameters.find(' '));
 
 	if (nickname.empty())
 		return error_no_nickname_given(sender);
 
-	if (is_invalid_nickname(nickname))
+	if (!nickname.is_valid())
 		return error_erroneus_nickname(sender, nickname);
 
 	if (this->_clients_nick.count(nickname))

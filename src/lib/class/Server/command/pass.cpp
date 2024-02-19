@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:23:54 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/07 10:21:57 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/18 23:55:21 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,15 +43,16 @@ inline static StatusCode error_already_registered(Client &client)
  *
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
-inline static StatusCode error_need_more_parameters(Server &server, Client const &client)
+inline static StatusCode error_need_more_parameters(Server &server, Client &client)
 {
 	std::string const message = format_reply(ERR_NEEDMOREPARAMS, "PASS");
 
 	if (message.empty())
 		return ErrorFormatReply;
 
-	if (client.send_message(message) == -1)
-		return ErrorClientSendMessage;
+	client.append_message(message);
+	if (client.send_messages() == -1)
+		return ErrorClientSendMessages;
 
 	server.remove_client(client);
 	return Success;
@@ -67,15 +68,16 @@ inline static StatusCode error_need_more_parameters(Server &server, Client const
  *
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
-inline static StatusCode error_password_mismatch(Server &server, Client const &client)
+inline static StatusCode error_password_mismatch(Server &server, Client &client)
 {
 	std::string const message = format_reply(ERR_PASSWDMISMATCH);
 
 	if (message.empty())
 		return ErrorFormatReply;
 
-	if (client.send_message(message) == -1)
-		return ErrorClientSendMessage;
+	client.append_message(message);
+	if (client.send_messages() == -1)
+		return ErrorClientSendMessages;
 
 	server.remove_client(client);
 	return Success;
@@ -106,6 +108,7 @@ StatusCode Server::pass(Client &sender, std::string const &parameters)
 		return error_password_mismatch(*this, sender);
 
 	sender.set_mode(AlreadySentPass);
+
 	return Success;
 }
 // TODO: implement unit tests for this function

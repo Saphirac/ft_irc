@@ -6,12 +6,23 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 13:31:38 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/19 15:20:16 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
 #include <ctime>
+
+// ***************************************************************************************************************** //
+//                                                   Shared Fields                                                   //
+// ***************************************************************************************************************** //
+static std::string const raw_operator_hosts[] = {
+	// TODO: replace this with the actual operator hosts
+	"tmp",
+};
+static size_t const         raw_operator_hosts_len = sizeof(raw_operator_hosts) / sizeof(*raw_operator_hosts);
+std::set<std::string> const Server::_operator_hosts =
+	std::set<std::string>(raw_operator_hosts, raw_operator_hosts + raw_operator_hosts_len);
 
 // ****************************************************************************************************************** //
 //                                                    Constructors                                                    //

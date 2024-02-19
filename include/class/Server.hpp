@@ -6,12 +6,11 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 14:50:31 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/19 15:30:21 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVER_HPP
-#define SERVER_HPP
+#pragma once
 
 #include "class/Client.hpp"
 #include "StatusCode.hpp"
@@ -27,12 +26,12 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <set>
 #include <vector>
 #include <ctime>
 
 class Client;
 class Channel;
-enum StatusCode;
 
 // TODO : change this to a proper value
 
@@ -51,6 +50,9 @@ enum StatusCode;
 class Server
 {
 private:
+	// Shared fields
+	static std::set<std::string> const              _operator_hosts;
+	static std::map<std::string, std::string> const _operator_ids;
 
 	// Fields
 	int                             _port;
@@ -148,6 +150,7 @@ public:
 	// Commands
 	StatusCode nick(Client &sender, std::string const &parameters);
 	StatusCode pass(Client &sender, std::string const &parameters);
+	StatusCode oper(Client &sender, std::string const &parameters);
 	StatusCode user(Client &sender, std::string const &parameters);
 	StatusCode cap(Client &sender, std::vector<std::string> const &parameters);
 	StatusCode join(Client &sender, std::vector<std::string> const &parameters);
@@ -168,5 +171,3 @@ public:
 
 int  create_epoll();
 void send_message(int client_socket, std::string message);
-
-#endif

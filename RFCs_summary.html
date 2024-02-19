@@ -792,24 +792,28 @@
 						It is an optional command, depending on whether the server<br>
 						that the client tries to connect to is password-protected or not.<br>
 						The PASS command can only be sent <b>once</b> per connection.<br>
-						When the server receives a PASS message, it must check<br>
-						that the client hasn't already sent a PASS message.<br>
-						Then the server must check that the given password matches the configured one.<br>
 						<br>
+						When the server receives a PASS message, it must:
+						<ol>
+							<li>check that the connection of the client isn't already authenticated</li>
+							<li>check that the client provided enough arguments</li>
+							<li>check that the given password matches the configured one</li>
+							<li>mark the connection of the client as authenticated</li>
+						</ol>
 						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
 						<ul>
 							<li>
-								The client already sent a PASS command before<br>
-								↳ The server must send back an <a href="#err_alreadyregistered">ERR_ALREADYREGISTERED</a> to the client
+								The connection of the client is already authenticated<br>
+								↳ send back an <a href="#err_alreadyregistered">ERR_ALREADYREGISTERED</a> to the client
 							</li>
 							<li>
 								The password argument is missing<br>
-								↳ The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client<br>
+								↳ send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client<br>
 								&emsp;and then close the connection with the client.
 							</li>
 							<li>
 								The given password doesn't match the configured one<br>
-								↳ The server must send back an <a href="#err_passwordmismatch">ERR_PASSWORDMISMATCH</a> to the client<br>
+								↳ send back an <a href="#err_passwordmismatch">ERR_PASSWORDMISMATCH</a> to the client<br>
 								&emsp;and then close the connection with the client.
 							</li>
 						</ul>
@@ -835,25 +839,30 @@
 					<!-- #endregion -->
 					<p>
 						The NICK command is used to change the nickname of a user.<br>
-						When the server receives a NICK message, it must check<br>
-						that the given nickname is valid and not already in use.<br>
-						Then the server must change the nickname of the user to the given one.<br>
-						Finally, the server must send back a NICK message to the user<br>
-						to confirm that their nickname has been changed.<br>
 						<br>
+						When the server receives a NICK message, it must:
+						<ol>
+							<li>check that the client provided enough arguments</li>
+							<li>check that the given nickname is valid and not already in use</li>
+							<li>change the nickname of the user to the given one</li>
+							<li>
+								send back a NICK message to the client<br>
+								to confirm that their nickname has been changed
+							</li>
+						</ol>
 						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
 						<ul>
 							<li>
 								The nickname argument is missing<br>
-								↳ The server must send back an <a href="#err_nonicknamegiven">ERR_NONICKNAMEGIVEN</a> to the client
+								↳ send back an <a href="#err_nonicknamegiven">ERR_NONICKNAMEGIVEN</a> to the client
 							</li>
 							<li>
 								The given nickname is invalid<br>
-								↳ The server must send back an <a href="#err_erroneusnickname">ERR_ERRONEUSNICKNAME</a> to the client
+								↳ send back an <a href="#err_erroneusnickname">ERR_ERRONEUSNICKNAME</a> to the client
 							</li>
 							<li>
 								The given nickname is already in use<br>
-								↳ The server must send back an <a href="#err_nicknameinuse">ERR_NICKNAMEINUSE</a> to the client
+								↳ send back an <a href="#err_nicknameinuse">ERR_NICKNAMEINUSE</a> to the client
 							</li>
 						</ul>
 					</p>
@@ -924,38 +933,52 @@
 					<p>
 						The USER command must be used only during the registration process.<br>
 						It must be sent only <b>once</b> per connection.<br>
-						When the server receives a USER message, it must check that the client connection is authenticated.<br>
-						Then the server must check that the given parameters are valid.<br>
-						Then the server must set the user name, the modes, the host name,<br>
-						and the real name of the user to the given ones.<br>
-						Finally, the server must send back a <a href="#rpl_welcome">RPL_WELCOME</a> to the client,<br>
-						to indicate them that they are now registered on the server,<br>
-						then send back a <a href="#rpl_yourhost">RPL_YOURHOST</a> to the client,<br>
-						to indicate them the server's host name and version,<br>
-						then send back a <a href="#rpl_created">RPL_CREATED</a> to the client,<br>
-						to indicate them when the server was created,<br>
-						then send back a <a href="#rpl_myinfo">RPL_MYINFO</a> to the client,<br>
-						to indicate them the server's host name and version, and the supported modes.<br>
 						<br>
+						When the server receives a USER message, it must:
+						<ol>
+							<li>check that the client connection is authenticated</li>
+							<li>check that the client provided enough arguments</li>
+							<li>check that the given arguments are valid</li>
+							<li>
+								set the user name, the modes, the host name,<br>
+								and the real name of the user to the given ones
+							</li>
+							<li>
+								send back a <a href="#rpl_welcome">RPL_WELCOME</a> to the client,<br>
+								to indicate them that they are now registered on the server
+							</li>
+							<li>
+								send back a <a href="#rpl_yourhost">RPL_YOURHOST</a> to the client,<br>
+								to indicate them the server's host name and version
+							</li>
+							<li>
+								send back a <a href="#rpl_created">RPL_CREATED</a> to the client,<br>
+								to indicate them when the server was created
+							</li>
+							<li>
+								send back a <a href="#rpl_myinfo">RPL_MYINFO</a> to the client,<br>
+								to indicate them the server's host name and version, and the supported modes
+							</li>
+						</ol>
 						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
 						<ul>
 							<li>
 								The client already sent a USER command before<br>
-								↳ The server must send back an <a href="#err_alreadyregistered">ERR_ALREADYREGISTERED</a> to the client
+								↳ send back an <a href="#err_alreadyregistered">ERR_ALREADYREGISTERED</a> to the client
 							</li>
 							<li>
 								The client connection is not authenticated and/or the nickname of the client isn't set yet<br>
-								↳ The server must close the connection with the client
+								↳ close the connection with the client
 							</li>
 							<li>
 								The username argument and/or the umode-mask argument<br>
 								and/or the hostname argument and/or the realname argument is/are missing<br>
-								↳ The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client<br>
+								↳ send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client<br>
 								&emsp;and then close the connection with the client.
 							</li>
 							<li>
 								The given user name and/or user mode mask and/or host name is/are invalid<br>
-								↳ The server must close the connection with the client.
+								↳ close the connection with the client.
 							</li>
 						</ul>
 					</p>
@@ -980,26 +1003,47 @@
 					</details>
 					<!-- #endregion -->
 					<p>
-						The OPER command is used to authenticate a user as an IRC operator.<br>
-						When the server receives an OPER message, it must check<br>
-						that the host of the client matches any of the configured ones for an IRC operator promotion.<br>
-						Then the server must check that the given username-password association matches any of the configured ones.<br>
-						Then the server must send back a <a href="#rpl_youreoper">RPL_YOUREOPER</a> to the client,<br>
-						followed by a <a href="#command_mode">MODE</a> message to indicate them their new modes.<br>
+						The OPER command is used to authenticate a user as a local operator.<br>
 						<br>
+						When the server receives an OPER message, it must:
+						<ol>
+							<li>check that the client provided enough arguments</li>
+							<li>check that the given username is valid</li>
+							<li>
+								check that the host of the client<br>
+								matches any of the configured ones
+							</li>
+							<li>
+								check that the given username-password association<br>
+								matches any of the configured ones
+							</li>
+							<li>set the `o` mode for the user</li>
+							<li>
+								send back a <a href="#rpl_youreoper">RPL_YOUREOPER</a> to the client,<br>
+								to indicate them that they are now an IRC operator
+							</li>
+							<li>
+								send back a <a href="#command_mode">MODE</a> message to the client,<br>
+								to indicate them their new modes
+							</li>
+						</ol>
 						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
 						<ul>
 							<li>
 								The username parameter and/or the password parameter is/are empty<br>
-								↳ The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
+								↳ send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
+							</li>
+							<li>
+								The given username is invalid<br>
+								↳ silently abort the command
 							</li>
 							<li>
 								The host of the client doesn't match any of the configured ones for an IRC operator promotion<br>
-								↳ The server must send back an <a href="#err_nooperhost">ERR_NOOPERHOST</a> to the client
+								↳ send back an <a href="#err_nooperhost">ERR_NOOPERHOST</a> to the client
 							</li>
 							<li>
 								The given username-password association doesn't match any of the configured ones<br>
-								↳ The server must send back an <a href="#err_passwordmismatch">ERR_PASSWORDMISMATCH</a> to the client
+								↳ send back an <a href="#err_passwordmismatch">ERR_PASSWORDMISMATCH</a> to the client
 							</li>
 						</ul>
 					</p>
@@ -1022,20 +1066,31 @@
 					<p>
 						The AWAY command is used to mark/unmark a user as away.<br>
 						It also allows the user to choose a custom away message.<br>
+						<br>
 						When the server receives an AWAY message, it must check<br>
-						whether a parameter is given.<br>
+						whether a parameter is given.
 						<ul>
 							<li>
-								If there is, then the server must set the away message for the client to it,<br>
-								set the `a` mode for the user, and send back a <a href="#rpl_nowaway">RPL_NOWAWAY</a>
-								to the client,<br>
-								to indicate them that they are now marked as away.<br>
+								If there is, then the server must:
+								<ol>
+									<li>set the away message for the client to the given one</li>
+									<li>set the `a` mode for the user</li>
+									<li>
+										send back a <a href="#rpl_nowaway">RPL_NOWAWAY</a> to the client,<br>
+										to indicate them that they are now marked as away
+									</li>
+								</ol>
 							</li>
 							<li>
-								If there is not, then the server must unset the away message for the client,<br>
-								unset the `a` mode for the user, and send back a <a href="#rpl_unaway">RPL_UNAWAY</a>
-								to the client,<br>
-								to indicate them that they are no longer marked as away.<br>
+								If there is not, then the server must:
+								<ol>
+									<li>unset the away message for the client</li>
+									<li>unset the `a` mode for the user</li>
+									<li>
+										send back a <a href="#rpl_unaway">RPL_UNAWAY</a> to the client,<br>
+										to indicate them that they are no longer marked as away
+									</li>
+								</ol>
 							</li>
 						</ul>
 					</p>

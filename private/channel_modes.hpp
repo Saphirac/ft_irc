@@ -1,24 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   abnf_components.hpp                                :+:      :+:    :+:   */
+/*   channel_modes.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/05 20:17:21 by jodufour          #+#    #+#             */
+/*   Created: 2024/02/07 22:57:52 by jodufour          #+#    #+#             */
 /*   Updated: 2024/02/08 01:01:05 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ABNF_COMPONENTS_HPP
-#define ABNF_COMPONENTS_HPP
+#ifndef CHANNEL_MODES_HPP
+#define CHANNEL_MODES_HPP
 
-#include <string>
+#include "ChannelMode.hpp"
+#include <cstddef>
 
-static std::string const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static std::string const lowercase = "abcdefghijklmnopqrstuvwxyz";
-static std::string const letter = uppercase + lowercase;
-static std::string const digit = "0123456789";
-static std::string const special = "[\\]^_`{|}";
+static char const channel_modes[] = {
+	[InviteList] = 'I',
+	[BanList] = 'b',
+	[InviteOnly] = 'i',
+	[Key] = 'k',
+	[Limit] = 'l',
+	[NoMessagesFromOutside] = 'n',
+	[ChannelOperator] = 'o',
+	[RestrictedTopic] = 't',
+	[EndOfChannelModes] = 0,
+};
+static size_t const channel_modes_len = sizeof(channel_modes) / sizeof(*channel_modes);
 
 #endif
