@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 03:49:43 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 00:14:28 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/19 15:56:35 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @brief Constructs a new Nickname instance, initializing its inner field with a given argument.
+ * @brief Constructs a new Nickname instance, initializing it with a given argument.
  *
- * @param nickname The nickname to initialize the inner field with.
+ * @param nickname The nickname to initialize the instance with.
  *
  * @return The newly created Nickname instance.
  */
@@ -43,7 +43,7 @@ Nickname::~Nickname(void) {}
 //                                                      Methods                                                      //
 // ***************************************************************************************************************** //
 /**
- * @brief Check whether the nickname is valid.
+ * @brief Checks whether the nickname is valid.
  *
  * @return true if the nickname is valid, false otherwise.
  */
