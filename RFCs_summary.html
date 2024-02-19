@@ -792,6 +792,7 @@
 						It is an optional command, depending on whether the server<br>
 						that the client tries to connect to is password-protected or not.<br>
 						The PASS command can only be sent <b>once</b> per connection.<br>
+						<br>
 						When the server receives a PASS message, it must:
 						<ol>
 							<li>check that the connection of the client isn't already authenticated</li>
@@ -1003,6 +1004,7 @@
 					<!-- #endregion -->
 					<p>
 						The OPER command is used to authenticate a user as a local operator.<br>
+						<br>
 						When the server receives an OPER message, it must:
 						<ol>
 							<li>check that the client provided enough arguments</li>
@@ -1064,20 +1066,31 @@
 					<p>
 						The AWAY command is used to mark/unmark a user as away.<br>
 						It also allows the user to choose a custom away message.<br>
+						<br>
 						When the server receives an AWAY message, it must check<br>
-						whether a parameter is given.<br>
+						whether a parameter is given.
 						<ul>
 							<li>
-								If there is, then the server must set the away message for the client to it,<br>
-								set the `a` mode for the user, and send back a <a href="#rpl_nowaway">RPL_NOWAWAY</a>
-								to the client,<br>
-								to indicate them that they are now marked as away.<br>
+								If there is, then the server must:
+								<ol>
+									<li>set the away message for the client to the given one</li>
+									<li>set the `a` mode for the user</li>
+									<li>
+										send back a <a href="#rpl_nowaway">RPL_NOWAWAY</a> to the client,<br>
+										to indicate them that they are now marked as away
+									</li>
+								</ol>
 							</li>
 							<li>
-								If there is not, then the server must unset the away message for the client,<br>
-								unset the `a` mode for the user, and send back a <a href="#rpl_unaway">RPL_UNAWAY</a>
-								to the client,<br>
-								to indicate them that they are no longer marked as away.<br>
+								If there is not, then the server must:
+								<ol>
+									<li>unset the away message for the client</li>
+									<li>unset the `a` mode for the user</li>
+									<li>
+										send back a <a href="#rpl_unaway">RPL_UNAWAY</a> to the client,<br>
+										to indicate them that they are no longer marked as away
+									</li>
+								</ol>
 							</li>
 						</ul>
 					</p>
