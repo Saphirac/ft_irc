@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/15 14:40:14 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/19 13:26:49 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,6 @@
 # include <iostream>
 # include <vector>
 # include "regex.hpp"
-
-int hello(void);
 
 // Utils //
 std::string	trim(std::string const &str);

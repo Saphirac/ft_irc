@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/19 13:19:29 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/19 14:50:55 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ struct epoll_event       *Server::get_epoll_event(void) const { return this->_ep
 struct sockaddr_in const &Server::get_sock_addr(void) const { return this->_sock_addr; }
 socklen_t const          &Server::get_sock_len(void) const { return this->_sock_len; }
 
-std::map<int, Client *> const           &Server::get_clients_socket(void) const { return this->_clients_socket; }
+std::map<int, Client *> const         &Server::get_clients_socket(void) const { return this->_clients_socket; }
 std::map<std::string, Client *> const &Server::get_clients_nick(void) const { return this->_clients_nick; }
 std::vector<Channel *> const          &Server::get_channels(void) const { return this->_channels; }
 
@@ -70,7 +70,10 @@ void Server::set_password(std::string const &password) { this->_password = passw
 void Server::set_sock_addr(struct sockaddr_in const &sock_addr) { this->_sock_addr = sock_addr; }
 void Server::set_sock_len() { this->_sock_len = sizeof(this->_sock_addr); }
 
-void Server::set_clients_socket(std::map<int, Client *> const &clients_socket) { this->_clients_socket = clients_socket; }
+void Server::set_clients_socket(std::map<int, Client *> const &clients_socket)
+{
+	this->_clients_socket = clients_socket;
+}
 void Server::set_clients_nick(std::map<std::string, Client *> const &clients_nick)
 {
 	this->_clients_nick = clients_nick;
@@ -148,7 +151,7 @@ void Server::init_server()
 /**
  * @brief Create an epoll object with epoll_create1()
  * in case of error, exit with EXIT_FAILURE
- * 
+ *
  * // TODO : change exit failure with exception
  *
  * @return the created epoll fd
@@ -235,21 +238,19 @@ void Server::handle_client_event(Client *client)
  */
 void Server::handle_new_connection()
 {
-	int	const client_socket = accept(this->_socket, NULL, NULL);
+	int const client_socket = accept(this->_socket, NULL, NULL);
 	if (client_socket == -1)
 	{
 		std::cerr << "Problem with accept()." << std::endl;
 		exit(EXIT_FAILURE);
 	}
 	control_socket(client_socket);
-	this->_clients_socket[client_socket] = new Client(client_socket, "", "", "", "",  0);
+	this->_clients_socket[client_socket] = new Client(client_socket, "", "", "", "", 0);
 	this->_clients_socket[client_socket]->set_epoll_event();
 	printf("epoll_fd : %d\n client_socket : %d\n", this->_epoll_socket, client_socket);
 	printf("epoll event adress : %p\n", this->_clients_socket[client_socket]->get_epoll_event());
 	ctrl_epoll_add(this->_epoll_socket, client_socket, this->_clients_socket[client_socket]->get_epoll_event());
 }
-
-
 
 /**
  * @brief create a loop to manage new incoming connections or messages
@@ -274,6 +275,27 @@ void Server::epoll_loop()
 			handle_new_connection();
 		else
 			handle_client_event(this->_clients_socket[events[i].data.fd]);
+	}
+}
+
+void Server::check_clients_activity()
+{
+	// check if client is still active
+	// if not, send a ping
+
+	std::map<int, Client *>::iterator it = this->_clients_socket.begin();
+	while (it != this->_clients_socket.end())
+	{
+		if (it->second->check_time_since_last_msg() > Server::_max_time_since_last_msg)
+		{
+			// send ping
+		}
+		if (it->second->get_time_last_ping() != -1
+		    && it->second->check_time_since_last_ping() > Server::_max_time_since_last_ping)
+		{
+			// disconnect client
+		}
+		it++;
 	}
 }
 

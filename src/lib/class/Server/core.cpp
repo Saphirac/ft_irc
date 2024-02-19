@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/17 14:02:07 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/19 13:31:38 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,14 +61,13 @@ Server::~Server(void) { this->_clients_socket.clear(); }
  *
  * @param client The Client instance to copy.
  */
-void Server::add_client(Client const &client)
+/*void Server::add_client(Client const &client)
 {
-	std::pair<std::map<int, Client>::iterator, bool> ret =
-		this->_clients_socket.insert(std::make_pair(client.get_socket(), client));
+	this->_clients_socket[client.get_socket()] = client;
 
 	if (ret.second)
 		this->_clients_nick.insert(std::make_pair(client.get_nickname(), &ret.first->second));
-}
+}*/
 
 /**
  * @brief Removes a client from the list of known clients.

@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 13:23:46 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/19 14:50:31 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <vector>
+#include <ctime>
 
 class Client;
 class Channel;
@@ -72,7 +73,9 @@ private:
 	std::vector<Channel *>          _channels;
 
 	bool _shutdown;
-
+	static const std::clock_t _max_time_since_last_msg = 180;
+	static const std::clock_t _max_time_since_last_ping = 15;
+	
 	class ProblemWithSocket : public std::exception
 	{
 	public:
@@ -157,6 +160,7 @@ public:
 	void handle_client_event(Client *client);
 	void handle_new_connection();
 	void epoll_loop();
+	void check_clients_activity();
 	
 
 	struct sockaddr_in bind_assign_sockaddr();
