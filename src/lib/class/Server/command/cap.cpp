@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 13:43:54 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/17 13:59:54 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/19 16:03:46 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ StatusCode	Server::cap(Client &sender, std::vector<std::string> const &parameter
 	if (parameters.empty())
 	{
 		std::cerr << "Cap incomplete\n";
-		return ErrorClientSendMessage;
+		return Success;
 	}
 	if (parameters[0] == "LS" && parameters[1] == "302")
 	{

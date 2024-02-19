@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/19 16:01:36 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/02/19 16:04:01 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -95,7 +95,6 @@ LIB_SRC = \
 					} \
 					core \
 				} \
-				Client \
 				Hostname \
 				Nickname \
 				Realname \
