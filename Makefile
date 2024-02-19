@@ -6,7 +6,7 @@
 #    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/19 15:16:45 by jodufour         ###   ########.fr        #
+#    Updated: 2024/02/19 15:58:55 by jodufour         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -87,7 +87,9 @@ LIB_SRC = \
 				Client \
 				Hostname \
 				Nickname \
+				Realname \
 				UserModeMask \
+				UserModes \
 				Username \
 			} \
 			format_reply \

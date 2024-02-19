@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 22:46:16 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/17 22:46:23 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/19 15:57:35 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,4 @@ public:
 
 	// Destructor
 	~Realname(void);
-
-	// Methods
-	bool is_valid(void) const;
 };
