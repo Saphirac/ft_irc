@@ -6,11 +6,10 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/18 23:55:50 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/19 14:59:43 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "abnf_components.hpp"
 #include "channel_modes.hpp"
 #include "class/Server.hpp"
 #include "class/UserModeMask.hpp"
@@ -20,7 +19,7 @@
 #include <cstdlib>
 
 /**
- * @brief Sends an ERR_ALREADYREGISTERED to a given client.
+ * @brief Sends an ERR_ALREADYREGISTERED to a client.
  *
  * @param client The client to send the reply to.
  *
@@ -28,17 +27,17 @@
  */
 inline static StatusCode error_already_registered(Client &client)
 {
-	std::string const message = format_reply(ERR_ALREADYREGISTERED);
+	std::string const msg = format_reply(ERR_ALREADYREGISTERED);
 
-	if (message.empty())
+	if (msg.empty())
 		return ErrorFormatReply;
 
-	client.append_message(message);
+	client.append_to_msg_out(msg);
 	return Success;
 }
 
 /**
- * @brief Closes the connection of a given client and removes them from the list of known clients.
+ * @brief Closes the connection of a client and removes them from the list of known clients.
  *
  * @param server The server to remove the client from.
  * @param client The client to remove.
@@ -52,7 +51,7 @@ inline static StatusCode error_no_nickname_set(Server &server, Client const &cli
 }
 
 /**
- * @brief Closes the connection of a given client and removes them from the list of known clients.
+ * @brief Closes the connection of a client and removes them from the list of known clients.
  *
  * @param server The server to remove the client from.
  * @param client The client to remove.
@@ -67,7 +66,7 @@ inline static StatusCode error_not_authenticated(Server &server, Client const &c
 
 /**
  * @brief
- * Sends an ERR_NEEDMOREPARAMS to a given client, closes their connection,
+ * Sends an ERR_NEEDMOREPARAMS to a client, closes their connection,
  * and removes them from the list of known clients.
  *
  * @param server The server to remove the client from.
@@ -77,21 +76,24 @@ inline static StatusCode error_not_authenticated(Server &server, Client const &c
  */
 inline static StatusCode error_need_more_parameters(Server &server, Client &client)
 {
-	std::string const message = format_reply(ERR_NEEDMOREPARAMS, "USER");
+	std::string const msg = format_reply(ERR_NEEDMOREPARAMS, "USER");
 
-	if (message.empty())
+	if (msg.empty())
 		return ErrorFormatReply;
 
-	client.append_message(message);
-	if (client.send_messages() == -1)
-		return ErrorClientSendMessages;
+	client.append_to_msg_out(msg);
+
+	StatusCode const status = client.send_msg_out();
+
+	if (status)
+		return status;
 
 	server.remove_client(client);
 	return Success;
 }
 
 /**
- * @brief Closes the connection of a given client and removes them from the list of known clients.
+ * @brief Closes the connection of a client and removes them from the list of known clients.
  *
  * @param server The server to remove the client from.
  * @param client The client to remove.
@@ -105,7 +107,7 @@ inline static StatusCode error_erroneus_argument(Server &server, Client const &c
 }
 
 /**
- * @brief Sends a RPL_WELCOME, a RPL_YOURHOST, a RPL_CREATED, and a RPL_MYINFO to a given client.
+ * @brief Sends a RPL_WELCOME, a RPL_YOURHOST, a RPL_CREATED, and a RPL_MYINFO to a client.
  *
  * @param client The client to send the replies to.
  * @param server_name The name of the server that the client is connected to.
@@ -140,16 +142,16 @@ inline static StatusCode reply_welcome(
 	if (my_info.empty())
 		return ErrorFormatReply;
 
-	client.append_message(welcome);
-	client.append_message(your_host);
-	client.append_message(created);
-	client.append_message(my_info);
+	client.append_to_msg_out(welcome);
+	client.append_to_msg_out(your_host);
+	client.append_to_msg_out(created);
+	client.append_to_msg_out(my_info);
 	return Success;
 }
 
 /**
  * @brief
- * Finilize the user registration process for a given client,
+ * Finilizes the user registration process for a client,
  * saving their username, their initial modes, their hostname, and their realname.
  *
  * @param client The client to finalize the registration for.

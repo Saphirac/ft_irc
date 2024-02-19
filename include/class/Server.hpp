@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/18 22:31:29 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/19 09:25:42 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ public:
 	void add_client(Client const &client);
 	void remove_client(Client const &client);
 
+	StatusCode away(Client &sender, std::string const &parameters);
 	StatusCode nick(Client &sender, std::string const &parameters);
 	StatusCode pass(Client &sender, std::string const &parameters);
 	StatusCode oper(Client &sender, std::string const &parameters);
