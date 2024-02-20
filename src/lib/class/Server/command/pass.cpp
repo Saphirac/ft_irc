@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:23:54 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 14:56:27 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/19 19:28:50 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,16 +99,14 @@ inline static StatusCode error_password_mismatch(Server &server, Client &client)
  *
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
-StatusCode Server::pass(Client &sender, std::string const &parameters)
+StatusCode Server::pass(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (sender.has_mode(AlreadySentPass))
 		return error_already_registered(sender);
-
-	std::string const password =
-		parameters[0] == ':' ? parameters.substr(1) : parameters.substr(0, parameters.find(' '));
-
-	if (password.empty())
+	if (parameters.empty())
 		return error_need_more_parameters(*this, sender);
+
+	std::string const &password = parameters[0];
 
 	if (password != this->_password)
 		return error_password_mismatch(*this, sender);

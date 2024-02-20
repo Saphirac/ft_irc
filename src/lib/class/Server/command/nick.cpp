@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:22 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 14:50:00 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/19 19:26:21 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,16 +80,15 @@ inline static StatusCode error_nickname_in_use(Client &client, std::string const
  *
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
-StatusCode Server::nick(Client &sender, std::string const &parameters)
+StatusCode Server::nick(Client &sender, std::vector<std::string> const &parameters)
 {
-	Nickname const nickname = parameters[0] == ':' ? parameters.substr(1) : parameters.substr(0, parameters.find(' '));
-
-	if (nickname.empty())
+	if (parameters.empty())
 		return error_no_nickname_given(sender);
+
+	Nickname const &nickname = parameters[0];
 
 	if (!nickname.is_valid())
 		return error_erroneus_nickname(sender, nickname);
-
 	if (this->_clients_by_nickname.count(nickname))
 		return error_nickname_in_use(sender, nickname);
 

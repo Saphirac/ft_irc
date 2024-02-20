@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:45 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 14:51:36 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/20 19:20:06 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,32 +102,23 @@ inline static StatusCode reply_you_are_operator(Client &client)
  *
  * @return A positive error code in case of internal error. Otherwise, returns zero.
  */
-StatusCode Server::oper(Client &sender, std::string const &parameters)
+StatusCode Server::oper(Client &sender, std::vector<std::string> const &parameters)
 {
-	size_t            pos = 0;
-	std::string const first_parameters = parameters.substr(0, parameters.find(" :"));
-	Username const    username = first_parameters.substr(0, first_parameters.find(' ', pos));
-
-	if (username.empty())
+	if (parameters.size() < 2)
 		return error_need_more_parameters(sender);
+
+	Username const &username = parameters[0];
+
 	if (!username.is_valid())
 		return error_erroneus_username();
-
-	pos += username.size() + 1;
-
-	std::string const password = parameters.size() == first_parameters.size()
-	                               ? first_parameters.substr(pos, first_parameters.find(' ', pos))
-	                               : parameters.substr(first_parameters.size() + 2);
-
-	if (password.empty())
-		return error_need_more_parameters(sender);
 
 	if (this->_operator_hosts.find(sender.get_hostname()) == this->_operator_hosts.end())
 		return error_no_operator_host(sender);
 
-	std::map<std::string, std::string>::const_iterator id = this->_operator_ids.find(username);
+	std::string const                                       &password = parameters[1];
+	std::map<std::string, std::string>::const_iterator const id = this->_operator_ids.find(username);
 
-	if (id == this->_operator_ids.end() || id->second != password)
+	if (id == this->_operator_ids.end() || password != id->second)
 		return error_password_mismatch(sender);
 
 	sender.set_mode(LocalOperator);
