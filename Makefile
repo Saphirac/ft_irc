@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/17 17:50:35 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/02/21 00:56:10 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -43,24 +43,23 @@ INC_DIR =	include
 ######################################
 SRC		=	\
 	${addsuffix .cpp, \
-		${addprefix server/,	\
-			${addprefix class/,	\
-				Server		\
-				Client		\
-				Channel		\
-				IrcMessage	\
-			}	\
-		}	\
-		${addprefix utils/,	\
-			trim			\
-		}	\
-	main \
+		main \
 	}
 
 LIB_SRC = \
 	${addsuffix .cpp, \
 		${addprefix ${LIB_DIR}/, \
 			${addprefix class/, \
+				${addprefix Client/, \
+					Client \
+					core \
+				} \
+				${addprefix Channel/, \
+					Channel \
+				} \
+				${addprefix IrcMessage/, \
+					IrcMessage \
+				} \
 				${addprefix Server/, \
 					${addprefix command/, \
 						away \
@@ -92,8 +91,12 @@ LIB_SRC = \
 						wallops \
 						whois \
 						cap \
+						init_map_cmd \
 					} \
+					Server \
 					core \
+					epoll \
+					handle_clients \
 				} \
 			} \
 			${addprefix regex/, \

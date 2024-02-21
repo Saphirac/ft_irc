@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/17 18:42:46 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/20 21:10:32 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@ int main(int ac, char **av)
 		std::cout << "incorrect number of args\n";
 	Server *myserver = new Server(atoi(av[1]), std::string(av[2]), "MyServer");
 	try {
-		myserver->init_server();
 		myserver->create_server();
 	}
 	catch (std::exception &e) {

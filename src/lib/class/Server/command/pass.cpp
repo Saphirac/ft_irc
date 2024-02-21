@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pass.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:23:54 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/07 10:21:57 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/21 00:54:05 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ inline static StatusCode error_already_registered(Client &client)
  */
 inline static StatusCode error_need_more_parameters(Server &server, Client const &client)
 {
+	(void)server;
 	std::string const message = format_reply(ERR_NEEDMOREPARAMS, "PASS");
 
 	if (message.empty())
@@ -53,7 +54,7 @@ inline static StatusCode error_need_more_parameters(Server &server, Client const
 	if (client.send_message(message) == -1)
 		return ErrorClientSendMessage;
 
-	server.remove_client(client);
+	//server.remove_client(client);
 	return Success;
 }
 
@@ -69,6 +70,7 @@ inline static StatusCode error_need_more_parameters(Server &server, Client const
  */
 inline static StatusCode error_password_mismatch(Server &server, Client const &client)
 {
+	(void)server;
 	std::string const message = format_reply(ERR_PASSWDMISMATCH);
 
 	if (message.empty())
@@ -77,7 +79,7 @@ inline static StatusCode error_password_mismatch(Server &server, Client const &c
 	if (client.send_message(message) == -1)
 		return ErrorClientSendMessage;
 
-	server.remove_client(client);
+	//server.remove_client(client);
 	return Success;
 }
 

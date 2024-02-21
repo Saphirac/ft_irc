@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/18 03:19:02 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/21 00:35:56 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,9 +38,7 @@ private:
 
 	struct epoll_event *_epoll_event;
 
-	bool _is_complete;
 	bool _is_msg_complete;
-	bool _pass;
 
 	std::clock_t _time_last_msg;
 
@@ -69,9 +67,7 @@ public:
 
 	struct epoll_event *get_epoll_event(void) const;
 
-	bool get_is_complete() const;
 	bool get_is_msg_complete() const;
-	bool get_is_pass() const;
 	std::clock_t get_time_last_msg(void) const;
 
 	// Mutators
@@ -84,9 +80,7 @@ public:
 	void set_modes(uint8_t const modes);
 
 	void set_epoll_event();
-	void set_is_complete(bool const yesno);
 	void set_is_msg_complete(bool const yesno);
-	void set_is_pass(bool const yesno);
 
 	// Member functions
 	void disconnect(void);
@@ -104,7 +98,7 @@ public:
 	std::string user_mask(void) const;
 
 	std::clock_t check_time_since_last_msg(void) const;
-*
+
 };
 
 #endif
