@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/17 15:08:46 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/23 12:01:34 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,27 +47,33 @@ enum StatusCode;
  * 		do a proper default constructor if void
  */
 
+// define pointer on function for cmd:
+
 class Server
 {
 private:
 	// Fields
+	int                 _port;
+	int                 _socket;
+	int                 _epoll_socket;
+	sockaddr_in         _sock_addr;
+	socklen_t           _sock_len;
+	struct epoll_event *_epoll_event;
+	std::string         _name;
+	std::string         _version;
+	std::string         _password;
+	std::string         _creation_date;
+	std::string         _creation_time;
+	std::string         _compilation_date;
+	std::string         _compilation_time;
 
-	int                             _port;
-	int                             _socket;
-	int                             _epoll_socket;
-	sockaddr_in                     _sock_addr;
-	socklen_t                       _sock_len;
-	struct epoll_event             *_epoll_event;
-	std::string                     _name;
-	std::string                     _version;
-	std::string                     _password;
-	std::string                     _creation_date;
-	std::string                     _creation_time;
-	std::string                     _compilation_date;
-	std::string                     _compilation_time;
-	std::map<int, Client>           _clients_socket;
+	// Typedef
+	typedef StatusCode (Server::*cmd)(Client &sender, std::vector<std::string> const &parameters);
+	// TODO : get back to a non pointer (hopefully)
+	std::map<int, Client *>         _clients_socket;
 	std::map<std::string, Client *> _clients_nick;
 	std::vector<Channel *>          _channels;
+	std::map<std::string, cmd>      _map_of_cmds;
 
 	bool _shutdown;
 
@@ -109,7 +115,7 @@ public:
 	socklen_t const          &get_sock_len() const;
 
 	std::vector<Channel *> const          &get_channels() const;
-	std::map<int, Client> const           &get_clients_socket() const;
+	std::map<int, Client *> const         &get_clients_socket() const;
 	std::map<std::string, Client *> const &get_clients_nick() const;
 
 	bool get_shutdown() const;
@@ -130,26 +136,27 @@ public:
 	void set_sock_len();
 	void set_epoll_event();
 
-	void set_clients_socket(std::map<int, Client> const &clients_socket);
+	void set_clients_socket(std::map<int, Client *> const &clients_socket);
 	void set_clients_nick(std::map<std::string, Client *> const &clients_nick);
 	void set_channels(std::vector<Channel *> const &channels);
 
 	void set_shutdown(bool shutdown);
 
 	// Member functions
-	void add_client(Client const &client);
-	void remove_client(Client const &client);
+	// void add_client(Client *client);
+	// void remove_client(Client *client);
 
 	// Commands
-	StatusCode nick(Client &sender, std::string const &parameters);
-	StatusCode pass(Client &sender, std::string const &parameters);
-	StatusCode user(Client &sender, std::string const &parameters);
+
+	StatusCode nick(Client &sender, std::vector<std::string> const &parameters);
+	StatusCode pass(Client &sender, std::vector<std::string> const &parameters);
+	StatusCode user(Client &sender, std::vector<std::string> const &parameters);
 	StatusCode cap(Client &sender, std::vector<std::string> const &parameters);
 	StatusCode join(Client &sender, std::vector<std::string> const &parameters);
 
 	// Others
 	void create_and_set_socket();
-	void init_server();
+	void init_socket_server();
 	void create_server();
 	void ctrl_epoll_add(int epoll_fd, int socket, struct epoll_event *e_event);
 	void handle_client_event(Client *client);
@@ -157,9 +164,11 @@ public:
 	void epoll_loop();
 
 	struct sockaddr_in bind_assign_sockaddr();
+
+	void init_map_cmd(void);
 };
 
-int		create_epoll();
-void	send_message(int client_socket, std::string message);
+int  create_epoll();
+void send_message(int client_socket, std::string message);
 
 #endif

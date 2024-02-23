@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/17 18:36:58 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/23 12:01:09 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 #define CLIENT_HPP
 
 #include "UserMode.hpp"
+#include "class/Server.hpp"
+#include <ctime>
+#include <netinet/in.h>
 #include <stdint.h>
 #include <string>
 #include <unistd.h>
@@ -22,12 +25,14 @@
 
 class Server;
 
+class Server;
+
 class Client
 {
 private:
 	// Fields
-	int         _socket;
-	std::string _messages;
+	int                 _socket;
+	std::string         _messages;
 
 	std::string _nickname;
 	std::string _hostname;
@@ -35,25 +40,21 @@ private:
 	std::string _realname;
 	uint8_t     _modes;
 
-	struct sockaddr_in	*_sock_addr;
-	socklen_t			_addr_len;
+	struct epoll_event *_epoll_event;
 
-	struct epoll_event	*_epoll_event;
-	
-	bool	_is_complete;
-	bool	_is_msg_complete;
-	bool	_pass;
+	bool _is_msg_complete;
+
+	std::clock_t _time_last_msg;
 
 public:
 	// Constructors
 	Client(
-		int const          socket = -1,
-		std::string const &nickname = "",
-		std::string const &hostname = "",
-		std::string const &username = "",
-		std::string const &realname = "",
-		struct sockaddr_in *sock_addr = NULL,
-		uint8_t const      modes = 0);
+		int const           socket = -1,
+		std::string const  &nickname = "",
+		std::string const  &hostname = "",
+		std::string const  &username = "",
+		std::string const  &realname = "",
+		uint8_t const       modes = 0);
 	Client(Client const &src);
 
 	// Destructor
@@ -76,6 +77,11 @@ public:
 	bool	get_is_msg_complete() const;
 	bool	get_is_pass() const;
 
+	struct epoll_event *get_epoll_event(void) const;
+
+	bool get_is_msg_complete() const;
+	std::clock_t get_time_last_msg(void) const;
+
 	// Mutators
 	void set_socket(int const socket);
 	void set_messages(std::string const &messages);
@@ -85,14 +91,8 @@ public:
 	void set_realname(std::string const &realname);
 	void set_modes(uint8_t const modes);
 
-	void	set_epoll_event();
-	void	set_is_complete(bool const yesno);
-	void	set_is_msg_complete(bool const yesno);
-	void	set_is_pass(bool const yesno);
-
-	void	set_sock_addr(struct sockaddr_in *sock_addr);
-	void	set_sock_len();
-
+	void set_epoll_event();
+	void set_is_msg_complete(bool const yesno);
 
 	// Member functions
 	void disconnect(void);
@@ -100,6 +100,7 @@ public:
 	void clear_messages(void);
 	void set_mode(UserMode const mode);
 	void clear_mode(UserMode const mode);
+	void set_time_last_msg(void);	
 
 	bool has_mode(UserMode const mode) const;
 
@@ -107,6 +108,9 @@ public:
 	ssize_t send_messages(void) const;
 
 	std::string user_mask(void) const;
+
+	std::clock_t check_time_since_last_msg(void) const;
+
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:06:14 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/17 18:29:50 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/23 12:01:43 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,11 @@ public:
 	void display() const;
 	std::string	get_prefix() const;
 	std::string	get_command() const;
-	std::vector<std::string>	get_params() const;
+	std::vector<std::string>	*get_params();
+
+	void set_prefix(const std::string &prefix);
+	void set_command(const std::string &command);
+	void set_params(const std::vector<std::string> &params);
 };
 
 IrcMessage parse_irc_message(const std::string &message);

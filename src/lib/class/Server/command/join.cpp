@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/17 13:59:11 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/23 12:02:16 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ StatusCode	Server::join(Client &sender, std::vector<std::string> const &paramete
 {
 	(void)parameters;
 	std::cout << "JOIN cmd called\n";
-	if (sender.get_is_pass() == false)
+	if (sender.has_mode(AlreadySentPass) == false)
 	{
 		std::string message = ":ircserv Password required.\nTry /quote PASS <password>\n\r";
 		send_message(sender.get_socket(), message);
