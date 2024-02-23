@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/23 12:00:23 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/02/23 12:07:06 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -112,6 +112,13 @@ LIB_SRC = \
 			} \
 			${addprefix regex/, \
 						regex \
+				Client \
+				Hostname \
+				Nickname \
+				Realname \
+				UserModeMask \
+				UserModes \
+				Username \
 			} \
 			format_reply \
 			parse_irc_message \
@@ -132,13 +139,19 @@ LIB_DEP = ${LIB_OBJ:.o=.d}
 #######################################
 CXXFLAGS = \
 	-c \
-	-Wall -Wextra -Werror \
-	-MMD -MP \
+	-Wall \
+	-Wextra \
+	-Werror \
 	-Wshadow \
-	-std=c++98 \
+	-Wno-c99-designator \
+	-pedantic \
 	-ferror-limit=1 \
+	-std=c++98 \
+	-MMD \
+	-MP \
 	-I${PRV_DIR} \
 	-I${INC_DIR}
+
 
 ifeq (${DEBUG}, 1)
 	CXXFLAGS += -g -DDEBUG=1
@@ -158,6 +171,7 @@ ${LIB}: ${LIB_OBJ}
 all: ${LIB} ${NAME}
 
 -include ${DEP}
+-include ${LIB_DEP}
 
 ${OBJ_DIR}/%.o: 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/%.cpp

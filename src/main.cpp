@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/23 12:01:48 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/23 12:13:37 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "class/Server.hpp"
 #include <cstdio>
 #include <stdio.h>
+#include <iostream>
 
 /**
  * @brief Launch irc server

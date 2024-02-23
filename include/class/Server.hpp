@@ -6,12 +6,11 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/23 12:01:34 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/23 12:12:31 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVER_HPP
-#define SERVER_HPP
+#pragma once
 
 #include "Client.hpp"
 #include "StatusCode.hpp"
@@ -27,6 +26,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <set>
 #include <vector>
 
 class Client;
@@ -52,6 +52,10 @@ enum StatusCode;
 class Server
 {
 private:
+	// Shared fields
+	static std::set<std::string> const              _operator_hosts;
+	static std::map<std::string, std::string> const _operator_ids;
+
 	// Fields
 	int                 _port;
 	int                 _socket;
@@ -148,11 +152,13 @@ public:
 
 	// Commands
 
-	StatusCode nick(Client &sender, std::vector<std::string> const &parameters);
-	StatusCode pass(Client &sender, std::vector<std::string> const &parameters);
-	StatusCode user(Client &sender, std::vector<std::string> const &parameters);
 	StatusCode cap(Client &sender, std::vector<std::string> const &parameters);
 	StatusCode join(Client &sender, std::vector<std::string> const &parameters);
+	StatusCode away(Client &sender, std::vector<std::string> const &parameters);
+	StatusCode nick(Client &sender, std::vector<std::string> const &parameters);
+	StatusCode pass(Client &sender, std::vector<std::string> const &parameters);
+	StatusCode oper(Client &sender, std::vector<std::string> const &parameters);
+	StatusCode user(Client &sender, std::vector<std::string> const &parameters);
 
 	// Others
 	void create_and_set_socket();
@@ -170,5 +176,3 @@ public:
 
 int  create_epoll();
 void send_message(int client_socket, std::string message);
-
-#endif

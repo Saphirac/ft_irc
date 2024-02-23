@@ -1,13 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   kick.cpp                                           :+:      :+:    :+:   */
+/*   Realname.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/01 17:27:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/08 01:00:03 by jodufour         ###   ########.fr       */
+/*   Created: 2024/02/17 22:46:16 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/19 15:57:35 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// TODO
+#pragma once
+
+#include <string>
+
+class Realname : public std::string
+{
+public:
+	// Constructors
+	Realname(std::string const &realname = "");
+	Realname(Realname const &src);
+
+	// Destructor
+	~Realname(void);
+};

@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:22 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/16 14:23:12 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/23 12:14:32 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <iostream>
 
 /**
- * @brief Sends an ERR_NONICKNAMEGIVEN to a given client.
+ * @brief Sends an ERR_NONICKNAMEGIVEN to a client.
  *
  * @param client The client to send the reply to.
  *
@@ -25,30 +25,17 @@
  */
 inline static StatusCode error_no_nickname_given(Client &client)
 {
-	std::string const message = format_reply(ERR_NONICKNAMEGIVEN);
+	std::string const msg = format_reply(ERR_NONICKNAMEGIVEN);
 
-	if (message.empty())
+	if (msg.empty())
 		return ErrorFormatReply;
 
-	client.append_message(message);
+	client.append_to_msg_out(msg);
 	return Success;
 }
 
 /**
- * @brief Checks whether a given nickname is invalid.
- *
- * @param nickname The nickname to check.
- *
- * @return true if the nickname is invalid, false otherwise.
- */
-inline static bool is_invalid_nickname(std::string const &nickname)
-{
-	return nickname.size() > 9 || (letter + special).find(nickname[0]) == std::string::npos
-	    || nickname.find_first_not_of(letter + digit + special, 1) != std::string::npos;
-}
-
-/**
- * @brief Sends an ERR_ERRONEUSNICKNAME to a given client.
+ * @brief Sends an ERR_ERRONEUSNICKNAME to a client.
  *
  * @param client The client to send the reply to.
  * @param nickname The nickname that caused the error.
@@ -57,17 +44,17 @@ inline static bool is_invalid_nickname(std::string const &nickname)
  */
 inline static StatusCode error_erroneus_nickname(Client &client, std::string const &nickname)
 {
-	std::string const message = format_reply(ERR_ERRONEUSNICKNAME, nickname.c_str());
+	std::string const msg = format_reply(ERR_ERRONEUSNICKNAME, &nickname);
 
-	if (message.empty())
+	if (msg.empty())
 		return ErrorFormatReply;
 
-	client.append_message(message);
+	client.append_to_msg_out(msg);
 	return Success;
 }
 
 /**
- * @brief Sends an ERR_NICKNAMEINUSE to a given client.
+ * @brief Sends an ERR_NICKNAMEINUSE to a client.
  *
  * @param client The client to send the reply to.
  * @param nickname The nickname that caused the error.
@@ -76,42 +63,40 @@ inline static StatusCode error_erroneus_nickname(Client &client, std::string con
  */
 inline static StatusCode error_nickname_in_use(Client &client, std::string const &nickname)
 {
-	std::string const message = format_reply(ERR_NICKNAMEINUSE, nickname.c_str());
+	std::string const msg = format_reply(ERR_NICKNAMEINUSE, &nickname);
 
-	if (message.empty())
+	if (msg.empty())
 		return ErrorFormatReply;
 
-	client.append_message(message);
+	client.append_to_msg_out(msg);
 	return Success;
 }
 
 /**
- * @brief Changes the nickname of a given client.
+ * @brief Changes the nickname of a user.
  *
  * @param sender The client that sent the command.
  * @param parameters The parameters that were passed to the command.
  *
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
-StatusCode Server::nick(Client &sender, std::string const &parameters)
+StatusCode Server::nick(Client &sender, std::vector<std::string> const &parameters)
 {
-	std::string const nickname =
-		parameters[0] == ':' ? parameters.substr(1) : parameters.substr(0, parameters.find(' '));
-
-	if (nickname.empty())
+	if (parameters.empty())
 		return error_no_nickname_given(sender);
 
-	if (is_invalid_nickname(nickname))
-		return error_erroneus_nickname(sender, nickname);
+	Nickname const &nickname = parameters[0];
 
-	if (this->_clients_nick.count(nickname))
+	if (!nickname.is_valid())
+		return error_erroneus_nickname(sender, nickname);
+	if (this->_clients_by_nickname.count(nickname))
 		return error_nickname_in_use(sender, nickname);
 
 	this->_clients_nick.erase(sender.get_nickname());
 	sender.set_nickname(nickname);
 	this->_clients_nick[nickname] = &sender;
 
-	sender.append_message("NICK " + nickname);
+	sender.append_to_msg_out("NICK " + nickname);
 	return Success;
 }
 // TODO: implement unit tests for this function

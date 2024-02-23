@@ -792,24 +792,28 @@
 						It is an optional command, depending on whether the server<br>
 						that the client tries to connect to is password-protected or not.<br>
 						The PASS command can only be sent <b>once</b> per connection.<br>
-						When the server receives a PASS message, it must check<br>
-						that the client hasn't already sent a PASS message.<br>
-						Then the server must check that the given password matches the configured one.<br>
 						<br>
+						When the server receives a PASS message, it must:
+						<ol>
+							<li>check that the connection of the client isn't already authenticated</li>
+							<li>check that the client provided enough arguments</li>
+							<li>check that the given password matches the configured one</li>
+							<li>mark the connection of the client as authenticated</li>
+						</ol>
 						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
 						<ul>
 							<li>
-								The client already sent a PASS command before<br>
-								↳ The server must send back an <a href="#err_alreadyregistered">ERR_ALREADYREGISTERED</a> to the client
+								The connection of the client is already authenticated<br>
+								↳ send back an <a href="#err_alreadyregistered">ERR_ALREADYREGISTERED</a> to the client
 							</li>
 							<li>
 								The password argument is missing<br>
-								↳ The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client<br>
+								↳ send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client<br>
 								&emsp;and then close the connection with the client.
 							</li>
 							<li>
 								The given password doesn't match the configured one<br>
-								↳ The server must send back an <a href="#err_passwordmismatch">ERR_PASSWORDMISMATCH</a> to the client<br>
+								↳ send back an <a href="#err_passwordmismatch">ERR_PASSWORDMISMATCH</a> to the client<br>
 								&emsp;and then close the connection with the client.
 							</li>
 						</ul>
@@ -835,25 +839,30 @@
 					<!-- #endregion -->
 					<p>
 						The NICK command is used to change the nickname of a user.<br>
-						When the server receives a NICK message, it must check<br>
-						that the given nickname is valid and not already in use.<br>
-						Then the server must change the nickname of the user to the given one.<br>
-						Finally, the server must send back a NICK message to the user<br>
-						to confirm that their nickname has been changed.<br>
 						<br>
+						When the server receives a NICK message, it must:
+						<ol>
+							<li>check that the client provided enough arguments</li>
+							<li>check that the given nickname is valid and not already in use</li>
+							<li>change the nickname of the user to the given one</li>
+							<li>
+								send back a NICK message to the client<br>
+								to confirm that their nickname has been changed
+							</li>
+						</ol>
 						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
 						<ul>
 							<li>
 								The nickname argument is missing<br>
-								↳ The server must send back an <a href="#err_nonicknamegiven">ERR_NONICKNAMEGIVEN</a> to the client
+								↳ send back an <a href="#err_nonicknamegiven">ERR_NONICKNAMEGIVEN</a> to the client
 							</li>
 							<li>
 								The given nickname is invalid<br>
-								↳ The server must send back an <a href="#err_erroneusnickname">ERR_ERRONEUSNICKNAME</a> to the client
+								↳ send back an <a href="#err_erroneusnickname">ERR_ERRONEUSNICKNAME</a> to the client
 							</li>
 							<li>
 								The given nickname is already in use<br>
-								↳ The server must send back an <a href="#err_nicknameinuse">ERR_NICKNAMEINUSE</a> to the client
+								↳ send back an <a href="#err_nicknameinuse">ERR_NICKNAMEINUSE</a> to the client
 							</li>
 						</ul>
 					</p>
@@ -924,38 +933,52 @@
 					<p>
 						The USER command must be used only during the registration process.<br>
 						It must be sent only <b>once</b> per connection.<br>
-						When the server receives a USER message, it must check that the client connection is authenticated.<br>
-						Then the server must check that the given parameters are valid.<br>
-						Then the server must set the user name, the modes, the host name,<br>
-						and the real name of the user to the given ones.<br>
-						Finally, the server must send back a <a href="#rpl_welcome">RPL_WELCOME</a> to the client,<br>
-						to indicate them that they are now registered on the server,<br>
-						then send back a <a href="#rpl_yourhost">RPL_YOURHOST</a> to the client,<br>
-						to indicate them the server's host name and version,<br>
-						then send back a <a href="#rpl_created">RPL_CREATED</a> to the client,<br>
-						to indicate them when the server was created,<br>
-						then send back a <a href="#rpl_myinfo">RPL_MYINFO</a> to the client,<br>
-						to indicate them the server's host name and version, and the supported modes.<br>
 						<br>
+						When the server receives a USER message, it must:
+						<ol>
+							<li>check that the client connection is authenticated</li>
+							<li>check that the client provided enough arguments</li>
+							<li>check that the given arguments are valid</li>
+							<li>
+								set the user name, the modes, the host name,<br>
+								and the real name of the user to the given ones
+							</li>
+							<li>
+								send back a <a href="#rpl_welcome">RPL_WELCOME</a> to the client,<br>
+								to indicate them that they are now registered on the server
+							</li>
+							<li>
+								send back a <a href="#rpl_yourhost">RPL_YOURHOST</a> to the client,<br>
+								to indicate them the server's host name and version
+							</li>
+							<li>
+								send back a <a href="#rpl_created">RPL_CREATED</a> to the client,<br>
+								to indicate them when the server was created
+							</li>
+							<li>
+								send back a <a href="#rpl_myinfo">RPL_MYINFO</a> to the client,<br>
+								to indicate them the server's host name and version, and the supported modes
+							</li>
+						</ol>
 						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
 						<ul>
 							<li>
 								The client already sent a USER command before<br>
-								↳ The server must send back an <a href="#err_alreadyregistered">ERR_ALREADYREGISTERED</a> to the client
+								↳ send back an <a href="#err_alreadyregistered">ERR_ALREADYREGISTERED</a> to the client
 							</li>
 							<li>
 								The client connection is not authenticated and/or the nickname of the client isn't set yet<br>
-								↳ The server must close the connection with the client
+								↳ close the connection with the client
 							</li>
 							<li>
 								The username argument and/or the umode-mask argument<br>
 								and/or the hostname argument and/or the realname argument is/are missing<br>
-								↳ The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client<br>
+								↳ send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client<br>
 								&emsp;and then close the connection with the client.
 							</li>
 							<li>
 								The given user name and/or user mode mask and/or host name is/are invalid<br>
-								↳ The server must close the connection with the client.
+								↳ close the connection with the client.
 							</li>
 						</ul>
 					</p>
@@ -980,26 +1003,47 @@
 					</details>
 					<!-- #endregion -->
 					<p>
-						The OPER command is used to authenticate a user as an IRC operator.<br>
-						When the server receives an OPER message, it must check<br>
-						that the host of the client matches any of the configured ones for an IRC operator promotion.<br>
-						Then the server must check that the given username-password association matches any of the configured ones.<br>
-						Then the server must send back a <a href="#rpl_youreoper">RPL_YOUREOPER</a> to the client,<br>
-						followed by a <a href="#command_mode">MODE</a> message to indicate them their new modes.<br>
+						The OPER command is used to authenticate a user as a local operator.<br>
 						<br>
+						When the server receives an OPER message, it must:
+						<ol>
+							<li>check that the client provided enough arguments</li>
+							<li>check that the given username is valid</li>
+							<li>
+								check that the host of the client<br>
+								matches any of the configured ones
+							</li>
+							<li>
+								check that the given username-password association<br>
+								matches any of the configured ones
+							</li>
+							<li>set the `o` mode for the user</li>
+							<li>
+								send back a <a href="#rpl_youreoper">RPL_YOUREOPER</a> to the client,<br>
+								to indicate them that they are now an IRC operator
+							</li>
+							<li>
+								send back a <a href="#command_mode">MODE</a> message to the client,<br>
+								to indicate them their new modes
+							</li>
+						</ol>
 						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
 						<ul>
 							<li>
 								The username parameter and/or the password parameter is/are empty<br>
-								↳ The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
+								↳ send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
+							</li>
+							<li>
+								The given username is invalid<br>
+								↳ silently abort the command
 							</li>
 							<li>
 								The host of the client doesn't match any of the configured ones for an IRC operator promotion<br>
-								↳ The server must send back an <a href="#err_nooperhost">ERR_NOOPERHOST</a> to the client
+								↳ send back an <a href="#err_nooperhost">ERR_NOOPERHOST</a> to the client
 							</li>
 							<li>
 								The given username-password association doesn't match any of the configured ones<br>
-								↳ The server must send back an <a href="#err_passwordmismatch">ERR_PASSWORDMISMATCH</a> to the client
+								↳ send back an <a href="#err_passwordmismatch">ERR_PASSWORDMISMATCH</a> to the client
 							</li>
 						</ul>
 					</p>
@@ -1022,20 +1066,31 @@
 					<p>
 						The AWAY command is used to mark/unmark a user as away.<br>
 						It also allows the user to choose a custom away message.<br>
+						<br>
 						When the server receives an AWAY message, it must check<br>
-						whether a parameter is given.<br>
+						whether a parameter is given.
 						<ul>
 							<li>
-								If there is, then the server must set the away message for the client to it,<br>
-								set the `a` mode for the user, and send back a <a href="#rpl_nowaway">RPL_NOWAWAY</a>
-								to the client,<br>
-								to indicate them that they are now marked as away.<br>
+								If there is, then the server must:
+								<ol>
+									<li>set the away message for the client to the given one</li>
+									<li>set the `a` mode for the user</li>
+									<li>
+										send back a <a href="#rpl_nowaway">RPL_NOWAWAY</a> to the client,<br>
+										to indicate them that they are now marked as away
+									</li>
+								</ol>
 							</li>
 							<li>
-								If there is not, then the server must unset the away message for the client,<br>
-								unset the `a` mode for the user, and send back a <a href="#rpl_unaway">RPL_UNAWAY</a>
-								to the client,<br>
-								to indicate them that they are no longer marked as away.<br>
+								If there is not, then the server must:
+								<ol>
+									<li>unset the away message for the client</li>
+									<li>unset the `a` mode for the user</li>
+									<li>
+										send back a <a href="#rpl_unaway">RPL_UNAWAY</a> to the client,<br>
+										to indicate them that they are no longer marked as away
+									</li>
+								</ol>
 							</li>
 						</ul>
 					</p>
@@ -1043,159 +1098,185 @@
 
 				<section id="command_mode">
 					<h2>MODE</h2>
+					<!-- #region: ABNF -->
+					<details>
+						<summary>
+							<code>
+								<b>parameters</b> = nick [ space 1*( ( plus / dash ) 1*umode ) ]<br>
+								<b>parameters</b> =/ channel *( space ( plus / dash ) *cmode *( space cmode-param ) )
+							</code>
+						</summary>
+						<blockquote>
+							Either 1 of the following:
+							<ul>
+								<li>1 pattern, which must:
+									<ol>
+										<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+										<li>Contain 0 or 1 pattern, which must:
+											<ol>
+												<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+												<li>Contain 1 or more patterns, which must:
+													<ol>
+														<li>
+															Start with either 1 <code><a href="#abnf_plus">plus</a></code>
+															or 1 <code><a href="#abnf_dash">dash</a></code>
+														</li>
+														<li>Contain 1 or more <code><a href="#abnf_umode">umodes</a></code></li>
+													</ol>
+												</li>
+											</ol>
+										</li>
+									</ol>
+								</li>
+								<li>1 pattern, which must:
+									<ol>
+										<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
+										<li>Contain 0 or more patterns, which must:
+											<ol>
+												<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+												<li>
+													Contain either 1 <code><a href="#abnf_plus">plus</a></code>
+													or 1 <code><a href="#abnf_dash">dash</a></code>
+												</li>
+												<li>Contain 0 or more <code><a href="#abnf_cmode">cmodes</a></code></li>
+												<li>Contain 0 or more patterns, which must:
+													<ol>
+														<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
+														<li>Contain 1 <code><a href="#abnf_cmode_param">cmode-param</a></code></li>
+													</ol>
+												</li>
+											</ol>
+										</li>
+									</ol>
+								</li>
+							</ul>
+						</blockquote>
+					</details>
+					<!-- #endregion -->
 					<p>
 						The MODE command is a dual purpose command in IRC.<br>
 						It is used to modify both user modes and channel modes.<br>
-						When the server receives a MODE message, it must first determine<br>
-						whether it is targeting a user or a channel.<br>
-					</p>
-
-					<section id="command_mode_user">
-						<h3>User</h3>
-						<!-- #region: ABNF -->
-						<details>
-							<summary>
-								<code>
-									<b>parameters</b> = nick space *( ( plus / dash ) 1*umode )
-								</code>
-							</summary>
-							<blockquote>
-								<ol>
-									<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
-									<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
-									<li>Contain 0 or more pattern, which must:</li>
-									<ol>
-										<li>
-											Start with either 1 <code><a href="#abnf_plus">plus</a></code>
-											or 1 <code><a href="#abnf_dash">dash</a></code>
-										</li>
-										<li>Contain 1 or more <code><a href="#abnf_umode">umode</a></code></li>
-									</ol>
-								</ol>
-							</blockquote>
-						</details>
-						<!-- #endregion -->
-						<p>
-							If the target is a user, then the server must check<br>
-							that both the given nickname and the sender nickname are the same.<br>
-							Then the server must check if there are any mode changes to apply.<br>
-							If there aren't, then the server must send back a <a href="#rpl_umodeis">RPL_UMODEIS</a><br>
-							to the client to inform them of their current user modes.<br>
-							Else, the server must check that the given mode changes are valid.<br>
-							Then the server must finally apply them, and send back a MODE message<br>
-							to the client to confirm that their modes have been changed.<br>
-							<br>
-							<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
-							<ul>
-								<li>
-									The nickname parameter is missing<br>
-									↳ The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
-								</li>
-								<li>
-									The given nickname doesn't match the sender nickname<br>
-									↳ The server must send back an <a href="#err_usersdontmatch">ERR_USERSDONTMATCH</a> to the client
-								</li>
-								<li>
-									The given list of mode changes contains an unknown mode<br>
-									↳ The server must send back an <a href="#err_umodeunknownflag">ERR_UMODEUNKNOWNFLAG</a> to the client
-								</li>
-							</ul>
-						</p>
-					</section>
-
-					<section id="command_mode_channel">
-						<h3>Channel</h3>
-						<!-- #region: ABNF -->
-						<details>
-							<summary>
-								<code>
-									<b>parameters</b> = channel *( space ( plus / dash ) *cmode *( space cmode-param ) )
-								</code>
-							</summary>
-							<blockquote>
-								<ol>
-									<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
-									<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
-									<li>Contain 0 or more pattern, which must:</li>
-									<ol>
-										<li>
-											Start with either 1 <code><a href="#abnf_plus">plus</a></code>
-											or 1 <code><a href="#abnf_dash">dash</a></code>
-										</li>
-										<li>Contain 0 or more <code><a href="#abnf_cmode">cmode</a></code></li>
-										<li>Contain 0 or more pattern, which must:</li>
+						<br>
+						When the server receives a MODE message, it must:
+						<ol>
+							<li>check that the client provided enough arguments</li>
+							<li>determine whether the command is targeting a user or a channel
+								<ul>
+									<li>If the target is a user, then the server must:
 										<ol>
-											<li>Start with 1 <code><a href="#abnf_space">space</a></code></li>
-											<li>Contain 1 <code><a href="#abnf_cmode_param">cmode-param</a></code></li>
+											<li>check that both the given nickname and the sender nickname are the same</li>
+											<li>determine whether there are any mode changes to apply
+												<ul>
+													<li>If there are, then the server must:
+														<ol>
+															<li>check that the given mode changes are valid</li>
+															<li>apply the given mode changes to the user</li>
+															<li>
+																send back a MODE message to the client,<br>
+																to confirm that their modes have been changed
+															</li>
+														</ol>
+													</li>
+													<li>
+														If there aren't, then the server must<br>
+														send back a <a href="#rpl_umodeis">RPL_UMODEIS</a> to the client,<br>
+														to inform them of their current user modes.
+													</li>
+												</ul>
+											</li>
 										</ol>
-									</ol>
-								</ol>
-							</blockquote>
-						</details>
-						<!-- #endregion -->
-						<p>
-							If the target is a channel, then the server must check<br>
-							that the given channel exists.<br>
-							Then the server must check if there are any mode changes to apply.<br>
-							If there aren't, then the server must send back a
-							<a href="#rpl_channelmodeis">RPL_CHANNELMODEIS</a><br>
-							to the client to inform them of the current channel modes.<br>
-							Then, depending on whether the invitelist of the channel contains masks,<br>
-							the server must send back a
-							<a href="#rpl_invitelist">RPL_INVITELIST</a> for each of them,<br>
-							ending by sending back a <a href="#rpl_endofinvitelist">RPL_ENDOFINVITELIST</a> to the client<br>
-							to inform them of the current invitelist of the channel.<br>
-							Then, depending on whether the banlist of the channel contains masks,<br>
-							the server must send back a
-							<a href="#rpl_banlist">RPL_BANLIST</a> for each of them,<br>
-							ending by sending back a <a href="#rpl_endofbanlist">RPL_ENDOFBANLIST</a> to the client<br>
-							to inform them of the current banlist of the channel.<br>
-							Else (if there are mode changes to apply), the server must check that the sender is<br>
-							either one of its channel operator or its creator.<br>
-							Then the server must check that the given mode changes are valid.<br>
-							Then the server must finally apply them, and send back a MODE message<br>
-							to every user that is in the channel to inform them of the changes.<br>
-							<br>
-							<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
-							<ul>
-								<li>
-									The channel parameter is missing<br>
-									↳ The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
-								</li>
-								<li>
-									The given channel doesn't exist<br>
-									↳ The server must send back an <a href="#err_nosuchchannel">ERR_NOSUCHCHANNEL</a> to the client
-								</li>
-								<li>
-									The given channel doesn't support modes, but there is a given list of mode changes<br>
-									↳ The server must send back an <a href="#err_nochanmodes">ERR_NOCHANMODES</a> to the client
-								</li>
-								<li>
-									The sender is neither a channel operator nor the creator of the channel<br>
-									↳ The server must send back an <a href="#err_chanoprivsneeded">ERR_CHANOPRIVSNEEDED</a> to the client
-								</li>
-								<li>
-									The given list of mode changes contains an unknown mode<br>
-									↳ The server must send back an <a href="#err_unknownmode">ERR_UNKNOWNMODE</a> to the client
-								</li>
-								<li>
-									The given list of mode changes contains a mode that requires a parameter,<br>
-									but the parameter is missing<br>
-									↳ The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
-								</li>
-								<li>
-									The given list of mode changes contains a <code>+k</code>,<br>
-									but the channel has already the <code>k</code> mode set<br>
-									↳ The server must send back an <a href="#err_keyset">ERR_KEYSET</a> to the client
-								</li>
-								<li>
-									The given list of mode changes contains a <code>+o</code> with a <a href="#user_mask">user mask</a><br>
-									that doesn't match any user in the channel<br>
-									↳ The server must send back an <a href="#err_usernotonchannel">ERR_USERNOTONCHANNEL</a> to the client
-								</li>
-							</ul>
-						</p>
-					</section>
+									</li>
+									<li>If the target is a channel, then the server must:
+										<ol>
+											<li>check that the given channel exists</li>
+											<li>determine whether there are any mode changes to apply
+												<ul>
+													<li>If there are, then the server must:
+														<ol>
+															<li>check that the sender is either one of its channel operator or its creator</li>
+															<li>check that the given mode changes are valid</li>
+															<li>apply the given mode changes to the channel</li>
+															<li>
+																send a MODE message to every user that is in the channel,<br>
+																to inform them of the changes
+															</li>
+														</ol>
+													</li>
+													<li>If there aren't, then the server must:
+														<ol>
+															<li>
+																send back a <a href="#rpl_channelmodeis">RPL_CHANNELMODEIS</a> to the client,<br>
+																to inform them of the current channel modes
+															</li>
+															<li>if the invite-list of the channel contains masks, then the server must:
+																<ol>
+																	<li>
+																		send back a <a href="#rpl_invitelist">RPL_INVITELIST</a> to the client
+																		for each of them
+																	</li>
+																	<li>send back a <a href="#rpl_endofinvitelist">RPL_ENDOFINVITELIST</a> to the client</li>
+																</ol>
+																to inform the client of the current invite-list of the channel
+															</li>
+															<li>if the ban-list of the channel contains masks, then the server must:
+																<ol>
+																	<li>send back a <a href="#rpl_banlist">RPL_BANLIST</a> to the client for each of them</li>
+																	<li>send back a <a href="#rpl_endofbanlist">RPL_ENDOFBANLIST</a> to the client</li>
+																</ol>
+																to inform the client of the current ban-list of the channel
+															</li>
+														</ol>
+													</li>
+												</ul>
+											</li>
+										</ol>
+									</li>
+								</ul>
+							</li>
+						</ol>
+						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
+						<ul>
+							<li>
+								The nickname/channel argument is missing<br>
+								↳ The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
+							</li>
+							<li>
+								The given nickname doesn't match the sender nickname<br>
+								↳ The server must send back an <a href="#err_usersdontmatch">ERR_USERSDONTMATCH</a> to the client
+							</li>
+							<li>
+								The given list of mode changes contains an invalid mode<br>
+								↳ The server must send back an <a href="#err_umodeunknownflag">ERR_UMODEUNKNOWNFLAG</a> to the client
+							</li>
+							<li>
+								The given channel doesn't exist<br>
+								↳ The server must send back an <a href="#err_nosuchchannel">ERR_NOSUCHCHANNEL</a> to the client
+							</li>
+							<li>
+								The given channel doesn't support modes, but there is a given list of mode changes<br>
+								↳ The server must send back an <a href="#err_nochanmodes">ERR_NOCHANMODES</a> to the client
+							</li>
+							<li>
+								The sender is neither a channel operator nor the creator of the channel<br>
+								↳ The server must send back an <a href="#err_chanoprivsneeded">ERR_CHANOPRIVSNEEDED</a> to the client
+							</li>
+							<li>
+								The given list of mode changes contains a mode that requires an argument,<br>
+								but the argument is missing<br>
+								↳ The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
+							</li>
+							<li>
+								The given list of mode changes contains a <code>+k</code>,<br>
+								but the channel has already the `k` mode set<br>
+								↳ The server must send back an <a href="#err_keyset">ERR_KEYSET</a> to the client
+							</li>
+							<li>
+								The given list of mode changes contains a <code>+o</code> with a <a href="#user_mask">user mask</a><br>
+								that doesn't match any user in the channel<br>
+								↳ The server must send back an <a href="#err_usernotonchannel">ERR_USERNOTONCHANNEL</a> to the client
+							</li>
+						</ul>
+					</p>
 				</section>
 
 				<section id="command_quit">
@@ -1214,6 +1295,7 @@
 					<!-- #endregion -->
 					<p>
 						The QUIT command is used to disconnect a client from the server.<br>
+						<br>
 						When the server receives a QUIT message,<br>
 						it must send back an <a href="#command_error">ERROR</a> message to the client,<br>
 						to confirm that they are about to be disconnected.<br>
