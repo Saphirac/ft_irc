@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:11:16 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/21 00:56:42 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/23 15:46:25 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,9 +70,7 @@ void Server::handle_new_connection()
 		exit(EXIT_FAILURE);
 	}
 	control_socket(client_socket);
-	this->_clients_socket[client_socket] = new Client(client_socket, "", "", "", "",  0);
+	this->_clients_socket[client_socket] = new Client(client_socket);
 	this->_clients_socket[client_socket]->set_epoll_event();
-	printf("epoll_fd : %d\n client_socket : %d\n", this->_epoll_socket, client_socket);
-	printf("epoll event adress : %p\n", this->_clients_socket[client_socket]->get_epoll_event());
 	ctrl_epoll_add(this->_epoll_socket, client_socket, this->_clients_socket[client_socket]->get_epoll_event());
 }

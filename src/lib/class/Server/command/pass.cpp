@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:23:54 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/23 12:14:47 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/23 16:01:43 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ inline static StatusCode error_need_more_parameters(Server &server, Client &clie
 	if (status)
 		return status;
 
-	//server.remove_client(client);
+	server.remove_client(&client);
 	return Success;
 }
 
@@ -85,7 +85,7 @@ inline static StatusCode error_password_mismatch(Server &server, Client &client)
 	if (status)
 		return status;
 
-	//server.remove_client(client);
+	server.remove_client(&client);
 	return Success;
 }
 

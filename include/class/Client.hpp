@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/23 12:11:11 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/23 15:30:24 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,10 +73,6 @@ public:
 	int                get_socket(void) const;
 	
 	struct epoll_event	*get_epoll_event(void) const;
-	struct sockaddr_in	*get_sock_addr(void) const;
-	socklen_t			get_sock_len(void) const;
-
-	struct epoll_event *get_epoll_event(void) const;
 
 	std::clock_t get_time_last_msg(void) const;
 	std::string const &get_msg_in(void) const;

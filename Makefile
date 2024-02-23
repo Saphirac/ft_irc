@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/23 12:07:06 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/02/23 15:51:25 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -43,18 +43,7 @@ INC_DIR =	include
 ######################################
 SRC		=	\
 	${addsuffix .cpp, \
-		${addprefix server/,	\
-			${addprefix class/,	\
-				Server		\
-				Client		\
-				Channel		\
-				IrcMessage	\
-			}	\
-		}	\
-		${addprefix utils/,	\
-			trim			\
-		}	\
-	main \
+		main \
 	}
 
 LIB_SRC = \
@@ -103,16 +92,13 @@ LIB_SRC = \
 						whois \
 						cap \
 						init_map_cmd \
+						user \
 					} \
 					Server \
 					core \
 					epoll \
 					handle_clients \
 				} \
-			} \
-			${addprefix regex/, \
-						regex \
-				Client \
 				Hostname \
 				Nickname \
 				Realname \
@@ -120,11 +106,11 @@ LIB_SRC = \
 				UserModes \
 				Username \
 			} \
-			format_reply \
-			parse_irc_message \
-			send_message \
+		format_reply \
+		parse_irc_message \
+		send_message \
 		} \
-	}
+	} 
 
 ######################################
 #            OBJECT FILES            #

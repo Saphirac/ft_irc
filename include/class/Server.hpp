@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/23 12:12:31 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/23 16:05:26 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,18 +20,17 @@
 #include <map>
 #include <netinet/in.h>
 #include <netinet/ip.h>
+#include <set>
 #include <stdlib.h>
 #include <string>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <set>
 #include <vector>
 
 class Client;
 class Channel;
-enum StatusCode;
 
 // TODO : change this to a proper value
 
@@ -172,6 +171,9 @@ public:
 	struct sockaddr_in bind_assign_sockaddr();
 
 	void init_map_cmd(void);
+
+	void add_client(Client *client);
+	void remove_client(Client *client);
 };
 
 int  create_epoll();

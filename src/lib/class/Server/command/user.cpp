@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   user.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 19:56:34 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/23 16:05:14 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,9 @@ inline static StatusCode error_already_registered(Client &client)
  *
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
-inline static StatusCode error_no_nickname_set(Server &server, Client const &client)
+inline static StatusCode error_no_nickname_set(Server &server, Client &client)
 {
-	server.remove_client(client);
+	server.remove_client(&client);
 	return Success;
 }
 
@@ -58,9 +58,9 @@ inline static StatusCode error_no_nickname_set(Server &server, Client const &cli
  *
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
-inline static StatusCode error_not_authenticated(Server &server, Client const &client)
+inline static StatusCode error_not_authenticated(Server &server, Client &client)
 {
-	server.remove_client(client);
+	server.remove_client(&client);
 	return Success;
 }
 
@@ -88,7 +88,7 @@ inline static StatusCode error_need_more_parameters(Server &server, Client &clie
 	if (status)
 		return status;
 
-	server.remove_client(client);
+	server.remove_client(&client);
 	return Success;
 }
 
@@ -100,9 +100,9 @@ inline static StatusCode error_need_more_parameters(Server &server, Client &clie
  *
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
-inline static StatusCode error_erroneus_argument(Server &server, Client const &client)
+inline static StatusCode error_erroneus_argument(Server &server, Client &client)
 {
-	server.remove_client(client);
+	server.remove_client(&client);
 	return Success;
 }
 

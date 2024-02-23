@@ -135,6 +135,4 @@ int c_multi(	 const char* pattern, const char* sample, const char* endpattern);
 void regex_debug(const char* pattern, const char* sampleString, const char* trueAnswer);
 int regex_test(const char* pattern, const char* sampleString, const char* trueAnswer);
 
-
-
 #endif

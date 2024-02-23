@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/23 12:14:01 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/23 16:04:52 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,4 +194,19 @@ struct sockaddr_in Server::bind_assign_sockaddr()
 		throw Server::ProblemWithSockAddr();
 	this->_sock_addr = sock_addr;
 	return sock_addr;
+}
+
+void	Server::add_client(Client *client)
+{
+	this->_clients_socket[client->get_socket()] = client;
+
+	if (!client->get_nickname().empty())
+		this->_clients_nick[client->get_nickname()] = client;
+}
+
+void	Server::remove_client(Client *client)
+{
+	this->_clients_socket.erase(client->get_socket());
+	if (!client->get_nickname().empty())
+		this->_clients_nick.erase(client->get_nickname());
 }

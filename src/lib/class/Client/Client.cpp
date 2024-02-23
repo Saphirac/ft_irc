@@ -6,37 +6,44 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 02:53:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/20 21:21:44 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/23 15:37:27 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Client.hpp"
 
 /**
- * @brief Appends a given message to the messages of the Client instance.
+ * @brief Appends a string to the input buffer of the Client instance.
  *
- * @param message The message to append.
+ * @param s The string to append.
  */
-void Client::append_message(std::string const &message) { this->_messages += message + "\r\n"; }
+void Client::append_to_msg_in(std::string const &s) { this->_msg_in += s; }
 
 /**
- * @brief Clears the messages of the Client instance.
+ * @brief Appends a message to the output buffer of the Client instance. The message is suffixed with a CRLF sequence.
+ *
+ * @param msg The message to append.
  */
-void Client::clear_messages(void) { this->_messages.clear(); }
+void Client::append_to_msg_out(std::string const &msg) { this->_msg_out += msg + "\r\n"; }
+
+/**
+ * @brief Clears the output buffer of the Client instance.
+ */
+void Client::clear_msg_out(void) { this->_msg_out.clear(); }
 
 /**
  * @brief Sets a given mode for the client.
  *
  * @param mode The mode to set.
  */
-void Client::set_mode(UserMode const mode) { this->_modes |= 1 << mode; }
+void Client::set_mode(UserMode const mode) { this->_modes.set(mode); }
 
 /**
  * @brief Clears a given mode for the client.
  *
  * @param mode The mode to clear.
  */
-void Client::clear_mode(UserMode const mode) { this->_modes &= ~(1 << mode); }
+void Client::clear_mode(UserMode const mode) { this->_modes.clear(mode); }
 
 /**
  * @brief Check whether the client has a given mode set.
@@ -45,28 +52,15 @@ void Client::clear_mode(UserMode const mode) { this->_modes &= ~(1 << mode); }
  *
  * @return true if the client has the given mode set, false otherwise.
  */
-bool Client::has_mode(UserMode const mode) const { return this->_modes & 1 << mode; }
+bool Client::has_mode(UserMode const mode) const { return this->_modes.is_set(mode); }
 
-/**
- * @brief Sends a given message on the socket of the Client instance.
- *
- * @param message The message to send.
- *
- * @return The number of bytes sent, or -1 if an error occurred.
- */
-ssize_t Client::send_message(std::string const &message) const
+StatusCode Client::send_msg_out(void)
 {
-	return send(this->_socket, message.c_str(), message.size(), 0);
-}
+	if (send(this->_socket, this->_msg_out.c_str(), this->_msg_out.size(), 0) == -1)
+		return ErrorSend;
 
-/**
- * @brief Sends the messages that are currently stored in the Client instance on its socket.
- *
- * @return The number of bytes sent, or -1 if an error occurred.
- */
-ssize_t Client::send_messages(void) const
-{
-	return send(this->_socket, this->_messages.c_str(), this->_messages.size(), 0);
+	this->clear_msg_out();
+	return Success;
 }
 
 /**

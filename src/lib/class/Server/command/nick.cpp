@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:22 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/23 12:14:32 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/23 15:44:55 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ StatusCode Server::nick(Client &sender, std::vector<std::string> const &paramete
 
 	if (!nickname.is_valid())
 		return error_erroneus_nickname(sender, nickname);
-	if (this->_clients_by_nickname.count(nickname))
+	if (this->_clients_nick.count(nickname))
 		return error_nickname_in_use(sender, nickname);
 
 	this->_clients_nick.erase(sender.get_nickname());
