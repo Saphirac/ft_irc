@@ -6,108 +6,102 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/26 04:04:21 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/06 01:10:57 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/25 02:29:09 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <algorithm>
 #include "Channel.hpp"
 
-Channel::Channel(std::string name) : _name(name)
+Channel::Channel(std::string const &name, std::string const &topic, Client const &creator) :
+	_name(name),
+	_topic(topic),
+	_key(""),
+	_users_limit(0),
+	_creator(const_cast<Client &>(creator))
 {
 	if (DEBUG)
-		std::cout << "Channel constructor called\n";
+		std::cout << "Channel constructor called" << std::endl;
+	this->_clients[creator.get_nickname()] = const_cast<Client *>(&creator);
+	this->_operators[creator.get_nickname()] = const_cast<Client *>(&creator);
 }
 
 Channel::~Channel()
 {
 	if (DEBUG)
-		std::cout << "Channel destructor called\n";
+		std::cout << "Channel destructor called" << std::endl;
 }
 
-// Getters //
+// Getters
 
-std::string Channel::getName(void)
+std::string const           Channel::get_name(void) { return this->_name; }
+std::string const           Channel::get_topic(void) { return this->_topic; }
+std::string const           Channel::get_key(void) { return this->_key; }
+
+std::map<std::string, Client *> const Channel::get_clients(void) { return this->_clients; }
+std::map<std::string, Client *> const Channel::get_operators(void) { return this->_operators; }
+std::map<std::string, Client *> const Channel::get_invite_list(void) { return this->_invite_list; }
+std::map<std::string, Client *> const Channel::get_ban_list(void) { return this->_ban_list; }
+
+std::vector<ChannelMode>    Channel::get_modes(void) { return this->_modes; }
+int                         Channel::get_users_limit(void) { return this->_users_limit; }
+Client                     &Channel::get_creator(void) { return this->_creator; }
+
+// Setters
+
+void Channel::set_name(std::string name) { this->_name = name; }
+void Channel::set_topic(std::string topic) { this->_topic = topic; }
+
+void Channel::add_client(Client &client) { this->_clients[client.get_nickname()] = &client; }
+void Channel::remove_client(Client &client) { this->_clients.erase(client.get_nickname()); }
+
+void Channel::add_operator(Client &client) { this->_operators[client.get_nickname()] = &client; }
+void Channel::remove_operator(Client &client) { this->_operators.erase(client.get_nickname()); }
+
+void Channel::add_to_invite_list(Client &client) { this->_invite_list[client.get_nickname()] = &client; }
+void Channel::remove_from_invite_list(Client &client) { this->_invite_list.erase(client.get_nickname()); }
+void Channel::add_to_ban_list(Client &client) { this->_ban_list[client.get_nickname()] = &client; }
+void Channel::remove_from_ban_list(Client &client) { this->_ban_list.erase(client.get_nickname()); }
+
+void Channel::add_modes(ChannelMode mode) { this->_modes.push_back(mode); }
+void Channel::remove_modes(ChannelMode mode) 
 {
-	if (DEBUG)
-		std::cout << "getName() member function of Channel called\n";
-	return this->_name;
+	std::vector<ChannelMode>::iterator it = std::find(this->_modes.begin(), this->_modes.end(), mode);
+	if (it != this->_modes.end())
+		this->_modes.erase(it);
 }
 
-std::string Channel::getTopic(void)
+void Channel::set_limit(int users_limit) { _users_limit = users_limit; }
+void Channel::set_key(std::string key) { _key = key; }
+void Channel::set_creator(Client &creator) { _creator = creator; }
+
+// Member functions
+
+void	Channel::display_mode(void)
 {
-	if (DEBUG)
-		std::cout << "getTopic() member function of Channel called\n";
-	return this->_topic;
+	std::cout << "Modes: ";
+	for (size_t i = 0; i < this->_modes.size(); i++)
+		std::cout << this->_modes[i] << " ";
+	std::cout << '\n';
 }
 
-std::vector<Client *> Channel::getClients(void)
+/*void	Channel::send_msg_to_all(std::string const &msg, Client &sender)
 {
-	if (DEBUG)
-		std::cout << "getClients() member function of Channel called\n";
-	return this->_clients;
-}
-
-std::vector<Client *> Channel::getOperators(void)
-{
-	if (DEBUG)
-		std::cout << "getOperators() member function of Channel called\n";
-	return this->_operators;
-}
-
-// Setters //
-
-void Channel::setName(std::string name)
-{
-	if (DEBUG)
-		std::cout << "setName() member function of Channel called\n";
-	this->_name = name;
-}
-
-void Channel::setTopic(std::string topic)
-{
-	if (DEBUG)
-		std::cout << "setTopic() member function of Channel called\n";
-	this->_topic = topic;
-}
-
-void Channel::setClients(std::vector<Client *> clients)
-{
-	if (DEBUG)
-		std::cout << "setClients() member function of Channel called\n";
-	this->_clients = clients;
-}
-
-void Channel::setOperators(std::vector<Client *> operators)
-{
-	if (DEBUG)
-		std::cout << "setOperators() member function of Channel called\n";
-	this->_operators = operators;
-}
-
-void Channel::addClient(Client *client)
-{
-	if (DEBUG)
-		std::cout << "addClient() member function of Channel called\n";
-	this->_clients.push_back(client);
-}
-
-void Channel::addOperator(Client *client)
-{
-	if (DEBUG)
-		std::cout << "addOperator() member function of Channel called\n";
-	this->_operators.push_back(client);
-}
-
-void Channel::removeClient(Client *client)
-{
-	if (DEBUG)
-		std::cout << "removeClient() member function of Channel called\n";
-	for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it)
+	std::map<std::string, Client &>::iterator it = this->_clients.begin();
+	while (it != this->_clients.end())
 	{
-		if (*it == client)
-		{
-			this->_clients.erase(it);
-			break;
-		}
+		if (it.second != &sender)
+			it.second->append_to_msg_out(msg);
+		it++;
+	}
+}*/
+
+void	Channel::send_msg_to_all(std::string const &msg)
+{
+	std::map<std::string, Client *>::iterator it = this->_clients.begin();
+	while (it != this->_clients.end())
+	{
+		it->second->append_to_msg_out(msg);
+		it++;
 	}
 }
