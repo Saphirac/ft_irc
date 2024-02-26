@@ -14,6 +14,7 @@
 #include <cstdlib>
 #include "Server.hpp"
 #include <cstdio>
+#include "IrcMessage.hpp"
 
 /**
  * @brief Launch irc server
@@ -27,8 +28,11 @@
 
 int main(int ac, char **av)
 {
-	if (ac != 3)
+	if (ac != 4)
 		return 1;
+	IrcMessage ircmsg;
+	ircmsg = ircmsg.parseIrcMessage(std::string(av[3]));
+	ircmsg.display();
 	Server *myserver = new Server(atoi(av[1]), std::string(av[2]), "MyServer");
 	try {
 		myserver->init_server();
