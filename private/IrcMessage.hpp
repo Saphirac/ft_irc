@@ -6,18 +6,15 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:06:14 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/26 16:44:08 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/26 16:58:04 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef IRCMESSAGE_HPP
 #define IRCMESSAGE_HPP
 
-#include "irc.hpp"
-#include <iostream>
 #include <string>
 #include <vector>
-#include <sstream>
 
 class IrcMessage
 {
@@ -27,11 +24,22 @@ private:
 	std::vector<std::string> _params;
 	std::string              _end;
 
-public:
-	void       display() const;
-	IrcMessage parseIrcMessage(std::string const &msg);
-};
+	bool _is_complete;
 
-IrcMessage parse_irc_message(const std::string &message);
+public:
+	IrcMessage();
+	~IrcMessage();
+
+	// Getters //
+	std::string               get_prefix() const;
+	std::string               get_command() const;
+	std::vector<std::string> &get_params();
+	std::string               get_end() const;
+
+	bool is_complete() const;
+
+	void       display() const;
+	IrcMessage parse_irc_message(std::string const &msg);
+};
 
 #endif

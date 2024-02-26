@@ -1,35 +1,67 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   IrcMessage.cpp                                     :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/17 14:06:05 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/18 00:36:21 by mcourtoi         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "IrcMessage.hpp"
+#include <iostream>
+#include <sstream>
 
-// Getters //
+IrcMessage::IrcMessage() : _is_complete(false) {}
+IrcMessage::~IrcMessage() {}
 
-std::string IrcMessage::get_prefix() const { return this->_prefix; }
-std::string IrcMessage::get_command() const { return this->_command; }
-std::vector<std::string> *IrcMessage::get_params() { return &this->_params; }
-
-// Setters //
-
-void	IrcMessage::set_prefix(const std::string &prefix) { this->_prefix = prefix; }
-void	IrcMessage::set_command(const std::string &command) { this->_command = command; }
-void	IrcMessage::set_params(const std::vector<std::string> &params) { this->_params = params; }
-
-void IrcMessage::display() const 
+void IrcMessage::display() const
 {
-    std::cout << "Prefix: [" << _prefix << "]\n";
-    std::cout << "Command: [" << _command << "]\n";
-    std::cout << "Params: " << "\n";
-    for (size_t i = 0; i < _params.size(); ++i) {
-        std::cout << " [" << _params[i] << "]\n";
-    }
+	std::cout << "Prefix: " << _prefix << std::endl;
+	std::cout << "Command: " << _command << std::endl;
+	std::cout << "Params: ";
+	for (size_t i = 0; i < _params.size(); ++i)
+	{
+		std::cout << "[" << _params[i] << "]";
+	}
+	std::cout << std::endl;
+	std::cout << "End: " << (_end.empty() ? "null" : "\\r\\n") << std::endl;
+	std::cout << "----------------------------------------" << std::endl;
+}
+
+// TODO use this instead of IrcMessage variable (because it's a method)
+IrcMessage IrcMessage::parse_irc_message(std::string const &message)
+{
+	IrcMessage         ircMessage;
+	std::istringstream iss(message);
+	std::string        token;
+
+	if (message[0] == ':')
+	{
+		std::getline(iss, token, ' ');
+		ircMessage._prefix = token.substr(1); // Remove the leading ':'
+	}
+
+	std::getline(iss, token, ' ');
+	ircMessage._command = token;
+
+	std::string remaining;
+	std::getline(iss, remaining);
+
+	size_t pos = remaining.find(':');
+	if (pos != std::string::npos)
+	{
+		if (pos > 0)
+		{
+			ircMessage._params.push_back(remaining.substr(0, pos));
+		}
+		ircMessage._params.push_back(remaining.substr(pos));
+	}
+	else
+	{
+		if (!remaining.empty())
+		{
+			ircMessage._params.push_back(remaining);
+		}
+	}
+
+	if (message.size() >= 2 && message.substr(message.size() - 2) == "\r\n")
+	{
+		ircMessage._end = "\r\n";
+		_is_complete = true;
+		std::string &lastString = ircMessage._params.back();
+		lastString.erase(lastString.length() - 2);
+	}
+
+	return ircMessage;
 }

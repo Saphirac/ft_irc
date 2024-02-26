@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:11:16 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/23 15:46:25 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/26 17:38:46 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ void control_socket(int const socket)
 	}
 }
 
+#include <stdio.h>
+
 void Server::handle_client_event(Client *client)
 {
 	client->set_time_last_msg();
@@ -46,12 +48,18 @@ void Server::handle_client_event(Client *client)
 		return;
 	}
 	buffer[bytes_read] = '\0';
-	IrcMessage test = parse_irc_message(std::string(buffer));
-	test.display();
-	if (test.get_command() == "CAP")
-		this->cap(*client, *test.get_params());
-	else if (test.get_command() == "JOIN")
-		this->join(*client, *test.get_params());
+	printf("Received: [%s]\n", buffer);
+	printf("Received: [%s]\n", std::string(buffer).c_str());
+	IrcMessage rcv_msg;
+	rcv_msg.parse_irc_message(std::string(buffer));
+	if (rcv_msg.is_complete() == false)
+	{	
+		client->append_to_msg_in(std::string(buffer));
+		return; 
+	}
+	printf("[%s]\n", rcv_msg.get_command().c_str());
+	//TODO protect against unknown / empty command 
+	//(this->*(_map_of_cmds[rcv_msg.get_command()]))(*client, rcv_msg.get_params());
 }
 
 /**

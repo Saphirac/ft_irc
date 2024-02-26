@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/26 16:43:37 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/02/26 16:52:38 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -59,6 +59,7 @@ LIB_SRC = \
 				} \
 				${addprefix IrcMessage/, \
 					IrcMessage \
+					core \
 				} \
 				${addprefix Server/, \
 					${addprefix command/, \
@@ -107,7 +108,6 @@ LIB_SRC = \
 				Username \
 			} \
 		format_reply \
-		parse_irc_message \
 		send_message \
 		} \
 	} 
