@@ -24,7 +24,6 @@
 							<li><a href="#hostname">Hostname</a></li>
 							<li><a href="#username">Username</a></li>
 							<li><a href="#user_modes">Modes</a></li>
-							<li><a href="#user_mask">Mask</a></li>
 						</ul>
 					</li>
 					<li><a href="#channels">Channels</a>
@@ -361,34 +360,6 @@
 						<!-- #endregion -->
 					</figure>
 				</section>
-
-				<section id="user_mask">
-					<h2>Mask</h2>
-					<p>A mask is a way to identify a user without any possible ambiguity.</p>
-					<figure>
-						<figcaption>
-							Every user mask that is received or sent by the server must be formatted as follows:
-						</figcaption>
-						<!-- #region: ABNF -->
-						<details>
-							<summary>
-								<code id="abnf_user_mask">
-									<b>user-mask</b> = nick bang user at host
-								</code>
-							</summary>
-							<blockquote>
-								<ol>
-									<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
-									<li>Contain 1 <code><a href="#abnf_bang">bang</a></code></li>
-									<li>Contain 1 <code><a href="#abnf_user">user</a></code></li>
-									<li>Contain 1 <code><a href="#abnf_at">at</a></code></li>
-									<li>Contain 1 <code><a href="#abnf_host">host</a></code></li>
-								</ol>
-							</blockquote>
-						</details>
-						<!-- #endregion -->
-					</figure>
-				</section>
 			</section>
 
 			<section id="channels">
@@ -417,7 +388,7 @@
 								<details>
 									<summary>
 										<code id="abnf_channel">
-											<b>channel</b> = ( hash / and / plus / ( bang channelid ) ) chanstring [ colon chanstring ]
+											<b>channel</b> = ( hash / ampersand / plus / ( bang channelid ) ) chanstring [ colon chanstring ]
 										</code>
 									</summary>
 									<blockquote>
@@ -425,7 +396,7 @@
 											<li>Start with either 1 of the following:
 												<ul>
 													<li>1 <code><a href="#abnf_hash">hash</a></code></li>
-													<li>1 <code><a href="#abnf_and">and</a></code></li>
+													<li>1 <code><a href="#abnf_ampersand">ampersand</a></code></li>
 													<li>1 <code><a href="#abnf_plus">plus</a></code></li>
 													<li>1 pattern, which must:
 														<ol>
@@ -538,20 +509,16 @@
 						</p>
 						<ul>
 							<li>
-								<code>+I</code> : takes 1 or more <a href="#user_mask">user masks</a>
-								to add to the invitelist of a channel
+								<code>+I</code> : takes 1 <a href="#nickname">nickname</a> to add to the invite-list of a channel
 							</li>
 							<li>
-								<code>-I</code> : takes 1 or more <a href="#user_mask">user masks</a>
-								to remove from the invitelist of a channel
+								<code>-I</code> : takes 1 <a href="#nickname">nickname</a> to remove from the invite-list of a channel
 							</li>
 							<li>
-								<code>+b</code> : takes 1 or more <a href="#user_mask">user masks</a>
-								to add to the banlist of a channel
+								<code>+b</code> : takes 1 <a href="#nickname">nickname</a> to add to the ban-list of a channel
 							</li>
 							<li>
-								<code>-b</code> : takes 1 or more <a href="#user_mask">user masks</a>
-								to remove from the banlist of a channel
+								<code>-b</code> : takes 1 <a href="#nickname">nickname</a> to remove from the ban-list of a channel
 							</li>
 							<li>
 								<code>+k</code> : takes 1 key to set for a channel, rejecting new users to join it<br>
@@ -561,12 +528,10 @@
 								<code>+l</code> : takes 1 number to set the maximum number of users present in a channel
 							</li>
 							<li>
-								<code>+o</code> : takes 1 or more <a href="#user_mask">user masks</a>
-								to add to the chanoplist of a channel
+								<code>+o</code> : takes 1 <a href="#nickname">nickname</a> to add to the chanop-list of a channel
 							</li>
 							<li>
-								<code>-o</code> : takes 1 or more <a href="#user_mask">user masks</a>
-								to remove from the chanoplist of a channel
+								<code>-o</code> : takes 1 <a href="#nickname">nickname</a> to remove from the chanop-list of a channel
 							</li>
 						</ul>
 						<figure>
@@ -578,11 +543,11 @@
 							<details>
 								<summary>
 									<code id="abnf_cmode_param">
-										<b>cmode-param</b> = user-mask / key / limit
+										<b>cmode-param</b> = nick / key / limit
 									</code>
 								</summary>
 								<blockquote>
-									Either 1 <code><a href="#abnf_user_mask">user-mask</a></code>
+									Either 1 <code><a href="#abnf_nick">nick</a></code>
 									or 1 <code><a href="#abnf_key">key</a></code>
 									or 1 <code><a href="#abnf_limit">limit</a></code>
 								</blockquote>
@@ -804,16 +769,16 @@
 						<ul>
 							<li>
 								The connection of the client is already authenticated<br>
-								↳ send back an <a href="#err_alreadyregistered">ERR_ALREADYREGISTERED</a> to the client
+								&#x21B3; send back an <a href="#err_alreadyregistered">ERR_ALREADYREGISTERED</a> to the client
 							</li>
 							<li>
 								The password argument is missing<br>
-								↳ send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client<br>
+								&#x21B3; send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client<br>
 								&emsp;and then close the connection with the client.
 							</li>
 							<li>
 								The given password doesn't match the configured one<br>
-								↳ send back an <a href="#err_passwordmismatch">ERR_PASSWORDMISMATCH</a> to the client<br>
+								&#x21B3; send back an <a href="#err_passwordmismatch">ERR_PASSWORDMISMATCH</a> to the client<br>
 								&emsp;and then close the connection with the client.
 							</li>
 						</ul>
@@ -854,15 +819,15 @@
 						<ul>
 							<li>
 								The nickname argument is missing<br>
-								↳ send back an <a href="#err_nonicknamegiven">ERR_NONICKNAMEGIVEN</a> to the client
+								&#x21B3; send back an <a href="#err_nonicknamegiven">ERR_NONICKNAMEGIVEN</a> to the client
 							</li>
 							<li>
 								The given nickname is invalid<br>
-								↳ send back an <a href="#err_erroneusnickname">ERR_ERRONEUSNICKNAME</a> to the client
+								&#x21B3; send back an <a href="#err_erroneusnickname">ERR_ERRONEUSNICKNAME</a> to the client
 							</li>
 							<li>
 								The given nickname is already in use<br>
-								↳ send back an <a href="#err_nicknameinuse">ERR_NICKNAMEINUSE</a> to the client
+								&#x21B3; send back an <a href="#err_nicknameinuse">ERR_NICKNAMEINUSE</a> to the client
 							</li>
 						</ul>
 					</p>
@@ -964,21 +929,21 @@
 						<ul>
 							<li>
 								The client already sent a USER command before<br>
-								↳ send back an <a href="#err_alreadyregistered">ERR_ALREADYREGISTERED</a> to the client
+								&#x21B3; send back an <a href="#err_alreadyregistered">ERR_ALREADYREGISTERED</a> to the client
 							</li>
 							<li>
 								The client connection is not authenticated and/or the nickname of the client isn't set yet<br>
-								↳ close the connection with the client
+								&#x21B3; close the connection with the client
 							</li>
 							<li>
 								The username argument and/or the umode-mask argument<br>
 								and/or the hostname argument and/or the realname argument is/are missing<br>
-								↳ send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client<br>
+								&#x21B3; send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client<br>
 								&emsp;and then close the connection with the client.
 							</li>
 							<li>
 								The given user name and/or user mode mask and/or host name is/are invalid<br>
-								↳ close the connection with the client.
+								&#x21B3; close the connection with the client.
 							</li>
 						</ul>
 					</p>
@@ -1031,19 +996,19 @@
 						<ul>
 							<li>
 								The username parameter and/or the password parameter is/are empty<br>
-								↳ send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
+								&#x21B3; send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
 							</li>
 							<li>
 								The given username is invalid<br>
-								↳ silently abort the command
+								&#x21B3; silently abort the command
 							</li>
 							<li>
 								The host of the client doesn't match any of the configured ones for an IRC operator promotion<br>
-								↳ send back an <a href="#err_nooperhost">ERR_NOOPERHOST</a> to the client
+								&#x21B3; send back an <a href="#err_nooperhost">ERR_NOOPERHOST</a> to the client
 							</li>
 							<li>
 								The given username-password association doesn't match any of the configured ones<br>
-								↳ send back an <a href="#err_passwordmismatch">ERR_PASSWORDMISMATCH</a> to the client
+								&#x21B3; send back an <a href="#err_passwordmismatch">ERR_PASSWORDMISMATCH</a> to the client
 							</li>
 						</ul>
 					</p>
@@ -1189,15 +1154,16 @@
 									<li>If the target is a channel, then the server must:
 										<ol>
 											<li>check that the given channel exists</li>
+											<li>check that the given channel supports modes</li>
+											<li>check that the sender is either one of its channel operator or its creator</li>
 											<li>determine whether there are any mode changes to apply
 												<ul>
 													<li>If there are, then the server must:
 														<ol>
-															<li>check that the sender is either one of its channel operator or its creator</li>
 															<li>check that the given mode changes are valid</li>
 															<li>apply the given mode changes to the channel</li>
 															<li>
-																send a MODE message to every user that is in the channel,<br>
+																send a MODE message to every member of the channel,<br>
 																to inform them of the changes
 															</li>
 														</ol>
@@ -1238,42 +1204,61 @@
 						<ul>
 							<li>
 								The nickname/channel argument is missing<br>
-								↳ The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
+								&#x21B3; The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
 							</li>
 							<li>
 								The given nickname doesn't match the sender nickname<br>
-								↳ The server must send back an <a href="#err_usersdontmatch">ERR_USERSDONTMATCH</a> to the client
+								&#x21B3; The server must send back an <a href="#err_usersdontmatch">ERR_USERSDONTMATCH</a> to the client
 							</li>
 							<li>
-								The given list of mode changes contains an invalid mode<br>
-								↳ The server must send back an <a href="#err_umodeunknownflag">ERR_UMODEUNKNOWNFLAG</a> to the client
+								The given list of user mode changes contains an invalid mode<br>
+								&#x21B3; The server must send back an <a href="#err_umodeunknownflag">ERR_UMODEUNKNOWNFLAG</a> to the client
 							</li>
 							<li>
 								The given channel doesn't exist<br>
-								↳ The server must send back an <a href="#err_nosuchchannel">ERR_NOSUCHCHANNEL</a> to the client
+								&#x21B3; The server must send back an <a href="#err_nosuchchannel">ERR_NOSUCHCHANNEL</a> to the client
 							</li>
 							<li>
-								The given channel doesn't support modes, but there is a given list of mode changes<br>
-								↳ The server must send back an <a href="#err_nochanmodes">ERR_NOCHANMODES</a> to the client
+								The given channel doesn't support modes<br>
+								&#x21B3; The server must send back an <a href="#err_nochanmodes">ERR_NOCHANMODES</a> to the client
 							</li>
 							<li>
 								The sender is neither a channel operator nor the creator of the channel<br>
-								↳ The server must send back an <a href="#err_chanoprivsneeded">ERR_CHANOPRIVSNEEDED</a> to the client
+								&#x21B3; The server must send back an <a href="#err_chanoprivsneeded">ERR_CHANOPRIVSNEEDED</a> to the client
+							</li>
+							<li>
+								The given list of channel mode changes contains an invalid mode<br>
+								&#x21B3; The server must send back an <a href="#err_unknownmode">ERR_UNKNOWNMODE</a> to the client
 							</li>
 							<li>
 								The given list of mode changes contains a mode that requires an argument,<br>
 								but the argument is missing<br>
-								↳ The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
+								&#x21B3; The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
+							</li>
+							<li>
+								The given list of mode changes contains a mode that requires an argument,<br>
+								but the argument is invalid<br>
+								&#x21B3; The server must silently ignore the mode change and proceed to the next one
+							</li>
+							<li>
+								The given list of modes changes contains a <code>-I</code> with a <a href="#nickname">nickname</a><br>
+								that doesn't match any mask in the invite-list of the channel<br>
+								&#x21B3; The server must silently ignore the mode change and proceed to the next one
 							</li>
 							<li>
 								The given list of mode changes contains a <code>+k</code>,<br>
 								but the channel has already the `k` mode set<br>
-								↳ The server must send back an <a href="#err_keyset">ERR_KEYSET</a> to the client
+								&#x21B3; The server must send back an <a href="#err_keyset">ERR_KEYSET</a> to the client
 							</li>
 							<li>
-								The given list of mode changes contains a <code>+o</code> with a <a href="#user_mask">user mask</a><br>
-								that doesn't match any user in the channel<br>
-								↳ The server must send back an <a href="#err_usernotonchannel">ERR_USERNOTONCHANNEL</a> to the client
+								The given list of mode changes contains either a <code>+o</code> or a <code>-o</code><br>
+								with a <a href="#nickname">nickname</a> that doesn't match any user in the channel<br>
+								&#x21B3; The server must send back an <a href="#err_usernotonchannel">ERR_USERNOTONCHANNEL</a> to the client
+							</li>
+							<li>
+								The given list of mode changes contains a <code>-o</code> with a <a href="#nickname">nickname</a><br>
+								that doesn't match any channel operator in the channel<br>
+								&#x21B3; The server must silently ignore the mode change and proceed to the next one
 							</li>
 						</ul>
 					</p>
@@ -2240,13 +2225,17 @@
 								<details>
 									<summary>
 										<code>
-											":Welcome to the Internet Relay Network " user-mask
+											":Welcome to the Internet Relay Network " nick bang user at host
 										</code>
 									</summary>
 									<blockquote>
 										<ol>
 											<li>Start with the string <code>":Welcome to the Internet Relay Network "</code></li>
-											<li>Contain 1 <code><a href="#abnf_user_mask">user-mask</a></code></li>
+											<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
+											<li>Contain 1 <code><a href="#abnf_bang">bang</a></code></li>
+											<li>Contain 1 <code><a href="#abnf_user">user</a></code></li>
+											<li>Contain 1 <code><a href="#abnf_at">at</a></code></li>
+											<li>Contain 1 <code><a href="#abnf_host">host</a></code></li>
 										</ol>
 									</blockquote>
 								</details>
@@ -2686,14 +2675,14 @@
 								<details>
 									<summary>
 										<code>
-											channel space invite-mask
+											channel space nick
 										</code>
 									</summary>
 									<blockquote>
 										<ol>
 											<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
 											<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
-											<li>Contain 1 <code><a href="#abnf_invite_mask">invite-mask</a></code></li>
+											<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
 										</ol>
 									</blockquote>
 								</details>
@@ -2816,14 +2805,14 @@
 								<details>
 									<summary>
 										<code>
-											channel space user-mask
+											channel space nick
 										</code>
 									</summary>
 									<blockquote>
 										<ol>
 											<li>Start with 1 <code><a href="#abnf_channel">channel</a></code></li>
 											<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
-											<li>Contain 1 <code><a href="#abnf_user_mask">user-mask</a></code></li>
+											<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
 										</ol>
 									</blockquote>
 								</details>
@@ -3679,11 +3668,11 @@
 					</blockquote>
 				</details>
 				<!-- #endregion -->
-				<!-- #region: ABNF of `and` -->
+				<!-- #region: ABNF of `ampersand` -->
 				<details>
 					<summary>
-						<code id="abnf_and">
-							<b>and</b> = %x26
+						<code id="abnf_ampersand">
+							<b>ampersand</b> = %x26
 						</code>
 					</summary>
 					<blockquote>
@@ -4157,8 +4146,8 @@
 						</code>
 					</summary>
 					<blockquote>
-						5 <code><a href="#abnf_uppercase">uppercase</a></code>
-						and/or <code><a href="#abnf_digit">digit</a></code>
+						5 <code><a href="#abnf_uppercase">uppercases</a></code>
+						and/or <code><a href="#abnf_digit">digits</a></code>
 					</blockquote>
 				</details>
 				<!-- #endregion -->
@@ -4166,11 +4155,11 @@
 				<details>
 					<summary>
 						<code id="abnf_chanstring">
-							<b>chanstring</b> = *( %x01-06 / %x08-09 / %x0b-0c / %x0e-1f / %x21-2b / %x2d-39 / %x3b-ff )
+							<b>chanstring</b> = 1*( %x01-06 / %x08-09 / %x0b-0c / %x0e-1f / %x21-2b / %x2d-39 / %x3b-ff )
 						</code>
 					</summary>
 					<blockquote>
-						0 or more octets that have any value except:
+						1 or more octets that have any value except:
 						<ul>
 							<li><code>0x00</code> (<code>\0</code>)</li>
 							<li><code>0x07</code> (<code>\a</code>)</li>
@@ -4300,7 +4289,7 @@
 					</blockquote>
 				</details>
 				<!-- #endregion -->
-				<!-- #region: ABNG of `part-message` -->
+				<!-- #region: ABNG of `part-messag-->
 				<details>
 					<summary>
 						<code id="abnf_part_message">
@@ -4352,16 +4341,11 @@
 				<details>
 					<summary>
 						<code id="abnf_kick_target">
-							<b>kick-target</b> = nick / user / user-mask
+							<b>kick-target</b> = nick
 						</code>
 					</summary>
 					<blockquote>
-						Either 1 of the following:
-						<ul>
-							<li>1 <code><a href="#abnf_nick">nick</a></code></li>
-							<li>1 <code><a href="#abnf_user">user</a></code></li>
-							<li>1 <code><a href="#abnf_user_mask">user-mask</a></code></li>
-						</ul>
+						1 <code><a href="#abnf_nick">nick</a></code>
 					</blockquote>
 				</details>
 				<!-- #endregion -->
@@ -4369,7 +4353,7 @@
 				<details>
 					<summary>
 						<code id="abnf_msg_to">
-							<b>msg-to</b> =/ server / host / channel / nick / user-mask<br>
+							<b>msg-to</b> =/ server / host / channel / nick<br>
 							<b>msg-to</b> =/ user percent host / user [ percent host ] at server
 						</code>
 					</summary>
@@ -4380,7 +4364,6 @@
 							<li>1 <code><a href="#abnf_host">host</a></code></li>
 							<li>1 <code><a href="#abnf_channel">channel</a></code></li>
 							<li>1 <code><a href="#abnf_nick">nick</a></code></li>
-							<li>1 <code><a href="#abnf_user_mask">user-mask</a></code></li>
 							<li>1 pattern, which must:
 								<ol>
 									<li>Start with 1 <code><a href="#abnf_user">user</a></code></li>
@@ -4494,18 +4477,6 @@
 					</summary>
 					<blockquote>
 						1 <code><a href="#abnf_trailing">trailing</a></code>
-					</blockquote>
-				</details>
-				<!-- #endregion -->
-				<!-- #region: ABNF of `invite-mask` -->
-				<details>
-					<summary>
-						<code id="abnf_invite_mask">
-							<b>invite-mask</b> = user-mask
-						</code>
-					</summary>
-					<blockquote>
-						1 <code><a href="#abnf_user_mask">user-mask</a></code>
 					</blockquote>
 				</details>
 				<!-- #endregion -->

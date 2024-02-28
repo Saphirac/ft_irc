@@ -6,16 +6,15 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 22:08:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/08 01:01:02 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/28 17:00:24 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef REPLIES_HPP
-#define REPLIES_HPP
+#pragma once
 
+#include "class/ChannelName.hpp"
+#include "class/Client.hpp"
 #include <map>
-#include <string>
-#include <utility>
 
 #define RPL_WELCOME  001
 #define RPL_YOURHOST 002
@@ -59,6 +58,7 @@
 #define ERR_NOORIGIN          409
 #define ERR_NORECIPIENT       411
 #define ERR_NOTEXTTOSEND      412
+#define ERR_UNKNOWNCOMMAND    421
 #define ERR_NOMOTD            422
 #define ERR_NONICKNAMEGIVEN   431
 #define ERR_ERRONEUSNICKNAME  432
@@ -98,7 +98,7 @@ static std::pair<int, char const *> const raw_replies[] = {
 	std::make_pair(RPL_WHOISCHANNELS, "%S :%S"),
 	std::make_pair(RPL_LIST, "%S %hhu :%S"),
 	std::make_pair(RPL_LISTEND, ":End of LIST"),
-	std::make_pair(RPL_CHANNELMODEIS, "%S %S %S"),
+	std::make_pair(RPL_CHANNELMODEIS, "%S +%S"),
 	std::make_pair(RPL_NOTOPIC, "%S :No topic is set"),
 	std::make_pair(RPL_TOPIC, "%S :%S"),
 	std::make_pair(RPL_INVITING, "%S %S"),
@@ -123,6 +123,7 @@ static std::pair<int, char const *> const raw_replies[] = {
 	std::make_pair(ERR_NOORIGIN, ":No origin specified"),
 	std::make_pair(ERR_NORECIPIENT, ":No recipient given (%S)"),
 	std::make_pair(ERR_NOTEXTTOSEND, ":No text to send"),
+	std::make_pair(ERR_UNKNOWNCOMMAND, "%S :Unknown command"),
 	std::make_pair(ERR_NOMOTD, ":MOTD File is missing"),
 	std::make_pair(ERR_NONICKNAMEGIVEN, ":No nickname given"),
 	std::make_pair(ERR_ERRONEUSNICKNAME, "%S :Erroneous nickname"),
@@ -135,7 +136,7 @@ static std::pair<int, char const *> const raw_replies[] = {
 	std::make_pair(ERR_PASSWDMISMATCH, ":Password incorrect"),
 	std::make_pair(ERR_KEYSET, "%S :Channel key already set"),
 	std::make_pair(ERR_CHANNELISFULL, "%S :Cannot join channel (+l)"),
-	std::make_pair(ERR_UNKNOWNMODE, "{char} :is unknown mode char to me for %S"),
+	std::make_pair(ERR_UNKNOWNMODE, "%c :is unknown mode char to me for %S"),
 	std::make_pair(ERR_INVITEONLYCHAN, "%S :Cannot join channel (+i)"),
 	std::make_pair(ERR_BANNEDFROMCHAN, "%S :Cannot join channel (+b)"),
 	std::make_pair(ERR_BADCHANNELKEY, "%S :Cannot join channel (+k)"),
@@ -152,4 +153,9 @@ static std::map<int, char const *> const replies(raw_replies, raw_replies + raw_
 
 typedef std::map<int, char const *>::const_iterator ReplyIterator;
 
-#endif
+void error_already_registered(Client &client);
+void error_channel_operator_privileges_needed(Client &client, ChannelName const &channel_name);
+void error_need_more_arguments(Client &client, char const *const command) __attribute__((nonnull));
+void error_no_such_channel(Client &client, ChannelName const &channel_name);
+void error_password_mismatch(Client &client);
+void error_user_not_on_channel(Client &client, NickName const &nickname, ChannelName const &channel_name);

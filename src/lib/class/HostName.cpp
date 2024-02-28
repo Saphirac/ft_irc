@@ -1,74 +1,55 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   UserModes.cpp                                      :+:      :+:    :+:   */
+/*   HostName.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/18 23:06:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 16:04:14 by jodufour         ###   ########.fr       */
+/*   Created: 2024/02/17 23:06:37 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/24 00:32:18 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/UserModes.hpp"
-#include "user_modes.hpp"
+#include "class/HostName.hpp"
+#include "abnf_components.hpp"
 
 // ****************************************************************************************************************** //
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @param modes The modes to initialize the inner field with.
+ * @param hostname The hostname to initialize the instance with.
  */
-UserModes::UserModes(_inner_type const modes) : _inner(modes) {}
-
-/**
- * @param src The source UserModes instance to copy.
- */
-UserModes::UserModes(UserModes const &src) : _inner(src._inner) {}
+HostName::HostName(std::string const &hostname) : std::string(hostname) {}
 
 // ****************************************************************************************************************** //
 //                                                     Destructor                                                     //
 // ****************************************************************************************************************** //
-UserModes::~UserModes(void) {}
+HostName::~HostName(void) {}
 
 // ***************************************************************************************************************** //
 //                                                      Methods                                                      //
 // ***************************************************************************************************************** //
 /**
- * @brief Clears a given mode.
+ * @brief Check whether the hostname is valid.
  *
- * @param mode The mode to clear.
+ * @return `true` if the hostname is valid, `false` otherwise.
  */
-void UserModes::clear(UserMode const mode) { this->_inner &= ~(1 << mode); }
-
-/**
- * @brief Sets a given mode.
- *
- * @param mode The mode to set.
- */
-void UserModes::set(UserMode const mode) { this->_inner |= 1 << mode; }
-
-/**
- * @brief Checks whether a given mode is set.
- *
- * @param mode The mode to check.
- *
- * @return true if the mode is set, false otherwise.
- */
-bool UserModes::is_set(UserMode const mode) const { return this->_inner & 1 << mode; }
-
-/**
- * @brief Converts the inner field to a string.
- *
- * @return The string representation of the inner field.
- */
-std::string UserModes::to_string(void) const
+bool HostName::is_valid(void) const
 {
-	std::string modes;
+	size_t begin = 0;
+	size_t end;
 
-	for (uint8_t i = 0; i < EndOfUserModes; ++i)
-		if (this->is_set(static_cast<UserMode>(i)))
-			modes += user_modes[i];
+	do
+	{
+		std::string const shortname = this->substr(begin, end = this->find('.'));
 
-	return modes;
+		if ((letter + digit).find(shortname[0]) == std::string::npos
+		    || shortname.find_first_not_of(letter + digit + '-', 1) != std::string::npos)
+			return false;
+
+		begin += shortname.size() + 1;
+	}
+	while (end != std::string::npos);
+
+	return true;
 }

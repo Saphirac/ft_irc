@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 16:05:42 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/28 16:46:36 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,20 @@ static std::string const raw_operator_hosts[] = {
 	// TODO: replace this with the actual operator hosts
 	"tmp",
 };
-static size_t const         raw_operator_hosts_len = sizeof(raw_operator_hosts) / sizeof(*raw_operator_hosts);
+static size_t const raw_operator_hosts_len = sizeof(raw_operator_hosts) / sizeof(*raw_operator_hosts);
+
 std::set<std::string> const Server::_operator_hosts =
 	std::set<std::string>(raw_operator_hosts, raw_operator_hosts + raw_operator_hosts_len);
+
+static std::pair<std::string const, std::string const> const raw_operator_ids[] = {
+	std::make_pair("jodufour", "koala"),
+	std::make_pair("mcourtoi", "black panther"),
+	std::make_pair("gle-mini", "tiger"),
+};
+static size_t const raw_operator_ids_len = sizeof(raw_operator_ids) / sizeof(*raw_operator_ids);
+
+std::map<std::string, std::string const> const Server::_operator_ids =
+	std::map<std::string, std::string const>(raw_operator_ids, raw_operator_ids + raw_operator_ids_len);
 
 // ****************************************************************************************************************** //
 //                                                    Constructors                                                    //
@@ -41,7 +52,8 @@ Server::Server(std::string const &name, std::string const &version, std::string 
 	_compilation_date(__DATE__),
 	_compilation_time(__TIME__),
 	_clients_by_socket(),
-	_clients_by_nickname()
+	_clients_by_nickname(),
+	_channels_by_name()
 {
 	time_t const raw_time = time(NULL);
 	tm const    *time_info = localtime(&raw_time);

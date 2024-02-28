@@ -1,21 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   HostName.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/21 08:42:16 by jodufour         ###   ########.fr       */
+/*   Created: 2024/02/17 22:45:24 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/24 00:28:22 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Server.hpp"
-#include <iostream>
+#pragma once
 
-int main(void)
+#include <string>
+
+class HostName : public std::string
 {
-	Server server("test", "0.0.0");
+public:
+	// Constructors
+	HostName(std::string const &hostname = "");
 
-	return 0;
-}
+	// Destructor
+	~HostName(void);
+
+	// Methods
+	bool is_valid(void) const;
+};

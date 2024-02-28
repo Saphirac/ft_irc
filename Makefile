@@ -6,7 +6,7 @@
 #    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/19 15:58:55 by jodufour         ###   ########.fr        #
+#    Updated: 2024/02/28 16:37:22 by jodufour         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -84,13 +84,25 @@ LIB_SRC = \
 					} \
 					core \
 				} \
+				Channel \
+				ChannelName \
 				Client \
-				Hostname \
-				Nickname \
-				Realname \
+				Exceptions \
+				HostName \
+				Key \
+				NickName \
+				RealName \
+				Topic \
 				UserModeMask \
-				UserModes \
-				Username \
+				UserName \
+			} \
+			${addprefix error/, \
+				already_registered \
+				channel_operator_privileges_needed \
+				need_more_arguments \
+				no_such_channel \
+				password_mismatch \
+				user_not_on_channel \
 			} \
 			format_reply \
 		} \
@@ -113,10 +125,9 @@ CXXFLAGS = \
 	-Wextra \
 	-Werror \
 	-Wshadow \
-	-Wno-c99-designator \
 	-pedantic \
-	-ferror-limit=1 \
 	-std=c++98 \
+	-ferror-limit=1 \
 	-MMD \
 	-MP \
 	-I${PRV_DIR} \
@@ -132,13 +143,13 @@ endif
 #######################################
 .PHONY:	all clean fclean re fre
 
-${NAME}: ${LIB} ${OBJ}
+all: ${LIB} ${NAME}
+
+${NAME}: ${OBJ} ${LIB}
 	${LINK} $^ ${OUTPUT_OPTION}
 
 ${LIB}: ${LIB_OBJ}
 	${AR} $@ $^
-
-all: ${LIB} ${NAME}
 
 -include ${DEP}
 -include ${LIB_DEP}

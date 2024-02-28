@@ -1,41 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Username.cpp                                       :+:      :+:    :+:   */
+/*   RealName.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/17 23:31:00 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 16:05:23 by jodufour         ###   ########.fr       */
+/*   Created: 2024/02/19 15:53:01 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/24 00:31:58 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Username.hpp"
+#include "class/RealName.hpp"
 
 // ****************************************************************************************************************** //
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @param username The username to initialize the inner field with.
+ * @param realname The realname to initialize the instance with.
  */
-Username::Username(std::string const &username) : std::string(username) {}
-
-/**
- * @param src The source Username instance to copy.
- */
-Username::Username(Username const &src) : std::string(src) {}
+RealName::RealName(std::string const &realname) : std::string(realname) {}
 
 // ****************************************************************************************************************** //
 //                                                     Destructor                                                     //
 // ****************************************************************************************************************** //
-Username::~Username(void) {}
-
-// ***************************************************************************************************************** //
-//                                                      Methods                                                      //
-// ***************************************************************************************************************** //
-/**
- * @brief Check whether the username is valid.
- *
- * @return true if the username is valid, false otherwise.
- */
-bool Username::is_valid(void) const { return this->find('@') == std::string::npos; }
+RealName::~RealName(void) {}

@@ -6,11 +6,12 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 16:02:22 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/28 17:29:43 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Client.hpp"
+#include "class/Exceptions.hpp"
 #include <iostream>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -23,21 +24,22 @@ std::string const Client::_default_away_msg = "Coming back soon";
 // ****************************************************************************************************************** //
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
+Client::Modes::Flags::Flags(void) : _bits(0) {}
+Client::Modes::Modes(void) : _flags() {}
+
 /**
  * @param socket The socket of the client.
  * @param nickname The nickname of the client.
  * @param hostname The hostname of the client.
  * @param username The username of the client.
  * @param realname The realname of the client.
- * @param modes The modes of the client.
  */
 Client::Client(
 	int const       socket,
-	Nickname const &nickname,
-	Hostname const &hostname,
-	Username const &username,
-	Realname const &realname,
-	UserModes const modes) :
+	NickName const &nickname,
+	HostName const &hostname,
+	UserName const &username,
+	RealName const &realname) :
 	_socket(socket),
 	_msg_in(),
 	_msg_out(),
@@ -45,45 +47,29 @@ Client::Client(
 	_hostname(hostname),
 	_username(username),
 	_realname(realname),
-	_modes(modes)
-{
-}
-
-/**
- * @param src The source Client instance to copy.
- */
-Client::Client(Client const &src) :
-	_socket(src._socket),
-	_msg_in(src._msg_in),
-	_msg_out(src._msg_out),
-	_nickname(src._nickname),
-	_hostname(src._hostname),
-	_username(src._username),
-	_realname(src._realname),
-	_modes(src._modes)
+	_modes()
 {
 }
 
 // ****************************************************************************************************************** //
 //                                                     Destructor                                                     //
 // ****************************************************************************************************************** //
-Client::~Client(void)
-{
-	if (this->_socket != -1)
-		close(this->_socket);
-}
+Client::Modes::Flags::~Flags(void) {}
+Client::Modes::~Modes(void) {}
+Client::~Client(void) { this->disconnect(); }
 
 // ***************************************************************************************************************** //
 //                                                     Accessors                                                     //
 // ***************************************************************************************************************** //
-int                Client::get_socket(void) const { return this->_socket; }
-std::string const &Client::get_msg_in(void) const { return this->_msg_in; }
-std::string const &Client::get_msg_out(void) const { return this->_msg_out; }
-Nickname const    &Client::get_nickname(void) const { return this->_nickname; }
-Hostname const    &Client::get_hostname(void) const { return this->_hostname; }
-Username const    &Client::get_username(void) const { return this->_username; }
-Realname const    &Client::get_realname(void) const { return this->_realname; }
-UserModes          Client::get_modes(void) const { return this->_modes; }
+int                  Client::get_socket(void) const { return this->_socket; }
+std::string const   &Client::get_msg_in(void) const { return this->_msg_in; }
+std::string const   &Client::get_msg_out(void) const { return this->_msg_out; }
+NickName const      &Client::get_nickname(void) const { return this->_nickname; }
+HostName const      &Client::get_hostname(void) const { return this->_hostname; }
+UserName const      &Client::get_username(void) const { return this->_username; }
+RealName const      &Client::get_realname(void) const { return this->_realname; }
+Client::Modes const &Client::get_modes(void) const { return this->_modes; }
+std::string const   &Client::get_away_msg(void) const { return this->_away_msg; }
 
 // ****************************************************************************************************************** //
 //                                                      Mutators                                                      //
@@ -91,22 +77,185 @@ UserModes          Client::get_modes(void) const { return this->_modes; }
 void Client::set_socket(int const socket) { this->_socket = socket; }
 void Client::set_msg_in(std::string const &s) { this->_msg_in = s; }
 void Client::set_msg_out(std::string const &msg) { this->_msg_out = msg; }
-void Client::set_nickname(Nickname const &nickname) { this->_nickname = nickname; }
-void Client::set_hostname(Hostname const &hostname) { this->_hostname = hostname; }
-void Client::set_username(Username const &username) { this->_username = username; }
-void Client::set_realname(Realname const &realname) { this->_realname = realname; }
-void Client::set_modes(UserModes const modes) { this->_modes = modes; }
+void Client::set_nickname(NickName const &nickname) { this->_nickname = nickname; }
+void Client::set_hostname(HostName const &hostname) { this->_hostname = hostname; }
+void Client::set_username(UserName const &username) { this->_username = username; }
+void Client::set_realname(RealName const &realname) { this->_realname = realname; }
+void Client::set_modes(Client::Modes const modes) { this->_modes = modes; }
+void Client::set_away_msg(std::string const &away_msg) { this->_away_msg = away_msg; }
 
 // ***************************************************************************************************************** //
-//                                              Public Member Functions                                              //
+//                                                      Methods                                                      //
 // ***************************************************************************************************************** //
+/**
+ * @brief Sets a flag.
+ *
+ * @param flag The flag to set.
+ *
+ * @throws `NotAFlag` if the given `flag` isn't recognized.
+ */
+void Client::Modes::Flags::set(UserMode const flag)
+{
+	switch (flag)
+	{
+	case Bot:
+		this->_bits |= 1 << Bot;
+		return;
+	case LocalOperator:
+		this->_bits |= 1 << LocalOperator;
+		return;
+	case Away:
+		this->_bits |= 1 << Away;
+		return;
+	case Invisible:
+		this->_bits |= 1 << Invisible;
+		return;
+	case WallopsListener:
+		this->_bits |= 1 << WallopsListener;
+		return;
+	case AlreadySentPass:
+		this->_bits |= 1 << AlreadySentPass;
+		return;
+	case AlreadySentUser:
+		this->_bits |= 1 << AlreadySentUser;
+		return;
+	default:
+		throw NotAFlag();
+	}
+}
+
+/**
+ * @brief Clears a flag.
+ *
+ * @param flag The flag to clear.
+ *
+ * @throws `NotAFlag` if the given `flag` isn't recognized.
+ */
+void Client::Modes::Flags::clear(UserMode const flag)
+{
+	switch (flag)
+	{
+	case Bot:
+		this->_bits &= ~(1 << Bot);
+		return;
+	case LocalOperator:
+		this->_bits &= ~(1 << LocalOperator);
+		return;
+	case Away:
+		this->_bits &= ~(1 << Away);
+		return;
+	case Invisible:
+		this->_bits &= ~(1 << Invisible);
+		return;
+	case WallopsListener:
+		this->_bits &= ~(1 << WallopsListener);
+		return;
+	case AlreadySentPass:
+		this->_bits &= ~(1 << AlreadySentPass);
+		return;
+	case AlreadySentUser:
+		this->_bits &= ~(1 << AlreadySentUser);
+		return;
+	default:
+		throw NotAFlag();
+	}
+}
+
+/**
+ * @brief Checks whether a flag is set.
+ *
+ * @param flag The flag to check.
+ *
+ * @return `true` if the flag is set, `false` otherwise.
+ *
+ * @throws `NotAFlag` if the given `flag` isn't recognized.
+ */
+bool Client::Modes::Flags::is_set(UserMode const flag) const
+{
+	switch (flag)
+	{
+	case Bot:
+		return this->_bits & 1 << Bot;
+	case LocalOperator:
+		return this->_bits & 1 << LocalOperator;
+	case Away:
+		return this->_bits & 1 << Away;
+	case Invisible:
+		return this->_bits & 1 << Invisible;
+	case WallopsListener:
+		return this->_bits & 1 << WallopsListener;
+	case AlreadySentPass:
+		return this->_bits & 1 << AlreadySentPass;
+	case AlreadySentUser:
+		return this->_bits & 1 << AlreadySentUser;
+	default:
+		throw NotAFlag();
+	}
+}
+
+/**
+ * @return The string representation of the flags that are currently set.
+ */
+std::string Client::Modes::Flags::to_string(bool const include_already_sent_pass, bool const include_already_sent_user)
+	const
+{
+	std::string flags;
+
+	if (this->is_set(Bot))
+		flags += USER_MODES[Bot];
+	if (this->is_set(LocalOperator))
+		flags += USER_MODES[LocalOperator];
+	if (this->is_set(Away))
+		flags += USER_MODES[Away];
+	if (this->is_set(Invisible))
+		flags += USER_MODES[Invisible];
+	if (this->is_set(WallopsListener))
+		flags += USER_MODES[WallopsListener];
+	if (include_already_sent_pass && this->is_set(AlreadySentPass))
+		flags += USER_MODES[AlreadySentPass];
+	if (include_already_sent_user && this->is_set(AlreadySentUser))
+		flags += USER_MODES[AlreadySentUser];
+	return flags;
+}
+
+/**
+ * @brief Sets a mode.
+ *
+ * @param mode The mode to set.
+ */
+void Client::Modes::set(UserMode const mode) { return this->_flags.set(mode); }
+
+/**
+ * @brief Clears a mode.
+ *
+ * @param mode The mode to clear.
+ */
+void Client::Modes::clear(UserMode const mode) { return this->_flags.clear(mode); }
+
+/**
+ * @brief Checks whether a mode is set.
+ *
+ * @param mode The mode to check.
+ *
+ * @return `true` if the mode is set, `false` otherwise.
+ */
+bool Client::Modes::is_set(UserMode const mode) const { return this->_flags.is_set(mode); }
+
+/**
+ * @return The string representation of the modes that are currently set.
+ */
+std::string Client::Modes::to_string(void) const { return this->_flags.to_string(); }
+
 /**
  * @brief Closes the socket of the Client instance.
  */
 void Client::disconnect(void)
 {
-	close(this->_socket);
-	this->_socket = -1;
+	if (this->_socket != -1)
+	{
+		close(this->_socket);
+		this->_socket = -1;
+	}
 }
 
 /**
@@ -129,25 +278,25 @@ void Client::append_to_msg_out(std::string const &msg) { this->_msg_out += msg +
 void Client::clear_msg_out(void) { this->_msg_out.clear(); }
 
 /**
- * @brief Sets a given mode for the client.
+ * @brief Sets a mode for the client.
  *
  * @param mode The mode to set.
  */
 void Client::set_mode(UserMode const mode) { this->_modes.set(mode); }
 
 /**
- * @brief Clears a given mode for the client.
+ * @brief Clears a mode for the client.
  *
  * @param mode The mode to clear.
  */
 void Client::clear_mode(UserMode const mode) { this->_modes.clear(mode); }
 
 /**
- * @brief Check whether the client has a given mode set.
+ * @brief Check whether a mode is set for the client.
  *
  * @param mode The mode to check.
  *
- * @return true if the client has the given mode set, false otherwise.
+ * @return `true` if the mode is set for the client, `false` otherwise.
  */
 bool Client::has_mode(UserMode const mode) const { return this->_modes.is_set(mode); }
 
@@ -163,13 +312,12 @@ std::string Client::user_mask(void) const { return this->_nickname + "!" + this-
  * Sends the content of the output buffer of the Client instance to its socket.
  * Upon success, the output buffer is cleared.
  *
- * @return A positive error code in case of an internal error. Otherwise, returns zero.
+ * @throws `ProblemWithSend` if the message cannot be sent.
  */
-StatusCode Client::send_msg_out(void)
+void Client::send_msg_out(void)
 {
 	if (send(this->_socket, this->_msg_out.c_str(), this->_msg_out.size(), 0) == -1)
-		return ErrorSend;
+		throw ProblemWithSend();
 
 	this->clear_msg_out();
-	return Success;
 }

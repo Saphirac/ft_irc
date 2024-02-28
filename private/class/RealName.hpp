@@ -1,23 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   StatusCode.hpp                                     :+:      :+:    :+:   */
+/*   RealName.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/06 01:14:05 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 14:33:04 by jodufour         ###   ########.fr       */
+/*   Created: 2024/02/17 22:46:16 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/24 00:28:29 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef STATUSCODE_HPP
-#define STATUSCODE_HPP
+#pragma once
 
-enum StatusCode
+#include <string>
+
+class RealName : public std::string
 {
-	Success,
-	ErrorFormatReply,
-	ErrorSend
-};
+public:
+	// Constructors
+	RealName(std::string const &realname = "");
 
-#endif
+	// Destructor
+	~RealName(void);
+};

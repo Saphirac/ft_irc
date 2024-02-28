@@ -1,29 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Hostname.hpp                                       :+:      :+:    :+:   */
+/*   Exceptions.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/17 22:45:24 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/17 22:45:32 by jodufour         ###   ########.fr       */
+/*   Created: 2024/02/28 16:31:06 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/28 23:08:28 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include <string>
+#include <exception>
 
-class Hostname : public std::string
+class NotAFlag : public std::exception
 {
 public:
-	// Constructors
-	Hostname(std::string const &hostname = "");
-	Hostname(Hostname const &src);
-
-	// Destructor
-	~Hostname(void);
-
 	// Methods
-	bool is_valid(void) const;
+	virtual char const *what(void) const throw();
+};
+
+class ProblemWithFormatReply : public std::exception
+{
+public:
+	// Methods
+	virtual char const *what(void) const throw();
+};
+
+class ProblemWithSend : public std::exception
+{
+public:
+	// Methods
+	virtual char const *what(void) const throw();
 };

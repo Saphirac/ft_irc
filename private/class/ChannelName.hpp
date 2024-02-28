@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Realname.hpp                                       :+:      :+:    :+:   */
+/*   ChannelName.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/17 22:46:16 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 15:57:35 by jodufour         ###   ########.fr       */
+/*   Created: 2024/02/23 19:05:02 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/24 00:30:48 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,15 @@
 
 #include <string>
 
-class Realname : public std::string
+class ChannelName : public std::string
 {
 public:
 	// Constructors
-	Realname(std::string const &realname = "");
-	Realname(Realname const &src);
+	ChannelName(std::string const &channel_name = "");
 
 	// Destructor
-	~Realname(void);
+	~ChannelName(void);
+
+	// Methods
+	bool is_valid(void) const;
 };

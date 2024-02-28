@@ -6,24 +6,22 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/07 23:31:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/08 01:02:25 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/28 14:39:49 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CHANNELMODE_HPP
-#define CHANNELMODE_HPP
+#pragma once
+
+#define CHANNEL_MODES "intlkoIb" // The order of the characters must match the order of the enum ChannelMode
 
 enum ChannelMode
 {
-	InviteList,
-	BanList,
-	InviteOnly,
-	Key,
-	Limit,
-	NoMessagesFromOutside,
-	ChannelOperator,
-	RestrictedTopic,
-	EndOfChannelModes
+	InviteOnly,            // 'i'
+	NoMessagesFromOutside, // 'n'
+	RestrictedTopic,       // 't'
+	Limit,                 // 'l'
+	KeyProtected,          // 'k'
+	ChannelOperator,       // 'o'
+	InviteMask,            // 'I'
+	BanMask                // 'b'
 };
-
-#endif

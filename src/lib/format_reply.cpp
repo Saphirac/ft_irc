@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 21:49:58 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/08 01:00:27 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/22 00:49:15 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -256,30 +256,30 @@ std::string format_reply(int const reply_number...)
 
 		switch (fmt[specifier_pos])
 		{
-			case 'c':
-				inserted_len = convert_c(fmt, length_modifiers, percent_pos, specifier_pos, args);
-				break;
-			case 's':
-				inserted_len = convert_s(fmt, length_modifiers, percent_pos, specifier_pos, args);
-				break;
-			case 'S':
-				inserted_len = convert_S(fmt, length_modifiers, percent_pos, specifier_pos, args);
-				break;
-			case 'u':
-				inserted_len = convert_u(fmt, length_modifiers, percent_pos, specifier_pos, args);
-				break;
-			case '%':
-				if (!length_modifiers.empty())
-				{
-					std::cerr << "invalid conversion specification";
-					return "";
-				}
-				fmt.erase(percent_pos, 1);
-				inserted_len = 1;
-				break;
-			default:
+		case 'c':
+			inserted_len = convert_c(fmt, length_modifiers, percent_pos, specifier_pos, args);
+			break;
+		case 's':
+			inserted_len = convert_s(fmt, length_modifiers, percent_pos, specifier_pos, args);
+			break;
+		case 'S':
+			inserted_len = convert_S(fmt, length_modifiers, percent_pos, specifier_pos, args);
+			break;
+		case 'u':
+			inserted_len = convert_u(fmt, length_modifiers, percent_pos, specifier_pos, args);
+			break;
+		case '%':
+			if (!length_modifiers.empty())
+			{
 				std::cerr << "invalid conversion specification";
 				return "";
+			}
+			fmt.erase(percent_pos, 1);
+			inserted_len = 1;
+			break;
+		default:
+			std::cerr << "invalid conversion specification";
+			return "";
 		}
 		if (inserted_len == std::string::npos)
 		{

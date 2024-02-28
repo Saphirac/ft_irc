@@ -1,31 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Realname.cpp                                       :+:      :+:    :+:   */
+/*   Key.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/19 15:53:01 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 16:03:49 by jodufour         ###   ########.fr       */
+/*   Created: 2024/02/24 01:09:17 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/24 01:16:26 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Realname.hpp"
+#include "class/Key.hpp"
+#include "abnf_components.hpp"
 
 // ****************************************************************************************************************** //
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @param realname The realname to initialize instance with.
+ * @param key The key to initialize the instance with.
  */
-Realname::Realname(std::string const &realname) : std::string(realname) {}
-
-/**
- * @param src The source Realname instance to copy.
- */
-Realname::Realname(Realname const &src) : std::string(src) {}
+Key::Key(std::string const &key) : std::string(key) {}
 
 // ****************************************************************************************************************** //
 //                                                     Destructor                                                     //
 // ****************************************************************************************************************** //
-Realname::~Realname(void) {}
+Key::~Key(void) {}
+
+// ***************************************************************************************************************** //
+//                                                      Methods                                                      //
+// ***************************************************************************************************************** //
+/**
+ * @brief Checks whether the key is valid.
+ *
+ * @return `true` if the key is valid, `false` otherwise.
+ */
+bool Key::is_valid(void) const
+{
+	return lfcrspcl.find(*this->begin()) == std::string::npos && this->find_first_of(lfcrsp, 1) == std::string::npos;
+}

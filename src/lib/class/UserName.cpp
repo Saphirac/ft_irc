@@ -1,38 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   UserModeMask.cpp                                   :+:      :+:    :+:   */
+/*   UserName.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/18 00:01:29 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/24 00:27:43 by jodufour         ###   ########.fr       */
+/*   Created: 2024/02/17 23:31:00 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/24 00:28:02 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/UserModeMask.hpp"
+#include "class/UserName.hpp"
 
 // ****************************************************************************************************************** //
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @param umode_mask The user mode mask to initialize the inner field with.
+ * @param username The username to initialize the inner field with.
  */
-UserModeMask::UserModeMask(std::string const &umode_mask) : std::string(umode_mask) {}
+UserName::UserName(std::string const &username) : std::string(username) {}
 
 // ****************************************************************************************************************** //
 //                                                     Destructor                                                     //
 // ****************************************************************************************************************** //
-UserModeMask::~UserModeMask(void) {}
+UserName::~UserName(void) {}
 
 // ***************************************************************************************************************** //
 //                                                      Methods                                                      //
 // ***************************************************************************************************************** //
 /**
- * @brief Check whether the user mode mask is valid.
+ * @brief Check whether the username is valid.
  *
- * @param umodes The user mode mask to check.
- *
- * @return `true` if the user mode mask is valid, `false` otherwise.
+ * @return `true` if the username is valid, `false` otherwise.
  */
-bool UserModeMask::is_valid(uint8_t const umodes) const { return this->size() < 3 && !(umodes & ~12); }
+bool UserName::is_valid(void) const { return this->find('@') == std::string::npos; }

@@ -1,46 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Nickname.cpp                                       :+:      :+:    :+:   */
+/*   Topic.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/16 03:49:43 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 16:03:31 by jodufour         ###   ########.fr       */
+/*   Created: 2024/02/24 00:31:26 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/24 00:35:01 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Nickname.hpp"
-#include "abnf_components.hpp"
+#include "class/Topic.hpp"
 
 // ****************************************************************************************************************** //
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @param nickname The nickname to initialize the instance with.
+ * @param topic The topic to initialize the instance with.
  */
-Nickname::Nickname(std::string const &nickname) : std::string(nickname) {}
-
-/**
- * @param src The source Nickname instance to copy.
- */
-Nickname::Nickname(Nickname const &src) : std::string(src) {}
+Topic::Topic(std::string const &topic) : std::string(topic) {}
 
 // ****************************************************************************************************************** //
 //                                                     Destructor                                                     //
 // ****************************************************************************************************************** //
-Nickname::~Nickname(void) {}
+Topic::~Topic(void) {}
 
 // ***************************************************************************************************************** //
 //                                                      Methods                                                      //
 // ***************************************************************************************************************** //
 /**
- * @brief Checks whether the nickname is valid.
+ * @brief Checks whether the topic is valid.
  *
- * @return true if the nickname is valid, false otherwise.
+ * @return `true` if the topic is valid, `false` otherwise.
  */
-bool Nickname::is_valid(void) const
-{
-	return this->size() < 10 && (letter + special).find(this[0]) != this->npos
-	    && this->find_first_not_of(letter + digit + special, 1) == this->npos;
-}
+bool Topic::is_valid(void) const { return this->find_first_of("\r\n") == this->npos; }

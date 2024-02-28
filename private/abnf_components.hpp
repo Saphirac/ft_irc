@@ -6,12 +6,11 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 20:17:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/08 01:01:05 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/24 01:13:52 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ABNF_COMPONENTS_HPP
-#define ABNF_COMPONENTS_HPP
+#pragma once
 
 #include <string>
 
@@ -20,5 +19,5 @@ static std::string const lowercase = "abcdefghijklmnopqrstuvwxyz";
 static std::string const letter = uppercase + lowercase;
 static std::string const digit = "0123456789";
 static std::string const special = "[\\]^_`{|}";
-
-#endif
+static std::string const lfcrspcl = "\n\r :";
+static std::string const lfcrsp = "\n\r ";

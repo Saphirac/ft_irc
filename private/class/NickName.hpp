@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Username.hpp                                       :+:      :+:    :+:   */
+/*   NickName.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/17 22:44:12 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/17 22:44:47 by jodufour         ###   ########.fr       */
+/*   Created: 2024/02/16 03:36:23 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/24 00:28:26 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,14 @@
 
 #include <string>
 
-class Username : public std::string
+class NickName : public std::string
 {
 public:
 	// Constructors
-	Username(std::string const &username = "");
-	Username(Username const &src);
+	NickName(std::string const &nickname = "");
 
 	// Destructor
-	~Username(void);
+	~NickName(void);
 
 	// Methods
 	bool is_valid(void) const;
