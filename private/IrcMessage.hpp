@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:06:14 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/26 16:58:04 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/28 14:51:23 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,10 @@ public:
 	~IrcMessage();
 
 	// Getters //
-	std::string               get_prefix() const;
-	std::string               get_command() const;
+	std::string const        &get_prefix() const;
+	std::string const        &get_command() const;
 	std::vector<std::string> &get_params();
-	std::string               get_end() const;
+	std::string const        &get_end() const;
 
 	bool is_complete() const;
 

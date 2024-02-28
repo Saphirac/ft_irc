@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/26 17:02:03 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/28 17:24:04 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,8 @@ static size_t const         raw_operator_hosts_len = sizeof(raw_operator_hosts) 
 std::set<std::string> const Server::_operator_hosts =
 	std::set<std::string>(raw_operator_hosts, raw_operator_hosts + raw_operator_hosts_len);
 
-// ****************************************************************************************************************** //
-//                                                    Constructors                                                    //
-// ****************************************************************************************************************** //
+// Constructors //
+
 /**
  * @param name The name of the server.
  * @param version The version of the server.
@@ -64,41 +63,9 @@ Server::Server(int const port, std::string const name, std::string const passwor
 		std::cout << "Server constructor called\n";
 }
 
-// ******************************************************************************************************************
-// //
-//                                                     Destructor //
-// ******************************************************************************************************************
-// //
+// Destructor //
+
 Server::~Server(void) { this->_clients_socket.clear(); close(this->_socket); }
-
-// ***************************************************************************************************************** //
-//                                              Public Member Functions                                              //
-// ***************************************************************************************************************** //
-/**
- * @brief Copies a given Client instance to the list of known clients.
- *
- * @param client The Client instance to copy.
- */
-/*void Server::add_client(Client *client)
-{
-	std::pair<std::map<int, Client *>::iterator, bool> ret =
-		this->_clients_socket.insert(std::make_pair(client->get_socket(), client));
-
-	if (ret.second)
-		this->_clients_nick.insert(std::make_pair(client->get_nickname(), *ret.first->second));
-}*/
-
-/**
- * @brief Removes a client from the list of known clients.
- *
- * @param client The Client instance to remove.
- */
-/*
-void Server::remove_client(Client *client)
-{
-	this->_clients_nick.erase(client->get_nickname());
-	this->_clients_socket.erase(client->get_socket());
-}*/
 
 // Getters //
 
@@ -158,7 +125,7 @@ void Server::create_and_set_socket()
 {
 	this->_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_socket == -1)
-		throw Server::ProblemWithSocket();
+		throw ProblemWithSocket();
 }
 
 /**
@@ -191,11 +158,16 @@ struct sockaddr_in Server::bind_assign_sockaddr()
 	sock_addr.sin_addr.s_addr = INADDR_ANY;
 
 	if (bind(this->_socket, (struct sockaddr *)&sock_addr, sizeof(sock_addr)) == -1)
-		throw Server::ProblemWithSockAddr();
+		throw ProblemWithSockAddr();
 	this->_sock_addr = sock_addr;
 	return sock_addr;
 }
 
+/**
+ * @brief add a new client (Client *) to the maps of clients
+ * 
+ * @param client to add
+ */
 void	Server::add_client(Client *client)
 {
 	this->_clients_socket[client->get_socket()] = client;
@@ -204,6 +176,11 @@ void	Server::add_client(Client *client)
 		this->_clients_nick[client->get_nickname()] = client;
 }
 
+/**
+ * @brief remove a client (Client *) from the maps of clients 
+ * 
+ * @param client to remove
+ */
 void	Server::remove_client(Client *client)
 {
 	this->_clients_socket.erase(client->get_socket());

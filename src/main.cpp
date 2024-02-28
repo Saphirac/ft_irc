@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/26 16:44:37 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/28 17:35:19 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,10 @@
  * 
  * // TODO : create a checker for the arguments
  * // TODO : create a catcher for exceptions
+ * 
+ * Call the create server function who init the socket of the server and create the epoll loop
+ * Try to catch a possible exception by create_server()
+ * 
  * @param ac 
  * @param av 
  * @return int 

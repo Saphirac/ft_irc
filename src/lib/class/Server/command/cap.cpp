@@ -6,11 +6,11 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 13:43:54 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/23 15:45:51 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/28 17:32:46 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// TODO
+// TODO finish the command
 
 #include "class/Server.hpp"
 

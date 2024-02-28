@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:20:40 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/23 15:38:57 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/28 17:31:48 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,8 @@ Client::~Client()
 		std::cout << "Client destructor called\n";
 	if (this->_socket != -1)
 		close(this->_socket);
-	// if (this->_epoll_event)
-	//	delete this->_epoll_event;
+	if (this->_epoll_event)
+		delete this->_epoll_event;
 }
 
 // Getters //
@@ -82,6 +82,10 @@ void Client::set_username(Username const &username) { this->_username = username
 void Client::set_realname(Realname const &realname) { this->_realname = realname; }
 void Client::set_modes(UserModes const modes) { this->_modes = modes; }
 
+/**
+ * @brief Set the epoll_event of the client.
+ * 
+ */
 void Client::set_epoll_event()
 {
 	if (DEBUG)
@@ -99,6 +103,7 @@ void Client::set_time_last_msg(void) { this->_time_last_msg = std::clock(); }
  */
 void Client::disconnect(void)
 {
+	std::cout << "Client disconnected.\n";
 	close(this->_socket);
 	this->_socket = -1;
 }

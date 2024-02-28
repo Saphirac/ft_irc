@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 17:22:46 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/17 15:02:07 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/28 16:44:08 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,5 @@
 void	send_message(int client_socket, std::string message)
 {
 	if (send(client_socket, message.c_str(), message.size(), 0) == -1)
-	{
-		std::cerr << "Problem with send()." << std::endl;
-		exit(EXIT_FAILURE);
-	}
+		throw ProblemWithSend();
 }

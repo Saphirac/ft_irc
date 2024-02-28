@@ -6,12 +6,16 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 22:05:21 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/26 17:02:47 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/28 17:33:26 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
 
+/**
+ * @brief init a map with the pointer to the function of each command with the cmd name as key
+ * 
+ */
 void Server::init_map_cmd(void)
 {
 	this->_map_of_cmds["CAP"] = &Server::cap;

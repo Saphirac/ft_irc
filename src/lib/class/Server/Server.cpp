@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/20 21:11:29 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/28 17:17:05 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,41 @@
 #include <cstdio>
 
 /**
+ * @brief check the msg_in field of the client, extract the message ( < 512 char and finishing by a crlf) and handle it
+ * next message stand from the next msg_in field from the client
+ *
+ */
+void Server::handle_all_events_routine()
+{
+	for (std::map<int, Client *>::iterator it = this->_clients_socket.begin(); it != this->_clients_socket.end(); it++)
+	{
+		std::string const next_msg = it->second->get_next_msg();
+		if (next_msg.empty() == false)
+			handle_client_event(it->second, next_msg);
+	}
+}
+
+/**
+ * @brief routine to send the msg waiting in the msg_out field of each client
+ *
+ */
+void Server::send_msg_out()
+{
+	for (std::map<int, Client *>::iterator it = this->_clients_socket.begin(); it != this->_clients_socket.end(); it++)
+	{
+		if (it->second->get_msg_out().empty() == false)
+		{
+			if (send(it->second->get_socket(), it->second->get_msg_out().c_str(), it->second->get_msg_out().size(), 0)
+			    == -1)
+				throw ProblemWithSend();
+			it->second->clear_msg_out();
+		}
+	}
+}
+
+/**
  * @brief create a loop to manage new incoming connections or messages
+ * use of epoll_wait : check each registered fds to see if there is a new event (ex : new connection, new message)
  *
  * @param myserver
  */
@@ -26,25 +60,20 @@ void Server::epoll_loop()
 
 	fds_ready = epoll_wait(this->_epoll_socket, events, MAX_CLIENTS, -1);
 	if (fds_ready == -1)
-	{
-		std::cerr << "Problem with epoll_wait() : " << errno << std::endl;
-		exit(EXIT_FAILURE);
-	}
+		throw ProblemWithEpollWait();
 
 	for (int i = 0; i < fds_ready; i++)
 	{
 		if (events[i].data.fd == this->_socket)
 			handle_new_connection();
 		else
-			handle_client_event(this->_clients_socket[events[i].data.fd]);
+			rcv_client_event(this->_clients_socket[events[i].data.fd]);
 	}
 }
 
 // Init server //
 /**
  * @brief init server by creating a socket, binding it to a port and listening to it
- *
- * // TODO : throw exceptions bytes_readinstead of exit
  *
  */
 void Server::init_socket_server()
@@ -53,22 +82,25 @@ void Server::init_socket_server()
 	this->bind_assign_sockaddr();
 	this->set_sock_len();
 	if (listen(this->_socket, 10) < 0)
-	{
-		std::cout << "Failed to listen on socket. errno: " << errno << std::endl;
-		exit(EXIT_FAILURE);
-	}
+		throw ProblemWithListen();
 }
 
+/**
+ * @brief Main Server function : init the socket of the server, create the epoll socket and loop to receive and send
+ * messages
+ *
+ */
+// TODO : handle signals to set shutdown
 void Server::create_server()
 {
 	this->init_socket_server();
 	this->_epoll_socket = create_epoll();
-	printf("epoll_socket : %d\n", this->_epoll_socket);
 	this->set_epoll_event();
 	ctrl_epoll_add(this->_epoll_socket, this->_socket, this->_epoll_event);
 	while (this->_shutdown == false)
 	{
 		epoll_loop();
+		handle_all_events_routine();
+		send_msg_out();
 	}
-	// read_and_respond(connection);
 }

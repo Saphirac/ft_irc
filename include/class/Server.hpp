@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/23 16:05:26 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/28 16:36:56 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <vector>
+#include "class/Exceptions.hpp"
 
 class Client;
 class Channel;
@@ -79,21 +80,6 @@ private:
 	std::map<std::string, cmd>      _map_of_cmds;
 
 	bool _shutdown;
-
-	class ProblemWithSocket : public std::exception
-	{
-	public:
-		virtual char const *what(void) const throw() { return "Problem with socket"; }
-	};
-
-	class ProblemWithSockAddr : public std::exception
-	{
-	public:
-		virtual char const *what(void) const throw()
-		{
-			return "Problem with SockAddr structure creation / assignation";
-		}
-	};
 
 public:
 	// Constructors
@@ -164,9 +150,12 @@ public:
 	void init_socket_server();
 	void create_server();
 	void ctrl_epoll_add(int epoll_fd, int socket, struct epoll_event *e_event);
-	void handle_client_event(Client *client);
+	void handle_client_event(Client *client, std::string msg);
 	void handle_new_connection();
 	void epoll_loop();
+	void handle_all_events_routine();
+	void rcv_client_event(Client *client);
+	void send_msg_out();
 
 	struct sockaddr_in bind_assign_sockaddr();
 

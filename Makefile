@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/26 16:52:38 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/02/28 16:37:10 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -106,6 +106,7 @@ LIB_SRC = \
 				UserModeMask \
 				UserModes \
 				Username \
+				Exceptions \
 			} \
 		format_reply \
 		send_message \

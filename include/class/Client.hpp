@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/23 15:30:24 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/28 16:19:35 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,5 +114,7 @@ public:
 	std::clock_t check_time_since_last_msg(void) const;
 
 	StatusCode send_msg_out(void);
+
+	std::string const get_next_msg(void);
 };
 

@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/26 04:04:21 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/25 02:29:09 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/28 17:32:30 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,11 @@ void	Channel::display_mode(void)
 	}
 }*/
 
+/**
+ * @brief send the message to all the clients in the channel
+ * 
+ * @param msg to send
+ */
 void	Channel::send_msg_to_all(std::string const &msg)
 {
 	std::map<std::string, Client *>::iterator it = this->_clients.begin();
