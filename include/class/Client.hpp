@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/29 18:08:22 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 19:55:39 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ public:
 	// Accessors
 	int get_socket(void) const;
 
-	epoll_event       *get_epoll_event(void) const;
+	epoll_event       *get_mut_epoll_event(void) const;
 	std::clock_t       get_time_last_msg(void) const;
 	std::string const &get_msg_in(void) const;
 	std::string const &get_msg_out(void) const;
@@ -91,7 +91,6 @@ public:
 	void set_realname(Realname const &realname);
 	void set_modes(UserModes const modes);
 	void set_away_msg(std::string const &away_msg);
-	void set_epoll_event();
 
 	// Member functions
 	void disconnect(void);
@@ -111,4 +110,5 @@ public:
 	void send_msg_out(void);
 
 	std::string const get_next_msg(void);
+	epoll_event      *set_epoll_event();
 };

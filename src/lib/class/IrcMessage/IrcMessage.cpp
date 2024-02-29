@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 18:09:38 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 18:10:03 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 19:57:14 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,11 @@ IrcMessage IrcMessage::parse_irc_message(std::string const &message)
 	ircMessage._command = token;
 
 	std::string remaining;
+
 	std::getline(iss, remaining);
 
 	size_t pos = remaining.find(':');
+
 	if (pos != std::string::npos)
 	{
 		if (pos > 0)

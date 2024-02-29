@@ -6,11 +6,11 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/26 04:04:21 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 17:50:02 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 19:47:19 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Channel.hpp"
+#include "class/Channel.hpp"
 #include <algorithm>
 #include <iostream>
 
@@ -68,6 +68,7 @@ void Channel::set_key(std::string key) { _key = key; }
 
 // Member functions
 
+// TODO : Commented because I need to complete it with the prefix method of Client
 /*void	Channel::send_msg_to_all(std::string const &msg, Client &sender)
 {
     std::map<std::string, Client &>::iterator it = this->_clients.begin();

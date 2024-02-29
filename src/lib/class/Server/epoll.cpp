@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:06:31 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 18:41:08 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 19:36:48 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,12 @@
  *
  * @return the created epoll fd
  */
-int create_epoll()
+void Server::create_epoll()
 {
-	int epoll_fd = epoll_create1(0);
+	this->_epoll_socket = epoll_create1(0);
 
-	if (epoll_fd == -1)
+	if (this->_epoll_socket == -1)
 		throw ProblemWithEpollCreate();
-	return epoll_fd;
 }
 
 /**

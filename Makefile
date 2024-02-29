@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/29 18:54:52 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/02/29 19:43:55 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -99,13 +99,15 @@ LIB_SRC = \
 					epoll \
 					handle_clients \
 				} \
-				Hostname \
-				Nickname \
-				Realname \
-				UserModeMask \
-				UserModes \
-				Username \
+				${addprefix SpecializedStrings/, \
+					Hostname \
+					Nickname \
+					Realname \
+					UserModeMask \
+					Username \
+				} \
 				Exceptions \
+				UserModes \
 			} \
 		format_reply \
 		} \

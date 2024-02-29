@@ -3,15 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Nickname.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 03:49:43 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 16:03:31 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/29 19:58:41 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Nickname.hpp"
 #include "abnf_components.hpp"
+
+#define MAX_NICKNAME_LENGTH 10
 
 // ****************************************************************************************************************** //
 //                                                    Constructors                                                    //
@@ -41,6 +43,6 @@ Nickname::~Nickname(void) {}
  */
 bool Nickname::is_valid(void) const
 {
-	return this->size() < 10 && (letter + special).find(this[0]) != this->npos
+	return this->size() <= MAX_NICKNAME_LENGTH && (letter + special).find(this[0]) != this->npos
 	    && this->find_first_not_of(letter + digit + special, 1) == this->npos;
 }

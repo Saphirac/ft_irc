@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/26 04:04:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 17:45:56 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 19:44:25 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,6 @@ public:
 	void remove_from_ban_list(Client &client);
 	void set_key(std::string key);
 	void set_limit(int limit);
-
-	void display_mode(void);
 
 	// void send_msg_to_all(std::string const &msg, Client &sender);
 	void send_msg_to_all(std::string const &msg);

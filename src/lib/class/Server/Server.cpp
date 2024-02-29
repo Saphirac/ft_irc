@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 18:19:33 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 19:37:00 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,12 +86,12 @@ void Server::init_socket_server()
  * @brief Main Server function : init the socket of the server, create the epoll socket and loop to receive and send
  * messages
  *
+ * // TODO : handle signals to set shutdown
  */
-// TODO : handle signals to set shutdown
 void Server::create_server()
 {
 	this->init_socket_server();
-	this->_epoll_socket = create_epoll();
+	this->create_epoll();
 	this->set_epoll_event();
 	ctrl_epoll_add(this->_epoll_socket, this->_socket, this->_epoll_event);
 	while (this->_shutdown == false)

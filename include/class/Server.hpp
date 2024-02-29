@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/29 18:58:36 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 20:04:25 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,46 +43,14 @@ class Channel;
  * @brief class Server to contain everything I need for my server
  * _port, password etc.
  *
- * @todo maybe choose a better type than int and std::string for client
- * 		do a proper default constructor if void
+ * // TODO : make a prefix method for server
  */
-
-// define pointer on function for cmd:
-
 class Server
 {
-private:
-	// Shared fields
-	static std::set<std::string> const              _operator_hosts;
-	static std::map<std::string, std::string> const _operator_ids;
-
-	// Typedef
-	typedef StatusCode (Server::*Cmd)(Client &sender, std::vector<std::string> const &parameters);
-
-	// Fields
-	int                 _port;
-	int                 _socket;
-	int                 _epoll_socket;
-	sockaddr_in         _sock_addr;
-	socklen_t           _sock_len;
-	struct epoll_event *_epoll_event;
-	std::string         _name;
-	std::string         _version;
-	std::string         _password;
-	std::string         _creation_date;
-	std::string         _creation_time;
-	std::string         _compilation_date;
-	std::string         _compilation_time;
-
-	// TODO : get back to a non pointer (hopefully)
-	std::map<int, Client *>         _clients_socket;
-	std::map<std::string, Client *> _clients_nick;
-	std::vector<Channel *>          _channels;
-	std::map<std::string, Cmd>      _map_of_cmds;
-
-	bool _shutdown;
-
 public:
+	// Typedef
+	typedef StatusCode (Server::*Command)(Client &sender, std::vector<std::string> const &parameters);
+
 	// Constructors
 	Server(int const port, std::string const name, std::string const password, bool shutdown = false);
 	// Destructor
@@ -100,7 +68,6 @@ public:
 	std::string const &get_compilation_date() const;
 	std::string const &get_compilation_time() const;
 
-	struct epoll_event       *get_epoll_event() const;
 	struct sockaddr_in const &get_sock_addr() const;
 	socklen_t const          &get_sock_len() const;
 
@@ -157,13 +124,38 @@ public:
 	void handle_all_events_routine();
 	void rcv_client_event(Client *client);
 	void send_msg_out();
+	void create_epoll();
 
 	struct sockaddr_in bind_assign_sockaddr();
 
-	void init_map_cmd(void);
-
 	void add_client(Client *client);
 	void remove_client(Client *client);
-};
 
-int  create_epoll();
+private:
+	// Shared fields
+	static std::set<std::string> const              _operator_hosts;
+	static std::map<std::string, std::string> const _operator_ids;
+	static std::map<std::string, Command> const     _map_of_cmds;
+
+	// Fields
+	int                 _port;
+	int                 _socket;
+	int                 _epoll_socket;
+	sockaddr_in         _sock_addr;
+	socklen_t           _sock_len;
+	struct epoll_event *_epoll_event;
+	std::string         _name;
+	std::string         _version;
+	std::string         _password;
+	std::string         _creation_date;
+	std::string         _creation_time;
+	std::string         _compilation_date;
+	std::string         _compilation_time;
+
+	// TODO : get back to a non pointer (hopefully)
+	std::map<int, Client *>         _clients_socket;
+	std::map<std::string, Client *> _clients_nick;
+	std::vector<Channel *>          _channels;
+
+	bool _shutdown;
+};

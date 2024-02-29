@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:20:40 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 18:08:02 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 19:55:53 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,9 @@ Client::Client(
 	_username(username),
 	_realname(realname),
 	_modes(modes),
+	_epoll_event(this->set_epoll_event()),
 	_time_last_msg(std::clock())
 {
-	this->set_epoll_event();
 	if (DEBUG)
 		std::cout << "Client constructor called\n";
 }
@@ -67,8 +67,8 @@ Hostname const    &Client::get_hostname(void) const { return this->_hostname; }
 Username const    &Client::get_username(void) const { return this->_username; }
 Realname const    &Client::get_realname(void) const { return this->_realname; }
 UserModes          Client::get_modes(void) const { return this->_modes; }
-epoll_event       *Client::get_epoll_event(void) const { return this->_epoll_event; }
 std::clock_t       Client::get_time_last_msg(void) const { return this->_time_last_msg; }
+epoll_event       *Client::get_mut_epoll_event(void) const { return this->_epoll_event; }
 
 // Setters //
 
@@ -85,13 +85,16 @@ void Client::set_modes(UserModes const modes) { this->_modes = modes; }
  * @brief Set the epoll_event of the client.
  *
  */
-void Client::set_epoll_event()
+epoll_event *Client::set_epoll_event()
 {
 	if (DEBUG)
 		std::cout << "setEvent() member function of client called\n";
-	this->_epoll_event = new epoll_event;
-	this->_epoll_event->events = EPOLLIN;
-	this->_epoll_event->data.fd = this->_socket;
+
+	epoll_event *e_event = new epoll_event;
+
+	e_event->events = EPOLLIN;
+	e_event->data.fd = this->_socket;
+	return e_event;
 }
 
 void Client::set_time_last_msg(void) { this->_time_last_msg = std::clock(); }

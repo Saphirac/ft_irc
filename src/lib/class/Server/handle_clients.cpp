@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:11:16 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 18:50:48 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 20:08:41 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ void control_socket(int const socket)
 void Server::rcv_client_event(Client *client)
 {
 	client->set_time_last_msg();
+
 	char    buffer[4096];
 	ssize_t bytes_read;
 
@@ -66,16 +67,17 @@ void Server::handle_client_event(Client *client, std::string msg)
 
 	rcv_msg.parse_irc_message(msg);
 
-	std::string cmd = rcv_msg.get_command();
+	std::string const                                            cmd = rcv_msg.get_command();
+	std::map<std::string, Server::Command>::const_iterator const cmd_func = this->_map_of_cmds.find(cmd);
 
-	if (this->_map_of_cmds.find(cmd) == this->_map_of_cmds.end())
+	if (cmd_func == this->_map_of_cmds.end())
 	{
 		std::string const msg_to_send = format_reply(ERR_UNKNOWNCOMMAND, &rcv_msg.get_command());
 		if (!msg_to_send.empty())
 			client->append_to_msg_out(msg_to_send);
 		return;
 	}
-	(this->*(_map_of_cmds[cmd]))(*client, rcv_msg.get_params());
+	(this->*(cmd_func->second))(*client, rcv_msg.get_params());
 }
 
 /**
@@ -90,5 +92,5 @@ void Server::handle_new_connection()
 		throw ProblemWithAccept();
 	control_socket(client_socket);
 	this->_clients_socket[client_socket] = new Client(client_socket);
-	ctrl_epoll_add(this->_epoll_socket, client_socket, this->_clients_socket[client_socket]->get_epoll_event());
+	ctrl_epoll_add(this->_epoll_socket, client_socket, this->_clients_socket[client_socket]->get_mut_epoll_event());
 }

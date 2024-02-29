@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/29 18:34:12 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 20:07:17 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,16 @@ static std::string const raw_operator_hosts[] = {
 static size_t const         raw_operator_hosts_len = sizeof(raw_operator_hosts) / sizeof(*raw_operator_hosts);
 std::set<std::string> const Server::_operator_hosts =
 	std::set<std::string>(raw_operator_hosts, raw_operator_hosts + raw_operator_hosts_len);
+
+// TODO : add all the commands
+static std::pair<std::string, Server::Command> const raw_cmd[] = {
+	std::make_pair("CAP", &Server::cap),
+	std::make_pair("USER", &Server::user),
+};
+
+static size_t const raw_cmd_len = sizeof(raw_cmd) / sizeof(*raw_cmd);
+
+std::map<std::string, Server::Command> const Server::_map_of_cmds(raw_cmd, raw_cmd + raw_cmd_len);
 
 // Constructors //
 
@@ -59,7 +69,6 @@ Server::Server(int const port, std::string const name, std::string const passwor
 	_password(password),
 	_shutdown(shutdown)
 {
-	this->init_map_cmd();
 	if (DEBUG)
 		std::cout << "Server constructor called\n";
 }
@@ -85,7 +94,6 @@ std::string const &Server::get_compilation_date(void) const { return this->_comp
 std::string const &Server::get_compilation_time(void) const { return this->_compilation_time; }
 std::string const &Server::get_password(void) const { return this->_password; }
 
-struct epoll_event       *Server::get_epoll_event(void) const { return this->_epoll_event; }
 struct sockaddr_in const &Server::get_sock_addr(void) const { return this->_sock_addr; }
 socklen_t const          &Server::get_sock_len(void) const { return this->_sock_len; }
 
@@ -171,7 +179,7 @@ struct sockaddr_in Server::bind_assign_sockaddr()
 /**
  * @brief add a new client (Client *) to the maps of clients
  *
- * @param client to add
+ * @param client the client to add to the list of clients
  */
 void Server::add_client(Client *client)
 {
@@ -184,7 +192,7 @@ void Server::add_client(Client *client)
 /**
  * @brief remove a client (Client *) from the maps of clients
  *
- * @param client to remove
+ * @param client the client to remove from the list of clients
  */
 void Server::remove_client(Client *client)
 {
@@ -192,26 +200,3 @@ void Server::remove_client(Client *client)
 	if (!client->get_nickname().empty())
 		this->_clients_nick.erase(client->get_nickname());
 }
-
-/**
- * @brief init a map with the pointer to the function of each command with the cmd name as key
- *
- */
-void Server::init_map_cmd(void)
-{
-	this->_map_of_cmds["CAP"] = &Server::cap;
-	this->_map_of_cmds["USER"] = &Server::user;
-	this->_map_of_cmds["NICK"] = &Server::nick;
-	this->_map_of_cmds["JOIN"] = &Server::join;
-	this->_map_of_cmds["PASS"] = &Server::pass;
-}
-
-/*static std::pair<std::string, Server::cmd> const raw_cmd [] = {
-    {"CAP", Server::cap},
-    {"USER", Server::user},
-};
-
-static size_t const raw_cmd_len = sizeof(raw_cmd) / sizeof(*raw_cmd);
-
-static std::map<std::string, Server::cmd> const map_of_cmds(raw_cmd, raw_cmd + raw_cmd_len);
-*/
