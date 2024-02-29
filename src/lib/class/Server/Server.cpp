@@ -6,24 +6,23 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/28 17:17:05 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 18:19:33 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
 #include "IrcMessage.hpp"
-#include <cstdio>
 
 /**
- * @brief check the msg_in field of the client, extract the message ( < 512 char and finishing by a crlf) and handle it
- * next message stand from the next msg_in field from the client
+ * @brief check the msg_in field of the client, extract the message ( <= 512 char and finishing by a crlf) and handle it
  *
  */
 void Server::handle_all_events_routine()
 {
-	for (std::map<int, Client *>::iterator it = this->_clients_socket.begin(); it != this->_clients_socket.end(); it++)
+	for (std::map<int, Client *>::iterator it = this->_clients_socket.begin(); it != this->_clients_socket.end(); ++it)
 	{
 		std::string const next_msg = it->second->get_next_msg();
+
 		if (next_msg.empty() == false)
 			handle_client_event(it->second, next_msg);
 	}
@@ -35,7 +34,7 @@ void Server::handle_all_events_routine()
  */
 void Server::send_msg_out()
 {
-	for (std::map<int, Client *>::iterator it = this->_clients_socket.begin(); it != this->_clients_socket.end(); it++)
+	for (std::map<int, Client *>::iterator it = this->_clients_socket.begin(); it != this->_clients_socket.end(); ++it)
 	{
 		if (it->second->get_msg_out().empty() == false)
 		{
@@ -49,9 +48,7 @@ void Server::send_msg_out()
 
 /**
  * @brief create a loop to manage new incoming connections or messages
- * use of epoll_wait : check each registered fds to see if there is a new event (ex : new connection, new message)
- *
- * @param myserver
+ * 
  */
 void Server::epoll_loop()
 {
@@ -62,7 +59,7 @@ void Server::epoll_loop()
 	if (fds_ready == -1)
 		throw ProblemWithEpollWait();
 
-	for (int i = 0; i < fds_ready; i++)
+	for (int i = 0; i < fds_ready; ++i)
 	{
 		if (events[i].data.fd == this->_socket)
 			handle_new_connection();

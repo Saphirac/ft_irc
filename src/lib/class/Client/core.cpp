@@ -6,11 +6,12 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:20:40 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/28 17:31:48 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 18:08:02 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Client.hpp"
+#include <iostream>
 
 Client::Client(
 	int const       socket,
@@ -29,6 +30,7 @@ Client::Client(
 	_modes(modes),
 	_time_last_msg(std::clock())
 {
+	this->set_epoll_event();
 	if (DEBUG)
 		std::cout << "Client constructor called\n";
 }
@@ -52,24 +54,21 @@ Client::~Client()
 {
 	if (DEBUG)
 		std::cout << "Client destructor called\n";
-	if (this->_socket != -1)
-		close(this->_socket);
-	if (this->_epoll_event)
-		delete this->_epoll_event;
+	this->disconnect();
 }
 
 // Getters //
 
-int                 Client::get_socket(void) const { return this->_socket; }
-std::string const  &Client::get_msg_in(void) const { return this->_msg_in; }
-std::string const  &Client::get_msg_out(void) const { return this->_msg_out; }
-Nickname const     &Client::get_nickname(void) const { return this->_nickname; }
-Hostname const     &Client::get_hostname(void) const { return this->_hostname; }
-Username const     &Client::get_username(void) const { return this->_username; }
-Realname const     &Client::get_realname(void) const { return this->_realname; }
-UserModes           Client::get_modes(void) const { return this->_modes; }
-struct epoll_event *Client::get_epoll_event(void) const { return this->_epoll_event; }
-std::clock_t        Client::get_time_last_msg(void) const { return this->_time_last_msg; }
+int                Client::get_socket(void) const { return this->_socket; }
+std::string const &Client::get_msg_in(void) const { return this->_msg_in; }
+std::string const &Client::get_msg_out(void) const { return this->_msg_out; }
+Nickname const    &Client::get_nickname(void) const { return this->_nickname; }
+Hostname const    &Client::get_hostname(void) const { return this->_hostname; }
+Username const    &Client::get_username(void) const { return this->_username; }
+Realname const    &Client::get_realname(void) const { return this->_realname; }
+UserModes          Client::get_modes(void) const { return this->_modes; }
+epoll_event       *Client::get_epoll_event(void) const { return this->_epoll_event; }
+std::clock_t       Client::get_time_last_msg(void) const { return this->_time_last_msg; }
 
 // Setters //
 
@@ -84,7 +83,7 @@ void Client::set_modes(UserModes const modes) { this->_modes = modes; }
 
 /**
  * @brief Set the epoll_event of the client.
- * 
+ *
  */
 void Client::set_epoll_event()
 {
@@ -106,4 +105,5 @@ void Client::disconnect(void)
 	std::cout << "Client disconnected.\n";
 	close(this->_socket);
 	this->_socket = -1;
+	delete this->_epoll_event;
 }

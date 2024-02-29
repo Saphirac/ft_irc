@@ -6,12 +6,11 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 22:08:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/28 14:47:30 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 17:29:09 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef REPLIES_HPP
-#define REPLIES_HPP
+#pragma once
 
 #include <map>
 #include <string>
@@ -153,5 +152,3 @@ static size_t const raw_replies_len = sizeof(raw_replies) / sizeof(*raw_replies)
 static std::map<int, char const *> const replies(raw_replies, raw_replies + raw_replies_len);
 
 typedef std::map<int, char const *>::const_iterator ReplyIterator;
-
-#endif

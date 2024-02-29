@@ -6,12 +6,13 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/28 17:24:04 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 18:34:12 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
 #include <ctime>
+#include <iostream>
 
 // ***************************************************************************************************************** //
 //                                                   Shared Fields                                                   //
@@ -32,24 +33,24 @@ std::set<std::string> const Server::_operator_hosts =
  * @param password The password of the server (required to connect to it).
  */
 /*Server::Server(std::string const &name, std::string const &version, std::string const &password) :
-	_name(name),
-	_version(version),
-	_password(password),
-	_creation_date(),
-	_creation_time(),
-	_compilation_date(__DATE__),
-	_compilation_time(__TIME__),
-	_clients_by_socket(),
-	_clients_by_nickname()
+    _name(name),
+    _version(version),
+    _password(password),
+    _creation_date(),
+    _creation_time(),
+    _compilation_date(__DATE__),
+    _compilation_time(__TIME__),
+    _clients_by_socket(),
+    _clients_by_nickname()
 {
-	time_t const raw_time = time(NULL);
-	tm const    *time_info = localtime(&raw_time);
-	char         buffer[80];
+    time_t const raw_time = time(NULL);
+    tm const    *time_info = localtime(&raw_time);
+    char         buffer[80];
 
-	strftime(buffer, sizeof(buffer), "%Y-%m-%d", time_info);
-	this->_creation_date = buffer;
-	strftime(buffer, sizeof(buffer), "%H:%M:%S", time_info);
-	this->_creation_time = buffer;
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d", time_info);
+    this->_creation_date = buffer;
+    strftime(buffer, sizeof(buffer), "%H:%M:%S", time_info);
+    this->_creation_time = buffer;
 }*/
 
 Server::Server(int const port, std::string const name, std::string const password, bool shutdown) :
@@ -65,7 +66,11 @@ Server::Server(int const port, std::string const name, std::string const passwor
 
 // Destructor //
 
-Server::~Server(void) { this->_clients_socket.clear(); close(this->_socket); }
+Server::~Server(void)
+{
+	this->_clients_socket.clear();
+	close(this->_socket);
+}
 
 // Getters //
 
@@ -84,7 +89,7 @@ struct epoll_event       *Server::get_epoll_event(void) const { return this->_ep
 struct sockaddr_in const &Server::get_sock_addr(void) const { return this->_sock_addr; }
 socklen_t const          &Server::get_sock_len(void) const { return this->_sock_len; }
 
-std::map<int, Client *> const           &Server::get_clients_socket(void) const { return this->_clients_socket; }
+std::map<int, Client *> const         &Server::get_clients_socket(void) const { return this->_clients_socket; }
 std::map<std::string, Client *> const &Server::get_clients_nick(void) const { return this->_clients_nick; }
 std::vector<Channel *> const          &Server::get_channels(void) const { return this->_channels; }
 
@@ -106,13 +111,15 @@ void Server::set_password(std::string const &password) { this->_password = passw
 void Server::set_sock_addr(struct sockaddr_in const &sock_addr) { this->_sock_addr = sock_addr; }
 void Server::set_sock_len() { this->_sock_len = sizeof(this->_sock_addr); }
 
-void Server::set_clients_socket(std::map<int, Client *> const &clients_socket) { this->_clients_socket = clients_socket; }
+void Server::set_clients_socket(std::map<int, Client *> const &clients_socket)
+{
+	this->_clients_socket = clients_socket;
+}
 void Server::set_clients_nick(std::map<std::string, Client *> const &clients_nick)
 {
 	this->_clients_nick = clients_nick;
 }
 void Server::set_channels(std::vector<Channel *> const &channels) { this->_channels = channels; }
-
 void Server::set_shutdown(bool const shutdown) { this->_shutdown = shutdown; }
 
 /**
@@ -120,7 +127,6 @@ void Server::set_shutdown(bool const shutdown) { this->_shutdown = shutdown; }
  *
  * @throw Server::ProblemWithSocket
  */
-
 void Server::create_and_set_socket()
 {
 	this->_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -131,7 +137,6 @@ void Server::create_and_set_socket()
 /**
  * @brief this function is intended to set the epoll_event struct for the server socket
  *
- * @return struct epoll_event
  */
 void Server::set_epoll_event()
 {
@@ -142,17 +147,17 @@ void Server::set_epoll_event()
 	this->_epoll_event->data.fd = this->_socket;
 }
 
-// Methods 
+// Methods
 
 /**
  * @brief create a struct sockaddr to listen to chosen port on any addresses
  *
- * @param fd_socket
- * @return sockaddr_in&
+ * @return sockaddr_in& the new assigned struct sockaddr
  */
 struct sockaddr_in Server::bind_assign_sockaddr()
 {
 	struct sockaddr_in sock_addr;
+
 	sock_addr.sin_family = AF_INET;
 	sock_addr.sin_port = htons(this->_port);
 	sock_addr.sin_addr.s_addr = INADDR_ANY;
@@ -165,10 +170,10 @@ struct sockaddr_in Server::bind_assign_sockaddr()
 
 /**
  * @brief add a new client (Client *) to the maps of clients
- * 
+ *
  * @param client to add
  */
-void	Server::add_client(Client *client)
+void Server::add_client(Client *client)
 {
 	this->_clients_socket[client->get_socket()] = client;
 
@@ -177,13 +182,36 @@ void	Server::add_client(Client *client)
 }
 
 /**
- * @brief remove a client (Client *) from the maps of clients 
- * 
+ * @brief remove a client (Client *) from the maps of clients
+ *
  * @param client to remove
  */
-void	Server::remove_client(Client *client)
+void Server::remove_client(Client *client)
 {
 	this->_clients_socket.erase(client->get_socket());
 	if (!client->get_nickname().empty())
 		this->_clients_nick.erase(client->get_nickname());
 }
+
+/**
+ * @brief init a map with the pointer to the function of each command with the cmd name as key
+ *
+ */
+void Server::init_map_cmd(void)
+{
+	this->_map_of_cmds["CAP"] = &Server::cap;
+	this->_map_of_cmds["USER"] = &Server::user;
+	this->_map_of_cmds["NICK"] = &Server::nick;
+	this->_map_of_cmds["JOIN"] = &Server::join;
+	this->_map_of_cmds["PASS"] = &Server::pass;
+}
+
+/*static std::pair<std::string, Server::cmd> const raw_cmd [] = {
+    {"CAP", Server::cap},
+    {"USER", Server::user},
+};
+
+static size_t const raw_cmd_len = sizeof(raw_cmd) / sizeof(*raw_cmd);
+
+static std::map<std::string, Server::cmd> const map_of_cmds(raw_cmd, raw_cmd + raw_cmd_len);
+*/

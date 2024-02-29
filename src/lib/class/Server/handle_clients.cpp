@@ -6,22 +6,23 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:11:16 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/28 17:20:08 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 18:50:48 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Server.hpp"
 #include "IrcMessage.hpp"
+#include "class/Server.hpp"
 #include "replies.hpp"
 
 /**
  * @brief Change the socket flag to non blocking
- * 
- * @param socket 
+ *
+ * @param socket the socket to set non blocking
  */
 void control_socket(int const socket)
 {
 	int flags = fcntl(socket, F_GETFL, 0);
+
 	if (flags == -1)
 		throw ProblemWithFcntlFlags();
 	flags |= O_NONBLOCK;
@@ -31,14 +32,14 @@ void control_socket(int const socket)
 
 /**
  * @brief call recv() to get what the client wrote in its socket
- * 
- * @param client 
+ *
+ * @param client the client to get the message from
  */
 void Server::rcv_client_event(Client *client)
 {
 	client->set_time_last_msg();
-	char buffer[4096];
-	ssize_t  bytes_read;
+	char    buffer[4096];
+	ssize_t bytes_read;
 
 	bytes_read = recv(client->get_socket(), buffer, 4096, 0);
 	if (bytes_read == -1)
@@ -46,6 +47,7 @@ void Server::rcv_client_event(Client *client)
 	if (bytes_read == 0)
 	{
 		client->disconnect();
+		this->remove_client(client);
 		return;
 	}
 	buffer[bytes_read] = '\0';
@@ -54,16 +56,18 @@ void Server::rcv_client_event(Client *client)
 
 /**
  * @brief parse the message and call the corresponding received command
- * 
- * @param client 
- * @param msg 
+ *
+ * @param client to handle the event of
+ * @param msg the msg to treat
  */
-
 void Server::handle_client_event(Client *client, std::string msg)
 {
 	IrcMessage rcv_msg;
+
 	rcv_msg.parse_irc_message(msg);
+
 	std::string cmd = rcv_msg.get_command();
+
 	if (this->_map_of_cmds.find(cmd) == this->_map_of_cmds.end())
 	{
 		std::string const msg_to_send = format_reply(ERR_UNKNOWNCOMMAND, &rcv_msg.get_command());
@@ -80,11 +84,11 @@ void Server::handle_client_event(Client *client, std::string msg)
  */
 void Server::handle_new_connection()
 {
-	int	const client_socket = accept(this->_socket, NULL, NULL);
+	int const client_socket = accept(this->_socket, NULL, NULL);
+
 	if (client_socket == -1)
 		throw ProblemWithAccept();
 	control_socket(client_socket);
 	this->_clients_socket[client_socket] = new Client(client_socket);
-	this->_clients_socket[client_socket]->set_epoll_event();
 	ctrl_epoll_add(this->_epoll_socket, client_socket, this->_clients_socket[client_socket]->get_epoll_event());
 }

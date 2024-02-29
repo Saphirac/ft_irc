@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   UserMode.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 12:36:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/07 08:48:11 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/29 18:42:10 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef USERMODE_HPP
-#define USERMODE_HPP
+#pragma once
 
 enum UserMode
 {
@@ -23,5 +22,3 @@ enum UserMode
 	AlreadySentPass,
 	AlreadySentUser,
 };
-
-#endif

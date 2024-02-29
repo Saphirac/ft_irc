@@ -6,13 +6,14 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 02:53:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/28 17:31:01 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 18:15:27 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Client.hpp"
 
-# define TERMINATING_SEQ "\r\n"
+#define TERMINATING_SEQ "\r\n"
+#define MAX_MSG_SIZE 512
 
 /**
  * @brief Appends a string to the input buffer of the Client instance.
@@ -57,17 +58,15 @@ void Client::clear_mode(UserMode const mode) { this->_modes.clear(mode); }
 bool Client::has_mode(UserMode const mode) const { return this->_modes.is_set(mode); }
 
 /**
- * @brief 
- * 
- * @return StatusCode 
+ * @brief send the message stocked in the _msg_out buffer to the client.
+ *
+ * @throw ProblemWithSend() if the send() function fails.
  */
-StatusCode Client::send_msg_out(void)
+void Client::send_msg_out(void)
 {
 	if (send(this->_socket, this->_msg_out.c_str(), this->_msg_out.size(), 0) == -1)
-		return ErrorSend;
-
+		throw ProblemWithSend();
 	this->clear_msg_out();
-	return Success;
 }
 
 /**
@@ -79,26 +78,29 @@ std::string Client::user_mask(void) const { return this->_nickname + "!" + this-
 
 /**
  * @brief Compare the time since the last message was sent by the client to the current time.
- * 
- * @return std::clock_t 
+ *
+ * @return std::clock_t the difference between the current time and the time of the last message.
  */
 std::clock_t Client::check_time_since_last_msg(void) const { return std::clock() - this->_time_last_msg; }
 
 /**
- * @brief Get the first message in the input buffer of the Client instance. 
- * A message is less than 512 characters and is suffixed with a CRLF sequence.
+ * @brief Get the first message in the input buffer of the Client instance.
+ * A message is <= 512 characters and is suffixed with a CRLF sequence.
  * Then it extracts and return this message and erase it from the reste of the buffer.
- * 
- * @return std::string const 
+ *
+ * @return std::string const the msg found or an empty string if no message is found / the msg is too long
  */
 std::string const Client::get_next_msg()
 {
 	size_t const pos = this->_msg_in.find(TERMINATING_SEQ);
+
 	if (pos == std::string::npos)
 		return std::string();
+
 	std::string const msg = this->_msg_in.substr(0, pos);
+
 	this->_msg_in.erase(0, pos + sizeof(TERMINATING_SEQ));
-	if (pos > 512)
+	if (pos > MAX_MSG_SIZE)
 		return std::string();
 	return msg;
 }

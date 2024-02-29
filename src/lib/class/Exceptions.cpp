@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/28 16:32:32 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/28 16:45:07 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 18:09:16 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <exception>
 #include "class/Exceptions.hpp"
 
 char const *ProblemWithSocket::what(void) const throw() { return "Problem with socket"; }

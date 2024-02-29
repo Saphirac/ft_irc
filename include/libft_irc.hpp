@@ -3,14 +3,11 @@
 /*                                                        :::      ::::::::   */
 /*   libft_irc.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:52:01 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/08 01:01:06 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/29 16:51:10 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_IRC_HPP
-#define LIBFT_IRC_HPP
-
-#endif
+#pragma once

@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/28 16:36:56 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 18:58:36 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 #include "Client.hpp"
 #include "StatusCode.hpp"
+#include "class/Exceptions.hpp"
 #include "ft_irc.hpp"
 #include <errno.h>
 #include <fcntl.h>
@@ -28,7 +29,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <vector>
-#include "class/Exceptions.hpp"
 
 class Client;
 class Channel;
@@ -56,6 +56,9 @@ private:
 	static std::set<std::string> const              _operator_hosts;
 	static std::map<std::string, std::string> const _operator_ids;
 
+	// Typedef
+	typedef StatusCode (Server::*Cmd)(Client &sender, std::vector<std::string> const &parameters);
+
 	// Fields
 	int                 _port;
 	int                 _socket;
@@ -71,13 +74,11 @@ private:
 	std::string         _compilation_date;
 	std::string         _compilation_time;
 
-	// Typedef
-	typedef StatusCode (Server::*cmd)(Client &sender, std::vector<std::string> const &parameters);
 	// TODO : get back to a non pointer (hopefully)
 	std::map<int, Client *>         _clients_socket;
 	std::map<std::string, Client *> _clients_nick;
 	std::vector<Channel *>          _channels;
-	std::map<std::string, cmd>      _map_of_cmds;
+	std::map<std::string, Cmd>      _map_of_cmds;
 
 	bool _shutdown;
 
@@ -149,7 +150,7 @@ public:
 	void create_and_set_socket();
 	void init_socket_server();
 	void create_server();
-	void ctrl_epoll_add(int epoll_fd, int socket, struct epoll_event *e_event);
+	void ctrl_epoll_add(int epoll_fd, int socket, epoll_event *e_event);
 	void handle_client_event(Client *client, std::string msg);
 	void handle_new_connection();
 	void epoll_loop();
@@ -166,4 +167,3 @@ public:
 };
 
 int  create_epoll();
-void send_message(int client_socket, std::string message);

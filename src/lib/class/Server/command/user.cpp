@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/23 16:05:14 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 17:54:54 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ inline static StatusCode error_not_authenticated(Server &server, Client &client)
  * @param server The server to remove the client from.
  * @param client The client to send the reply to.
  *
+ * @throw : send_msg_out() can throw a ProblemWithSend() exception
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
 inline static StatusCode error_need_more_parameters(Server &server, Client &client)
@@ -82,12 +83,7 @@ inline static StatusCode error_need_more_parameters(Server &server, Client &clie
 		return ErrorFormatReply;
 
 	client.append_to_msg_out(msg);
-
-	StatusCode const status = client.send_msg_out();
-
-	if (status)
-		return status;
-
+	client.send_msg_out();
 	server.remove_client(&client);
 	return Success;
 }
