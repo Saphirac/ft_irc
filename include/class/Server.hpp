@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/29 20:04:25 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/01 22:11:31 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,20 +14,13 @@
 
 #include "Client.hpp"
 #include "StatusCode.hpp"
-#include "class/Exceptions.hpp"
 #include "ft_irc.hpp"
-#include <errno.h>
-#include <fcntl.h>
 #include <map>
 #include <netinet/in.h>
-#include <netinet/ip.h>
 #include <set>
-#include <stdlib.h>
 #include <string>
 #include <sys/epoll.h>
 #include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
 #include <vector>
 
 class Client;
@@ -53,6 +46,7 @@ public:
 
 	// Constructors
 	Server(int const port, std::string const name, std::string const password, bool shutdown = false);
+
 	// Destructor
 	~Server(void);
 

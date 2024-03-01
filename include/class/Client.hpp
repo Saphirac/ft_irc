@@ -6,13 +6,12 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/29 19:55:39 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/01 22:00:30 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "StatusCode.hpp"
 #include "UserMode.hpp"
 #include "class/Hostname.hpp"
 #include "class/Nickname.hpp"
@@ -21,10 +20,7 @@
 #include "class/UserModes.hpp"
 #include "class/Username.hpp"
 #include <ctime>
-#include <netinet/in.h>
-#include <stdint.h>
 #include <string>
-#include <unistd.h>
 
 class Server;
 

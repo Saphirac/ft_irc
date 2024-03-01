@@ -6,11 +6,12 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 02:53:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 18:15:27 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/01 22:11:45 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Client.hpp"
+#include "class/Exceptions.hpp"
 
 #define TERMINATING_SEQ "\r\n"
 #define MAX_MSG_SIZE 512

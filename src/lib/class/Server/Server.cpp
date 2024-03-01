@@ -6,12 +6,13 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 19:37:00 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/01 22:12:02 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
 #include "IrcMessage.hpp"
+#include "class/Exceptions.hpp"
 
 /**
  * @brief check the msg_in field of the client, extract the message ( <= 512 char and finishing by a crlf) and handle it

@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/26 04:04:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 19:44:25 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/01 22:12:48 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 #include "ChannelMode.hpp"
 #include "class/Client.hpp"
-#include "class/Server.hpp"
 
 class Client;
 

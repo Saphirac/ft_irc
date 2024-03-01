@@ -6,13 +6,15 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/29 20:07:17 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/01 22:14:54 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
 #include <ctime>
 #include <iostream>
+#include <unistd.h>
+#include "class/Exceptions.hpp"
 
 // ***************************************************************************************************************** //
 //                                                   Shared Fields                                                   //
@@ -133,7 +135,7 @@ void Server::set_shutdown(bool const shutdown) { this->_shutdown = shutdown; }
 /**
  * @brief Create a socket object
  *
- * @throw Server::ProblemWithSocket
+ * @throw Server::ProblemWithSocket if the socket() function fails
  */
 void Server::create_and_set_socket()
 {

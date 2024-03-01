@@ -6,18 +6,23 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:11:16 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 20:08:41 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/01 22:20:35 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "IrcMessage.hpp"
 #include "class/Server.hpp"
 #include "replies.hpp"
+#include <fcntl.h>
+#include "class/Exceptions.hpp"
 
 /**
  * @brief Change the socket flag to non blocking
  *
  * @param socket the socket to set non blocking
+ * 
+ * @throw ProblemWithFcntlFlags() if fcntl() fails in getting the flags
+ * @throw ProblemWithSettingNonBlock() if fcntl() fails in setting the socket to non blocking
  */
 void control_socket(int const socket)
 {
@@ -34,6 +39,9 @@ void control_socket(int const socket)
  * @brief call recv() to get what the client wrote in its socket
  *
  * @param client the client to get the message from
+ * 
+ * @throw ProblemWithRecv() if recv() fails
+ * @throw std::string() constructor can throw different exceptions depending on the error
  */
 void Server::rcv_client_event(Client *client)
 {
@@ -51,8 +59,7 @@ void Server::rcv_client_event(Client *client)
 		this->remove_client(client);
 		return;
 	}
-	buffer[bytes_read] = '\0';
-	client->append_to_msg_in(std::string(buffer));
+	client->append_to_msg_in(std::string(buffer, bytes_read));
 }
 
 /**
@@ -72,7 +79,7 @@ void Server::handle_client_event(Client *client, std::string msg)
 
 	if (cmd_func == this->_map_of_cmds.end())
 	{
-		std::string const msg_to_send = format_reply(ERR_UNKNOWNCOMMAND, &rcv_msg.get_command());
+		std::string const msg_to_send = format_reply(ERR_UNKNOWNCOMMAND, &cmd);
 		if (!msg_to_send.empty())
 			client->append_to_msg_out(msg_to_send);
 		return;

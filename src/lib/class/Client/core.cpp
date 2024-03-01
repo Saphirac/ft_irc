@@ -6,12 +6,13 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:20:40 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 19:55:53 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/01 22:13:44 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Client.hpp"
 #include <iostream>
+#include <unistd.h>
 
 Client::Client(
 	int const       socket,
@@ -82,8 +83,9 @@ void Client::set_realname(Realname const &realname) { this->_realname = realname
 void Client::set_modes(UserModes const modes) { this->_modes = modes; }
 
 /**
- * @brief Set the epoll_event of the client.
+ * @brief Create a new struct epoll event specially for this client and assigns all necessary fields.
  *
+ * @return epoll_event* The newly created epoll event.
  */
 epoll_event *Client::set_epoll_event()
 {

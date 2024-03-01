@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/29 19:43:55 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/03/01 22:03:28 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -138,7 +138,6 @@ CXXFLAGS = \
 	-MP \
 	-I${PRV_DIR} \
 	-I${INC_DIR}
-
 
 ifeq (${DEBUG}, 1)
 	CXXFLAGS += -g -DDEBUG=1
