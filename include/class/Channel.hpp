@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 00:23:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/28 16:06:38 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/29 16:47:41 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,13 +105,11 @@ public:
 	// Methods
 	void set_mode(ChannelMode const mode, void const *arg = NULL);
 	void clear_mode(ChannelMode const mode, void const *arg = NULL);
-	bool has_mode(ChannelMode const mode) const;
 
 	void add_member(Client &client);
 	void remove_member(Client &client);
 	bool has_member(Client &client) const;
 	void broadcast_to_all_members(std::string const &msg) const;
-	void broadcast_to_all_members_but_one(std::string const &msg, Client &client) const;
 
 private:
 	// Fields

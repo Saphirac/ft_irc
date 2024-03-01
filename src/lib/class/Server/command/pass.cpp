@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:23:54 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/28 17:14:19 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/01 00:06:41 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,17 +22,18 @@
  * @param sender The client that sent the command.
  * @param parameters The parameters of the command.
  *
- * @throws
- * `ProblemWithFormatReply` if the reply message cannot be formatted.
- * `PriblemWithSend` if the reply message cannot be sent.
+ * @throw `UnknownReply` if a given reply number isn't recognized.
+ * @throw `InvalidConversion` if a conversion specification is invalid.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ * @throw `ProblemWithSend` if the `send()` function fails.
  */
 void Server::pass(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (sender.has_mode(AlreadySentPass))
-		return error_already_registered(sender);
+		return sender.append_to_msg_out(format_reply(ERR_ALREADYREGISTERED));
 	if (parameters.empty())
 	{
-		error_need_more_arguments(sender, "PASS");
+		sender.append_to_msg_out(format_reply(ERR_NEEDMOREPARAMS, "PASS"));
 		sender.send_msg_out();
 		this->remove_client(sender);
 		return;
@@ -42,7 +43,7 @@ void Server::pass(Client &sender, std::vector<std::string> const &parameters)
 
 	if (password != this->_password)
 	{
-		error_password_mismatch(sender);
+		sender.append_to_msg_out(format_reply(ERR_PASSWDMISMATCH));
 		sender.send_msg_out();
 		this->remove_client(sender);
 		return;

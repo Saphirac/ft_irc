@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/28 16:46:36 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/01 08:21:17 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ std::set<std::string> const Server::_operator_hosts =
 	std::set<std::string>(raw_operator_hosts, raw_operator_hosts + raw_operator_hosts_len);
 
 static std::pair<std::string const, std::string const> const raw_operator_ids[] = {
-	std::make_pair("jodufour", "koala"),
+	std::make_pair("jodufour", "eagle"),
 	std::make_pair("mcourtoi", "black panther"),
 	std::make_pair("gle-mini", "tiger"),
 };
@@ -55,9 +55,9 @@ Server::Server(std::string const &name, std::string const &version, std::string 
 	_clients_by_nickname(),
 	_channels_by_name()
 {
-	time_t const raw_time = time(NULL);
-	tm const    *time_info = localtime(&raw_time);
-	char         buffer[80];
+	time_t const    raw_time = time(NULL);
+	tm const *const time_info = localtime(&raw_time);
+	char            buffer[42];
 
 	strftime(buffer, sizeof(buffer), "%Y-%m-%d", time_info);
 	this->_creation_date = buffer;
@@ -68,7 +68,7 @@ Server::Server(std::string const &name, std::string const &version, std::string 
 // ****************************************************************************************************************** //
 //                                                     Destructor                                                     //
 // ****************************************************************************************************************** //
-Server::~Server(void) { this->_clients_by_socket.clear(); }
+Server::~Server(void) {}
 
 // ***************************************************************************************************************** //
 //                                              Public Member Functions                                              //
@@ -77,6 +77,8 @@ Server::~Server(void) { this->_clients_by_socket.clear(); }
  * @brief Copies a given Client instance to the list of known clients.
  *
  * @param client The Client instance to copy.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 void Server::add_client(Client const &client)
 {
@@ -94,6 +96,6 @@ void Server::add_client(Client const &client)
  */
 void Server::remove_client(Client const &client)
 {
-	this->_clients_by_nickname.erase(client.get_nickname());
-	this->_clients_by_socket.erase(client.get_socket());
+	if (this->_clients_by_nickname.erase(client.get_nickname()) != 0)
+		this->_clients_by_socket.erase(client.get_socket());
 }

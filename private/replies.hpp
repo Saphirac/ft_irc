@@ -6,13 +6,12 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 22:08:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/28 17:00:24 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/01 00:07:40 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "class/ChannelName.hpp"
 #include "class/Client.hpp"
 #include <map>
 
@@ -152,10 +151,3 @@ static size_t const raw_replies_len = sizeof(raw_replies) / sizeof(*raw_replies)
 static std::map<int, char const *> const replies(raw_replies, raw_replies + raw_replies_len);
 
 typedef std::map<int, char const *>::const_iterator ReplyIterator;
-
-void error_already_registered(Client &client);
-void error_channel_operator_privileges_needed(Client &client, ChannelName const &channel_name);
-void error_need_more_arguments(Client &client, char const *const command) __attribute__((nonnull));
-void error_no_such_channel(Client &client, ChannelName const &channel_name);
-void error_password_mismatch(Client &client);
-void error_user_not_on_channel(Client &client, NickName const &nickname, ChannelName const &channel_name);

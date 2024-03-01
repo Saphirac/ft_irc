@@ -6,20 +6,36 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/28 16:45:42 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/29 17:21:01 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "class/Channel.hpp"
 #include "class/Client.hpp"
-#include <map>
-#include <set>
 #include <vector>
 
 class Server
 {
+public:
+	// Constructors
+	Server(std::string const &name, std::string const &version, std::string const &password = "");
+
+	// Destructor
+	~Server(void);
+
+	// Methods
+	void add_client(Client const &client);
+	void remove_client(Client const &client);
+
+	// Commands
+	void away(Client &sender, std::vector<std::string> const &parameters);
+	void mode(Client &sender, std::vector<std::string> const &parameters);
+	void nick(Client &sender, std::vector<std::string> const &parameters);
+	void oper(Client &sender, std::vector<std::string> const &parameters);
+	void pass(Client &sender, std::vector<std::string> const &parameters);
+	void user(Client &sender, std::vector<std::string> const &parameters);
+
 private:
 	// Shared fields
 	static std::set<std::string> const                    _operator_hosts;
@@ -36,23 +52,4 @@ private:
 	std::map<int, Client>             _clients_by_socket;
 	std::map<NickName, Client *const> _clients_by_nickname;
 	std::map<ChannelName, Channel>    _channels_by_name;
-
-public:
-	// Constructors
-	Server(std::string const &name, std::string const &version, std::string const &password = "");
-
-	// Destructor
-	~Server(void);
-
-	// Methods
-	void add_client(Client const &client);
-	void remove_client(Client const &client);
-
-	// Commands
-	void away(Client &sender, std::vector<std::string> const &parameters);
-	void mode(Client &sender, std::vector<std::string> const &parameters);
-	void nick(Client &sender, std::vector<std::string> const &parameters);
-	void pass(Client &sender, std::vector<std::string> const &parameters);
-	void oper(Client &sender, std::vector<std::string> const &parameters);
-	void user(Client &sender, std::vector<std::string> const &parameters);
 };

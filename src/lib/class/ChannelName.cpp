@@ -6,13 +6,15 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:08:57 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/24 00:32:39 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/01 16:54:09 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/ChannelName.hpp"
 #include "abnf_components.hpp"
 
+#define MAXIMUM_LENGTH_FOR_CHANNEL_NAME    50
+#define LENGTH_FOR_CHANNEL_ID              5
 #define EXCLUDED_CHARACTERS_FOR_CHANSTRING "\a\n\r ,:"
 
 // ****************************************************************************************************************** //
@@ -38,7 +40,7 @@ ChannelName::~ChannelName(void) {}
  */
 bool ChannelName::is_valid(void) const
 {
-	if (this->size() > 50)
+	if (this->size() > MAXIMUM_LENGTH_FOR_CHANNEL_NAME)
 		return false;
 
 	char const prefix = *this->begin();
@@ -49,9 +51,9 @@ bool ChannelName::is_valid(void) const
 		if (prefix != '!')
 			return false;
 
-		std::string const id = this->substr(1, 5);
+		std::string const id = this->substr(1, LENGTH_FOR_CHANNEL_ID);
 
-		if (id.size() < 5 || id.find_first_not_of(uppercase + digit) != std::string::npos)
+		if (id.size() < LENGTH_FOR_CHANNEL_ID || id.find_first_not_of(uppercase + digit) != std::string::npos)
 			return false;
 
 		name_begin = 6;

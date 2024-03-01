@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/18 23:29:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/28 11:17:09 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/29 17:35:08 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,4 +24,3 @@ enum UserMode
 	AlreadySentPass,
 	AlreadySentUser
 };
-// REMIND: Make sure to keep EndOfUserModes up to date if you add or remove a mode

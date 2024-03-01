@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 01:29:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/28 16:34:54 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/01 08:30:28 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ Channel::Modes const &Channel::get_modes(void) const { return this->_modes; }
  *
  * @param flag The flag to set.
  *
- * @throws `NotAFlag` if the given `flag` isn't recognized.
+ * @throw `NotAFlag` if the given `flag` isn't recognized.
  */
 void Channel::Modes::Flags::set(ChannelMode const flag)
 {
@@ -80,7 +80,7 @@ void Channel::Modes::Flags::set(ChannelMode const flag)
  *
  * @param flag The flag to clear.
  *
- * @throws `NotAFlag` if the given `flag` isn't recognized.
+ * @throw `NotAFlag` if the given `flag` isn't recognized.
  */
 void Channel::Modes::Flags::clear(ChannelMode const flag)
 {
@@ -107,18 +107,18 @@ void Channel::Modes::Flags::clear(ChannelMode const flag)
  *
  * @return `true` if the flag is set, `false` otherwise.
  *
- * @throws `NotAFlag` if the given `flag` isn't recognized.
+ * @throw `NotAFlag` if the given `flag` isn't recognized.
  */
 bool Channel::Modes::Flags::is_set(ChannelMode const flag) const
 {
 	switch (flag)
 	{
 	case InviteOnly:
-		return this->_bits & 1 << InviteOnly;
+		return (this->_bits & 1 << InviteOnly) != 0;
 	case NoMessagesFromOutside:
-		return this->_bits & 1 << NoMessagesFromOutside;
+		return (this->_bits & 1 << NoMessagesFromOutside) != 0;
 	case RestrictedTopic:
-		return this->_bits & 1 << RestrictedTopic;
+		return (this->_bits & 1 << RestrictedTopic) != 0;
 	default:
 		throw NotAFlag();
 	}
@@ -126,18 +126,21 @@ bool Channel::Modes::Flags::is_set(ChannelMode const flag) const
 
 /**
  * @return The string representation of the flags that are currently set.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 std::string Channel::Modes::Flags::to_string(void) const
 {
-	std::string flags;
+	std::string flags_as_string;
 
 	if (this->is_set(InviteOnly))
-		flags += CHANNEL_MODES[InviteOnly];
+		flags_as_string += CHANNEL_MODES[InviteOnly];
 	if (this->is_set(NoMessagesFromOutside))
-		flags += CHANNEL_MODES[NoMessagesFromOutside];
+		flags_as_string += CHANNEL_MODES[NoMessagesFromOutside];
 	if (this->is_set(RestrictedTopic))
-		flags += CHANNEL_MODES[RestrictedTopic];
-	return flags;
+		flags_as_string += CHANNEL_MODES[RestrictedTopic];
+
+	return flags_as_string;
 }
 
 /**
@@ -145,6 +148,8 @@ std::string Channel::Modes::Flags::to_string(void) const
  *
  * @param mode The mode to set.
  * @param arg The argument associated with the mode if any.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 void Channel::Modes::set(ChannelMode const mode, void const *const arg)
 {
@@ -152,28 +157,28 @@ void Channel::Modes::set(ChannelMode const mode, void const *const arg)
 	{
 	case InviteOnly:
 		this->_flags.set(InviteOnly);
-		break;
+		return;
 	case NoMessagesFromOutside:
 		this->_flags.set(NoMessagesFromOutside);
-		break;
+		return;
 	case RestrictedTopic:
 		this->_flags.set(RestrictedTopic);
-		break;
+		return;
 	case Limit:
 		this->_limit = *static_cast<size_t const *const>(arg);
-		break;
+		return;
 	case KeyProtected:
 		this->_key = *static_cast<Key const *const>(arg);
-		break;
+		return;
 	case ChannelOperator:
 		this->_operators.insert(static_cast<Client const *const>(arg));
-		break;
+		return;
 	case InviteMask:
 		this->_invite_masks.insert(*static_cast<NickName const *const>(arg));
-		break;
+		return;
 	case BanMask:
 		this->_ban_masks.insert(*static_cast<NickName const *const>(arg));
-		break;
+		return;
 	}
 }
 
@@ -189,28 +194,28 @@ void Channel::Modes::clear(ChannelMode const mode, void const *const arg)
 	{
 	case InviteOnly:
 		this->_flags.clear(InviteOnly);
-		break;
+		return;
 	case NoMessagesFromOutside:
 		this->_flags.clear(NoMessagesFromOutside);
-		break;
+		return;
 	case RestrictedTopic:
 		this->_flags.clear(RestrictedTopic);
-		break;
+		return;
 	case Limit:
 		this->_limit = 0;
-		break;
+		return;
 	case KeyProtected:
 		this->_key.clear();
-		break;
+		return;
 	case ChannelOperator:
 		this->_operators.erase(static_cast<Client const *const>(arg));
-		break;
+		return;
 	case InviteMask:
 		this->_invite_masks.erase(*static_cast<NickName const *const>(arg));
-		break;
+		return;
 	case BanMask:
 		this->_ban_masks.erase(*static_cast<NickName const *const>(arg));
-		break;
+		return;
 	}
 }
 
@@ -250,6 +255,8 @@ bool Channel::Modes::is_set(ChannelMode const mode) const
  * @param nickname The nickname to check.
  *
  * @return `true` if the nickname is marked as a ban mask, `false` otherwise.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 bool Channel::Modes::has_ban_mask(NickName const &nickname) const
 {
@@ -262,6 +269,8 @@ bool Channel::Modes::has_ban_mask(NickName const &nickname) const
  * @param nickname The nickname to check.
  *
  * @return `true` if the nickname is marked as an invite mask, `false` otherwise.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 bool Channel::Modes::has_invite_mask(NickName const &nickname) const
 {
@@ -274,6 +283,8 @@ bool Channel::Modes::has_invite_mask(NickName const &nickname) const
  * @param client The client to check.
  *
  * @return `true` if the client is marked as a channel operator, `false` otherwise.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 bool Channel::Modes::has_operator(Client const &client) const
 {
@@ -288,49 +299,51 @@ bool Channel::Modes::has_operator(Client const &client) const
  * @param include_ban_masks whether the resulting string shall contain the BanMask mode if it's set.
  *
  * @return The string representation of the inner modes, whith their associated arguments if any.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 std::string Channel::Modes::to_string(
 	bool const include_operators,
 	bool const include_invite_masks,
 	bool const include_ban_masks) const
 {
-	std::string modes = this->_flags.to_string();
+	std::string modes_as_string = this->_flags.to_string();
 	bool const  limit_is_set = this->is_set(Limit);
 	bool const  key_is_set = this->is_set(KeyProtected);
 
 	if (limit_is_set)
-		modes += 'l';
+		modes_as_string += 'l';
 	if (key_is_set)
-		modes += 'k';
+		modes_as_string += 'k';
 	if (include_operators)
-		for (size_t i = 0; i < this->_operators.size(); ++i) modes += 'o';
+		for (size_t i = 0; i < this->_operators.size(); ++i) modes_as_string += 'o';
 	if (include_invite_masks)
-		for (size_t i = 0; i < this->_invite_masks.size(); ++i) modes += 'I';
+		for (size_t i = 0; i < this->_invite_masks.size(); ++i) modes_as_string += 'I';
 	if (include_ban_masks)
-		for (size_t i = 0; i < this->_ban_masks.size(); ++i) modes += 'b';
+		for (size_t i = 0; i < this->_ban_masks.size(); ++i) modes_as_string += 'b';
 
 	if (this->is_set(Limit))
 	{
 		std::stringstream ss;
 
 		ss << this->_limit;
-		modes += ' ' + ss.str();
+		modes_as_string += ' ' + ss.str();
 	}
 	if (key_is_set)
-		modes += ' ' + this->_key;
+		modes_as_string += ' ' + this->_key;
 	if (include_operators)
 		for (std::set<Client const *>::const_iterator cit = this->_operators.begin(); cit != this->_operators.end();
 		     ++cit)
-			modes += ' ' + (*cit)->get_nickname();
+			modes_as_string += ' ' + (*cit)->get_nickname();
 	if (include_invite_masks)
 		for (std::set<NickName>::const_iterator cit = this->_invite_masks.begin(); cit != this->_invite_masks.end();
 		     ++cit)
-			modes += ' ' + *cit;
+			modes_as_string += ' ' + *cit;
 	if (include_ban_masks)
 		for (std::set<NickName>::const_iterator cit = this->_ban_masks.begin(); cit != this->_ban_masks.end(); ++cit)
-			modes += ' ' + *cit;
+			modes_as_string += ' ' + *cit;
 
-	return modes;
+	return modes_as_string;
 }
 
 /**
@@ -338,6 +351,8 @@ std::string Channel::Modes::to_string(
  *
  * @param mode The mode to set.
  * @param arg The argument associated with the mode if any.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 void Channel::set_mode(ChannelMode const mode, void const *const arg) { this->_modes.set(mode, arg); }
 
@@ -350,23 +365,17 @@ void Channel::set_mode(ChannelMode const mode, void const *const arg) { this->_m
 void Channel::clear_mode(ChannelMode const mode, void const *const arg) { this->_modes.clear(mode, arg); }
 
 /**
- * @brief Checks whether a mode is set for the channel.
- *
- * @param mode The mode to check.
- *
- * @return `true` if the mode is set for the channel, `false` otherwise.
- */
-bool Channel::has_mode(ChannelMode const mode) const { return this->_modes.is_set(mode); }
-
-/**
  * @brief Adds a client to the list of the members of the channel.
  *
  * @param client The client to add.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 void Channel::add_member(Client &client) { this->_members.insert(&client); }
 
 /**
  * @brief Removes a client from the list of the members of the channel.
+    void broadcast_to_all_members_but_one(std::string const &msg, Client &client) const;
  *
  * @param client The client to remove.
  */
@@ -378,6 +387,8 @@ void Channel::remove_member(Client &client) { this->_members.erase(&client); }
  * @param client The client to check.
  *
  * @return `true` if the client is a member of the channel, `false` otherwise.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 bool Channel::has_member(Client &client) const { return this->_members.find(&client) != this->_members.end(); }
 
@@ -385,26 +396,11 @@ bool Channel::has_member(Client &client) const { return this->_members.find(&cli
  * @brief Broadcasts a message to all the members of the channel.
  *
  * @param msg The message to broadcast.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 void Channel::broadcast_to_all_members(std::string const &msg) const
 {
 	for (std::set<Client *>::const_iterator cit = this->_members.begin(); cit != this->_members.end(); ++cit)
 		(*cit)->append_to_msg_out(msg);
-}
-
-/**
- * @brief
- * Broadcasts a message to all the members of the channel except one.
- * It is assumed that the given client is a member of the channel.
- *
- * @param msg The message to broadcast.
- * @param client The client to exclude from the broadcast.
- */
-void Channel::broadcast_to_all_members_but_one(std::string const &msg, Client &client) const
-{
-	std::set<Client *>::const_iterator const excluded = this->_members.find(&client);
-	std::set<Client *>::const_iterator       cit = this->_members.begin();
-
-	while (cit != excluded) (*cit++)->append_to_msg_out(msg);
-	while (++cit != this->_members.end()) (*cit)->append_to_msg_out(msg);
 }

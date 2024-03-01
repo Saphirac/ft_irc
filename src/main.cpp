@@ -6,12 +6,11 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/21 08:42:16 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/01 17:17:47 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
-#include <iostream>
 
 int main(void)
 {

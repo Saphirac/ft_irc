@@ -6,13 +6,11 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/28 17:04:37 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/01 00:08:13 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "abnf_components.hpp"
 #include "channel_modes.hpp"
-#include "class/Exceptions.hpp"
 #include "class/Server.hpp"
 #include "ft_irc.hpp"
 #include "replies.hpp"
@@ -51,42 +49,6 @@ struct ParsingTools
 //---------------------------------------------------------------------------------------------------------------------+
 //                                                      USER MODE                                                      |
 //---------------------------------------------------------------------------------------------------------------------+
-
-/**
- * @brief Sends an ERR_USERSDONTMATCH reply to a client.
- *
- * @param client The client to send the reply to.
- *
- * @throws `ProblemWithFormatReply` if the reply message cannot be formatted.
- */
-inline static void error_users_dont_match(Client &client)
-{
-	std::string const msg = format_reply(ERR_USERSDONTMATCH);
-
-	if (msg.empty())
-		throw ProblemWithFormatReply();
-
-	client.append_to_msg_out(msg);
-}
-
-/**
- * @brief Sends a RPL_UMODEIS reply to a client.
- *
- * @param client The client to send the reply to.
- * @param nickname The nickname of the user for which modes are to be sent (should be the client's nickname).
- *
- * @throws `ProblemWithFormatReply` if the reply message cannot be formatted.
- */
-inline static void reply_user_mode_is(Client &client, NickName const &nickname)
-{
-	std::string const modes_as_string = client.get_modes().to_string();
-	std::string const msg = format_reply(RPL_UMODEIS, &nickname, &modes_as_string);
-
-	if (msg.empty())
-		throw ProblemWithFormatReply();
-
-	client.append_to_msg_out(msg);
-}
 
 /**
  * @brief Adds a user mode to the list of user modes to be set + Removes it from the list of user modes to be cleared.
@@ -185,23 +147,6 @@ inline static bool save_changes_for_user(
 }
 
 /**
- * @brief Sends an ERR_UMODEUNKNOWNFLAG reply to a client.
- *
- * @param client The client to send the reply to.
- *
- * @throws `ProblemWithFormatReply` if the reply message cannot be formatted.
- */
-inline static void error_user_mode_unknown_flag(Client &client)
-{
-	std::string const msg = format_reply(ERR_UMODEUNKNOWNFLAG);
-
-	if (msg.empty())
-		throw ProblemWithFormatReply();
-
-	client.append_to_msg_out(msg);
-}
-
-/**
  * @brief Applies changes to the modes of a user.
  *
  * @param client The Client instance to apply the changes to.
@@ -209,56 +154,30 @@ inline static void error_user_mode_unknown_flag(Client &client)
  */
 inline static void apply_changes_for_user(Client &client, Client::Modes *const modes_to_be)
 {
-	if (client.has_mode(Bot))
-	{
-		if (modes_to_be[Cleared].is_set(Bot))
-			client.clear_mode(Bot);
-	}
-	else
-	{
-		if (modes_to_be[Set].is_set(Bot))
-			client.set_mode(Bot);
-	}
-	if (client.has_mode(LocalOperator))
-	{
-		if (modes_to_be[Cleared].is_set(LocalOperator))
-			client.clear_mode(LocalOperator);
-	}
-	else
-	{
-		if (modes_to_be[Set].is_set(LocalOperator))
-			client.set_mode(LocalOperator);
-	}
-	if (client.has_mode(Away))
-	{
-		if (modes_to_be[Cleared].is_set(Away))
-			client.clear_mode(Away);
-	}
-	else
-	{
-		if (modes_to_be[Set].is_set(Away))
-			client.set_mode(Away);
-	}
-	if (client.has_mode(Invisible))
-	{
-		if (modes_to_be[Cleared].is_set(Invisible))
-			client.clear_mode(Invisible);
-	}
-	else
-	{
-		if (modes_to_be[Set].is_set(Invisible))
-			client.set_mode(Invisible);
-	}
-	if (client.has_mode(WallopsListener))
-	{
-		if (modes_to_be[Cleared].is_set(WallopsListener))
-			client.clear_mode(WallopsListener);
-	}
-	else
-	{
-		if (modes_to_be[Set].is_set(WallopsListener))
-			client.set_mode(WallopsListener);
-	}
+	if (modes_to_be[Set].is_set(Bot))
+		client.set_mode(Bot);
+	else if (modes_to_be[Cleared].is_set(Bot))
+		client.clear_mode(Bot);
+
+	if (modes_to_be[Set].is_set(LocalOperator))
+		client.set_mode(LocalOperator);
+	else if (modes_to_be[Cleared].is_set(LocalOperator))
+		client.clear_mode(LocalOperator);
+
+	if (modes_to_be[Set].is_set(Away))
+		client.set_mode(Away);
+	else if (modes_to_be[Cleared].is_set(Away))
+		client.clear_mode(Away);
+
+	if (modes_to_be[Set].is_set(Invisible))
+		client.set_mode(Invisible);
+	else if (modes_to_be[Cleared].is_set(Invisible))
+		client.clear_mode(Invisible);
+
+	if (modes_to_be[Set].is_set(WallopsListener))
+		client.set_mode(WallopsListener);
+	else if (modes_to_be[Cleared].is_set(WallopsListener))
+		client.clear_mode(WallopsListener);
 }
 
 /**
@@ -267,22 +186,28 @@ inline static void apply_changes_for_user(Client &client, Client::Modes *const m
  * @param sender The client that sent the command.
  * @param parameters The parameters of the command.
  *
- * @throws `ProblemWithFormatReply` if the reply message cannot be formatted.
+ * @throw `UnknownReply` if a given reply number isn't recognized.
+ * @throw `InvalidConversion` if a conversion specification is invalid.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static void mode_for_user(Client &sender, std::vector<std::string> const &parameters)
 {
 	NickName const &nickname = parameters[0];
 
 	if (nickname != sender.get_nickname())
-		return error_users_dont_match(sender);
+		return sender.append_to_msg_out(format_reply(ERR_USERSDONTMATCH));
 
 	if (parameters.size() == 1)
-		return reply_user_mode_is(sender, nickname);
+	{
+		std::string const modes_as_string = sender.get_modes().to_string();
+
+		return sender.append_to_msg_out(format_reply(RPL_UMODEIS, &nickname, &modes_as_string));
+	}
 
 	Client::Modes modes_to_be[2];
 
 	if (save_changes_for_user(sender.get_modes(), modes_to_be, parameters[1]))
-		return error_user_mode_unknown_flag(sender);
+		return sender.append_to_msg_out(format_reply(ERR_UMODEUNKNOWNFLAG));
 	apply_changes_for_user(sender, modes_to_be);
 
 	std::string const msg =
@@ -294,68 +219,6 @@ inline static void mode_for_user(Client &sender, std::vector<std::string> const 
 //--------------------------------------------------------------------------------------------------------------------+
 //                                                    CHANNEL MODE                                                    |
 //--------------------------------------------------------------------------------------------------------------------+
-
-/**
- * @brief Sends an ERR_NOCHANMODES reply to a client.
- *
- * @param client The client to send the reply to.
- * @param name The name of the channel for which modes are not supported.
- *
- * @throws `ProblemWithFormatReply` if the reply message cannot be formatted.
- */
-inline static void error_no_channel_modes(Client &client, ChannelName const &name)
-{
-	std::string const msg = format_reply(ERR_NOCHANMODES, &name);
-
-	if (msg.empty())
-		throw ProblemWithFormatReply();
-
-	client.append_to_msg_out(msg);
-}
-
-/**
- * @brief
- * Fills a list with replies, each containing the same channel name, and a user mask.
- * The list is then ended with a specific reply to indicate the end of the list.
- *
- * @param list The list to fill with replies.
- * @param masks The user masks to format the replies with.
- * @param rpl_list The reply code to use for the list.
- * @param rpl_end_of_list The reply code to use for the end of the list.
- * @param name The name of the channel for which the list is to be created.
- *
- * @return `true` if an error occurred while formatting a reply, `false` otherwise.
- */
-inline static bool fill_list_of_replies(
-	std::list<std::string>   &list,
-	std::set<NickName> const &masks,
-	int                       rpl_list,
-	int                       rpl_end_of_list,
-	ChannelName const        &name)
-{
-	if (!masks.empty())
-	{
-		for (std::set<NickName>::const_iterator cit = masks.begin(); cit != masks.end(); ++cit)
-		{
-			std::string const msg = format_reply(rpl_list, &name, &*cit);
-
-			if (msg.empty())
-				return true;
-
-			list.push_back(msg);
-		}
-
-		std::string const msg = format_reply(rpl_end_of_list, &name);
-
-		if (msg.empty())
-			return true;
-
-		list.push_back(msg);
-	}
-
-	return false;
-}
-
 /**
  * @brief Sends a RPL_CHANNELMODEIS reply to a client.
  *
@@ -363,97 +226,39 @@ inline static bool fill_list_of_replies(
  * @param name The name of the channel for which modes are to be sent.
  * @param modes The modes that are to be sent.
  *
- * @throws `ProblemWithFormatReply` if the reply message cannot be formatted.
+ * @throw `UnknownReply` if a given reply number isn't recognized.
+ * @throw `InvalidConversion` if a conversion specification is invalid.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static void reply_channel_mode_is(Client &client, ChannelName const &name, Channel::Modes const &modes)
 {
-	std::string const modes_as_string = modes.to_string();
-	std::string const channel_mode_is = format_reply(RPL_CHANNELMODEIS, &name, &modes_as_string);
+	std::string const        modes_as_string = modes.to_string();
+	std::string const        channel_mode_is = format_reply(RPL_CHANNELMODEIS, &name, &modes_as_string);
+	std::set<NickName> const invite_masks = modes.get_invite_masks();
+	std::list<std::string>   invite_list;
 
-	if (channel_mode_is.empty())
-		throw ProblemWithFormatReply();
+	if (!invite_masks.empty())
+	{
+		for (std::set<NickName>::const_iterator cit = invite_masks.begin(); cit != invite_masks.end(); ++cit)
+			invite_list.push_back(format_reply(RPL_INVITELIST, &name, &*cit));
+		invite_list.push_back(format_reply(RPL_ENDOFINVITELIST, &name));
+	}
 
-	std::list<std::string> invite_list;
+	std::set<NickName> const ban_masks = modes.get_ban_masks();
+	std::list<std::string>   ban_list;
 
-	if (fill_list_of_replies(invite_list, modes.get_invite_masks(), RPL_INVITELIST, RPL_ENDOFINVITELIST, name))
-		throw ProblemWithFormatReply();
-
-	std::list<std::string> ban_list;
-
-	if (fill_list_of_replies(ban_list, modes.get_ban_masks(), RPL_BANLIST, RPL_ENDOFBANLIST, name))
-		throw ProblemWithFormatReply();
+	if (!ban_masks.empty())
+	{
+		for (std::set<NickName>::const_iterator cit = ban_masks.begin(); cit != ban_masks.end(); ++cit)
+			ban_list.push_back(format_reply(RPL_BANLIST, &name, &*cit));
+		ban_list.push_back(format_reply(RPL_ENDOFBANLIST, &name));
+	}
 
 	client.append_to_msg_out(channel_mode_is);
 	for (std::list<std::string>::const_iterator cit = invite_list.begin(); cit != invite_list.end(); ++cit)
 		client.append_to_msg_out(*cit);
 	for (std::list<std::string>::const_iterator cit = ban_list.begin(); cit != ban_list.end(); ++cit)
 		client.append_to_msg_out(*cit);
-}
-
-/**
- * @brief
- * Adds the InviteMask mode to the list of channel modes to be set
- * +
- * Removes it from the list of channel modes to be cleared.
- *
- * @param modes The current modes of the channel for which the mode shall be set.
- * @param modes_to_be The two lists of modes that are about to be set and cleared.
- * @param parsing_tools The iterators to use to parse the changes.
- *
- * @return
- * Zero upon success.
- * `ERR_NEEDMOREPARAMS` upon failure due to a lack of arguments.
- */
-inline static int save_invite_mask_mode_to_be_set(
-	Channel::Modes const &modes,
-	Channel::Modes *const modes_to_be,
-	ParsingTools         &parsing_tools)
-{
-	if (parsing_tools.next_word == parsing_tools.end_of_words)
-		return ERR_NEEDMOREPARAMS;
-
-	NickName const &invite_mask = *parsing_tools.next_word++;
-
-	if (invite_mask.is_valid())
-	{
-		if (!modes.has_invite_mask(invite_mask))
-			modes_to_be[Set].set(InviteMask, &invite_mask);
-		modes_to_be[Cleared].clear(InviteMask, &invite_mask);
-	}
-	return 0;
-}
-
-/**
- * @brief
- * Adds the BanMask mode to the list of channel modes to be set
- * +
- * Removes it from the list of channel modes to be cleared.
- *
- * @param modes The current modes of the channel for which the mode shall be set.
- * @param modes_to_be The two lists of modes that are about to be set and cleared.
- * @param parsing_tools The iterators to use to parse the changes.
- *
- * @return
- * Zero upon success.
- * `ERR_NEEDMOREPARAMS` upon failure due to a lack of arguments.
- */
-inline static int save_ban_mask_mode_to_be_set(
-	Channel::Modes const &modes,
-	Channel::Modes *const modes_to_be,
-	ParsingTools         &parsing_tools)
-{
-	if (parsing_tools.next_word == parsing_tools.end_of_words)
-		return ERR_NEEDMOREPARAMS;
-
-	NickName const &ban_mask = *parsing_tools.next_word++;
-
-	if (ban_mask.is_valid())
-	{
-		if (!modes.has_ban_mask(ban_mask))
-			modes_to_be[Set].set(BanMask, &ban_mask);
-		modes_to_be[Cleared].clear(BanMask, &ban_mask);
-	}
-	return 0;
 }
 
 /**
@@ -470,6 +275,70 @@ inline static void save_invite_only_mode_to_be_set(Channel::Modes const &modes, 
 	if (!modes.is_set(InviteOnly))
 		modes_to_be[Set].set(InviteOnly);
 	modes_to_be[Cleared].clear(InviteOnly);
+}
+
+/**
+ * @brief
+ * Adds the NoMessagesFromOutside mode to the list of channel modes to be set
+ * +
+ * Removes it from the list of channel modes to be cleared.
+ *
+ * @param modes The current modes of the channel for which the mode shall be set.
+ * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ */
+inline static void save_no_messages_from_outside_mode_to_be_set(
+	Channel::Modes const &modes,
+	Channel::Modes *const modes_to_be)
+{
+	if (!modes.is_set(NoMessagesFromOutside))
+		modes_to_be[Set].set(NoMessagesFromOutside);
+	modes_to_be[Cleared].clear(NoMessagesFromOutside);
+}
+
+/**
+ * @brief
+ * Adds the RestrictedTopic mode to the list of channel modes to be set
+ * +
+ * Removes it from the list of channel modes to be cleared.
+ *
+ * @param modes The current modes of the channel for which the mode shall be set.
+ * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ */
+inline static void save_restricted_topic_mode_to_be_set(Channel::Modes const &modes, Channel::Modes *const modes_to_be)
+{
+	if (!modes.is_set(RestrictedTopic))
+		modes_to_be[Set].set(RestrictedTopic);
+	modes_to_be[Cleared].clear(RestrictedTopic);
+}
+
+/**
+ * @brief
+ * Adds the Limit mode to the list of channel modes to be set
+ * +
+ * Removes it from the list of channel modes to be cleared.
+ *
+ * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ * @param parsing_tools The iterators to use to parse the changes.
+ *
+ * @return
+ * Zero upon success.
+ * `ERR_NEEDMOREPARAMS` upon failure due to a lack of arguments.
+ */
+inline static int save_limit_mode_to_be_set(Channel::Modes *const modes_to_be, ParsingTools &parsing_tools)
+{
+	if (parsing_tools.next_word == parsing_tools.end_of_words)
+		return ERR_NEEDMOREPARAMS;
+
+	size_t limit;
+
+	std::stringstream(*parsing_tools.next_word++) >> limit;
+
+	if (limit)
+	{
+		modes_to_be[Set].set(Limit, &limit);
+		modes_to_be[Cleared].clear(Limit);
+	}
+	return 0;
 }
 
 /**
@@ -509,54 +378,6 @@ inline static int save_key_mode_to_be_set(
 
 /**
  * @brief
- * Adds the Limit mode to the list of channel modes to be set
- * +
- * Removes it from the list of channel modes to be cleared.
- *
- * @param modes_to_be The two lists of modes that are about to be set and cleared.
- * @param parsing_tools The iterators to use to parse the changes.
- *
- * @return
- * Zero upon success.
- * `ERR_NEEDMOREPARAMS` upon failure due to a lack of arguments.
- */
-inline static int save_limit_mode_to_be_set(Channel::Modes *const modes_to_be, ParsingTools &parsing_tools)
-{
-	if (parsing_tools.next_word == parsing_tools.end_of_words)
-		return ERR_NEEDMOREPARAMS;
-
-	size_t limit;
-
-	std::stringstream(*parsing_tools.next_word++) >> limit;
-
-	if (limit)
-	{
-		modes_to_be[Set].set(Limit, &limit);
-		modes_to_be[Cleared].clear(Limit);
-	}
-	return 0;
-}
-
-/**
- * @brief
- * Adds the NoMessagesFromOutside mode to the list of channel modes to be set
- * +
- * Removes it from the list of channel modes to be cleared.
- *
- * @param modes The current modes of the channel for which the mode shall be set.
- * @param modes_to_be The two lists of modes that are about to be set and cleared.
- */
-inline static void save_no_messages_from_outside_mode_to_be_set(
-	Channel::Modes const &modes,
-	Channel::Modes *const modes_to_be)
-{
-	if (!modes.is_set(NoMessagesFromOutside))
-		modes_to_be[Set].set(NoMessagesFromOutside);
-	modes_to_be[Cleared].clear(NoMessagesFromOutside);
-}
-
-/**
- * @brief
  * Adds the ChannelOperator mode to the list of channel modes to be set
  * +
  * Removes it from the list of channel modes to be cleared.
@@ -570,6 +391,8 @@ inline static void save_no_messages_from_outside_mode_to_be_set(
  * Zero upon success.
  * `ERR_USERNOTONCHANNEL` upon failure due to a channel operator promotion for someone that is not on the channel.
  * `ERR_NEEDMOREPARAMS` upon failure due to a lack of arguments.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static int save_operator_mode_to_be_set(
 	Channel const                           &channel,
@@ -603,18 +426,72 @@ inline static int save_operator_mode_to_be_set(
 
 /**
  * @brief
- * Adds the RestrictedTopic mode to the list of channel modes to be set
+ * Adds the InviteMask mode to the list of channel modes to be set
  * +
  * Removes it from the list of channel modes to be cleared.
  *
  * @param modes The current modes of the channel for which the mode shall be set.
  * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ * @param parsing_tools The iterators to use to parse the changes.
+ *
+ * @return
+ * Zero upon success.
+ * `ERR_NEEDMOREPARAMS` upon failure due to a lack of arguments.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-inline static void save_restricted_topic_mode_to_be_set(Channel::Modes const &modes, Channel::Modes *const modes_to_be)
+inline static int save_invite_mask_mode_to_be_set(
+	Channel::Modes const &modes,
+	Channel::Modes *const modes_to_be,
+	ParsingTools         &parsing_tools)
 {
-	if (!modes.is_set(RestrictedTopic))
-		modes_to_be[Set].set(RestrictedTopic);
-	modes_to_be[Cleared].clear(RestrictedTopic);
+	if (parsing_tools.next_word == parsing_tools.end_of_words)
+		return ERR_NEEDMOREPARAMS;
+
+	NickName const &invite_mask = *parsing_tools.next_word++;
+
+	if (invite_mask.is_valid())
+	{
+		if (!modes.has_invite_mask(invite_mask))
+			modes_to_be[Set].set(InviteMask, &invite_mask);
+		modes_to_be[Cleared].clear(InviteMask, &invite_mask);
+	}
+	return 0;
+}
+
+/**
+ * @brief
+ * Adds the BanMask mode to the list of channel modes to be set
+ * +
+ * Removes it from the list of channel modes to be cleared.
+ *
+ * @param modes The current modes of the channel for which the mode shall be set.
+ * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ * @param parsing_tools The iterators to use to parse the changes.
+ *
+ * @return
+ * Zero upon success.
+ * `ERR_NEEDMOREPARAMS` upon failure due to a lack of arguments.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+inline static int save_ban_mask_mode_to_be_set(
+	Channel::Modes const &modes,
+	Channel::Modes *const modes_to_be,
+	ParsingTools         &parsing_tools)
+{
+	if (parsing_tools.next_word == parsing_tools.end_of_words)
+		return ERR_NEEDMOREPARAMS;
+
+	NickName const &ban_mask = *parsing_tools.next_word++;
+
+	if (ban_mask.is_valid())
+	{
+		if (!modes.has_ban_mask(ban_mask))
+			modes_to_be[Set].set(BanMask, &ban_mask);
+		modes_to_be[Cleared].clear(BanMask, &ban_mask);
+	}
+	return 0;
 }
 
 /**
@@ -632,6 +509,8 @@ inline static void save_restricted_topic_mode_to_be_set(Channel::Modes const &mo
  * `ERR_NEEDMOREPARAMS` upon failure due to a lack of arguments.
  * `ERR_KEYSET` upon failure due to a key being set whereas a key is already set.
  * `ERR_UNKNOWNMODE` upon failure due to a unknown mode character.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static int save_channel_mode_to_be_set(
 	Channel const                           &channel,
@@ -648,91 +527,25 @@ inline static int save_channel_mode_to_be_set(
 
 	switch (mode)
 	{
+	case InviteOnly:
+		save_invite_only_mode_to_be_set(channel.get_modes(), modes_to_be);
+		break;
+	case NoMessagesFromOutside:
+		save_no_messages_from_outside_mode_to_be_set(channel.get_modes(), modes_to_be);
+		break;
+	case RestrictedTopic:
+		save_restricted_topic_mode_to_be_set(channel.get_modes(), modes_to_be);
+		break;
+	case Limit:
+		return save_limit_mode_to_be_set(modes_to_be, parsing_tools);
+	case KeyProtected:
+		return save_key_mode_to_be_set(channel.get_modes(), modes_to_be, parsing_tools);
+	case ChannelOperator:
+		return save_operator_mode_to_be_set(channel, modes_to_be, parsing_tools, clients_by_nickname);
 	case InviteMask:
 		return save_invite_mask_mode_to_be_set(channel.get_modes(), modes_to_be, parsing_tools);
 	case BanMask:
 		return save_ban_mask_mode_to_be_set(channel.get_modes(), modes_to_be, parsing_tools);
-	case InviteOnly:
-		save_invite_only_mode_to_be_set(channel.get_modes(), modes_to_be);
-		break;
-	case KeyProtected:
-		return save_key_mode_to_be_set(channel.get_modes(), modes_to_be, parsing_tools);
-	case Limit:
-		return save_limit_mode_to_be_set(modes_to_be, parsing_tools);
-	case NoMessagesFromOutside:
-		save_no_messages_from_outside_mode_to_be_set(channel.get_modes(), modes_to_be);
-		break;
-	case ChannelOperator:
-		return save_operator_mode_to_be_set(channel, modes_to_be, parsing_tools, clients_by_nickname);
-	case RestrictedTopic:
-		save_restricted_topic_mode_to_be_set(channel.get_modes(), modes_to_be);
-		break;
-	}
-	return 0;
-}
-
-/**
- * @brief
- * Adds the InviteMask mode to the list of channel modes to be cleared
- * +
- * Removes it from the list of channel modes to be set.
- *
- * @param modes The current modes of the channel for which the mode shall be cleared.
- * @param modes_to_be The two lists of modes that are about to be set and cleared.
- * @param parsing_tools The iterators to use to parse the changes.
- *
- * @return
- * Zero upon success.
- * `ERR_NEEDMOREPARAMS` upon failure due to a lack of arguments.
- */
-inline static int save_invite_mask_mode_to_be_cleared(
-	Channel::Modes const &modes,
-	Channel::Modes *const modes_to_be,
-	ParsingTools         &parsing_tools)
-{
-	if (parsing_tools.next_word == parsing_tools.end_of_words)
-		return ERR_NEEDMOREPARAMS;
-
-	NickName const &invite_mask = *parsing_tools.next_word++;
-
-	if (invite_mask.is_valid())
-	{
-		if (modes.has_invite_mask(invite_mask))
-			modes_to_be[Cleared].set(InviteMask, &invite_mask);
-		modes_to_be[Set].clear(InviteMask, &invite_mask);
-	}
-	return 0;
-}
-
-/**
- * @brief
- * Adds the BanMask mode to the list of channel modes to be cleared
- * +
- * Removes it from the list of channel modes to be set.
- *
- * @param modes The current modes of the channel for which the mode shall be cleared.
- * @param modes_to_be The two lists of modes that are about to be set and cleared.
- * @param parsing_tools The iterators to use to parse the changes.
- *
- * @return
- * Zero upon success.
- * `ERR_NEEDMOREPARAMS` upon failure due to a lack of arguments.
- */
-inline static int save_ban_mask_mode_to_be_cleared(
-	Channel::Modes const &modes,
-	Channel::Modes *const modes_to_be,
-	ParsingTools         &parsing_tools)
-{
-	if (parsing_tools.next_word == parsing_tools.end_of_words)
-		return ERR_NEEDMOREPARAMS;
-
-	NickName const &ban_mask = *parsing_tools.next_word++;
-
-	if (ban_mask.is_valid())
-	{
-		if (modes.has_ban_mask(ban_mask))
-			modes_to_be[Cleared].set(BanMask, &ban_mask);
-		modes_to_be[Set].clear(BanMask, &ban_mask);
 	}
 	return 0;
 }
@@ -755,18 +568,38 @@ inline static void save_invite_only_mode_to_be_cleared(Channel::Modes const &mod
 
 /**
  * @brief
- * Adds the KeyProtected mode to the list of channel modes to be cleared
+ * Adds the NoMessagesFromOutside mode to the list of channel modes to be cleared
  * +
  * Removes it from the list of channel modes to be set.
  *
  * @param modes The current modes of the channel for which the mode shall be cleared.
  * @param modes_to_be The two lists of modes that are about to be set and cleared.
  */
-inline static void save_key_mode_to_be_cleared(Channel::Modes const &modes, Channel::Modes *const modes_to_be)
+inline static void save_no_messages_from_outside_mode_to_be_cleared(
+	Channel::Modes const &modes,
+	Channel::Modes *const modes_to_be)
 {
-	if (modes.is_set(KeyProtected))
-		modes_to_be[Cleared].set(KeyProtected);
-	modes_to_be[Set].clear(KeyProtected);
+	if (modes.is_set(NoMessagesFromOutside))
+		modes_to_be[Cleared].set(NoMessagesFromOutside);
+	modes_to_be[Set].clear(NoMessagesFromOutside);
+}
+
+/**
+ * @brief
+ * Adds the RestrictedTopic mode to the list of channel modes to be cleared
+ * +
+ * Removes it from the list of channel modes to be set.
+ *
+ * @param modes The current modes of the channel for which the mode shall be cleared.
+ * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ */
+inline static void save_restricted_topic_mode_to_be_cleared(
+	Channel::Modes const &modes,
+	Channel::Modes *const modes_to_be)
+{
+	if (modes.is_set(RestrictedTopic))
+		modes_to_be[Cleared].set(RestrictedTopic);
+	modes_to_be[Set].clear(RestrictedTopic);
 }
 
 /**
@@ -787,20 +620,18 @@ inline static void save_limit_mode_to_be_cleared(Channel::Modes const &modes, Ch
 
 /**
  * @brief
- * Adds the NoMessagesFromOutside mode to the list of channel modes to be cleared
+ * Adds the KeyProtected mode to the list of channel modes to be cleared
  * +
  * Removes it from the list of channel modes to be set.
  *
  * @param modes The current modes of the channel for which the mode shall be cleared.
  * @param modes_to_be The two lists of modes that are about to be set and cleared.
  */
-inline static void save_no_messages_from_outside_mode_to_be_cleared(
-	Channel::Modes const &modes,
-	Channel::Modes *const modes_to_be)
+inline static void save_key_mode_to_be_cleared(Channel::Modes const &modes, Channel::Modes *const modes_to_be)
 {
-	if (modes.is_set(NoMessagesFromOutside))
-		modes_to_be[Cleared].set(NoMessagesFromOutside);
-	modes_to_be[Set].clear(NoMessagesFromOutside);
+	if (modes.is_set(KeyProtected))
+		modes_to_be[Cleared].set(KeyProtected);
+	modes_to_be[Set].clear(KeyProtected);
 }
 
 /**
@@ -818,6 +649,8 @@ inline static void save_no_messages_from_outside_mode_to_be_cleared(
  * Zero upon success.
  * `ERR_USERNOTONCHANNEL` upon failure due to a channel operator promotion for someone that is not on the channel.
  * `ERR_NEEDMOREPARAMS` upon failure due to a lack of arguments.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static int save_operator_mode_to_be_cleared(
 	Channel const                           &channel,
@@ -851,20 +684,72 @@ inline static int save_operator_mode_to_be_cleared(
 
 /**
  * @brief
- * Adds the RestrictedTopic mode to the list of channel modes to be cleared
+ * Adds the InviteMask mode to the list of channel modes to be cleared
  * +
  * Removes it from the list of channel modes to be set.
  *
  * @param modes The current modes of the channel for which the mode shall be cleared.
  * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ * @param parsing_tools The iterators to use to parse the changes.
+ *
+ * @return
+ * Zero upon success.
+ * `ERR_NEEDMOREPARAMS` upon failure due to a lack of arguments.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-inline static void save_restricted_topic_mode_to_be_cleared(
+inline static int save_invite_mask_mode_to_be_cleared(
 	Channel::Modes const &modes,
-	Channel::Modes *const modes_to_be)
+	Channel::Modes *const modes_to_be,
+	ParsingTools         &parsing_tools)
 {
-	if (modes.is_set(RestrictedTopic))
-		modes_to_be[Cleared].set(RestrictedTopic);
-	modes_to_be[Set].clear(RestrictedTopic);
+	if (parsing_tools.next_word == parsing_tools.end_of_words)
+		return ERR_NEEDMOREPARAMS;
+
+	NickName const &invite_mask = *parsing_tools.next_word++;
+
+	if (invite_mask.is_valid())
+	{
+		if (modes.has_invite_mask(invite_mask))
+			modes_to_be[Cleared].set(InviteMask, &invite_mask);
+		modes_to_be[Set].clear(InviteMask, &invite_mask);
+	}
+	return 0;
+}
+
+/**
+ * @brief
+ * Adds the BanMask mode to the list of channel modes to be cleared
+ * +
+ * Removes it from the list of channel modes to be set.
+ *
+ * @param modes The current modes of the channel for which the mode shall be cleared.
+ * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ * @param parsing_tools The iterators to use to parse the changes.
+ *
+ * @return
+ * Zero upon success.
+ * `ERR_NEEDMOREPARAMS` upon failure due to a lack of arguments.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+inline static int save_ban_mask_mode_to_be_cleared(
+	Channel::Modes const &modes,
+	Channel::Modes *const modes_to_be,
+	ParsingTools         &parsing_tools)
+{
+	if (parsing_tools.next_word == parsing_tools.end_of_words)
+		return ERR_NEEDMOREPARAMS;
+
+	NickName const &ban_mask = *parsing_tools.next_word++;
+
+	if (ban_mask.is_valid())
+	{
+		if (modes.has_ban_mask(ban_mask))
+			modes_to_be[Cleared].set(BanMask, &ban_mask);
+		modes_to_be[Set].clear(BanMask, &ban_mask);
+	}
+	return 0;
 }
 
 /**
@@ -882,6 +767,8 @@ inline static void save_restricted_topic_mode_to_be_cleared(
  * `ERR_USERNOTONCHANNEL` upon failure due to a channel operator promotion for someone that is not on the channel.
  * `ERR_NEEDMOREPARAMS` upon failure due to a lack of arguments.
  * `ERR_UNKNOWNMODE` upon failure due to a unknown mode character.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static int save_channel_mode_to_be_cleared(
 	Channel const                           &channel,
@@ -898,27 +785,27 @@ inline static int save_channel_mode_to_be_cleared(
 
 	switch (mode)
 	{
-	case InviteMask:
-		return save_invite_mask_mode_to_be_cleared(channel.get_modes(), modes_to_be, parsing_tools);
-	case BanMask:
-		return save_ban_mask_mode_to_be_cleared(channel.get_modes(), modes_to_be, parsing_tools);
 	case InviteOnly:
 		save_invite_only_mode_to_be_cleared(channel.get_modes(), modes_to_be);
-		break;
-	case KeyProtected:
-		save_key_mode_to_be_cleared(channel.get_modes(), modes_to_be);
-		break;
-	case Limit:
-		save_limit_mode_to_be_cleared(channel.get_modes(), modes_to_be);
 		break;
 	case NoMessagesFromOutside:
 		save_no_messages_from_outside_mode_to_be_cleared(channel.get_modes(), modes_to_be);
 		break;
-	case ChannelOperator:
-		return save_operator_mode_to_be_cleared(channel, modes_to_be, parsing_tools, clients_by_nickname);
 	case RestrictedTopic:
 		save_restricted_topic_mode_to_be_cleared(channel.get_modes(), modes_to_be);
 		break;
+	case Limit:
+		save_limit_mode_to_be_cleared(channel.get_modes(), modes_to_be);
+		break;
+	case KeyProtected:
+		save_key_mode_to_be_cleared(channel.get_modes(), modes_to_be);
+		break;
+	case ChannelOperator:
+		return save_operator_mode_to_be_cleared(channel, modes_to_be, parsing_tools, clients_by_nickname);
+	case InviteMask:
+		return save_invite_mask_mode_to_be_cleared(channel.get_modes(), modes_to_be, parsing_tools);
+	case BanMask:
+		return save_ban_mask_mode_to_be_cleared(channel.get_modes(), modes_to_be, parsing_tools);
 	}
 	return 0;
 }
@@ -937,6 +824,8 @@ inline static int save_channel_mode_to_be_cleared(
  * `ERR_NEEDMOREPARAMS` upon failure due to a lack of arguments.
  * `ERR_KEYSET` upon failure due to a key being set whereas a key is already set.
  * `ERR_UNKNOWNMODE` upon failure due to a unknown mode character.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static int save_changes_for_channel(
 	Channel const                           &channel,
@@ -982,40 +871,101 @@ inline static int save_changes_for_channel(
 }
 
 /**
- * @brief Sends an ERR_UNKNWONMODE reply to a client.
+ * @brief Applies the change of the InviteOnly mode to the modes of a channel.
  *
- * @param client The client to send the reply to.
- * @param name The name of the channel for which the mode is unknown.
- * @param unknown The unknown mode character.
- *
- * @throws `ProblemWithFormatReply` if the reply message cannot be formatted.
+ * @param channel The channel for which the mode is about to change.
+ * @param modes_to_be The two lists of modes that are about to be set and cleared.
  */
-inline static void error_unknown_mode(Client &client, ChannelName const &name, char const unknown)
+inline static void apply_invite_only_change_for_channel(Channel &channel, Channel::Modes const *const modes_to_be)
 {
-	std::string const msg = format_reply(ERR_UNKNOWNMODE, unknown, &name);
-
-	if (msg.empty())
-		throw ProblemWithFormatReply();
-
-	client.append_to_msg_out(msg);
+	if (modes_to_be[Set].is_set(InviteOnly))
+		channel.set_mode(InviteOnly);
+	else if (modes_to_be[Cleared].is_set(InviteOnly))
+		channel.clear_mode(InviteOnly);
 }
 
 /**
- * @brief Sends an ERR_KEYSET reply to a client.
+ * @brief Applies the change of the NoMessagesFromOutside mode to the modes of a channel.
  *
- * @param client The client to send the reply to.
- * @param name The name of the channel for which the key is already set.
- *
- * @throws `ProblemWithFormatReply` if the reply message cannot be formatted.
+ * @param channel The channel for which the mode is about to change.
+ * @param modes_to_be The two lists of modes that are about to be set and cleared.
  */
-inline static void error_key_set(Client &client, ChannelName const &name)
+inline static void apply_no_messages_from_outside_change_for_channel(
+	Channel                    &channel,
+	Channel::Modes const *const modes_to_be)
 {
-	std::string const msg = format_reply(ERR_KEYSET, &name);
+	if (modes_to_be[Set].is_set(NoMessagesFromOutside))
+		channel.set_mode(NoMessagesFromOutside);
+	else if (modes_to_be[Cleared].is_set(NoMessagesFromOutside))
+		channel.clear_mode(NoMessagesFromOutside);
+}
 
-	if (msg.empty())
-		throw ProblemWithFormatReply();
+/**
+ * @brief Applies the change of the RestrictedTopic mode to the modes of a channel.
+ *
+ * @param channel The channel for which the mode is about to change.
+ * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ */
+inline static void apply_restricted_topic_change_for_channel(Channel &channel, Channel::Modes const *const modes_to_be)
+{
+	if (modes_to_be[Set].is_set(RestrictedTopic))
+		channel.set_mode(RestrictedTopic);
+	else if (modes_to_be[Cleared].is_set(RestrictedTopic))
+		channel.clear_mode(RestrictedTopic);
+}
 
-	client.append_to_msg_out(msg);
+/**
+ * @brief Applies the change of the Limit mode to the modes of a channel.
+ *
+ * @param channel The channel for which the mode is about to change.
+ * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ */
+inline static void apply_limit_change_for_channel(Channel &channel, Channel::Modes const *const modes_to_be)
+{
+	if (modes_to_be[Set].is_set(Limit))
+		channel.set_mode(Limit, &modes_to_be[Set].get_limit());
+	else if (modes_to_be[Cleared].is_set(Limit))
+		channel.clear_mode(Limit);
+}
+
+/**
+ * @brief Applies the change of the KeyProtected mode to the modes of a channel.
+ *
+ * @param channel The channel for which the mode is about to change.
+ * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ */
+inline static void apply_key_change_for_channel(Channel &channel, Channel::Modes const *const modes_to_be)
+{
+	if (modes_to_be[Set].is_set(KeyProtected))
+		channel.set_mode(KeyProtected, &modes_to_be[Set].get_key());
+	else if (modes_to_be[Cleared].is_set(KeyProtected))
+		channel.clear_mode(KeyProtected);
+}
+
+/**
+ * @brief Applies the changes of the ChannelOperator mode to the modes of a channel.
+ *
+ * @param channel The channel for which the mode is about to change.
+ * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+inline static void apply_operator_changes_for_channel(Channel &channel, Channel::Modes const *const modes_to_be)
+{
+	if (modes_to_be[Set].is_set(ChannelOperator))
+	{
+		std::set<Client const *> const &operators = modes_to_be[Set].get_operators();
+
+		for (std::set<Client const *>::const_iterator cit = operators.begin(); cit != operators.end(); ++cit)
+			channel.set_mode(ChannelOperator, *cit);
+	}
+	else if (modes_to_be[Cleared].is_set(ChannelOperator))
+	{
+		std::set<Client const *> const &operators = modes_to_be[Cleared].get_operators();
+
+		for (std::set<Client const *>::const_iterator cit = operators.begin(); cit != operators.end(); ++cit)
+			channel.clear_mode(ChannelOperator, *cit);
+	}
 }
 
 /**
@@ -1023,6 +973,8 @@ inline static void error_key_set(Client &client, ChannelName const &name)
  *
  * @param channel The channel for which the mode is about change.
  * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static void apply_invite_mask_changes_for_channel(Channel &channel, Channel::Modes const *const modes_to_be)
 {
@@ -1047,6 +999,8 @@ inline static void apply_invite_mask_changes_for_channel(Channel &channel, Chann
  *
  * @param channel The channel for which the mode is about to change.
  * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static void apply_ban_mask_changes_for_channel(Channel &channel, Channel::Modes const *const modes_to_be)
 {
@@ -1067,117 +1021,23 @@ inline static void apply_ban_mask_changes_for_channel(Channel &channel, Channel:
 }
 
 /**
- * @brief Applies the change of the InviteOnly mode to the modes of a channel.
- *
- * @param channel The channel for which the mode is about to change.
- * @param modes_to_be The two lists of modes that are about to be set and cleared.
- */
-inline static void apply_invite_only_change_for_channel(Channel &channel, Channel::Modes const *const modes_to_be)
-{
-	if (modes_to_be[Set].is_set(InviteOnly))
-		channel.set_mode(InviteOnly);
-	else if (modes_to_be[Cleared].is_set(InviteOnly))
-		channel.clear_mode(InviteOnly);
-}
-
-/**
- * @brief Applies the change of the KeyProtected mode to the modes of a channel.
- *
- * @param channel The channel for which the mode is about to change.
- * @param modes_to_be The two lists of modes that are about to be set and cleared.
- */
-inline static void apply_key_change_for_channel(Channel &channel, Channel::Modes const *const modes_to_be)
-{
-	if (modes_to_be[Set].is_set(KeyProtected))
-		channel.set_mode(KeyProtected, &modes_to_be[Set].get_key());
-	else if (modes_to_be[Cleared].is_set(KeyProtected))
-		channel.clear_mode(KeyProtected);
-}
-
-/**
- * @brief Applies the change of the Limit mode to the modes of a channel.
- *
- * @param channel The channel for which the mode is about to change.
- * @param modes_to_be The two lists of modes that are about to be set and cleared.
- */
-inline static void apply_limit_change_for_channel(Channel &channel, Channel::Modes const *const modes_to_be)
-{
-	if (modes_to_be[Set].is_set(Limit))
-		channel.set_mode(Limit, &modes_to_be[Set].get_limit());
-	else if (modes_to_be[Cleared].is_set(Limit))
-		channel.clear_mode(Limit);
-}
-
-/**
- * @brief Applies the change of the NoMessagesFromOutside mode to the modes of a channel.
- *
- * @param channel The channel for which the mode is about to change.
- * @param modes_to_be The two lists of modes that are about to be set and cleared.
- */
-inline static void apply_no_messages_from_outside_change_for_channel(
-	Channel                    &channel,
-	Channel::Modes const *const modes_to_be)
-{
-	if (modes_to_be[Set].is_set(NoMessagesFromOutside))
-		channel.set_mode(NoMessagesFromOutside);
-	else if (modes_to_be[Cleared].is_set(NoMessagesFromOutside))
-		channel.clear_mode(NoMessagesFromOutside);
-}
-
-/**
- * @brief Applies the changes of the ChannelOperator mode to the modes of a channel.
- *
- * @param channel The channel for which the mode is about to change.
- * @param modes_to_be The two lists of modes that are about to be set and cleared.
- */
-inline static void apply_operator_changes_for_channel(Channel &channel, Channel::Modes const *const modes_to_be)
-{
-	if (modes_to_be[Set].is_set(ChannelOperator))
-	{
-		std::set<Client const *> const &operators = modes_to_be[Set].get_operators();
-
-		for (std::set<Client const *>::const_iterator cit = operators.begin(); cit != operators.end(); ++cit)
-			channel.set_mode(ChannelOperator, *cit);
-	}
-	else if (modes_to_be[Cleared].is_set(ChannelOperator))
-	{
-		std::set<Client const *> const &operators = modes_to_be[Cleared].get_operators();
-
-		for (std::set<Client const *>::const_iterator cit = operators.begin(); cit != operators.end(); ++cit)
-			channel.clear_mode(ChannelOperator, *cit);
-	}
-}
-
-/**
- * @brief Applies the change of the RestrictedTopic mode to the modes of a channel.
- *
- * @param channel The channel for which the mode is about to change.
- * @param modes_to_be The two lists of modes that are about to be set and cleared.
- */
-inline static void apply_restricted_topic_change_for_channel(Channel &channel, Channel::Modes const *const modes_to_be)
-{
-	if (modes_to_be[Set].is_set(RestrictedTopic))
-		channel.set_mode(RestrictedTopic);
-	else if (modes_to_be[Cleared].is_set(RestrictedTopic))
-		channel.clear_mode(RestrictedTopic);
-}
-
-/**
  * @brief Applies changes to the modes of a channel.
  *
  * @param channel The channel for which the modes are about to change.
  * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static void apply_changes_for_channel(Channel &channel, Channel::Modes const *const modes_to_be)
 {
+	apply_invite_only_change_for_channel(channel, modes_to_be);
+	apply_no_messages_from_outside_change_for_channel(channel, modes_to_be);
+	apply_restricted_topic_change_for_channel(channel, modes_to_be);
+	apply_limit_change_for_channel(channel, modes_to_be);
+	apply_key_change_for_channel(channel, modes_to_be);
+	apply_operator_changes_for_channel(channel, modes_to_be);
 	apply_invite_mask_changes_for_channel(channel, modes_to_be);
 	apply_ban_mask_changes_for_channel(channel, modes_to_be);
-	apply_invite_only_change_for_channel(channel, modes_to_be);
-	apply_key_change_for_channel(channel, modes_to_be);
-	apply_limit_change_for_channel(channel, modes_to_be);
-	apply_no_messages_from_outside_change_for_channel(channel, modes_to_be);
-	apply_operator_changes_for_channel(channel, modes_to_be);
-	apply_restricted_topic_change_for_channel(channel, modes_to_be);
 }
 
 /**
@@ -1187,7 +1047,9 @@ inline static void apply_changes_for_channel(Channel &channel, Channel::Modes co
  * @param parameters The parameters of the command.
  * @param channels_by_name The map of channels, indexed by their names.
  *
- * @throws `ProblemWithFormatReply` if a reply message cannot be formatted.
+ * @throw `UnknownReply` if a given reply number isn't recognized.
+ * @throw `InvalidConversion` if a conversion specification is invalid.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static void mode_for_channel(
 	Client                                  &sender,
@@ -1199,15 +1061,15 @@ inline static void mode_for_channel(
 	std::map<ChannelName, Channel>::iterator const it = channels_by_name.find(name);
 
 	if (it == channels_by_name.end())
-		return error_no_such_channel(sender, name);
+		return sender.append_to_msg_out(format_reply(ERR_NOSUCHCHANNEL, &name));
 
 	if (name[0] == '+')
-		return error_no_channel_modes(sender, name);
+		return sender.append_to_msg_out(format_reply(ERR_NOCHANMODES, &name));
 
 	Channel &channel = it->second;
 
 	if (!channel.get_modes().has_operator(sender))
-		return error_channel_operator_privileges_needed(sender, name);
+		return sender.append_to_msg_out(format_reply(ERR_CHANOPRIVSNEEDED, &name));
 
 	if (parameters.size() == 1)
 		return reply_channel_mode_is(sender, name, channel.get_modes());
@@ -1219,13 +1081,13 @@ inline static void mode_for_channel(
 	switch (ret)
 	{
 	case ERR_USERNOTONCHANNEL:
-		return error_user_not_on_channel(sender, name, *parsing_tools.next_word);
+		return sender.append_to_msg_out(format_reply(ERR_USERNOTONCHANNEL, &sender.get_nickname(), &name));
 	case ERR_NEEDMOREPARAMS:
-		return error_need_more_arguments(sender, "MODE");
+		return sender.append_to_msg_out(format_reply(ERR_NEEDMOREPARAMS, "MODE"));
 	case ERR_KEYSET:
-		return error_key_set(sender, name);
+		return sender.append_to_msg_out(format_reply(ERR_KEYSET, &name));
 	case ERR_UNKNOWNMODE:
-		return error_unknown_mode(sender, name, *parsing_tools.current_character);
+		return sender.append_to_msg_out(format_reply(ERR_UNKNOWNMODE, *parsing_tools.current_character, &name));
 	}
 
 	apply_changes_for_channel(channel, modes_to_be);
@@ -1246,12 +1108,12 @@ inline static void mode_for_channel(
  * @param sender The client that sent the command.
  * @param parameters The parameters of the command.
  *
- * @throws `ProblemWithFormatReply` if a reply message cannot be formatted.
+ * @throw `ProblemWithFormatReply` if a reply message cannot be formatted.
  */
 void Server::mode(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (parameters.empty())
-		return error_need_more_arguments(sender, "MODE");
+		return sender.append_to_msg_out(format_reply(ERR_NEEDMOREPARAMS, "MODE"));
 
 	if (std::string("#&+!").find(parameters[0][0]) == std::string::npos)
 		return mode_for_user(sender, parameters);

@@ -6,19 +6,17 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 21:49:58 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/22 00:49:15 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/01 17:16:36 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "class/Exceptions.hpp"
 #include "replies.hpp"
 #include <cstdarg>
 #include <cstdlib>
 #include <cstring>
 #include <iomanip>
-#include <iostream>
 #include <sstream>
-#include <stdint.h>
-#include <string>
 
 /**
  * @brief Computes the `%c` conversion specification.
@@ -31,6 +29,8 @@
  *
  * @return
  * The number of bytes inserted in the format string, or `std::string::npos` if the conversion specification is invalid.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static size_t convert_c(
 	std::string       &fmt,
@@ -78,6 +78,8 @@ inline static size_t convert_c(
  *
  * @return
  * The number of bytes inserted in the format string, or `std::string::npos` if the conversion specification is invalid.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static size_t convert_s(
 	std::string       &fmt,
@@ -106,6 +108,8 @@ inline static size_t convert_s(
  *
  * @return
  * The number of bytes inserted in the format string, or `std::string::npos` if the conversion specification is invalid.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static size_t convert_S(
 	std::string       &fmt,
@@ -142,6 +146,8 @@ inline static size_t convert_S(
  * @param args The list of variadic arguments.
  *
  * @return The number of bytes inserted in the format string.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 template<typename Uint>
 inline static size_t convert_low_uint(
@@ -171,6 +177,8 @@ inline static size_t convert_low_uint(
  * @param args The list of variadic arguments.
  *
  * @return The number of bytes inserted in the format string.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 template<typename Uint>
 inline static size_t convert_high_uint(
@@ -200,6 +208,8 @@ inline static size_t convert_high_uint(
  *
  * @return
  * The number of bytes inserted in the format string, or `std::string::npos` if the conversion specification is invalid.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static size_t convert_u(
 	std::string       &fmt,
@@ -227,17 +237,18 @@ inline static size_t convert_u(
  * @param reply_number The number of the reply to format.
  * @param ... The variadic arguments to use for the conversion specifications.
  *
- * @return The formatted reply message, or an empty string if an error occured.
+ * @return The formatted reply message.
+ *
+ * @throw `UnknownReply` if a given reply number isn't recognized.
+ * @throw `InvalidConversion` if a conversion specification is invalid.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 std::string format_reply(int const reply_number...)
 {
 	ReplyIterator const reply = replies.find(reply_number);
 
 	if (reply == replies.end())
-	{
-		std::cerr << "unknown reply number: " << std::setw(3) << std::setfill('0') << reply_number << '\n';
-		return "";
-	}
+		throw UnknownReply();
 
 	std::stringstream ss;
 
@@ -271,20 +282,21 @@ std::string format_reply(int const reply_number...)
 		case '%':
 			if (!length_modifiers.empty())
 			{
-				std::cerr << "invalid conversion specification";
-				return "";
+				va_end(args);
+				throw InvalidConversion();
 			}
+
 			fmt.erase(percent_pos, 1);
 			inserted_len = 1;
 			break;
 		default:
-			std::cerr << "invalid conversion specification";
-			return "";
+			va_end(args);
+			throw InvalidConversion();
 		}
 		if (inserted_len == std::string::npos)
 		{
-			std::cerr << "invalid conversion specification";
-			return "";
+			va_end(args);
+			throw InvalidConversion();
 		}
 		percent_pos = fmt.find('%', percent_pos + inserted_len);
 	}
