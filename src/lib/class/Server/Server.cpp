@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/01 22:12:02 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/02 00:48:06 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,14 @@ void Server::handle_all_events_routine()
 		std::string const next_msg = it->second->get_next_msg();
 
 		if (next_msg.empty() == false)
-			handle_client_event(it->second, next_msg);
+			this->handle_client_event(it->second, next_msg);
 	}
 }
 
 /**
  * @brief routine to send the msg waiting in the msg_out field of each client
  *
+ * @throw ProblemWithSend() if send() fails
  */
 void Server::send_msg_out()
 {
@@ -49,7 +50,9 @@ void Server::send_msg_out()
 
 /**
  * @brief create a loop to manage new incoming connections or messages
- * 
+ *
+ * @throw ProblemWithEpollWait() if epoll_wait() fails
+ * @throw handle_new_connection() and rcv_client_event() can throw different exceptions depending on the error
  */
 void Server::epoll_loop()
 {
@@ -73,6 +76,8 @@ void Server::epoll_loop()
 /**
  * @brief init server by creating a socket, binding it to a port and listening to it
  *
+ * @throw ProblemWithListen() if listen() fails
+ * @throw create_and_set_socket() and bind_assign_sockaddr() can throw different exceptions depending on the error
  */
 void Server::init_socket_server()
 {
@@ -87,6 +92,8 @@ void Server::init_socket_server()
  * @brief Main Server function : init the socket of the server, create the epoll socket and loop to receive and send
  * messages
  *
+ * @throw ctrl_epoll_add(), init_socket_server(), create_epoll(), set_epoll_event(), ctrl_epoll_add(), epoll_loop(),
+ * handle_all_events_routine() and send_msg_out() can throw different exceptions depending on the error
  * // TODO : handle signals to set shutdown
  */
 void Server::create_server()

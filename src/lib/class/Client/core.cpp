@@ -6,11 +6,12 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:20:40 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/01 22:13:44 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/02 00:48:32 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Client.hpp"
+#include "class/Exceptions.hpp"
 #include <iostream>
 #include <unistd.h>
 
@@ -51,6 +52,11 @@ Client::Client(Client const &src) :
 		std::cout << "Client copy constructor called\n";
 }
 
+/**
+ * @brief Destroy the Client:: Client object
+ *
+ * @throw disconnect() can throw ProblemWithClose() if the close() function fails.
+ */
 Client::~Client()
 {
 	if (DEBUG)
@@ -85,7 +91,7 @@ void Client::set_modes(UserModes const modes) { this->_modes = modes; }
 /**
  * @brief Create a new struct epoll event specially for this client and assigns all necessary fields.
  *
- * @return epoll_event* The newly created epoll event.
+ * @return The newly created epoll event.
  */
 epoll_event *Client::set_epoll_event()
 {
@@ -103,12 +109,15 @@ void Client::set_time_last_msg(void) { this->_time_last_msg = std::clock(); }
 
 // Methods //
 /**
- * @brief Closes the socket of the Client instance.
+ * @brief Closes the socket of the Client instance and deletes it's associated epoll_event
+ *
+ * @throw ProblemWithClose() if the close() function fails.
  */
 void Client::disconnect(void)
 {
 	std::cout << "Client disconnected.\n";
-	close(this->_socket);
+	if (close(this->_socket) == -1)
+		throw ProblemWithClose();
 	this->_socket = -1;
 	delete this->_epoll_event;
 }

@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/28 16:32:32 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/01 22:14:09 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/02 00:48:23 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,3 +39,5 @@ char const *ProblemWithEpollCtl::what(void) const throw() { return "Problem with
 char const *ProblemWithEpollCreate::what(void) const throw() { return "Problem with epoll_create1()"; }
 
 char const *ProblemWithEpollWait::what(void) const throw() { return "Problem with epoll_wait()"; }
+
+char const *ProblemWithClose::what(void) const throw() { return "Problem with close()"; }

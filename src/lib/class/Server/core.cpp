@@ -6,15 +6,15 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/01 22:14:54 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/02 00:48:08 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "class/Exceptions.hpp"
 #include "class/Server.hpp"
 #include <ctime>
 #include <iostream>
 #include <unistd.h>
-#include "class/Exceptions.hpp"
 
 // ***************************************************************************************************************** //
 //                                                   Shared Fields                                                   //
@@ -77,10 +77,17 @@ Server::Server(int const port, std::string const name, std::string const passwor
 
 // Destructor //
 
+/**
+ * @brief Destroy the Server:: Server object
+ * clear the client list and close the socket
+ *
+ * @throw ProblemWithClose() if close() fails
+ */
 Server::~Server(void)
 {
 	this->_clients_socket.clear();
-	close(this->_socket);
+	if (close(this->_socket) == -1)
+		throw ProblemWithClose();
 }
 
 // Getters //
@@ -147,6 +154,7 @@ void Server::create_and_set_socket()
 /**
  * @brief this function is intended to set the epoll_event struct for the server socket
  *
+ * @throw new can throw different exceptions depending on the error
  */
 void Server::set_epoll_event()
 {
@@ -163,6 +171,8 @@ void Server::set_epoll_event()
  * @brief create a struct sockaddr to listen to chosen port on any addresses
  *
  * @return sockaddr_in& the new assigned struct sockaddr
+ *
+ * @throw ProblemWithSockAddr() if bind() fails
  */
 struct sockaddr_in Server::bind_assign_sockaddr()
 {
@@ -195,6 +205,8 @@ void Server::add_client(Client *client)
  * @brief remove a client (Client *) from the maps of clients
  *
  * @param client the client to remove from the list of clients
+ *
+ * @throw erase() can throw exceptions
  */
 void Server::remove_client(Client *client)
 {

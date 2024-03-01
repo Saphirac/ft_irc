@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 02:53:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/01 22:11:45 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/02 00:48:30 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "class/Exceptions.hpp"
 
 #define TERMINATING_SEQ "\r\n"
-#define MAX_MSG_SIZE 512
+#define MAX_MSG_SIZE    512
 
 /**
  * @brief Appends a string to the input buffer of the Client instance.
@@ -80,7 +80,7 @@ std::string Client::user_mask(void) const { return this->_nickname + "!" + this-
 /**
  * @brief Compare the time since the last message was sent by the client to the current time.
  *
- * @return std::clock_t the difference between the current time and the time of the last message.
+ * @return the difference between the current time and the time of the last message.
  */
 std::clock_t Client::check_time_since_last_msg(void) const { return std::clock() - this->_time_last_msg; }
 
@@ -89,7 +89,7 @@ std::clock_t Client::check_time_since_last_msg(void) const { return std::clock()
  * A message is <= 512 characters and is suffixed with a CRLF sequence.
  * Then it extracts and return this message and erase it from the reste of the buffer.
  *
- * @return std::string const the msg found or an empty string if no message is found / the msg is too long
+ * @return the msg found or an empty string if no message is found / the msg is too long
  */
 std::string const Client::get_next_msg()
 {

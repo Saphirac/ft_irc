@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/01 22:00:30 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/01 23:32:11 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,6 @@
 #include "class/Username.hpp"
 #include <ctime>
 #include <string>
-
-class Server;
 
 class Server;
 

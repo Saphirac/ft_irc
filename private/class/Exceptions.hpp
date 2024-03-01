@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/28 16:28:34 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/28 16:44:58 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/02 00:29:37 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,12 @@ public:
 };
 
 class ProblemWithEpollWait : public std::exception
+{
+public:
+	virtual char const *what(void) const throw();
+};
+
+class ProblemWithClose : public std::exception
 {
 public:
 	virtual char const *what(void) const throw();

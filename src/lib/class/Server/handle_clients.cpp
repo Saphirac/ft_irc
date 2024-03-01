@@ -6,21 +6,21 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:11:16 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/01 22:20:35 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/02 00:48:04 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "IrcMessage.hpp"
+#include "class/Exceptions.hpp"
 #include "class/Server.hpp"
 #include "replies.hpp"
 #include <fcntl.h>
-#include "class/Exceptions.hpp"
 
 /**
  * @brief Change the socket flag to non blocking
  *
  * @param socket the socket to set non blocking
- * 
+ *
  * @throw ProblemWithFcntlFlags() if fcntl() fails in getting the flags
  * @throw ProblemWithSettingNonBlock() if fcntl() fails in setting the socket to non blocking
  */
@@ -39,9 +39,10 @@ void control_socket(int const socket)
  * @brief call recv() to get what the client wrote in its socket
  *
  * @param client the client to get the message from
- * 
+ *
  * @throw ProblemWithRecv() if recv() fails
- * @throw std::string() constructor can throw different exceptions depending on the error
+ * @throw std::string() can throw exceptions depending on the error
+ * @throw disconnect() can throw ProblemWithClose() if the close() function fails.
  */
 void Server::rcv_client_event(Client *client)
 {
@@ -90,6 +91,9 @@ void Server::handle_client_event(Client *client, std::string msg)
 /**
  * @brief add new client to the list of clients and add it's socket to the epoll list
  *
+ * @throw ProblemWithAccept() if accept() fails
+ * @throw control_socket() and ctrl_epoll_add() can throw different exceptions depending on the error
+ * @throw new can throw different exceptions depending on the error
  */
 void Server::handle_new_connection()
 {
