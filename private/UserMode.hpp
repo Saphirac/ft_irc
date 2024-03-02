@@ -5,14 +5,12 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/02 12:36:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 15:24:41 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/02/18 23:29:14 by jodufour          #+#    #+#             */
+/*   Updated: 2024/03/02 03:25:53 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-
-#include <stdint.h>
 
 enum UserMode
 {

@@ -1,49 +1,48 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Username.cpp                                       :+:      :+:    :+:   */
+/*   Nickname.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/17 23:31:00 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/18 01:16:10 by jodufour         ###   ########.fr       */
+/*   Created: 2024/02/16 03:49:43 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/29 19:58:41 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Username.hpp"
+#include "class/Nickname.hpp"
+#include "abnf_components.hpp"
+
+#define MAX_NICKNAME_LENGTH 10
 
 // ****************************************************************************************************************** //
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @brief Constructs a new Username instance, initializing its inner field with a given argument.
- *
- * @param username The username to initialize the inner field with.
- *
- * @return The newly created Username instance.
+ * @param nickname The nickname to initialize the instance with.
  */
-Username::Username(std::string const &username) : std::string(username) {}
+Nickname::Nickname(std::string const &nickname) : std::string(nickname) {}
 
 /**
- * @brief Constructs a new Username instance, copying a given source Username instance.
- *
- * @param src The source Username instance to copy.
- *
- * @return The newly created Username instance.
+ * @param src The source Nickname instance to copy.
  */
-Username::Username(Username const &src) : std::string(src) {}
+Nickname::Nickname(Nickname const &src) : std::string(src) {}
 
 // ****************************************************************************************************************** //
 //                                                     Destructor                                                     //
 // ****************************************************************************************************************** //
-Username::~Username(void) {}
+Nickname::~Nickname(void) {}
 
 // ***************************************************************************************************************** //
 //                                                      Methods                                                      //
 // ***************************************************************************************************************** //
 /**
- * @brief Check whether the username is valid.
+ * @brief Checks whether the nickname is valid.
  *
- * @return true if the username is valid, false otherwise.
+ * @return true if the nickname is valid, false otherwise.
  */
-bool Username::is_valid(void) const { return this->find('@') == std::string::npos; }
+bool Nickname::is_valid(void) const
+{
+	return this->size() <= MAX_NICKNAME_LENGTH && (letter + special).find(this[0]) != this->npos
+	    && this->find_first_not_of(letter + digit + special, 1) == this->npos;
+}

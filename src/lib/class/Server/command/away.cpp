@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:09 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 14:49:37 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/19 19:28:33 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,18 +58,17 @@ inline static StatusCode reply_now_away(Client &client)
  *
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
-StatusCode Server::away(Client &sender, std::string const &parameters)
+StatusCode Server::away(Client &sender, std::vector<std::string> const &parameters)
 {
-	std::string const away_msg =
-		parameters[0] == ':' ? parameters.substr(1) : parameters.substr(0, parameters.find(' '));
-
-	if (away_msg.empty())
+	if (parameters.empty())
 	{
 		sender.set_away_msg(Client::_default_away_msg);
 		sender.clear_mode(Away);
 
 		return reply_no_longer_away(sender);
 	}
+
+	std::string const &away_msg = parameters[0];
 
 	sender.set_away_msg(away_msg);
 	sender.set_mode(Away);

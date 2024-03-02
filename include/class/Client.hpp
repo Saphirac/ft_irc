@@ -6,25 +6,21 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 15:37:49 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/02 03:24:49 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "UserMode.hpp"
-#include "class/Server.hpp"
-#include <ctime>
-#include <netinet/in.h>
-#include "StatusCode.hpp"
 #include "class/Hostname.hpp"
 #include "class/Nickname.hpp"
 #include "class/Realname.hpp"
+#include "class/Server.hpp"
 #include "class/UserModes.hpp"
 #include "class/Username.hpp"
-#include <stdint.h>
+#include <ctime>
 #include <string>
-#include <unistd.h>
 
 class Server;
 
@@ -44,12 +40,7 @@ private:
 
 	struct epoll_event *_epoll_event;
 
-	bool _is_complete;
-	bool _pass;
-
-	std::clock_t _time_since_last_msg;
-	std::clock_t _time_since_last_ping;
-	std::string _away_msg;
+	std::clock_t _time_last_msg;
 
 public:
 	// Shared fields
@@ -69,7 +60,10 @@ public:
 	~Client(void);
 
 	// Accessors
-	int                get_socket(void) const;
+	int get_socket(void) const;
+
+	epoll_event       *get_mut_epoll_event(void) const;
+	std::clock_t       get_time_last_msg(void) const;
 	std::string const &get_msg_in(void) const;
 	std::string const &get_msg_out(void) const;
 	
@@ -79,13 +73,6 @@ public:
 	Realname const &get_realname(void) const;
 	
 	UserModes            get_modes(void) const;
-
-	struct epoll_event *get_epoll_event(void) const;
-
-	bool         get_is_complete() const;
-	bool         get_is_pass() const;
-	std::clock_t get_time_last_msg(void) const;
-	std::clock_t get_time_last_ping(void) const;
 
 	// Mutators
 	void set_socket(int const socket);
@@ -101,18 +88,14 @@ public:
 	void set_time_last_msg(void);
 	void set_time_last_ping(void);
 
-	void set_epoll_event();
-	void set_is_complete(bool const yesno);
-	void set_is_pass(bool const yesno);
-	void set_away_msg(std::string const &away_msg);
-
-	// Methods
+	// Member functions
 	void disconnect(void);
 	void append_to_msg_in(std::string const &s);
 	void append_to_msg_out(std::string const &msg);
 	void clear_msg_out(void);
 	void set_mode(UserMode const mode);
 	void clear_mode(UserMode const mode);
+	void set_time_last_msg(void);
 
 	bool has_mode(UserMode const mode) const;
 
@@ -122,7 +105,9 @@ public:
 	std::string user_mask(void) const;
 
 	std::clock_t check_time_since_last_msg(void) const;
-	std::clock_t check_time_since_last_ping(void) const;
 
-	StatusCode send_msg_out(void);
+	void send_msg_out(void);
+
+	std::string const get_next_msg(void);
+	epoll_event      *set_epoll_event();
 };

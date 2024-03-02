@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/19 16:04:01 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/03/02 03:23:14 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,38 +32,39 @@ LIB = lib${NAME}.a
 #######################################
 #             DIRECTORIES             #
 #######################################
-SRC_DIR	=	src
-OBJ_DIR	=	obj
-PRV_DIR	=	private
-LIB_DIR	=	lib
-INC_DIR =	include
+SRC_DIR = src
+OBJ_DIR = obj
+PRV_DIR = private
+LIB_DIR = lib
+INC_DIR = include
 
 ######################################
 #            SOURCE FILES            #
 ######################################
 SRC = \
 	${addsuffix .cpp, \
-		${addprefix server/,	\
-			${addprefix class/,	\
-				Server		\
-				Client		\
-				Channel		\
-				IrcMessage	\
-			}	\
-		}	\
-		${addprefix utils/,	\
-			trim			\
-		}	\
-	main \
+		main \
 	}
 
 LIB_SRC = \
 	${addsuffix .cpp, \
 		${addprefix ${LIB_DIR}/, \
 			${addprefix class/, \
+				${addprefix Client/, \
+					Client \
+					core \
+				} \
+				${addprefix Channel/, \
+					Channel \
+				} \
+				${addprefix IrcMessage/, \
+					IrcMessage \
+					core \
+				} \
 				${addprefix Server/, \
 					${addprefix command/, \
 						away \
+						cap \
 						die \
 						error \
 						info \
@@ -88,31 +89,35 @@ LIB_SRC = \
 						restart \
 						time \
 						topic \
+						user \
 						version \
 						wallops \
 						whois \
-						cap \
 					} \
+					Server \
 					core \
+					epoll \
+					handle_clients \
 				} \
-				Hostname \
-				Nickname \
-				Realname \
-				UserModeMask \
+				${addprefix SpecializedStrings/, \
+					Hostname \
+					Nickname \
+					Realname \
+					UserModeMask \
+					Username \
+				} \
+				Exceptions \
 				UserModes \
-				Username \
 			} \
-			format_reply \
-			parse_irc_message \
-			send_message \
+		format_reply \
 		} \
 	}
 
 ######################################
 #            OBJECT FILES            #
 ######################################
-	OBJ = ${addprefix ${OBJ_DIR}/,${SRC:.cpp=.o}}
-	DEP = ${OBJ:.o=.d}
+ OBJ = ${addprefix ${OBJ_DIR}/,${SRC:.cpp=.o}}
+ DEP = ${OBJ:.o=.d}
 LIB_OBJ = ${addprefix ${OBJ_DIR}/,${LIB_SRC:.cpp=.o}}
 LIB_DEP = ${LIB_OBJ:.o=.d}
 
@@ -134,7 +139,6 @@ CXXFLAGS = \
 	-I${PRV_DIR} \
 	-I${INC_DIR}
 
-
 ifeq (${DEBUG}, 1)
 	CXXFLAGS += -g -DDEBUG=1
 endif
@@ -155,7 +159,6 @@ all: ${LIB} ${NAME}
 -include ${DEP}
 -include ${LIB_DEP}
 
-${OBJ_DIR}/%.o: 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/%.cpp
 	@${MKDIR} ${@D}
 	${CXX} $< ${CXXFLAGS} ${OUTPUT_OPTION}

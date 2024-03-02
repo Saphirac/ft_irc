@@ -1,29 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   send_message.cpp                                   :+:      :+:    :+:   */
+/*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/16 17:22:46 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/17 15:02:07 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/02/17 14:06:05 by mcourtoi          #+#    #+#             */
+/*   Updated: 2024/03/02 00:48:26 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Server.hpp"
+#include "IrcMessage.hpp"
 
-/**
- * @brief send a message to a client
- *
- * // TODO : change exit failure with exception
- * @param client_socket
- * @param message
- */
-void	send_message(int client_socket, std::string message)
-{
-	if (send(client_socket, message.c_str(), message.size(), 0) == -1)
-	{
-		std::cerr << "Problem with send()." << std::endl;
-		exit(EXIT_FAILURE);
-	}
-}
+// Getters //
+
+std::string const              &IrcMessage::get_prefix() const { return this->_prefix; }
+std::string const              &IrcMessage::get_command() const { return this->_command; }
+std::vector<std::string> const &IrcMessage::get_params() { return this->_params; }
+std::string const              &IrcMessage::get_end() const { return this->_end; }

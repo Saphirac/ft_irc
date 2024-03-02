@@ -6,35 +6,32 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:06:14 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/17 23:04:16 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 18:10:13 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef IRCMESSAGE_HPP
-#define IRCMESSAGE_HPP
+#pragma once
 
-#include "ft_irc.hpp"
+#include <string>
+#include <vector>
 
 class IrcMessage
 {
 private:
-
 	std::string              _prefix;
 	std::string              _command;
 	std::vector<std::string> _params;
+	std::string              _end;
 
 public:
+	IrcMessage();
+	~IrcMessage();
 
-	void display() const;
-	std::string	get_prefix() const;
-	std::string	get_command() const;
-	std::vector<std::string>	*get_params();
+	// Getters //
+	std::string const              &get_prefix() const;
+	std::string const              &get_command() const;
+	std::vector<std::string> const &get_params();
+	std::string const              &get_end() const;
 
-	void set_prefix(const std::string &prefix);
-	void set_command(const std::string &command);
-	void set_params(const std::vector<std::string> &params);
+	IrcMessage parse_irc_message(std::string const &msg);
 };
-
-IrcMessage parse_irc_message(const std::string &message);
-
-#endif

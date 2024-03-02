@@ -3,17 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   pass.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:23:54 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 14:56:27 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/29 18:26:14 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
 #include "ft_irc.hpp"
 #include "replies.hpp"
-#include <iostream>
 
 /**
  * @brief Sends an ERR_ALREADYREGISTERED to a client.
@@ -41,6 +40,7 @@ inline static StatusCode error_already_registered(Client &client)
  * @param server The server to remove the client from.
  * @param client The client to send the reply to.
  *
+ * @throw : send_msg_out() can throw a ProblemWithSend() exception
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
 inline static StatusCode error_need_more_parameters(Server &server, Client &client)
@@ -51,13 +51,8 @@ inline static StatusCode error_need_more_parameters(Server &server, Client &clie
 		return ErrorFormatReply;
 
 	client.append_to_msg_out(msg);
-
-	StatusCode const status = client.send_msg_out();
-
-	if (status)
-		return status;
-
-	server.remove_client(client);
+	client.send_msg_out();
+	server.remove_client(&client);
 	return Success;
 }
 
@@ -69,6 +64,7 @@ inline static StatusCode error_need_more_parameters(Server &server, Client &clie
  * @param server The server to remove the client from.
  * @param client The client to send the reply to.
  *
+ * @throw : send_msg_out() can throw a ProblemWithSend() exception
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
 inline static StatusCode error_password_mismatch(Server &server, Client &client)
@@ -79,13 +75,8 @@ inline static StatusCode error_password_mismatch(Server &server, Client &client)
 		return ErrorFormatReply;
 
 	client.append_to_msg_out(msg);
-
-	StatusCode const status = client.send_msg_out();
-
-	if (status)
-		return status;
-
-	server.remove_client(client);
+	client.send_msg_out();
+	server.remove_client(&client);
 	return Success;
 }
 
@@ -99,16 +90,14 @@ inline static StatusCode error_password_mismatch(Server &server, Client &client)
  *
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
-StatusCode Server::pass(Client &sender, std::string const &parameters)
+StatusCode Server::pass(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (sender.has_mode(AlreadySentPass))
 		return error_already_registered(sender);
-
-	std::string const password =
-		parameters[0] == ':' ? parameters.substr(1) : parameters.substr(0, parameters.find(' '));
-
-	if (password.empty())
+	if (parameters.empty())
 		return error_need_more_parameters(*this, sender);
+
+	std::string const &password = parameters[0];
 
 	if (password != this->_password)
 		return error_password_mismatch(*this, sender);

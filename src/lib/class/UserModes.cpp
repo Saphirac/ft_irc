@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UserModes.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/18 23:06:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 00:18:37 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/29 17:21:57 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,20 +17,12 @@
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @brief Constructs a new UserModes instance, initializing its inner field with a given argument.
- *
  * @param modes The modes to initialize the inner field with.
- *
- * @return The newly created UserModes instance.
  */
 UserModes::UserModes(_inner_type const modes) : _inner(modes) {}
 
 /**
- * @brief Constructs a new UserModes instance, copying a given source UserModes instance.
- *
  * @param src The source UserModes instance to copy.
- *
- * @return The newly created UserModes instance.
  */
 UserModes::UserModes(UserModes const &src) : _inner(src._inner) {}
 
@@ -74,7 +66,7 @@ std::string UserModes::to_string(void) const
 {
 	std::string modes;
 
-	for (uint8_t i = 0; i < EndOfUserModes; ++i)
+	for (int i = 0; i < EndOfUserModes; ++i)
 		if (this->is_set(static_cast<UserMode>(i)))
 			modes += user_modes[i];
 

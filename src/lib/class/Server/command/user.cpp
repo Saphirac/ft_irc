@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   user.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 14:59:43 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/29 17:54:54 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,9 @@ inline static StatusCode error_already_registered(Client &client)
  *
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
-inline static StatusCode error_no_nickname_set(Server &server, Client const &client)
+inline static StatusCode error_no_nickname_set(Server &server, Client &client)
 {
-	server.remove_client(client);
+	server.remove_client(&client);
 	return Success;
 }
 
@@ -58,9 +58,9 @@ inline static StatusCode error_no_nickname_set(Server &server, Client const &cli
  *
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
-inline static StatusCode error_not_authenticated(Server &server, Client const &client)
+inline static StatusCode error_not_authenticated(Server &server, Client &client)
 {
-	server.remove_client(client);
+	server.remove_client(&client);
 	return Success;
 }
 
@@ -72,6 +72,7 @@ inline static StatusCode error_not_authenticated(Server &server, Client const &c
  * @param server The server to remove the client from.
  * @param client The client to send the reply to.
  *
+ * @throw : send_msg_out() can throw a ProblemWithSend() exception
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
 inline static StatusCode error_need_more_parameters(Server &server, Client &client)
@@ -82,13 +83,8 @@ inline static StatusCode error_need_more_parameters(Server &server, Client &clie
 		return ErrorFormatReply;
 
 	client.append_to_msg_out(msg);
-
-	StatusCode const status = client.send_msg_out();
-
-	if (status)
-		return status;
-
-	server.remove_client(client);
+	client.send_msg_out();
+	server.remove_client(&client);
 	return Success;
 }
 
@@ -100,9 +96,9 @@ inline static StatusCode error_need_more_parameters(Server &server, Client &clie
  *
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
-inline static StatusCode error_erroneus_argument(Server &server, Client const &client)
+inline static StatusCode error_erroneus_argument(Server &server, Client &client)
 {
-	server.remove_client(client);
+	server.remove_client(&client);
 	return Success;
 }
 
@@ -159,55 +155,34 @@ inline static StatusCode reply_welcome(
  *
  * @return A positive error code in case of an internal error. Otherwise, returns zero.
  */
-StatusCode Server::user(Client &client, std::string const &parameters)
+StatusCode Server::user(Client &client, std::vector<std::string> const &parameters)
 {
 	if (client.has_mode(AlreadySentUser))
 		return error_already_registered(client);
-
 	if (!this->_password.empty() && !client.has_mode(AlreadySentPass))
 		return error_not_authenticated(*this, client);
-
 	if (client.get_nickname().empty())
 		return error_no_nickname_set(*this, client);
-
-	size_t            pos = 0;
-	std::string const first_parameters = parameters.substr(0, parameters.find(" :"));
-	Username const    username = first_parameters.substr(pos, first_parameters.find(' ', pos));
-
-	if (username.empty())
+	if (parameters.size() < 4)
 		return error_need_more_parameters(*this, client);
+
+	Hostname const &hostname = parameters[0];
+
+	if (!hostname.is_valid())
+		return error_erroneus_argument(*this, client);
+
+	Username const &username = parameters[1];
+
 	if (!username.is_valid())
 		return error_erroneus_argument(*this, client);
 
-	pos += username.size() + 1;
-
-	UserModeMask const umode_mask = first_parameters.substr(pos, first_parameters.find(' ', pos));
-
-	if (umode_mask.empty())
-		return error_need_more_parameters(*this, client);
-
-	uint8_t const umodes = static_cast<uint8_t>(strtol(umode_mask.c_str(), NULL, 10));
+	UserModeMask const &umode_mask = parameters[2];
+	uint8_t const       umodes = strtol(umode_mask.c_str(), NULL, 10);
 
 	if (!umode_mask.is_valid(umodes))
 		return error_erroneus_argument(*this, client);
 
-	pos += umode_mask.size() + 1;
-
-	Hostname const hostname = first_parameters.substr(pos, first_parameters.find(' ', pos));
-
-	if (hostname.empty())
-		return error_need_more_parameters(*this, client);
-	if (!hostname.is_valid())
-		return error_erroneus_argument(*this, client);
-
-	pos += hostname.size() + 1;
-
-	Realname const realname = parameters.size() == first_parameters.size()
-	                            ? first_parameters.substr(pos, first_parameters.find(' ', pos))
-	                            : parameters.substr(first_parameters.size() + 2);
-
-	if (realname.empty())
-		return error_need_more_parameters(*this, client);
+	Realname const &realname = parameters[3];
 
 	client.set_username(username);
 	client.set_hostname(hostname);

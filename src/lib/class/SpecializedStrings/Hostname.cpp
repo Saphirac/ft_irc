@@ -1,54 +1,59 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Nickname.cpp                                       :+:      :+:    :+:   */
+/*   Hostname.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/16 03:49:43 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 15:56:35 by jodufour         ###   ########.fr       */
+/*   Created: 2024/02/17 23:06:37 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/19 16:03:08 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Nickname.hpp"
+#include "class/Hostname.hpp"
 #include "abnf_components.hpp"
 
 // ****************************************************************************************************************** //
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @brief Constructs a new Nickname instance, initializing it with a given argument.
- *
- * @param nickname The nickname to initialize the instance with.
- *
- * @return The newly created Nickname instance.
+ * @param hostname The hostname to initialize the inner field with.
  */
-Nickname::Nickname(std::string const &nickname) : std::string(nickname) {}
+Hostname::Hostname(std::string const &hostname) : std::string(hostname) {}
 
 /**
- * @brief Constructs a new Nickname instance, copying a given source Nickname instance.
- *
- * @param src The source Nickname instance to copy.
- *
- * @return The newly created Nickname instance.
+ * @param src The source Hostname instance to copy.
  */
-Nickname::Nickname(Nickname const &src) : std::string(src) {}
+Hostname::Hostname(Hostname const &src) : std::string(src) {}
 
 // ****************************************************************************************************************** //
 //                                                     Destructor                                                     //
 // ****************************************************************************************************************** //
-Nickname::~Nickname(void) {}
+Hostname::~Hostname(void) {}
 
 // ***************************************************************************************************************** //
 //                                                      Methods                                                      //
 // ***************************************************************************************************************** //
 /**
- * @brief Checks whether the nickname is valid.
+ * @brief Check whether the hostname is valid.
  *
- * @return true if the nickname is valid, false otherwise.
+ * @return true if the hostname is valid, false otherwise.
  */
-bool Nickname::is_valid(void) const
+bool Hostname::is_valid(void) const
 {
-	return this->size() < 10 && (letter + special).find(this[0]) != this->npos
-	    && this->find_first_not_of(letter + digit + special, 1) == this->npos;
+	size_t pos = 0;
+
+	do
+	{
+		std::string const shortname = this->substr(pos, this->find('.'));
+
+		if ((letter + digit).find(shortname[0]) == std::string::npos
+		    || shortname.find_first_not_of(letter + digit + "-", 1) != std::string::npos)
+			return false;
+
+		pos += shortname.size() + 1;
+	}
+	while (this->find('.') != std::string::npos);
+
+	return true;
 }

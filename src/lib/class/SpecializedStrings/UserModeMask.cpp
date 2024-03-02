@@ -1,39 +1,43 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Realname.cpp                                       :+:      :+:    :+:   */
+/*   UserModeMask.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/19 15:53:01 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 15:57:31 by jodufour         ###   ########.fr       */
+/*   Created: 2024/02/18 00:01:29 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/19 16:04:02 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Realname.hpp"
+#include "class/UserModeMask.hpp"
 
 // ****************************************************************************************************************** //
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 /**
- * @brief Constructs a new Realname instance, initializing it with a given argument.
- *
- * @param realname The realname to initialize instance with.
- *
- * @return The newly created Realname instance.
+ * @param umode_mask The user mode mask to initialize the inner field with.
  */
-Realname::Realname(std::string const &realname) : std::string(realname) {}
+UserModeMask::UserModeMask(std::string const &umode_mask) : std::string(umode_mask) {}
 
 /**
- * @brief Constructs a new Realname instance, copying a given source Realname instance.
- *
- * @param src The source Realname instance to copy.
- *
- * @return The newly created Realname instance.
+ * @param src The source UserModeMask instance to copy.
  */
-Realname::Realname(Realname const &src) : std::string(src) {}
+UserModeMask::UserModeMask(UserModeMask const &src) : std::string(src) {}
 
 // ****************************************************************************************************************** //
 //                                                     Destructor                                                     //
 // ****************************************************************************************************************** //
-Realname::~Realname(void) {}
+UserModeMask::~UserModeMask(void) {}
+
+// ***************************************************************************************************************** //
+//                                                      Methods                                                      //
+// ***************************************************************************************************************** //
+/**
+ * @brief Check whether the user mode mask is valid.
+ *
+ * @param umodes The user mode mask to check.
+ *
+ * @return true if the user mode mask is valid, false otherwise.
+ */
+bool UserModeMask::is_valid(uint8_t const umodes) const { return this->size() < 3 && !(umodes & ~12); }
