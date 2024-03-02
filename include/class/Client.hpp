@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/02 03:24:49 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/02 03:40:01 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@ private:
 	struct epoll_event *_epoll_event;
 
 	std::clock_t _time_last_msg;
+	bool         _has_been_pinged;
+	std::string  _ping_token;
 
 public:
 	// Shared fields
@@ -62,31 +64,35 @@ public:
 	// Accessors
 	int get_socket(void) const;
 
-	epoll_event       *get_mut_epoll_event(void) const;
-	std::clock_t       get_time_last_msg(void) const;
 	std::string const &get_msg_in(void) const;
 	std::string const &get_msg_out(void) const;
-	
+
 	Nickname const &get_nickname(void) const;
 	Hostname const &get_hostname(void) const;
 	Username const &get_username(void) const;
 	Realname const &get_realname(void) const;
-	
-	UserModes            get_modes(void) const;
+
+	UserModes get_modes(void) const;
+
+	epoll_event       *get_mut_epoll_event(void) const;
+	std::clock_t       get_time_last_msg(void) const;
+	bool const         get_has_been_pinged(void) const;
+	std::string const &get_ping_token(void) const;
 
 	// Mutators
 	void set_socket(int const socket);
 	void set_msg_in(std::string const &messages);
 	void set_msg_out(std::string const &messages);
-	
+
 	void set_nickname(Nickname const &nickname);
 	void set_hostname(Hostname const &hostname);
 	void set_username(Username const &username);
 	void set_realname(Realname const &realname);
-	
+
 	void set_modes(UserModes const modes);
 	void set_time_last_msg(void);
-	void set_time_last_ping(void);
+	void set_has_been_pinged(bool const has_been_pinged);
+	void set_ping_token(std::string const &ping_token);
 
 	// Member functions
 	void disconnect(void);
@@ -99,8 +105,8 @@ public:
 
 	bool has_mode(UserMode const mode) const;
 
-	//ssize_t send_message(std::string const &message) const;
-	//ssize_t send_messages(void) const;
+	// ssize_t send_message(std::string const &message) const;
+	// ssize_t send_messages(void) const;
 
 	std::string user_mask(void) const;
 

@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/02 03:25:17 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/02 04:06:06 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,7 @@ public:
 	void rcv_client_event(Client *client);
 	void send_msg_out();
 	void create_epoll();
+	void check_time_of_last_msg();
 
 	struct sockaddr_in bind_assign_sockaddr();
 

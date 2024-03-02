@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:11:16 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/02 00:48:04 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/02 03:47:24 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,8 @@ void control_socket(int const socket)
  */
 void Server::rcv_client_event(Client *client)
 {
-	client->set_time_last_msg();
+	if (client->get_has_been_pinged == false)
+		client->set_time_last_msg();
 
 	char    buffer[4096];
 	ssize_t bytes_read;

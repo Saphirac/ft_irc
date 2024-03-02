@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:20:40 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/02 00:48:32 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/02 03:40:35 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,9 @@ Client::Client(
 	_realname(realname),
 	_modes(modes),
 	_epoll_event(this->set_epoll_event()),
-	_time_last_msg(std::clock())
+	_time_last_msg(std::clock()),
+	_has_been_pinged(false),
+	_ping_token()
 {
 	if (DEBUG)
 		std::cout << "Client constructor called\n";
@@ -46,7 +48,9 @@ Client::Client(Client const &src) :
 	_username(src._username),
 	_realname(src._realname),
 	_modes(src._modes),
-	_time_last_msg(src._time_last_msg)
+	_time_last_msg(src._time_last_msg),
+	_has_been_pinged(src._has_been_pinged),
+	_ping_token(src._ping_token)
 {
 	if (DEBUG)
 		std::cout << "Client copy constructor called\n";
@@ -76,6 +80,8 @@ Realname const    &Client::get_realname(void) const { return this->_realname; }
 UserModes          Client::get_modes(void) const { return this->_modes; }
 std::clock_t       Client::get_time_last_msg(void) const { return this->_time_last_msg; }
 epoll_event       *Client::get_mut_epoll_event(void) const { return this->_epoll_event; }
+bool const         Client::get_has_been_pinged(void) const { return this->_has_been_pinged; }
+std::string const &Client::get_ping_token(void) const { return this->_ping_token; }
 
 // Setters //
 
@@ -106,6 +112,8 @@ epoll_event *Client::set_epoll_event()
 }
 
 void Client::set_time_last_msg(void) { this->_time_last_msg = std::clock(); }
+void Client::set_has_been_pinged(bool const has_been_pinged) { this->_has_been_pinged = has_been_pinged; }
+void Client::set_ping_token(std::string const &ping_token) { this->_ping_token = ping_token; }
 
 // Methods //
 /**

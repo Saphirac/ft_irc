@@ -6,13 +6,16 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 17:00:12 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/02 00:48:06 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/02 04:17:27 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
 #include "IrcMessage.hpp"
 #include "class/Exceptions.hpp"
+
+#define TIMEOUT            180
+#define TIMEOUT_SINCE_PING 15
 
 /**
  * @brief check the msg_in field of the client, extract the message ( <= 512 char and finishing by a crlf) and handle it
@@ -48,6 +51,34 @@ void Server::send_msg_out()
 	}
 }
 
+/**
+ * @brief Check the time of last activity of each clients, if that time delay is greater than TIMEOUT, send a PING and
+ * set the has_been_pinged flag to true
+ * If the client has been pinged and the time delay is greater than TIMEOUT_SINCE_PING, disconnect the client
+ *
+ * @throw disconnect() can throw ProblemWithClose() if the close() function fails.
+ */
+void Server::check_time_of_last_msg()
+{
+	for (std::map<int, Client *>::iterator it = this->_clients_socket.begin(); it != this->_clients_socket.end(); ++it)
+	{
+		if (it->second->get_has_been_pinged() == false && second->get_time_last_msg() / CLOCKS_PER_SEC > TIMEOUT)
+		{
+			std::string msg = ':' + this->_name + "PING" + " :" + "STILL_THERE";
+			it->second->set_ping_token("STILL_THERE");
+			it->second->set_has_been_pinged(true);
+			it->second->set_time_last_msg();
+			it->second->append_to_msg_out(msg);
+		}
+		if (it->second->get_has_been_pinged() == true
+		    && second->get_time_last_msg() / CLOCKS_PER_SEC > TIMEOUT_SINCE_PING)
+		{
+			std::string msg = format_reply(ERR_PINGTIMEOUT);
+			it->second->append_to_msg_out(msg);
+			it->second->disconnect();
+		}
+	}
+}
 /**
  * @brief create a loop to manage new incoming connections or messages
  *
