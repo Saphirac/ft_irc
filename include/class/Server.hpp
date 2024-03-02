@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/29 17:21:01 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/01 21:35:01 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ public:
 	void nick(Client &sender, std::vector<std::string> const &parameters);
 	void oper(Client &sender, std::vector<std::string> const &parameters);
 	void pass(Client &sender, std::vector<std::string> const &parameters);
+	void quit(Client &sender, std::vector<std::string> const &parameters);
 	void user(Client &sender, std::vector<std::string> const &parameters);
 
 private:

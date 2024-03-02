@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/29 17:15:26 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/01 23:04:03 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class Client
 {
 public:
 	// Shared fields
-	static std::string const _default_away_msg;
+	static std::string const _default_quit_msg;
 
 	// Nested classes
 	class Modes
@@ -39,8 +39,11 @@ public:
 		// Destructor
 		~Modes(void);
 
+		// Accessors
+		std::string const &get_away_msg(void) const;
+
 		// Methods
-		void set(UserMode const mode);
+		void set(UserMode const mode, void const *const = NULL);
 		void clear(UserMode const mode);
 		bool is_set(UserMode const mode) const;
 
@@ -73,7 +76,8 @@ public:
 		};
 
 		// Fields
-		Flags _flags;
+		Flags       _flags;
+		std::string _away_msg;
 	};
 
 	// Constructors
@@ -92,14 +96,12 @@ public:
 	NickName const      &get_nickname(void) const;
 	HostName const      &get_hostname(void) const;
 	Client::Modes const &get_modes(void) const;
-	std::string const   &get_away_msg(void) const;
 
 	// Mutators
 	void set_nickname(NickName const &nickname);
 	void set_hostname(HostName const &hostname);
 	void set_username(UserName const &username);
 	void set_realname(RealName const &realname);
-	void set_away_msg(std::string const &away_msg);
 
 	// Methods
 	void disconnect(void);
@@ -110,7 +112,7 @@ public:
 	void send_msg_out(void);
 	void clear_msg_out(void);
 
-	void set_mode(UserMode const mode);
+	void set_mode(UserMode const mode, void const *const arg = NULL);
 	void clear_mode(UserMode const mode);
 	bool has_mode(UserMode const mode) const;
 
@@ -127,8 +129,6 @@ private:
 	UserName      _username;
 	RealName      _realname;
 	Client::Modes _modes;
-
-	std::string _away_msg;
 
 	std::map<ChannelName, Channel *const> _joined_channels_by_name;
 };

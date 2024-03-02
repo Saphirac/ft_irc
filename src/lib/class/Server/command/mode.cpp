@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/01 00:08:13 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/01 23:07:50 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,20 +164,15 @@ inline static void apply_changes_for_user(Client &client, Client::Modes *const m
 	else if (modes_to_be[Cleared].is_set(LocalOperator))
 		client.clear_mode(LocalOperator);
 
-	if (modes_to_be[Set].is_set(Away))
-		client.set_mode(Away);
-	else if (modes_to_be[Cleared].is_set(Away))
-		client.clear_mode(Away);
+	if (modes_to_be[Set].is_set(WallopsListener))
+		client.set_mode(WallopsListener);
+	else if (modes_to_be[Cleared].is_set(WallopsListener))
+		client.clear_mode(WallopsListener);
 
 	if (modes_to_be[Set].is_set(Invisible))
 		client.set_mode(Invisible);
 	else if (modes_to_be[Cleared].is_set(Invisible))
 		client.clear_mode(Invisible);
-
-	if (modes_to_be[Set].is_set(WallopsListener))
-		client.set_mode(WallopsListener);
-	else if (modes_to_be[Cleared].is_set(WallopsListener))
-		client.clear_mode(WallopsListener);
 }
 
 /**

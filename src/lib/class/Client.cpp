@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/01 17:09:16 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/01 23:04:13 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,14 @@
 // ***************************************************************************************************************** //
 //                                                   Shared Fields                                                   //
 // ***************************************************************************************************************** //
-std::string const Client::_default_away_msg = "Coming back soon";
+std::string const Client::_default_quit_msg = "Leaving, bye! <3";
 
 // ****************************************************************************************************************** //
 //                                                    Constructors                                                    //
 // ****************************************************************************************************************** //
 Client::Modes::Flags::Flags(void) : _bits(0) {}
 
-Client::Modes::Modes(void) : _flags() {}
+Client::Modes::Modes(void) : _flags(), _away_msg() {}
 
 /**
  * @param socket The socket of the client.
@@ -68,16 +68,16 @@ int                  Client::get_socket(void) const { return this->_socket; }
 NickName const      &Client::get_nickname(void) const { return this->_nickname; }
 HostName const      &Client::get_hostname(void) const { return this->_hostname; }
 Client::Modes const &Client::get_modes(void) const { return this->_modes; }
-std::string const   &Client::get_away_msg(void) const { return this->_away_msg; }
 
 // ****************************************************************************************************************** //
 //                                                      Mutators                                                      //
 // ****************************************************************************************************************** //
+std::string const &Client::Modes::get_away_msg(void) const { return this->_away_msg; }
+
 void Client::set_nickname(NickName const &nickname) { this->_nickname = nickname; }
 void Client::set_hostname(HostName const &hostname) { this->_hostname = hostname; }
 void Client::set_username(UserName const &username) { this->_username = username; }
 void Client::set_realname(RealName const &realname) { this->_realname = realname; }
-void Client::set_away_msg(std::string const &away_msg) { this->_away_msg = away_msg; }
 
 // ***************************************************************************************************************** //
 //                                                      Methods                                                      //
@@ -99,14 +99,11 @@ void Client::Modes::Flags::set(UserMode const flag)
 	case LocalOperator:
 		this->_bits |= 1 << LocalOperator;
 		return;
-	case Away:
-		this->_bits |= 1 << Away;
+	case WallopsListener:
+		this->_bits |= 1 << WallopsListener;
 		return;
 	case Invisible:
 		this->_bits |= 1 << Invisible;
-		return;
-	case WallopsListener:
-		this->_bits |= 1 << WallopsListener;
 		return;
 	case AlreadySentPass:
 		this->_bits |= 1 << AlreadySentPass;
@@ -136,14 +133,11 @@ void Client::Modes::Flags::clear(UserMode const flag)
 	case LocalOperator:
 		this->_bits &= ~(1 << LocalOperator);
 		return;
-	case Away:
-		this->_bits &= ~(1 << Away);
+	case WallopsListener:
+		this->_bits &= ~(1 << WallopsListener);
 		return;
 	case Invisible:
 		this->_bits &= ~(1 << Invisible);
-		return;
-	case WallopsListener:
-		this->_bits &= ~(1 << WallopsListener);
 		return;
 	case AlreadySentPass:
 		this->_bits &= ~(1 << AlreadySentPass);
@@ -173,12 +167,10 @@ bool Client::Modes::Flags::is_set(UserMode const flag) const
 		return this->_bits & 1 << Bot;
 	case LocalOperator:
 		return this->_bits & 1 << LocalOperator;
-	case Away:
-		return this->_bits & 1 << Away;
-	case Invisible:
-		return this->_bits & 1 << Invisible;
 	case WallopsListener:
 		return this->_bits & 1 << WallopsListener;
+	case Invisible:
+		return this->_bits & 1 << Invisible;
 	case AlreadySentPass:
 		return this->_bits & 1 << AlreadySentPass;
 	case AlreadySentUser:
@@ -201,12 +193,10 @@ std::string Client::Modes::Flags::to_string(void) const
 		flags_as_string += USER_MODES[Bot];
 	if (this->is_set(LocalOperator))
 		flags_as_string += USER_MODES[LocalOperator];
-	if (this->is_set(Away))
-		flags_as_string += USER_MODES[Away];
-	if (this->is_set(Invisible))
-		flags_as_string += USER_MODES[Invisible];
 	if (this->is_set(WallopsListener))
 		flags_as_string += USER_MODES[WallopsListener];
+	if (this->is_set(Invisible))
+		flags_as_string += USER_MODES[Invisible];
 
 	return flags_as_string;
 }
@@ -216,14 +206,59 @@ std::string Client::Modes::Flags::to_string(void) const
  *
  * @param mode The mode to set.
  */
-void Client::Modes::set(UserMode const mode) { return this->_flags.set(mode); }
+void Client::Modes::set(UserMode const mode, void const *const arg)
+{
+	switch (mode)
+	{
+	case Bot:
+		this->_flags.set(Bot);
+		return;
+	case LocalOperator:
+		this->_flags.set(LocalOperator);
+		return;
+	case WallopsListener:
+		this->_flags.set(WallopsListener);
+		return;
+	case Invisible:
+		this->_flags.set(Invisible);
+		return;
+	case Away:
+		this->_away_msg = *static_cast<std::string const *>(arg);
+		return;
+	case AlreadySentPass:
+		this->_flags.set(AlreadySentPass);
+		return;
+	case AlreadySentUser:
+		this->_flags.set(AlreadySentUser);
+		return;
+	}
+}
 
 /**
  * @brief Clears a mode.
  *
  * @param mode The mode to clear.
  */
-void Client::Modes::clear(UserMode const mode) { return this->_flags.clear(mode); }
+void Client::Modes::clear(UserMode const mode)
+{
+	switch (mode)
+	{
+	case Bot:
+		return this->_flags.clear(Bot);
+	case LocalOperator:
+		return this->_flags.clear(LocalOperator);
+	case WallopsListener:
+		return this->_flags.clear(WallopsListener);
+	case Invisible:
+		return this->_flags.clear(Invisible);
+	case Away:
+		return this->_away_msg.clear();
+	case AlreadySentPass:
+		return this->_flags.clear(AlreadySentPass);
+	case AlreadySentUser:
+		return this->_flags.clear(AlreadySentUser);
+	}
+}
 
 /**
  * @brief Checks whether a mode is set.
@@ -232,7 +267,26 @@ void Client::Modes::clear(UserMode const mode) { return this->_flags.clear(mode)
  *
  * @return `true` if the mode is set, `false` otherwise.
  */
-bool Client::Modes::is_set(UserMode const mode) const { return this->_flags.is_set(mode); }
+bool Client::Modes::is_set(UserMode const mode) const
+{
+	switch (mode)
+	{
+	case Bot:
+		return this->_flags.is_set(Bot);
+	case LocalOperator:
+		return this->_flags.is_set(LocalOperator);
+	case WallopsListener:
+		return this->_flags.is_set(WallopsListener);
+	case Invisible:
+		return this->_flags.is_set(Invisible);
+	case Away:
+		return !this->_away_msg.empty();
+	case AlreadySentPass:
+		return this->_flags.is_set(AlreadySentPass);
+	case AlreadySentUser:
+		return this->_flags.is_set(AlreadySentUser);
+	}
+}
 
 /**
  * @return The string representation of the modes that are currently set.
@@ -263,7 +317,8 @@ void Client::disconnect(void)
 void Client::append_to_msg_in(std::string const &s) { this->_msg_in += s; }
 
 /**
- * @brief Appends a message to the output buffer of the Client instance. The message is suffixed with a CRLF sequence.
+ * @brief Appends a message to the output buffer of the Client instance. The message is suffixed with a CRLF
+ * sequence.
  *
  * @param msg The message to append.
  *
@@ -281,7 +336,7 @@ void Client::clear_msg_out(void) { this->_msg_out.clear(); }
  *
  * @param mode The mode to set.
  */
-void Client::set_mode(UserMode const mode) { this->_modes.set(mode); }
+void Client::set_mode(UserMode const mode, void const *const arg) { this->_modes.set(mode, arg); }
 
 /**
  * @brief Clears a mode for the client.

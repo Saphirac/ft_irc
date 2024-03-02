@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:09 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/29 23:12:38 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/01 23:02:44 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,14 +31,12 @@ void Server::away(Client &sender, std::vector<std::string> const &parameters)
 	{
 		std::string const &away_msg = parameters[0];
 
-		sender.set_away_msg(away_msg);
-		sender.set_mode(Away);
+		sender.set_mode(Away, &away_msg);
 
 		return sender.append_to_msg_out(format_reply(RPL_NOWAWAY));
 	}
-	sender.set_away_msg(Client::_default_away_msg);
 	sender.clear_mode(Away);
 
-	return sender.append_to_msg_out(format_reply(RPL_UNAWAY));
+	sender.append_to_msg_out(format_reply(RPL_UNAWAY));
 }
 // TODO: Implement unit tests for this function
