@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 02:53:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/02 00:48:30 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/02 03:14:47 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,4 +104,10 @@ std::string const Client::get_next_msg()
 	if (pos > MAX_MSG_SIZE)
 		return std::string();
 	return msg;
+}
+
+std::string const Client::generate_prefix(std::string const &server_name) const
+{
+	std::string prefix = server_name + '/' + this->_nickname + '!' + this->_username + '@' + this->_hostname;
+	return prefix;
 }
