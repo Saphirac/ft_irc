@@ -1,24 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_irc.hpp                                         :+:      :+:    :+:   */
+/*   Hostname.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/24 19:31:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 17:25:50 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/02/17 22:45:24 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/17 22:45:32 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-# ifndef DEBUG
-#  define DEBUG 0
-# endif
+#include <string>
 
-# include <string>
+class Hostname : public std::string
+{
+public:
+	// Constructors
+	Hostname(std::string const &hostname = "");
+	Hostname(Hostname const &src);
 
-// Utils //
-std::string	trim(std::string const &str);
+	// Destructor
+	~Hostname(void);
 
-std::string format_reply(int const reply_number...);
+	// Methods
+	bool is_valid(void) const;
+};

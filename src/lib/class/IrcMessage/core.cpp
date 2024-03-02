@@ -1,24 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_irc.hpp                                         :+:      :+:    :+:   */
+/*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/24 19:31:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 17:25:50 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/02/17 14:06:05 by mcourtoi          #+#    #+#             */
+/*   Updated: 2024/03/02 00:48:26 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#include "IrcMessage.hpp"
 
-# ifndef DEBUG
-#  define DEBUG 0
-# endif
+// Getters //
 
-# include <string>
-
-// Utils //
-std::string	trim(std::string const &str);
-
-std::string format_reply(int const reply_number...);
+std::string const              &IrcMessage::get_prefix() const { return this->_prefix; }
+std::string const              &IrcMessage::get_command() const { return this->_command; }
+std::vector<std::string> const &IrcMessage::get_params() { return this->_params; }
+std::string const              &IrcMessage::get_end() const { return this->_end; }

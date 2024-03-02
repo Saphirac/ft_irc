@@ -1,24 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_irc.hpp                                         :+:      :+:    :+:   */
+/*   channel_modes.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/24 19:31:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 17:25:50 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/02/07 22:57:52 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/29 17:12:15 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-# ifndef DEBUG
-#  define DEBUG 0
-# endif
+#include "ChannelMode.hpp"
+#include <cstddef>
 
-# include <string>
-
-// Utils //
-std::string	trim(std::string const &str);
-
-std::string format_reply(int const reply_number...);
+static char const channel_modes[] = {
+	[InviteList] = 'I',
+	[BanList] = 'b',
+	[InviteOnly] = 'i',
+	[Key] = 'k',
+	[Limit] = 'l',
+	[NoMessagesFromOutside] = 'n',
+	[ChannelOperator] = 'o',
+	[RestrictedTopic] = 't',
+	[EndOfChannelModes] = 0,
+};
+static size_t const channel_modes_len = sizeof(channel_modes) / sizeof(*channel_modes);

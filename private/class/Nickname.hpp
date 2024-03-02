@@ -1,24 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_irc.hpp                                         :+:      :+:    :+:   */
+/*   Nickname.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/24 19:31:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 17:25:50 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/02/16 03:36:23 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/19 00:11:12 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-# ifndef DEBUG
-#  define DEBUG 0
-# endif
+#include <string>
 
-# include <string>
+class Nickname : public std::string
+{
+public:
+	// Constructors
+	Nickname(std::string const &nickname = "");
+	Nickname(Nickname const &src);
 
-// Utils //
-std::string	trim(std::string const &str);
+	// Destructor
+	~Nickname(void);
 
-std::string format_reply(int const reply_number...);
+	// Methods
+	bool is_valid(void) const;
+};

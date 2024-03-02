@@ -1,24 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_irc.hpp                                         :+:      :+:    :+:   */
+/*   UserMode.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/24 19:31:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 17:25:50 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/02/18 23:29:14 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/29 17:11:08 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-# ifndef DEBUG
-#  define DEBUG 0
-# endif
-
-# include <string>
-
-// Utils //
-std::string	trim(std::string const &str);
-
-std::string format_reply(int const reply_number...);
+enum UserMode
+{
+	Bot,
+	LocalOperator,
+	Away,
+	Invisible,
+	WallopsListener,
+	EndOfUserModes,
+	AlreadySentPass,
+	AlreadySentUser
+};

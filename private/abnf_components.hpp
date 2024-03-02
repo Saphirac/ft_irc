@@ -1,24 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_irc.hpp                                         :+:      :+:    :+:   */
+/*   abnf_components.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/24 19:31:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 17:25:50 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/02/05 20:17:21 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/29 17:11:25 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-# ifndef DEBUG
-#  define DEBUG 0
-# endif
+#include <string>
 
-# include <string>
-
-// Utils //
-std::string	trim(std::string const &str);
-
-std::string format_reply(int const reply_number...);
+static std::string const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static std::string const lowercase = "abcdefghijklmnopqrstuvwxyz";
+static std::string const letter = uppercase + lowercase;
+static std::string const digit = "0123456789";
+static std::string const special = "[\\]^_`{|}";

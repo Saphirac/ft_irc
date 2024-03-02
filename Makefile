@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
+#    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/05 22:43:02 by jodufour         ###   ########.fr        #
+#    Updated: 2024/03/01 22:03:28 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,9 +33,9 @@ LIB = lib${NAME}.a
 #             DIRECTORIES             #
 #######################################
 SRC_DIR = src
-LIB_DIR = lib
 OBJ_DIR = obj
 PRV_DIR = private
+LIB_DIR = lib
 INC_DIR = include
 
 ######################################
@@ -49,45 +49,75 @@ SRC = \
 LIB_SRC = \
 	${addsuffix .cpp, \
 		${addprefix ${LIB_DIR}/, \
-			${addprefix command/, \
-				away \
-				die \
-				error \
-				info \
-				invite \
-				ison \
-				join \
-				kick \
-				kill \
-				list \
-				mode \
-				motd \
-				names \
-				nick \
-				notice \
-				oper \
-				part \
-				pass \
-				ping \
-				pong \
-				privmsg \
-				quit \
-				restart \
-				time \
-				topic \
-				user \
-				version \
-				wallops \
-				whois \
+			${addprefix class/, \
+				${addprefix Client/, \
+					Client \
+					core \
+				} \
+				${addprefix Channel/, \
+					Channel \
+				} \
+				${addprefix IrcMessage/, \
+					IrcMessage \
+					core \
+				} \
+				${addprefix Server/, \
+					${addprefix command/, \
+						away \
+						cap \
+						die \
+						error \
+						info \
+						invite \
+						ison \
+						join \
+						kick \
+						kill \
+						list \
+						mode \
+						motd \
+						names \
+						nick \
+						notice \
+						oper \
+						part \
+						pass \
+						ping \
+						pong \
+						privmsg \
+						quit \
+						restart \
+						time \
+						topic \
+						user \
+						version \
+						wallops \
+						whois \
+					} \
+					Server \
+					core \
+					epoll \
+					handle_clients \
+				} \
+				${addprefix SpecializedStrings/, \
+					Hostname \
+					Nickname \
+					Realname \
+					UserModeMask \
+					Username \
+				} \
+				Exceptions \
+				UserModes \
 			} \
+		format_reply \
 		} \
 	}
 
 ######################################
 #            OBJECT FILES            #
 ######################################
-    OBJ = ${addprefix ${OBJ_DIR}/,${SRC:.cpp=.o}}
-    DEP = ${OBJ:.o=.d}
+ OBJ = ${addprefix ${OBJ_DIR}/,${SRC:.cpp=.o}}
+ DEP = ${OBJ:.o=.d}
 LIB_OBJ = ${addprefix ${OBJ_DIR}/,${LIB_SRC:.cpp=.o}}
 LIB_DEP = ${LIB_OBJ:.o=.d}
 
@@ -96,10 +126,16 @@ LIB_DEP = ${LIB_OBJ:.o=.d}
 #######################################
 CXXFLAGS = \
 	-c \
-	-Wall -Wextra -Werror \
-	-MMD -MP \
+	-Wall \
+	-Wextra \
+	-Werror \
 	-Wshadow \
+	-Wno-c99-designator \
+	-pedantic \
+	-ferror-limit=1 \
 	-std=c++98 \
+	-MMD \
+	-MP \
 	-I${PRV_DIR} \
 	-I${INC_DIR}
 
@@ -112,7 +148,7 @@ endif
 #######################################
 .PHONY:	all clean fclean re fre
 
-${NAME}: ${LIB} ${OBJ}
+${NAME}: ${OBJ} ${LIB}
 	${LINK} $^ ${OUTPUT_OPTION}
 
 ${LIB}: ${LIB_OBJ}
@@ -121,6 +157,7 @@ ${LIB}: ${LIB_OBJ}
 all: ${LIB} ${NAME}
 
 -include ${DEP}
+-include ${LIB_DEP}
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/%.cpp
 	@${MKDIR} ${@D}

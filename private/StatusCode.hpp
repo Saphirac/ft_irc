@@ -1,24 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_irc.hpp                                         :+:      :+:    :+:   */
+/*   StatusCode.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/24 19:31:52 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 17:25:50 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/02/06 01:14:05 by jodufour          #+#    #+#             */
+/*   Updated: 2024/02/19 14:33:04 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#ifndef STATUSCODE_HPP
+#define STATUSCODE_HPP
 
-# ifndef DEBUG
-#  define DEBUG 0
-# endif
+enum StatusCode
+{
+	Success,
+	ErrorFormatReply,
+	ErrorSend
+};
 
-# include <string>
-
-// Utils //
-std::string	trim(std::string const &str);
-
-std::string format_reply(int const reply_number...);
+#endif
