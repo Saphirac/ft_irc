@@ -10,36 +10,37 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef IRCMESSAGE_HPP
-#define IRCMESSAGE_HPP
-
+#include <iostream>
 #include <string>
 #include <vector>
 
 class IrcMessage
 {
 private:
-	std::string              _prefix;
-	std::string              _command;
-	std::vector<std::string> _params;
-	std::string              _end;
+    std::string              _prefix;
+    std::string              _command;
+    std::vector<std::string> _params;
+    void parseSingleMessage(const std::string& msg);
 
-	bool _is_complete;
 
 public:
-	IrcMessage();
+    IrcMessage() {}
+    IrcMessage(std::string const &msg) {
+        this->parseSingleMessage(msg);
+    }
 	~IrcMessage();
 
-	// Getters //
-	std::string               get_prefix() const;
-	std::string               get_command() const;
+    IrcMessage(const IrcMessage& other);
+    IrcMessage& operator=(const IrcMessage& other);
+
+	std::string const        &get_prefix() const;
+	std::string const        &get_command() const;
 	std::vector<std::string> &get_params();
-	std::string               get_end() const;
 
-	bool is_complete() const;
-
-	void       display() const;
-	IrcMessage parse_irc_message(std::string const &msg);
+    void setPrefix(const std::string& prefix);
+    void setCommand(const std::string& command);
+    void setParams(const std::vector<std::string>& params);
+	void addParam(const std::string& param);
+	
+	friend std::ostream& operator<<(std::ostream& os, const IrcMessage& msg);
 };
-
-#endif

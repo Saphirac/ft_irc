@@ -51,12 +51,11 @@ void Server::handle_client_event(Client *client)
 	printf("Received: [%s]\n", buffer);
 	printf("Received: [%s]\n", std::string(buffer).c_str());
 	IrcMessage rcv_msg;
-	rcv_msg.parse_irc_message(std::string(buffer));
-	if (rcv_msg.is_complete() == false)
-	{	
-		client->append_to_msg_in(std::string(buffer));
-		return; 
-	}
+	// if (rcv_msg.is_complete() == false)
+	// {	
+	// 	client->append_to_msg_in(std::string(buffer));
+	// 	return; 
+	// }
 	printf("[%s]\n", rcv_msg.get_command().c_str());
 	//TODO protect against unknown / empty command 
 	//(this->*(_map_of_cmds[rcv_msg.get_command()]))(*client, rcv_msg.get_params());
