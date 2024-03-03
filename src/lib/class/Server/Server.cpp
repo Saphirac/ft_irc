@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
-#include "IrcMessage.hpp"
+#include "Message.hpp"
 #include <cstdio>
 
 /**

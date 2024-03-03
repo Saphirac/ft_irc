@@ -57,8 +57,8 @@ LIB_SRC = \
 				${addprefix Channel/, \
 					Channel \
 				} \
-				${addprefix IrcMessage/, \
-					IrcMessage \
+				${addprefix Message/, \
+					Message \
 					core \
 				} \
 				${addprefix Server/, \

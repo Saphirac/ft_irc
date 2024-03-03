@@ -14,7 +14,7 @@
 #include <cstdlib>
 #include "class/Server.hpp"
 #include <cstdio>
-#include "IrcMessage.hpp"
+#include "Message.hpp"
 
 /**
  * @brief Launch irc server

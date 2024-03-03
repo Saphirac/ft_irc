@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   IrcMessage.hpp                                     :+:      :+:    :+:   */
+/*   Message.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -14,33 +14,31 @@
 #include <string>
 #include <vector>
 
-class IrcMessage
+class Message
 {
-private:
-    std::string              _prefix;
-    std::string              _command;
-    std::vector<std::string> _params;
-    void parseSingleMessage(const std::string& msg);
-
-
 public:
-    IrcMessage() {}
-    IrcMessage(std::string const &msg) {
-        this->parseSingleMessage(msg);
-    }
-	~IrcMessage();
+	// Constructors
+	Message(std::string const &msg);
+	
+	// Destructor
+	~Message(void);
 
-    IrcMessage(const IrcMessage& other);
-    IrcMessage& operator=(const IrcMessage& other);
-
+	// Accessors
 	std::string const        &get_prefix() const;
 	std::string const        &get_command() const;
 	std::vector<std::string> &get_params();
 
-    void setPrefix(const std::string& prefix);
-    void setCommand(const std::string& command);
-    void setParams(const std::vector<std::string>& params);
-	void addParam(const std::string& param);
-	
-	friend std::ostream& operator<<(std::ostream& os, const IrcMessage& msg);
+	// Setters
+	void set_prefix(std::string const &prefix);
+	void set_command(std::string const &command);
+	void set_params(std::vector<std::string> const &params);
+
+	// Methods
+	void add_param(std::string const &param);
+
+private:
+	std::string              _prefix;
+	std::string              _command;
+	std::vector<std::string> _params;
+	void                     parseSingleMessage(const std::string &msg);
 };

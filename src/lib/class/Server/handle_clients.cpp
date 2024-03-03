@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "Message.hpp"
 #include "class/Server.hpp"
-#include "IrcMessage.hpp"
 
 void control_socket(int const socket)
 {
@@ -50,14 +50,15 @@ void Server::handle_client_event(Client *client)
 	buffer[bytes_read] = '\0';
 	printf("Received: [%s]\n", buffer);
 	printf("Received: [%s]\n", std::string(buffer).c_str());
-	IrcMessage rcv_msg;
+	Message rcv_msg(std::string(buffer).c_str());
+
 	// if (rcv_msg.is_complete() == false)
-	// {	
+	// {
 	// 	client->append_to_msg_in(std::string(buffer));
-	// 	return; 
+	// 	return;
 	// }
 	printf("[%s]\n", rcv_msg.get_command().c_str());
-	//TODO protect against unknown / empty command 
+	// TODO protect against unknown / empty command
 	//(this->*(_map_of_cmds[rcv_msg.get_command()]))(*client, rcv_msg.get_params());
 }
 
@@ -70,7 +71,7 @@ void Server::handle_client_event(Client *client)
  */
 void Server::handle_new_connection()
 {
-	int	const client_socket = accept(this->_socket, NULL, NULL);
+	int const client_socket = accept(this->_socket, NULL, NULL);
 	if (client_socket == -1)
 	{
 		std::cerr << "Problem with accept()." << std::endl;
