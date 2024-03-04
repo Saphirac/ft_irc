@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/01 23:32:11 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/03 18:23:29 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,4 +105,6 @@ public:
 
 	std::string const get_next_msg(void);
 	epoll_event      *set_epoll_event();
+
+	std::string prefix() const;
 };
