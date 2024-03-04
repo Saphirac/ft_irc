@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 13:43:54 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/03 18:23:15 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/04 15:22:37 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 #include "class/Server.hpp"
 #include "ft_irc.hpp"
 #include "replies.hpp"
-#include <iostream>
 
 /**
  * @brief Handle the CAP command used by the client to negotiate capabilities
@@ -25,6 +24,7 @@
  * @param parameters the parameters of the command
  * @return StatusCode : how the command went
  *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 StatusCode Server::cap(Client &sender, std::vector<std::string> const &parameters)
 {
