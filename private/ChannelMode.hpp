@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   ChannelMode.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/07 23:31:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/08 01:02:25 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/29 17:00:16 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CHANNELMODE_HPP
-#define CHANNELMODE_HPP
+#pragma once
 
 enum ChannelMode
 {
@@ -25,5 +24,3 @@ enum ChannelMode
 	RestrictedTopic,
 	EndOfChannelModes
 };
-
-#endif

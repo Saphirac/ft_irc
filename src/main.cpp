@@ -3,39 +3,35 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/26 16:44:37 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/04 18:50:34 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_irc.hpp"
-#include <cstdlib>
 #include "class/Server.hpp"
-#include <cstdio>
-#include "Message.hpp"
+#include <cstdlib>
+#include <iostream>
 
-/**
- * @brief Launch irc server
- * 
- * // TODO : create a checker for the arguments
- * // TODO : create a catcher for exceptions
- * @param ac 
- * @param av 
- * @return int 
- */
-
-int main(int ac, char **av)
+// TODO : create a checker for the arguments
+int main(int const ac, char const *const *const av)
 {
 	if (ac != 3)
-		std::cout << "incorrect number of args\n";
-	Server *myserver = new Server(atoi(av[1]), std::string(av[2]), "MyServer");
-	try {
-		myserver->create_server();
+	{
+		std::cerr << "incorrect number of args\n";
+		return 1;
 	}
-	catch (std::exception &e) {
-		std::cout << e.what() << std::endl;
+
+	Server myserver = Server(atoi(av[1]), std::string(av[2]), "MyServer");
+
+	try
+	{
+		myserver.create_server();
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << e.what() << std::endl;
 	}
 	return 0;
 }

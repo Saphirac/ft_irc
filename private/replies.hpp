@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   replies.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 22:08:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/08 01:01:02 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/29 17:29:09 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef REPLIES_HPP
-#define REPLIES_HPP
+#pragma once
 
 #include <map>
 #include <string>
@@ -59,6 +58,7 @@
 #define ERR_NOORIGIN          409
 #define ERR_NORECIPIENT       411
 #define ERR_NOTEXTTOSEND      412
+#define ERR_UNKNOWNCOMMAND    421
 #define ERR_NOMOTD            422
 #define ERR_NONICKNAMEGIVEN   431
 #define ERR_ERRONEUSNICKNAME  432
@@ -123,6 +123,7 @@ static std::pair<int, char const *> const raw_replies[] = {
 	std::make_pair(ERR_NOORIGIN, ":No origin specified"),
 	std::make_pair(ERR_NORECIPIENT, ":No recipient given (%S)"),
 	std::make_pair(ERR_NOTEXTTOSEND, ":No text to send"),
+	std::make_pair(ERR_UNKNOWNCOMMAND, "%S :Unknown command"),
 	std::make_pair(ERR_NOMOTD, ":MOTD File is missing"),
 	std::make_pair(ERR_NONICKNAMEGIVEN, ":No nickname given"),
 	std::make_pair(ERR_ERRONEUSNICKNAME, "%S :Erroneous nickname"),
@@ -151,5 +152,3 @@ static size_t const raw_replies_len = sizeof(raw_replies) / sizeof(*raw_replies)
 static std::map<int, char const *> const replies(raw_replies, raw_replies + raw_replies_len);
 
 typedef std::map<int, char const *>::const_iterator ReplyIterator;
-
-#endif

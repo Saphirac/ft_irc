@@ -6,27 +6,21 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/23 15:30:24 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/03 18:23:29 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "UserMode.hpp"
-#include <ctime>
-#include "StatusCode.hpp"
 #include "class/Hostname.hpp"
 #include "class/Nickname.hpp"
 #include "class/Realname.hpp"
+#include "class/Server.hpp"
 #include "class/UserModes.hpp"
 #include "class/Username.hpp"
-#include <stdint.h>
+#include <ctime>
 #include <string>
-#include <unistd.h>
-#include "class/Server.hpp"
-#include <netinet/in.h>
-
-class Server;
 
 class Server;
 
@@ -48,8 +42,6 @@ private:
 
 	struct epoll_event *_epoll_event;
 
-	bool _is_msg_complete;
-
 	std::clock_t _time_last_msg;
 
 public:
@@ -58,7 +50,7 @@ public:
 
 	// Constructors
 	Client(
-		int const           socket = -1,
+		int const       socket = -1,
 		Nickname const &nickname = Nickname(),
 		Hostname const &hostname = Hostname(),
 		Username const &username = Username(),
@@ -70,11 +62,10 @@ public:
 	~Client(void);
 
 	// Accessors
-	int                get_socket(void) const;
-	
-	struct epoll_event	*get_epoll_event(void) const;
+	int get_socket(void) const;
 
-	std::clock_t get_time_last_msg(void) const;
+	epoll_event       *get_mut_epoll_event(void) const;
+	std::clock_t       get_time_last_msg(void) const;
 	std::string const &get_msg_in(void) const;
 	std::string const &get_msg_out(void) const;
 	Nickname const    &get_nickname(void) const;
@@ -95,9 +86,6 @@ public:
 	void set_modes(UserModes const modes);
 	void set_away_msg(std::string const &away_msg);
 
-	void set_epoll_event();
-	void set_is_msg_complete(bool const yesno);
-
 	// Member functions
 	void disconnect(void);
 	void append_to_msg_in(std::string const &s);
@@ -105,7 +93,7 @@ public:
 	void clear_msg_out(void);
 	void set_mode(UserMode const mode);
 	void clear_mode(UserMode const mode);
-	void set_time_last_msg(void);	
+	void set_time_last_msg(void);
 
 	bool has_mode(UserMode const mode) const;
 
@@ -113,6 +101,10 @@ public:
 
 	std::clock_t check_time_since_last_msg(void) const;
 
-	StatusCode send_msg_out(void);
-};
+	void send_msg_out(void);
 
+	std::string const get_next_msg(void);
+	epoll_event      *set_epoll_event();
+
+	std::string prefix() const;
+};

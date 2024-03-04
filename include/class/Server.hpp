@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/23 16:05:26 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/01 22:11:31 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,18 +15,12 @@
 #include "Client.hpp"
 #include "StatusCode.hpp"
 #include "ft_irc.hpp"
-#include <errno.h>
-#include <fcntl.h>
 #include <map>
 #include <netinet/in.h>
-#include <netinet/ip.h>
 #include <set>
-#include <stdlib.h>
 #include <string>
 #include <sys/epoll.h>
 #include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
 #include <vector>
 
 class Client;
@@ -42,62 +36,17 @@ class Channel;
  * @brief class Server to contain everything I need for my server
  * _port, password etc.
  *
- * @todo maybe choose a better type than int and std::string for client
- * 		do a proper default constructor if void
+ * // TODO : make a prefix method for server
  */
-
-// define pointer on function for cmd:
-
 class Server
 {
-private:
-	// Shared fields
-	static std::set<std::string> const              _operator_hosts;
-	static std::map<std::string, std::string> const _operator_ids;
-
-	// Fields
-	int                 _port;
-	int                 _socket;
-	int                 _epoll_socket;
-	sockaddr_in         _sock_addr;
-	socklen_t           _sock_len;
-	struct epoll_event *_epoll_event;
-	std::string         _name;
-	std::string         _version;
-	std::string         _password;
-	std::string         _creation_date;
-	std::string         _creation_time;
-	std::string         _compilation_date;
-	std::string         _compilation_time;
-
-	// Typedef
-	typedef StatusCode (Server::*cmd)(Client &sender, std::vector<std::string> const &parameters);
-	// TODO : get back to a non pointer (hopefully)
-	std::map<int, Client *>         _clients_socket;
-	std::map<std::string, Client *> _clients_nick;
-	std::vector<Channel *>          _channels;
-	std::map<std::string, cmd>      _map_of_cmds;
-
-	bool _shutdown;
-
-	class ProblemWithSocket : public std::exception
-	{
-	public:
-		virtual char const *what(void) const throw() { return "Problem with socket"; }
-	};
-
-	class ProblemWithSockAddr : public std::exception
-	{
-	public:
-		virtual char const *what(void) const throw()
-		{
-			return "Problem with SockAddr structure creation / assignation";
-		}
-	};
-
 public:
+	// Typedef
+	typedef StatusCode (Server::*Command)(Client &sender, std::vector<std::string> const &parameters);
+
 	// Constructors
 	Server(int const port, std::string const name, std::string const password, bool shutdown = false);
+
 	// Destructor
 	~Server(void);
 
@@ -113,7 +62,6 @@ public:
 	std::string const &get_compilation_date() const;
 	std::string const &get_compilation_time() const;
 
-	struct epoll_event       *get_epoll_event() const;
 	struct sockaddr_in const &get_sock_addr() const;
 	socklen_t const          &get_sock_len() const;
 
@@ -163,18 +111,45 @@ public:
 	void create_and_set_socket();
 	void init_socket_server();
 	void create_server();
-	void ctrl_epoll_add(int epoll_fd, int socket, struct epoll_event *e_event);
-	void handle_client_event(Client *client);
+	void ctrl_epoll_add(int epoll_fd, int socket, epoll_event *e_event);
+	void handle_client_event(Client *client, std::string msg);
 	void handle_new_connection();
 	void epoll_loop();
+	void handle_all_events_routine();
+	void rcv_client_event(Client *client);
+	void send_msg_out();
+	void create_epoll();
 
 	struct sockaddr_in bind_assign_sockaddr();
 
-	void init_map_cmd(void);
-
 	void add_client(Client *client);
 	void remove_client(Client *client);
-};
 
-int  create_epoll();
-void send_message(int client_socket, std::string message);
+private:
+	// Shared fields
+	static std::set<std::string> const              _operator_hosts;
+	static std::map<std::string, std::string> const _operator_ids;
+	static std::map<std::string, Command> const     _map_of_cmds;
+
+	// Fields
+	int                 _port;
+	int                 _socket;
+	int                 _epoll_socket;
+	sockaddr_in         _sock_addr;
+	socklen_t           _sock_len;
+	struct epoll_event *_epoll_event;
+	std::string         _name;
+	std::string         _version;
+	std::string         _password;
+	std::string         _creation_date;
+	std::string         _creation_time;
+	std::string         _compilation_date;
+	std::string         _compilation_time;
+
+	// TODO : get back to a non pointer (hopefully)
+	std::map<int, Client *>         _clients_socket;
+	std::map<std::string, Client *> _clients_nick;
+	std::vector<Channel *>          _channels;
+
+	bool _shutdown;
+};

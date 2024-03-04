@@ -6,13 +6,11 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/18 23:29:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/23 12:13:17 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/02/29 17:11:08 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-
-#include <stdint.h>
 
 enum UserMode
 {

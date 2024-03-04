@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   UserModes.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/18 23:06:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/19 16:04:14 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/02/29 17:21:57 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ std::string UserModes::to_string(void) const
 {
 	std::string modes;
 
-	for (uint8_t i = 0; i < EndOfUserModes; ++i)
+	for (int i = 0; i < EndOfUserModes; ++i)
 		if (this->is_set(static_cast<UserMode>(i)))
 			modes += user_modes[i];
 

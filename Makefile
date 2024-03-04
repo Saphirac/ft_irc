@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/02/26 16:52:38 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/03/01 22:03:28 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,16 +32,16 @@ LIB = lib${NAME}.a
 #######################################
 #             DIRECTORIES             #
 #######################################
-SRC_DIR	=	src
-OBJ_DIR	=	obj
-PRV_DIR	=	private
-LIB_DIR	=	lib
-INC_DIR =	include
+SRC_DIR = src
+OBJ_DIR = obj
+PRV_DIR = private
+LIB_DIR = lib
+INC_DIR = include
 
 ######################################
 #            SOURCE FILES            #
 ######################################
-SRC		=	\
+SRC = \
 	${addsuffix .cpp, \
 		main \
 	}
@@ -64,6 +64,7 @@ LIB_SRC = \
 				${addprefix Server/, \
 					${addprefix command/, \
 						away \
+						cap \
 						die \
 						error \
 						info \
@@ -88,35 +89,35 @@ LIB_SRC = \
 						restart \
 						time \
 						topic \
+						user \
 						version \
 						wallops \
 						whois \
-						cap \
-						init_map_cmd \
-						user \
 					} \
 					Server \
 					core \
 					epoll \
 					handle_clients \
 				} \
-				Hostname \
-				Nickname \
-				Realname \
-				UserModeMask \
+				${addprefix SpecializedStrings/, \
+					Hostname \
+					Nickname \
+					Realname \
+					UserModeMask \
+					Username \
+				} \
+				Exceptions \
 				UserModes \
-				Username \
 			} \
 		format_reply \
-		send_message \
 		} \
-	} 
+	}
 
 ######################################
 #            OBJECT FILES            #
 ######################################
-	OBJ = ${addprefix ${OBJ_DIR}/,${SRC:.cpp=.o}}
-	DEP = ${OBJ:.o=.d}
+ OBJ = ${addprefix ${OBJ_DIR}/,${SRC:.cpp=.o}}
+ DEP = ${OBJ:.o=.d}
 LIB_OBJ = ${addprefix ${OBJ_DIR}/,${LIB_SRC:.cpp=.o}}
 LIB_DEP = ${LIB_OBJ:.o=.d}
 
@@ -138,7 +139,6 @@ CXXFLAGS = \
 	-I${PRV_DIR} \
 	-I${INC_DIR}
 
-
 ifeq (${DEBUG}, 1)
 	CXXFLAGS += -g -DDEBUG=1
 endif
@@ -159,7 +159,6 @@ all: ${LIB} ${NAME}
 -include ${DEP}
 -include ${LIB_DEP}
 
-${OBJ_DIR}/%.o: 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/%.cpp
 	@${MKDIR} ${@D}
 	${CXX} $< ${CXXFLAGS} ${OUTPUT_OPTION}

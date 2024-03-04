@@ -6,11 +6,14 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:20:40 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/23 15:38:57 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/02 00:48:32 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Client.hpp"
+#include "class/Exceptions.hpp"
+#include <iostream>
+#include <unistd.h>
 
 Client::Client(
 	int const       socket,
@@ -27,6 +30,7 @@ Client::Client(
 	_username(username),
 	_realname(realname),
 	_modes(modes),
+	_epoll_event(this->set_epoll_event()),
 	_time_last_msg(std::clock())
 {
 	if (DEBUG)
@@ -48,28 +52,30 @@ Client::Client(Client const &src) :
 		std::cout << "Client copy constructor called\n";
 }
 
+/**
+ * @brief Destroy the Client:: Client object
+ *
+ * @throw disconnect() can throw ProblemWithClose() if the close() function fails.
+ */
 Client::~Client()
 {
 	if (DEBUG)
 		std::cout << "Client destructor called\n";
-	if (this->_socket != -1)
-		close(this->_socket);
-	// if (this->_epoll_event)
-	//	delete this->_epoll_event;
+	this->disconnect();
 }
 
 // Getters //
 
-int                 Client::get_socket(void) const { return this->_socket; }
-std::string const  &Client::get_msg_in(void) const { return this->_msg_in; }
-std::string const  &Client::get_msg_out(void) const { return this->_msg_out; }
-Nickname const     &Client::get_nickname(void) const { return this->_nickname; }
-Hostname const     &Client::get_hostname(void) const { return this->_hostname; }
-Username const     &Client::get_username(void) const { return this->_username; }
-Realname const     &Client::get_realname(void) const { return this->_realname; }
-UserModes           Client::get_modes(void) const { return this->_modes; }
-struct epoll_event *Client::get_epoll_event(void) const { return this->_epoll_event; }
-std::clock_t        Client::get_time_last_msg(void) const { return this->_time_last_msg; }
+int                Client::get_socket(void) const { return this->_socket; }
+std::string const &Client::get_msg_in(void) const { return this->_msg_in; }
+std::string const &Client::get_msg_out(void) const { return this->_msg_out; }
+Nickname const    &Client::get_nickname(void) const { return this->_nickname; }
+Hostname const    &Client::get_hostname(void) const { return this->_hostname; }
+Username const    &Client::get_username(void) const { return this->_username; }
+Realname const    &Client::get_realname(void) const { return this->_realname; }
+UserModes          Client::get_modes(void) const { return this->_modes; }
+std::clock_t       Client::get_time_last_msg(void) const { return this->_time_last_msg; }
+epoll_event       *Client::get_mut_epoll_event(void) const { return this->_epoll_event; }
 
 // Setters //
 
@@ -82,23 +88,36 @@ void Client::set_username(Username const &username) { this->_username = username
 void Client::set_realname(Realname const &realname) { this->_realname = realname; }
 void Client::set_modes(UserModes const modes) { this->_modes = modes; }
 
-void Client::set_epoll_event()
+/**
+ * @brief Create a new struct epoll event specially for this client and assigns all necessary fields.
+ *
+ * @return The newly created epoll event.
+ */
+epoll_event *Client::set_epoll_event()
 {
 	if (DEBUG)
 		std::cout << "setEvent() member function of client called\n";
-	this->_epoll_event = new epoll_event;
-	this->_epoll_event->events = EPOLLIN;
-	this->_epoll_event->data.fd = this->_socket;
+
+	epoll_event *e_event = new epoll_event;
+
+	e_event->events = EPOLLIN;
+	e_event->data.fd = this->_socket;
+	return e_event;
 }
 
 void Client::set_time_last_msg(void) { this->_time_last_msg = std::clock(); }
 
 // Methods //
 /**
- * @brief Closes the socket of the Client instance.
+ * @brief Closes the socket of the Client instance and deletes it's associated epoll_event
+ *
+ * @throw ProblemWithClose() if the close() function fails.
  */
 void Client::disconnect(void)
 {
-	close(this->_socket);
+	std::cout << "Client disconnected.\n";
+	if (close(this->_socket) == -1)
+		throw ProblemWithClose();
 	this->_socket = -1;
+	delete this->_epoll_event;
 }
