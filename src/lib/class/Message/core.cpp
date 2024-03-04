@@ -6,7 +6,7 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:06:05 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/04 18:25:23 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/04 19:00:36 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,8 @@ void Message::set_params(const std::vector<std::string> &params) { _params = par
  * @param param A constant reference to a std::string containing the parameter to be added.
  */
 void Message::add_param(const std::string &param) { _params.push_back(param); }
+
+#include <iostream>
 
 void Message::display() const
 {

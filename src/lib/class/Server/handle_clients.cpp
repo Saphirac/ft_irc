@@ -6,7 +6,7 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:11:16 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/04 18:54:38 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/04 19:01:55 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,9 +71,7 @@ void Server::rcv_client_event(Client *client)
  */
 void Server::handle_client_event(Client *client, std::string msg)
 {
-	IrcMessage rcv_msg;
-
-	rcv_msg.parse_irc_message(msg);
+	Message rcv_msg(msg);
 
 	std::string const                                            cmd = rcv_msg.get_command();
 	std::map<std::string, Server::Command>::const_iterator const cmd_func = this->_map_of_cmds.find(cmd);
