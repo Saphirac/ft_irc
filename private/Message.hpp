@@ -36,9 +36,10 @@ public:
 	// Methods
 	void add_param(std::string const &param);
 
+	void display() const;
+
 private:
 	std::string              _prefix;
 	std::string              _command;
 	std::vector<std::string> _params;
-	void                     parseSingleMessage(const std::string &msg);
 };

@@ -3,22 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:06:05 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/26 16:57:57 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/04 18:25:23 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Message.hpp"
-
-/**
- * Constructor for the Message class.
- * Parses a single message from the given string.
- *
- * @param msg A constant reference to a std::string containing the message to be parsed.
- */
-Message::Message(std::string const &msg) { this->parseSingleMessage(msg); }
 
 /**
  * Destructor for the Message class.
@@ -73,3 +65,16 @@ void Message::set_params(const std::vector<std::string> &params) { _params = par
  * @param param A constant reference to a std::string containing the parameter to be added.
  */
 void Message::add_param(const std::string &param) { _params.push_back(param); }
+
+void Message::display() const
+{
+	std::cout << "Prefix: " << this->_prefix << std::endl;
+	std::cout << "Command: " << this->_command << std::endl;
+	std::cout << "Params: ";
+	for (size_t i = 0; i < this->_params.size(); ++i)
+	{
+		std::cout << "[" << this->_params[i] << "]";
+	}
+	std::cout << std::endl;
+	std::cout << "----------------------------------------" << std::endl;
+}

@@ -8,7 +8,7 @@
  *
  * @return A new instance of the Message class.
  */
-void Message::parseSingleMessage(const std::string &msg)
+Message::Message(std::string const &msg)
 {
 	size_t pos = 0;
 	size_t spacePos = 0;

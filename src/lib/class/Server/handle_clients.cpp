@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   handle_clients.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 21:11:16 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/26 17:38:46 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/04 18:43:35 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,16 +48,17 @@ void Server::handle_client_event(Client *client)
 		return;
 	}
 	buffer[bytes_read] = '\0';
-	printf("Received: [%s]\n", buffer);
-	printf("Received: [%s]\n", std::string(buffer).c_str());
+	// printf("Received: [%s]\n", buffer);
+	// printf("Received: [%s]\n", std::string(buffer).c_str());
 	Message rcv_msg(std::string(buffer).c_str());
+	rcv_msg.display();
 
 	// if (rcv_msg.is_complete() == false)
 	// {
 	// 	client->append_to_msg_in(std::string(buffer));
 	// 	return;
 	// }
-	printf("[%s]\n", rcv_msg.get_command().c_str());
+	// printf("[%s]\n", rcv_msg.get_command().c_str());
 	// TODO protect against unknown / empty command
 	//(this->*(_map_of_cmds[rcv_msg.get_command()]))(*client, rcv_msg.get_params());
 }
