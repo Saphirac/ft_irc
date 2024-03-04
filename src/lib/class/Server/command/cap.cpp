@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 13:43:54 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/04 15:22:37 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/04 19:29:46 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,6 @@ StatusCode Server::cap(Client &sender, std::vector<std::string> const &parameter
 		sender.append_to_msg_out(format_reply(ERR_NEEDMOREPARAMS, "CAP"));
 
 	if (parameters.size() > 1 && parameters[0] == "LS" && parameters[1] == "302")
-		sender.append_to_msg_out(':' + this->_name + "CAP * LS :none\n\r");
+		sender.append_to_msg_out(':' + this->_name + " CAP * LS :none");
 	return Success;
 }
