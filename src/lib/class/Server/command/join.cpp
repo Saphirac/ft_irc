@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 17:49:17 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/05 18:12:20 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,15 @@
 #include <iostream>
 #include <list>
 
+#define MAX_CHANNELS 42
+
+/**
+ * @brief Join a new channel
+ * 
+ * @param sender 
+ * @param chan_name 
+ * @return the joined channel if successful, NULL otherwise
+ */
 inline static Channel const *__join_new_channel(Client &sender, ChannelName const &chan_name)
 {
 	if (sender->get_channels.size() > MAX_CHANNELS)
@@ -24,12 +33,21 @@ inline static Channel const *__join_new_channel(Client &sender, ChannelName cons
 	{
 		Channel &channel = this->_channels_by_name[chan_name];
 		sender->add_channel(channel);
-		sender.append_to_msg_out(format_reply(RPL_TOPIC))
+		return channel;
 	}
 	else
 		sender->append_to_msg_out(format_reply(ERR_NOSUCHCHANNEL, chan_name.c_str()));
+	return NULL;
 }
 
+/**
+ * @brief Join an existing channel
+ * 
+ * @param sender 
+ * @param channel 
+ * @param key 
+ * @return the joined channel if successful, NULL otherwise
+ */
 inline static Channel const *__join_existing_channel(Client &sender, Channel &channel, std::string const &key)
 {
 	std::string const &nickname = sender.get_nickname();
@@ -57,6 +75,13 @@ inline static Channel const *__join_existing_channel(Client &sender, Channel &ch
 	return NULL;
 }
 
+/**
+ * @brief Create a list of pairs of channels and keys
+ * 
+ * @param channels 
+ * @param keys 
+ * @return std::vector<std::pair<std::string, std::string>> 
+ */
 inline static std::vector<std::pair<std::string, std::string>> __split_channels_keys(
 	std::string const &channels,
 	std::string const &keys)
@@ -74,6 +99,12 @@ inline static std::vector<std::pair<std::string, std::string>> __split_channels_
 	return channel_key_pairs;
 }
 
+/**
+ * @brief Send the JOIN msg for each channel in the end
+ * 
+ * @param joined_channels 
+ * @param sender 
+ */
 void send_join_message_for_each_channel(std::list<Channel const *const> const &joined_channels, Client &sender)
 {
 	for (std::list<Channel const *const>::const_iterator channel = joined_channels.begin(); it != joined_channels.end();
@@ -86,8 +117,13 @@ void send_join_message_for_each_channel(std::list<Channel const *const> const &j
 	}
 }
 
-// TODO : Change the password verification up ahead before executing any command
-
+/**
+ * @brief Add the sender to the channels in params if they exist, create them otherwise
+ * The second params if present is the key to join the channel
+ * 
+ * @param sender 
+ * @param params 
+ */
 void Server::join(Client &sender, std::vector<std::string> const &params)
 {
 	if (sender.has_mode(AlreadySentPass) == false)

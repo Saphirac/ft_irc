@@ -6,17 +6,24 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:26:34 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 18:04:14 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/05 18:09:41 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// TODO
 
 #include "class/Server.hpp"
 #include "ft_irc.hpp"
 #include "replies.hpp"
 #include <list>
 
+/**
+ * @brief Remove member of each channel sent in params
+ * 
+ * @param sender the client asking to part
+ * @param params the channel to part and the part-message
+ * 
+ * @throw std:exception if a std function critically fails
+ */
 void Server::part(Client &sender, std::vector<std::string> const &params)
 {
 	if (params.empty())
@@ -24,10 +31,11 @@ void Server::part(Client &sender, std::vector<std::string> const &params)
 		sender.reply(ERR_NEEDMOREPARAMS, "PART");
 		return;
 	}
-	std::list<std::string>                           channels = split<std::list>(params[0], ',');
-	for (std::list<std::string>::const_iterator actual_channel = channels.begin(); actual_channel != channels.end(); ++actual_channel)
+	std::list<std::string> channels = split<std::list>(params[0], ',');
+	for (std::list<std::string>::const_iterator actual_channel = channels.begin(); actual_channel != channels.end();
+	     ++actual_channel)
 	{
-		ChannelName const &chan_name = actual_channel.get_name();
+		ChannelName const                               &chan_name = actual_channel.get_name();
 		std::map<ChannelName, Channel *>::const_iterator chan_by_name = this->_channels_by_name.find(chan_name);
 		if (chan_by_name == this->_channels_by_name.end())
 			sender.append_to_msg_out(format_reply(ERR_NOSUCHCHANNEL, chan_name));
