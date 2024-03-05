@@ -6,13 +6,15 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/04 19:28:30 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/05 17:49:17 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
 #include "ft_irc.hpp"
+#include "replies.hpp"
 #include <iostream>
+#include <list>
 
 inline static Channel const *__join_new_channel(Client &sender, ChannelName const &chan_name)
 {
@@ -72,28 +74,46 @@ inline static std::vector<std::pair<std::string, std::string>> __split_channels_
 	return channel_key_pairs;
 }
 
+void send_join_message_for_each_channel(std::list<Channel const *const> const &joined_channels, Client &sender)
+{
+	for (std::list<Channel const *const>::const_iterator channel = joined_channels.begin(); it != joined_channels.end();
+	     ++it)
+	{
+		ChannelName const &channel_name = channel->get_name();
+		sender.append_to_msg_out("JOIN : Successfully joined " + channel_name);
+		sender.append_to_msg_out(format_reply(RPL_TOPIC, channel_name.c_str(), channel->get_topic().c_str()));
+		names(sender, {channel_name});
+	}
+}
+
 // TODO : Change the password verification up ahead before executing any command
 
 void Server::join(Client &sender, std::vector<std::string> const &params)
 {
 	if (sender.has_mode(AlreadySentPass) == false)
 		sender.append_to_msg_out(this->_name + " Password required.\nTry /quote PASS <password>");
-
+	if (params.size() < 1)
+	{
+		sender->append_to_msg_out(format_reply(ERR_NEEDMOREPARAMS, "JOIN"));
+		return;
+	}
 	if (params.size() == 1 && params[0] == '0')
 		sender->part_all_channels("Quitting all channels.");
 
-	std::vector<std::pair<std::string, std::string>>      channel_key_pairs = split_channels_keys(params[0], params[1]);
-	std::map<ChannelName, Channel *const>::const_iterator chan_by_name = this->_channels_by_name.find(params[i]);
-	std::list<Channel const *const>                       joined_channels;
+	std::vector<std::pair<std::string, std::string>> channel_key_pairs = split_channels_keys(params[0], params[1]);
+	std::list<Channel const *const>                  joined_channels;
 
 	for (size_t i = 0; i < channel_key_pairs.size(); ++i)
 	{
+		std::map<ChannelName, Channel *const>::const_iterator chan_by_name =
+			this->_channels_by_name.find(channel_key_pairs[i].first);
 		Channel const *const new_joined_channel =
 			chan_by_name == this->_channels_by_name.end()
 				? __join_new_channel(sender, ChannelName(channel_key_pairs[i].first))
 				: __join_existing_channel(sender, chan_by_name->second, channel_key_pairs[i].second);
 
 		if (new_joined_channel)
-			joined_channels.push_back(new_channel);
+			joined_channels.push_back(new_joined_channel);
 	}
+	send_join_message_for_each_channel(joined_channels, sender);
 }
