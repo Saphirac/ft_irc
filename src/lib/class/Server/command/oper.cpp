@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:45 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/01 00:06:23 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/05 01:53:32 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
  * @throw `InvalidConversion` if a conversion specification is invalid.
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-void Server::oper(Client &sender, std::vector<std::string> const &parameters)
+void Server::_oper(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (parameters.size() < 2)
 		return sender.append_to_msg_out(format_reply(ERR_NEEDMOREPARAMS, "OPER"));

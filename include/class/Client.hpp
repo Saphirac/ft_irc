@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/01 23:04:03 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/05 02:30:56 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,17 @@
 
 #include "UserMode.hpp"
 #include "class/Channel.hpp"
-#include "class/HostName.hpp"
-#include "class/NickName.hpp"
-#include "class/RealName.hpp"
-#include "class/UserName.hpp"
+#include "class/specialized_string/HostName.hpp"
+#include "class/specialized_string/NickName.hpp"
+#include "class/specialized_string/RealName.hpp"
+#include "class/specialized_string/UserName.hpp"
+#include <ctime>
 #include <map>
 #include <stdint.h>
+#include <sys/epoll.h>
 
 class Channel;
+class ChannelName;
 
 class Client
 {
@@ -98,15 +101,17 @@ public:
 	Client::Modes const &get_modes(void) const;
 
 	// Mutators
+	void set_socket(int const socket);
+	void set_last_msg_time(std::clock_t const time);
 	void set_nickname(NickName const &nickname);
 	void set_hostname(HostName const &hostname);
 	void set_username(UserName const &username);
 	void set_realname(RealName const &realname);
 
 	// Methods
-	void disconnect(void);
-
-	void append_to_msg_in(std::string const &s);
+	void         append_to_msg_in(std::string const &s);
+	std::string  get_next_msg(void);
+	std::clock_t time_since_last_msg(void) const;
 
 	void append_to_msg_out(std::string const &msg);
 	void send_msg_out(void);
@@ -118,11 +123,14 @@ public:
 
 	std::string user_mask(void) const;
 
+	void disconnect(void);
+
 private:
 	// Fields
-	int         _socket;
-	std::string _msg_in;
-	std::string _msg_out;
+	int          _socket;
+	std::string  _msg_in;
+	std::string  _msg_out;
+	std::clock_t _last_msg_time;
 
 	NickName      _nickname;
 	HostName      _hostname;

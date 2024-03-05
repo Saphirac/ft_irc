@@ -6,11 +6,12 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 21:49:58 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/01 17:16:36 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/05 01:10:26 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Exceptions.hpp"
+#include "class/exception/InvalidConversion.hpp"
+#include "class/exception/UnknownReply.hpp"
 #include "replies.hpp"
 #include <cstdarg>
 #include <cstdlib>

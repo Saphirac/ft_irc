@@ -6,12 +6,13 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:09 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/01 23:02:44 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/05 01:29:46 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Exceptions.hpp"
 #include "class/Server.hpp"
+#include "class/exception/InvalidConversion.hpp"
+#include "class/exception/UnknownReply.hpp"
 #include "ft_irc.hpp"
 #include "replies.hpp"
 
@@ -25,7 +26,7 @@
  * @throw `InvalidConversion` if a conversion specification is invalid.
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-void Server::away(Client &sender, std::vector<std::string> const &parameters)
+void Server::_away(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (!parameters.empty())
 	{

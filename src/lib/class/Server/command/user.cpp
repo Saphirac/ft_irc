@@ -6,13 +6,13 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/01 00:04:09 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/05 02:00:30 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ChannelMode.hpp"
 #include "class/Server.hpp"
-#include "class/UserModeMask.hpp"
+#include "class/specialized_string/UserModeMask.hpp"
 #include "ft_irc.hpp"
 #include "replies.hpp"
 #include <cstdlib>
@@ -30,35 +30,33 @@
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  * @throw `ProblemWithSend` if the `send()` function fails.
  */
-void Server::user(Client &sender, std::vector<std::string> const &parameters)
+void Server::_user(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (sender.has_mode(AlreadySentUser))
 		return sender.append_to_msg_out(format_reply(ERR_ALREADYREGISTERED));
 	if ((!this->_password.empty() && !sender.has_mode(AlreadySentPass)) || sender.get_nickname().empty())
-		return this->remove_client(sender);
+		return this->_remove_client(sender);
 	if (parameters.size() < 4)
 	{
 		sender.append_to_msg_out(format_reply(ERR_NEEDMOREPARAMS, "USER"));
-		sender.send_msg_out();
-		this->remove_client(sender);
-		return;
+		return this->_remove_client(sender);
 	}
 
 	HostName const &hostname = parameters[0];
 
 	if (!hostname.is_valid())
-		return this->remove_client(sender);
+		return this->_remove_client(sender);
 
 	UserName const &username = parameters[1];
 
 	if (!username.is_valid())
-		return this->remove_client(sender);
+		return this->_remove_client(sender);
 
 	UserModeMask const &umode_mask = parameters[2];
 	uint8_t const       umodes = strtol(umode_mask.c_str(), NULL, 10);
 
 	if (!umode_mask.is_valid(umodes))
-		return this->remove_client(sender);
+		return this->_remove_client(sender);
 
 	RealName const &realname = parameters[3];
 

@@ -6,17 +6,17 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 00:23:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/29 16:47:41 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/04 22:43:18 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "ChannelMode.hpp"
-#include "class/ChannelName.hpp"
 #include "class/Client.hpp"
-#include "class/Key.hpp"
-#include "class/Topic.hpp"
+#include "class/specialized_string/ChannelName.hpp"
+#include "class/specialized_string/Key.hpp"
+#include "class/specialized_string/Topic.hpp"
 #include <set>
 #include <stdint.h>
 

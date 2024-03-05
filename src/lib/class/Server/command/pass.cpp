@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:23:54 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/01 00:06:41 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/05 02:01:08 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,21 +22,19 @@
  * @param sender The client that sent the command.
  * @param parameters The parameters of the command.
  *
- * @throw `UnknownReply` if a given reply number isn't recognized.
  * @throw `InvalidConversion` if a conversion specification is invalid.
- * @throw `std::exception` if a function of the C++ standard library critically fails.
  * @throw `ProblemWithSend` if the `send()` function fails.
+ * @throw `UnknownReply` if a given reply number isn't recognized.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-void Server::pass(Client &sender, std::vector<std::string> const &parameters)
+void Server::_pass(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (sender.has_mode(AlreadySentPass))
 		return sender.append_to_msg_out(format_reply(ERR_ALREADYREGISTERED));
 	if (parameters.empty())
 	{
 		sender.append_to_msg_out(format_reply(ERR_NEEDMOREPARAMS, "PASS"));
-		sender.send_msg_out();
-		this->remove_client(sender);
-		return;
+		return this->_remove_client(sender);
 	}
 
 	std::string const &password = parameters[0];
@@ -44,9 +42,7 @@ void Server::pass(Client &sender, std::vector<std::string> const &parameters)
 	if (password != this->_password)
 	{
 		sender.append_to_msg_out(format_reply(ERR_PASSWDMISMATCH));
-		sender.send_msg_out();
-		this->remove_client(sender);
-		return;
+		return this->_remove_client(sender);
 	}
 
 	sender.set_mode(AlreadySentPass);

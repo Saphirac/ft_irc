@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/01 23:07:50 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/05 01:50:47 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,10 +46,7 @@ struct ParsingTools
 	~ParsingTools(){};
 };
 
-//---------------------------------------------------------------------------------------------------------------------+
-//                                                      USER MODE                                                      |
-//---------------------------------------------------------------------------------------------------------------------+
-
+#pragma region USER MODE
 /**
  * @brief Adds a user mode to the list of user modes to be set + Removes it from the list of user modes to be cleared.
  *
@@ -210,10 +207,9 @@ inline static void mode_for_user(Client &sender, std::vector<std::string> const 
 
 	sender.append_to_msg_out(msg);
 }
+#pragma endregion USER MODE
 
-//--------------------------------------------------------------------------------------------------------------------+
-//                                                    CHANNEL MODE                                                    |
-//--------------------------------------------------------------------------------------------------------------------+
+#pragma region CHANNEL MODE
 /**
  * @brief Sends a RPL_CHANNELMODEIS reply to a client.
  *
@@ -1092,10 +1088,7 @@ inline static void mode_for_channel(
 
 	channel.broadcast_to_all_members(msg);
 }
-
-//--------------------------------------------------------------------------------------------------------------------+
-//                                                        MODE                                                        |
-//--------------------------------------------------------------------------------------------------------------------+
+#pragma endregion CHANNEL MODE
 
 /**
  * @brief Gets the current modes of a user/channel, or applies some changes to the mode of a user/channel.
@@ -1103,9 +1096,11 @@ inline static void mode_for_channel(
  * @param sender The client that sent the command.
  * @param parameters The parameters of the command.
  *
- * @throw `ProblemWithFormatReply` if a reply message cannot be formatted.
+ * @throw `UnknownReply` if a given reply number isn't recognized.
+ * @throw `InvalidConversion` if a conversion specification is invalid.
+ * @throw `std::exception` if function of the C++ standard library critically fails.
  */
-void Server::mode(Client &sender, std::vector<std::string> const &parameters)
+void Server::_mode(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (parameters.empty())
 		return sender.append_to_msg_out(format_reply(ERR_NEEDMOREPARAMS, "MODE"));
