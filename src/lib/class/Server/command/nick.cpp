@@ -6,12 +6,11 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:22 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 01:21:15 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/06 02:19:25 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
-#include "ft_irc.hpp"
 #include "replies.hpp"
 
 /**
@@ -27,19 +26,19 @@
 void Server::_nick(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (parameters.empty())
-		return sender.append_to_msg_out(format_reply(ERR_NONICKNAMEGIVEN));
+		return sender.append_to_msg_out(sender.formatted_reply(ERR_NONICKNAMEGIVEN));
 
 	NickName const &nickname = parameters[0];
 
 	if (!nickname.is_valid())
-		return sender.append_to_msg_out(format_reply(ERR_ERRONEUSNICKNAME, &nickname));
+		return sender.append_to_msg_out(sender.formatted_reply(ERR_ERRONEUSNICKNAME, &nickname));
 	if (this->_clients_by_nickname.count(nickname) != 0)
-		return sender.append_to_msg_out(format_reply(ERR_NICKNAMEINUSE, &nickname));
+		return sender.append_to_msg_out(sender.formatted_reply(ERR_NICKNAMEINUSE, &nickname));
 
 	this->_clients_by_nickname.erase(sender.get_nickname());
 	sender.set_nickname(nickname);
 	this->_clients_by_nickname.insert(std::make_pair(nickname, &sender));
 
-	sender.append_to_msg_out("NICK " + nickname);
+	sender.append_to_msg_out(sender.prefix() + "NICK " + nickname);
 }
 // TODO: implement unit tests for this function

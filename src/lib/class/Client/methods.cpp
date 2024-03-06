@@ -6,15 +6,23 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 02:32:44 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/06 02:46:46 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Client.hpp"
+#include "class/exception/InvalidConversion.hpp"
 #include "class/exception/NotAFlag.hpp"
 #include "class/exception/ProblemWithClock.hpp"
 #include "class/exception/ProblemWithClose.hpp"
 #include "class/exception/ProblemWithSend.hpp"
+#include "class/exception/UnknownReply.hpp"
+#include "replies.hpp"
+#include <cstdarg>
+#include <cstdlib>
+#include <cstring>
+#include <iomanip>
+#include <sstream>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -46,6 +54,9 @@ void Client::Modes::Flags::set(UserMode const flag)
 		return;
 	case AlreadySentUser:
 		this->_bits |= 1 << AlreadySentUser;
+		return;
+	case IsAboutToBeDisconnected:
+		this->_bits |= 1 << IsAboutToBeDisconnected;
 		return;
 	default:
 		throw NotAFlag();
@@ -81,6 +92,9 @@ void Client::Modes::Flags::clear(UserMode const flag)
 	case AlreadySentUser:
 		this->_bits &= ~(1 << AlreadySentUser);
 		return;
+	case IsAboutToBeDisconnected:
+		this->_bits &= ~(1 << IsAboutToBeDisconnected);
+		return;
 	default:
 		throw NotAFlag();
 	}
@@ -100,17 +114,19 @@ bool Client::Modes::Flags::is_set(UserMode const flag) const
 	switch (flag)
 	{
 	case Bot:
-		return this->_bits & 1 << Bot;
+		return (this->_bits & 1 << Bot) != 0;
 	case LocalOperator:
-		return this->_bits & 1 << LocalOperator;
+		return (this->_bits & 1 << LocalOperator) != 0;
 	case WallopsListener:
-		return this->_bits & 1 << WallopsListener;
+		return (this->_bits & 1 << WallopsListener) != 0;
 	case Invisible:
-		return this->_bits & 1 << Invisible;
+		return (this->_bits & 1 << Invisible) != 0;
 	case AlreadySentPass:
-		return this->_bits & 1 << AlreadySentPass;
+		return (this->_bits & 1 << AlreadySentPass) != 0;
 	case AlreadySentUser:
-		return this->_bits & 1 << AlreadySentUser;
+		return (this->_bits & 1 << AlreadySentUser) != 0;
+	case IsAboutToBeDisconnected:
+		return (this->_bits & 1 << IsAboutToBeDisconnected) != 0;
 	default:
 		throw NotAFlag();
 	}
@@ -167,6 +183,9 @@ void Client::Modes::set(UserMode const mode, void const *const arg)
 	case AlreadySentUser:
 		this->_flags.set(AlreadySentUser);
 		return;
+	case IsAboutToBeDisconnected:
+		this->_flags.set(IsAboutToBeDisconnected);
+		return;
 	}
 }
 
@@ -193,6 +212,8 @@ void Client::Modes::clear(UserMode const mode)
 		return this->_flags.clear(AlreadySentPass);
 	case AlreadySentUser:
 		return this->_flags.clear(AlreadySentUser);
+	case IsAboutToBeDisconnected:
+		return this->_flags.clear(IsAboutToBeDisconnected);
 	}
 }
 
@@ -221,6 +242,8 @@ bool Client::Modes::is_set(UserMode const mode) const
 		return this->_flags.is_set(AlreadySentPass);
 	case AlreadySentUser:
 		return this->_flags.is_set(AlreadySentUser);
+	case IsAboutToBeDisconnected:
+		return this->_flags.is_set(IsAboutToBeDisconnected);
 	}
 }
 
@@ -240,8 +263,9 @@ std::string Client::Modes::to_string(void) const { return this->_flags.to_string
  */
 void Client::append_to_msg_in(std::string const &s) { this->_msg_in += s; }
 
-#define TERMINATING_SEQUENCE       "\r\n"
-#define MAXIMUM_LENGTH_FOR_MESSAGE 512
+#define TERMINATING_SEQUENCE        "\r\n"
+#define TERMINATING_SEQUENCE_LENGTH sizeof(TERMINATING_SEQUENCE) - 1
+#define MAXIMUM_LENGTH_FOR_MESSAGE  512
 /**
  * @brief Get the first message in the input buffer of the Client instance.
  * A message is <= 512 characters and is suffixed with a CRLF sequence.
@@ -258,7 +282,7 @@ std::string Client::get_next_msg(void)
 
 	std::string const msg = this->_msg_in.substr(0, pos);
 
-	this->_msg_in.erase(0, pos + sizeof(TERMINATING_SEQUENCE));
+	this->_msg_in.erase(0, pos + TERMINATING_SEQUENCE_LENGTH);
 	if (pos > MAXIMUM_LENGTH_FOR_MESSAGE)
 		return std::string();
 
@@ -281,6 +305,308 @@ std::clock_t Client::time_since_last_msg(void) const
 
 	return now - this->_last_msg_time;
 }
+
+/**
+ * @brief Generates the prefix of the client, with 1 leading colon and 1 trailing space.
+ *
+ * @return The prefix of the client.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+std::string Client::prefix(void) const
+{
+	return ':' + this->_nickname + '!' + this->_username + '@' + this->_hostname + ' ';
+}
+
+/**
+ * @brief Computes the `%c` conversion specification.
+ *
+ * @param fmt The format string to insert the argument in.
+ * @param length_modifiers The length modifiers of the conversion specification.
+ * @param percent_pos The position of the '%' character in the format string.
+ * @param specifier_pos The position of the specifier character in the format string.
+ * @param args The list of variadic arguments.
+ *
+ * @return
+ * The number of bytes inserted in the format string, or `std::string::npos` if the conversion specification is invalid.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+inline static size_t convert_c(
+	std::string       &fmt,
+	std::string const &length_modifiers,
+	size_t const       percent_pos,
+	size_t const       specifier_pos,
+	va_list            args)
+{
+	if (!length_modifiers.empty())
+	{
+		if (length_modifiers != "l")
+			return std::string::npos;
+
+		wchar_t const arg = static_cast<wchar_t>(va_arg(args, int));
+		int const     byte_count = mblen(reinterpret_cast<char const *>(&arg), sizeof(wchar_t));
+
+		if (byte_count == -1)
+		{
+			fmt.erase(percent_pos, specifier_pos - percent_pos + 1);
+			return 0;
+		}
+
+		fmt.replace(
+			percent_pos,
+			specifier_pos - percent_pos + 1,
+			reinterpret_cast<char const *>(&arg),
+			static_cast<size_t>(byte_count));
+		return static_cast<size_t>(byte_count);
+	}
+
+	char const arg = static_cast<char>(va_arg(args, int));
+
+	fmt.replace(percent_pos, specifier_pos - percent_pos + 1, 1, arg);
+	return 1;
+}
+
+/**
+ * @brief Computes the `%s` conversion specification.
+ *
+ * @param fmt The format string to insert the argument in.
+ * @param length_modifiers The length modifiers of the conversion specification.
+ * @param percent_pos The position of the '%' character in the format string.
+ * @param specifier_pos The position of the specifier character in the format string.
+ * @param args The list of variadic arguments.
+ *
+ * @return
+ * The number of bytes inserted in the format string, or `std::string::npos` if the conversion specification is invalid.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+inline static size_t convert_s(
+	std::string       &fmt,
+	std::string const &length_modifiers,
+	size_t const       percent_pos,
+	size_t const       specifier_pos,
+	va_list            args)
+{
+	if (!length_modifiers.empty() && length_modifiers != "l")
+		return std::string::npos;
+
+	char const *const arg = va_arg(args, char const *);
+
+	fmt.replace(percent_pos, specifier_pos - percent_pos + 1, arg);
+	return strlen(arg);
+}
+
+/**
+ * @brief Computes the `%S` conversion specification.
+ *
+ * @param fmt The format string to insert the argument in.
+ * @param length_modifiers The length modifiers of the conversion specification.
+ * @param percent_pos The position of the '%' character in the format string.
+ * @param specifier_pos The position of the specifier character in the format string.
+ * @param args The list of variadic arguments.
+ *
+ * @return
+ * The number of bytes inserted in the format string, or `std::string::npos` if the conversion specification is invalid.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+inline static size_t convert_S(
+	std::string       &fmt,
+	std::string const &length_modifiers,
+	size_t const       percent_pos,
+	size_t const       specifier_pos,
+	va_list            args)
+{
+	if (!length_modifiers.empty())
+	{
+		if (length_modifiers != "l")
+			return std::string::npos;
+
+		std::wstring const arg = *va_arg(args, std::wstring const *);
+
+		fmt.replace(percent_pos, specifier_pos - percent_pos + 1, reinterpret_cast<char const *>(arg.c_str()));
+		return arg.size() * sizeof(wchar_t);
+	}
+
+	std::string const arg = *va_arg(args, std::string const *);
+
+	fmt.replace(percent_pos, specifier_pos - percent_pos + 1, arg);
+	return arg.size();
+}
+
+/**
+ * @brief Computes either the `%hhu` or the `%hu` conversion specification.
+ *
+ * @tparam Uint The type of the unsigned integer to convert. (assumed to be either `uint8_t` or `uint16_t`)
+ *
+ * @param fmt The format string to insert the argument in.
+ * @param percent_pos The position of the '%' character in the format string.
+ * @param specifier_pos The position of the specifier character in the format string.
+ * @param args The list of variadic arguments.
+ *
+ * @return The number of bytes inserted in the format string.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+template<typename Uint>
+inline static size_t convert_low_uint(
+	std::string &fmt,
+	size_t const percent_pos,
+	size_t const specifier_pos,
+	va_list      args)
+{
+	std::stringstream ss;
+
+	ss << static_cast<Uint>(va_arg(args, uint32_t));
+
+	std::string const arg = ss.str();
+
+	fmt.replace(percent_pos, specifier_pos - percent_pos + 1, arg);
+	return arg.size();
+}
+
+/**
+ * @brief Computes either the `%lu` or the `%llu` conversion specification.
+ *
+ * @tparam Uint The type of the unsigned integer to convert. (assumed to be either `uint32_t` or `uint64_t`)
+ *
+ * @param fmt The format string to insert the argument in.
+ * @param percent_pos The position of the '%' character in the format string.
+ * @param specifier_pos The position of the specifier character in the format string.
+ * @param args The list of variadic arguments.
+ *
+ * @return The number of bytes inserted in the format string.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+template<typename Uint>
+inline static size_t convert_high_uint(
+	std::string &fmt,
+	size_t const percent_pos,
+	size_t const specifier_pos,
+	va_list      args)
+{
+	std::stringstream ss;
+
+	ss << va_arg(args, Uint);
+
+	std::string const arg = ss.str();
+
+	fmt.replace(percent_pos, specifier_pos - percent_pos + 1, arg);
+	return arg.size();
+}
+
+/**
+ * @brief Computes the `%u` conversion specification.
+ *
+ * @param fmt The format string to insert the argument in.
+ * @param length_modifiers The length modifiers of the conversion specification.
+ * @param percent_pos The position of the '%' character in the format string.
+ * @param specifier_pos The position of the specifier character in the format string.
+ * @param args The list of variadic arguments.
+ *
+ * @return
+ * The number of bytes inserted in the format string, or `std::string::npos` if the conversion specification is invalid.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+inline static size_t convert_u(
+	std::string       &fmt,
+	std::string const &length_modifiers,
+	size_t const       percent_pos,
+	size_t const       specifier_pos,
+	va_list            args)
+{
+	if (length_modifiers == "hh")
+		return convert_low_uint<uint8_t>(fmt, percent_pos, specifier_pos, args);
+	if (length_modifiers == "h")
+		return convert_low_uint<uint16_t>(fmt, percent_pos, specifier_pos, args);
+	if (length_modifiers.empty())
+		return convert_high_uint<uint32_t>(fmt, percent_pos, specifier_pos, args);
+	if (length_modifiers == "l" || length_modifiers == "ll")
+		return convert_high_uint<uint64_t>(fmt, percent_pos, specifier_pos, args);
+	return std::string::npos;
+}
+
+/**
+ * @brief
+ * Generates a formatted reply message corresponding to a given reply number.
+ * Puts the prefix of the client and their nickname as the target of the message.
+ * Uses the given variadic arguments to replace the conversion specifications in the raw reply message.
+ *
+ * @param reply_number The number of the reply to format.
+ * @param ... The variadic arguments to use for the conversion specifications.
+ *
+ * @return The formatted reply message.
+ *
+ * @throw `UnknownReply` if a given reply number isn't recognized.
+ * @throw `InvalidConversion` if a conversion specification is invalid.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+std::string Client::formatted_reply(int const reply_number...) const
+{
+	ReplyIterator const format_by_reply = formats_by_reply.find(reply_number);
+
+	if (format_by_reply == formats_by_reply.end())
+		throw UnknownReply();
+
+	std::string format = format_by_reply->second;
+	size_t      percent_pos = format.find('%');
+	va_list     args;
+
+	va_start(args, reply_number);
+	while (percent_pos != std::string::npos)
+	{
+		size_t const      specifier_pos = format.find_first_not_of("hl", percent_pos + 1);
+		std::string const length_modifiers = format.substr(percent_pos + 1, specifier_pos - percent_pos - 1);
+		size_t            inserted_len;
+
+		switch (format[specifier_pos])
+		{
+		case 'c':
+			inserted_len = convert_c(format, length_modifiers, percent_pos, specifier_pos, args);
+			break;
+		case 's':
+			inserted_len = convert_s(format, length_modifiers, percent_pos, specifier_pos, args);
+			break;
+		case 'S':
+			inserted_len = convert_S(format, length_modifiers, percent_pos, specifier_pos, args);
+			break;
+		case 'u':
+			inserted_len = convert_u(format, length_modifiers, percent_pos, specifier_pos, args);
+			break;
+		case '%':
+			if (!length_modifiers.empty())
+			{
+				va_end(args);
+				throw InvalidConversion();
+			}
+
+			format.erase(percent_pos, 1);
+			inserted_len = 1;
+			break;
+		default:
+			va_end(args);
+			throw InvalidConversion();
+		}
+		if (inserted_len == std::string::npos)
+		{
+			va_end(args);
+			throw InvalidConversion();
+		}
+		percent_pos = format.find('%', percent_pos + inserted_len);
+	}
+	va_end(args);
+
+	std::stringstream ss;
+
+	ss << this->prefix() << std::setw(3) << std::setfill('0') << reply_number << ' ' << this->_nickname << ' '
+	   << format;
+
+	return ss.str();
+}
+// TODO: implement unit tests for this function
 
 /**
  * @brief Appends a message to the output buffer of the Client instance. The message is suffixed with a CRLF
@@ -354,7 +680,10 @@ std::string Client::user_mask(void) const { return this->_nickname + "!" + this-
  */
 void Client::disconnect(void)
 {
-	if (close(this->_socket))
-		throw ProblemWithClose();
-	this->_socket = -1;
+	if (this->_socket != -1)
+	{
+		if (close(this->_socket))
+			throw ProblemWithClose();
+		this->_socket = -1;
+	}
 }

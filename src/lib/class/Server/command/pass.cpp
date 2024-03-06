@@ -6,12 +6,11 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:23:54 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 02:01:08 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/06 02:22:14 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
-#include "ft_irc.hpp"
 #include "replies.hpp"
 
 /**
@@ -30,19 +29,19 @@
 void Server::_pass(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (sender.has_mode(AlreadySentPass))
-		return sender.append_to_msg_out(format_reply(ERR_ALREADYREGISTERED));
+		return sender.append_to_msg_out(sender.formatted_reply(ERR_ALREADYREGISTERED));
 	if (parameters.empty())
 	{
-		sender.append_to_msg_out(format_reply(ERR_NEEDMOREPARAMS, "PASS"));
-		return this->_remove_client(sender);
+		sender.append_to_msg_out(sender.formatted_reply(ERR_NEEDMOREPARAMS, "PASS"));
+		return sender.set_mode(IsAboutToBeDisconnected);
 	}
 
 	std::string const &password = parameters[0];
 
 	if (password != this->_password)
 	{
-		sender.append_to_msg_out(format_reply(ERR_PASSWDMISMATCH));
-		return this->_remove_client(sender);
+		sender.append_to_msg_out(sender.formatted_reply(ERR_PASSWDMISMATCH));
+		return sender.set_mode(IsAboutToBeDisconnected);
 	}
 
 	sender.set_mode(AlreadySentPass);

@@ -6,12 +6,11 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:45 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 01:53:32 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/06 02:21:43 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
-#include "ft_irc.hpp"
 #include "replies.hpp"
 
 /**
@@ -27,7 +26,7 @@
 void Server::_oper(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (parameters.size() < 2)
-		return sender.append_to_msg_out(format_reply(ERR_NEEDMOREPARAMS, "OPER"));
+		return sender.append_to_msg_out(sender.formatted_reply(ERR_NEEDMOREPARAMS, "OPER"));
 
 	UserName const &username = parameters[0];
 
@@ -35,17 +34,17 @@ void Server::_oper(Client &sender, std::vector<std::string> const &parameters)
 		return;
 
 	if (this->_operator_hosts.find(sender.get_hostname()) == this->_operator_hosts.end())
-		return sender.append_to_msg_out(format_reply(ERR_NOOPERHOST));
+		return sender.append_to_msg_out(sender.formatted_reply(ERR_NOOPERHOST));
 
 	std::string const                                             &password = parameters[1];
 	std::map<std::string, std::string const>::const_iterator const id = this->_operator_ids.find(username);
 
 	if (id == this->_operator_ids.end() || password != id->second)
-		return sender.append_to_msg_out(format_reply(ERR_PASSWDMISMATCH));
+		return sender.append_to_msg_out(sender.formatted_reply(ERR_PASSWDMISMATCH));
 
 	sender.set_mode(LocalOperator);
 
-	sender.append_to_msg_out(format_reply(RPL_YOUREOPER));
-	sender.append_to_msg_out("MODE " + sender.get_nickname() + " +O");
+	sender.append_to_msg_out(sender.formatted_reply(RPL_YOUREOPER));
+	sender.append_to_msg_out(sender.prefix() + "MODE " + sender.get_nickname() + " +O");
 }
 // TODO: implement unit tests for this function

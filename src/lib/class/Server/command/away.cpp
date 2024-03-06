@@ -6,14 +6,13 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:09 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 01:29:46 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/06 02:10:00 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
 #include "class/exception/InvalidConversion.hpp"
 #include "class/exception/UnknownReply.hpp"
-#include "ft_irc.hpp"
 #include "replies.hpp"
 
 /**
@@ -34,10 +33,10 @@ void Server::_away(Client &sender, std::vector<std::string> const &parameters)
 
 		sender.set_mode(Away, &away_msg);
 
-		return sender.append_to_msg_out(format_reply(RPL_NOWAWAY));
+		return sender.append_to_msg_out(sender.formatted_reply(RPL_NOWAWAY));
 	}
 	sender.clear_mode(Away);
 
-	sender.append_to_msg_out(format_reply(RPL_UNAWAY));
+	sender.append_to_msg_out(sender.formatted_reply(RPL_UNAWAY));
 }
 // TODO: Implement unit tests for this function

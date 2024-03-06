@@ -307,11 +307,11 @@
 						<details>
 							<summary>
 								<code id="abnf_realname">
-									<b>realname</b> = 1*nolfcr
+									<b>realname</b> = token
 								</code>
 							</summary>
 							<blockquote>
-								1 or more <code><a href="#abnf_nolfcr">nolfcr</a></code>
+								1 <code><a href="#abnf_token">token</a></code>
 							</blockquote>
 						</details>
 						<!-- #endregion -->
@@ -569,15 +569,14 @@
 							<details>
 								<summary>
 									<code>
-										<b>message</b> = [ colon prefix space ] ( command / reply ) [ parameter-list ] crlf
+										<b>message</b> = [ prefix space ] ( command / reply ) [ parameter-list ] crlf
 									</code>
 								</summary>
 								<blockquote>
 									<ol>
 										<li>Start with 0 or 1 pattern, which must:
 											<ol>
-												<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
-												<li>Contain 1 <code><a href="#abnf_prefix">prefix</a></code></li>
+												<li>Start 1 <code><a href="#abnf_prefix">prefix</a></code></li>
 												<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
 											</ol>
 										</li>
@@ -609,23 +608,27 @@
 						<details>
 							<summary>
 								<code id="abnf_prefix">
-									<b>prefix</b> = server / nick [ [ bang user ] at host ] 
+									<b>prefix</b> = colon ( server / nick [ [ bang user ] at host ] )
 								</code>
 							</summary>
 							<blockquote>
-								Either 1 <code><a href="#abnf_server">server</a></code>, or 1 pattern, which must:
 								<ol>
-									<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
-									<li>Contain 0 or 1 pattern, which must:
+									<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
+									<li> Contain either 1 <code><a href="#abnf_server">server</a></code>, or 1 pattern, which must:
 										<ol>
-											<li>Start with 0 or 1 pattern, which must:
+											<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
+											<li>Contain 0 or 1 pattern, which must:
 												<ol>
-													<li>Start with 1 <code><a href="#abnf_bang">bang</a></code></li>
-													<li>Contain 1 <code><a href="#abnf_user">user</a></code></li>
+													<li>Start with 0 or 1 pattern, which must:
+														<ol>
+															<li>Start with 1 <code><a href="#abnf_bang">bang</a></code></li>
+															<li>Contain 1 <code><a href="#abnf_user">user</a></code></li>
+														</ol>
+													</li>
+													<li>Contain 1 <code><a href="#abnf_at">at</a></code></li>
+													<li>Contain 1 <code><a href="#abnf_host">host</a></code></li>
 												</ol>
 											</li>
-											<li>Contain 1 <code><a href="#abnf_at">at</a></code></li>
-											<li>Contain 1 <code><a href="#abnf_host">host</a></code></li>
 										</ol>
 									</li>
 								</ol>
@@ -2187,17 +2190,23 @@
 				</p>
 				<figure>
 					<figcaption>
-						Every reply that is received or sent by the server must be formatted as follows:
+						Every reply that is sent by the server must be formatted as follows:
 					</figcaption>
 					<!-- #region: ABNF -->
 					<details>
 						<summary>
 							<code id="abnf_reply">
-								<b>reply</b> = 3digit
+								<b>reply</b> = prefix space 3digit space nick
 							</code>
 						</summary>
 						<blockquote>
-							3 <code><a href="#abnf_digit">digits</a></code>
+							<ol>
+								<li>Starts 1 <code><a href="#abnf_prefix">prefix</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_3digit">3digit</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
+								<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
+							</ol>
 						</blockquote>
 					</details>
 					<!-- #endregion -->

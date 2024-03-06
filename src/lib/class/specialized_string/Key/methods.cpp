@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:51:47 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/04 22:52:50 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/05 15:40:00 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,5 +20,5 @@
  */
 bool Key::is_valid(void) const
 {
-	return lfcrspcl.find(*this->begin()) == std::string::npos && this->find_first_of(lfcrsp, 1) == std::string::npos;
+	return lfcrspcl.find(this->at(0)) == std::string::npos && this->find_first_of(lfcrsp, 1) == std::string::npos;
 }

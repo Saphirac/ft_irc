@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 02:30:56 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/06 02:03:19 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,9 +113,11 @@ public:
 	std::string  get_next_msg(void);
 	std::clock_t time_since_last_msg(void) const;
 
-	void append_to_msg_out(std::string const &msg);
-	void send_msg_out(void);
-	void clear_msg_out(void);
+	std::string prefix(void) const;
+	std::string formatted_reply(int const reply_number...) const;
+	void        append_to_msg_out(std::string const &msg);
+	void        send_msg_out(void);
+	void        clear_msg_out(void);
 
 	void set_mode(UserMode const mode, void const *const arg = NULL);
 	void clear_mode(UserMode const mode);

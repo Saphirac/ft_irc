@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 22:08:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/02 18:00:13 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/06 01:42:09 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@
 #define ERR_UMODEUNKNOWNFLAG  501
 #define ERR_USERSDONTMATCH    502
 
-static std::pair<int, char const *> const raw_replies[] = {
+static std::pair<int, char const *> const raw_formats_by_reply[] = {
 	std::make_pair(RPL_WELCOME, ":Welcome to the Internet Relay Network %S"),
 	std::make_pair(RPL_YOURHOST, ":Your host is %S, running version %S"),
 	std::make_pair(RPL_CREATED, ":This server was created %S"),
@@ -146,8 +146,8 @@ static std::pair<int, char const *> const raw_replies[] = {
 	std::make_pair(ERR_UMODEUNKNOWNFLAG, ":Unknown MODE flag"),
 	std::make_pair(ERR_USERSDONTMATCH, ":Cannot change mode for other users"),
 };
-static size_t const raw_replies_len = sizeof(raw_replies) / sizeof(*raw_replies);
+static size_t const raw_replies_len = sizeof(raw_formats_by_reply) / sizeof(*raw_formats_by_reply);
 
-static std::map<int, char const *> const replies(raw_replies, raw_replies + raw_replies_len);
+static std::map<int, char const *> const formats_by_reply(raw_formats_by_reply, raw_formats_by_reply + raw_replies_len);
 
 typedef std::map<int, char const *>::const_iterator ReplyIterator;

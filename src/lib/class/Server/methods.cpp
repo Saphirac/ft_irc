@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 02:42:05 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/06 02:23:41 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,24 +17,31 @@
 #include "class/exception/ProblemWithEpollWait.hpp"
 #include "class/exception/ProblemWithFcntl.hpp"
 #include "class/exception/ProblemWithRecv.hpp"
-#include "ft_irc.hpp"
 #include "replies.hpp"
 #include <fcntl.h>
+
+bool interrupted = false;
 
 /**
  * @brief Starts the server, making it receiving messages, handling them and sending the appropriate replies.
  */
 void Server::start(void)
 {
-	this->_shutdown = false;
-	while (this->_shutdown == false)
+	while (!interrupted)
 	{
 		this->_handle_epoll_events();
-		this->_compute_next_msg_for_each_client();
 		for (std::map<int, Client>::iterator it = this->_clients_by_socket.begin();
-		     it != this->_clients_by_socket.end();
-		     ++it)
-			it->second.send_msg_out();
+		     it != this->_clients_by_socket.end();)
+		{
+			Client &client = it->second;
+
+			this->_compute_next_msg_for_a_client(client);
+			client.send_msg_out();
+			// TODO: check if the client connection is still active.
+			++it;
+			if (client.has_mode(IsAboutToBeDisconnected))
+				this->_remove_client(client);
+		}
 	}
 }
 
@@ -67,6 +74,7 @@ void Server::_remove_client(Client const &client)
 		this->_clients_by_socket.erase(client.get_socket());
 }
 
+#define EPOLL_WAIT_TIMEOUT 100
 /**
  * @brief
  * Iterates over the file descriptors for which `epoll()` marks a new event
@@ -84,8 +92,7 @@ void Server::_handle_epoll_events(void)
 	int         fds_ready;
 	epoll_event events[MAX_CLIENTS];
 
-	// TODO: change the `-1` to a timeout value, to not block here when nothing happens.
-	fds_ready = epoll_wait(this->_epoll_socket, events, MAX_CLIENTS, -1);
+	fds_ready = epoll_wait(this->_epoll_socket, events, MAX_CLIENTS, EPOLL_WAIT_TIMEOUT);
 	if (fds_ready == -1)
 		throw ProblemWithEpollWait();
 
@@ -114,14 +121,7 @@ void Server::_new_client_connection(void)
 
 	if (client_socket == -1)
 		throw ProblemWithAccept();
-
-	int flags = fcntl(client_socket, F_GETFL, 0);
-
-	// TODO: do not get the default flags, only set the ones that are needed for us.
-	if (flags == -1)
-		throw ProblemWithFcntl();
-	flags |= O_NONBLOCK;
-	if (fcntl(client_socket, F_SETFL, flags) == -1)
+	if (fcntl(client_socket, F_SETFL, O_NONBLOCK) == -1)
 		throw ProblemWithFcntl();
 
 	Client     &client = this->_clients_by_socket[client_socket];
@@ -160,30 +160,27 @@ void Server::_receive_data_from_client(Client &client)
 }
 
 /**
- * @brief For each client, gets the next message from their input buffer, and calls the appropriate command.
+ * @brief Extracts the next message from the input buffer of a client, and calls the appropriate command.
+ *
+ * @param client The client for which the next message will be extracted from the input buffer.
  *
  * @throw `UnknownReply` if a given reply number isn't recognized.
  * @throw `InvalidConversion` if a conversion specification is invalid.
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-void Server::_compute_next_msg_for_each_client(void)
+void Server::_compute_next_msg_for_a_client(Client &client)
 {
-	for (std::map<int, Client>::iterator it = this->_clients_by_socket.begin(); it != this->_clients_by_socket.end();
-	     ++it)
+	std::string const raw_msg = client.get_next_msg();
+
+	if (!raw_msg.empty())
 	{
-		Client           &client = it->second;
-		std::string const raw_msg = client.get_next_msg();
+		Message const         msg(raw_msg);
+		std::string const    &command_name = msg.get_command();
+		CommandIterator const command_by_name = this->_commands_by_name.find(command_name);
 
-		if (!raw_msg.empty())
-		{
-			Message const         msg(raw_msg);
-			std::string const    &command_name = msg.get_command();
-			CommandIterator const command_by_name = this->_commands_by_name.find(command_name);
-
-			if (command_by_name == this->_commands_by_name.end())
-				client.append_to_msg_out(format_reply(ERR_UNKNOWNCOMMAND, &command_name));
-			else
-				(this->*(command_by_name->second))(client, msg.get_parameters());
-		}
+		if (command_by_name == this->_commands_by_name.end())
+			client.append_to_msg_out(client.formatted_reply(ERR_UNKNOWNCOMMAND, &command_name));
+		else
+			(this->*(command_by_name->second))(client, msg.get_parameters());
 	}
 }

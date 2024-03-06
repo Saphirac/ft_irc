@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 02:36:53 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/06 00:53:43 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,12 @@
 #include "class/exception/ProblemWithSocket.hpp"
 #include "class/exception/ProblemWithStrftime.hpp"
 #include "class/exception/ProblemWithTime.hpp"
+#include <csignal>
 #include <ctime>
 #include <iostream>
 #include <unistd.h>
+
+extern bool interrupted;
 
 // Shared fields //
 
@@ -45,16 +48,26 @@ std::map<std::string, std::string const> const Server::_operator_ids = std::map<
 Server::CommandPair const Server::_raw_commands_by_name[] = {
 	// TODO: add missing commands
 	std::make_pair("AWAY", &Server::_away),
+	std::make_pair("CAP", &Server::_cap),
 	std::make_pair("MODE", &Server::_mode),
 	std::make_pair("NICK", &Server::_nick),
 	std::make_pair("OPER", &Server::_oper),
 	std::make_pair("PASS", &Server::_pass),
-	std::make_pair("QUIT", &Server::_quit),
 	std::make_pair("USER", &Server::_user),
 };
 Server::CommandMap const Server::_commands_by_name = CommandMap(
 	_raw_commands_by_name,
 	_raw_commands_by_name + sizeof(_raw_commands_by_name) / sizeof(*_raw_commands_by_name));
+
+// Utils //
+
+/**
+ * @brief
+ * Sets the global variable that notice the started Server instances that a SIGINT has been raised, making them stop.
+ *
+ * @param signal_number The number of the signal that has been raised.
+ */
+inline static void stop_server(int signal_number __attribute__((unused))) { interrupted = true; }
 
 // Constructors //
 
@@ -77,7 +90,6 @@ Server::Server(int const port, std::string const &name, std::string const &passw
 	_sock_addr(),
 	_sock_len(sizeof(this->_sock_addr)),
 	_epoll_socket(epoll_create1(0)),
-	_shutdown(true),
 	_name(name),
 	_password(password),
 	_creation_date(),
@@ -130,7 +142,7 @@ Server::Server(int const port, std::string const &name, std::string const &passw
 
 	this->_creation_time = buffer;
 
-	// TODO: take a signal number in parameters to set a signal handler to be able to shutdown the server properly
+	signal(SIGINT, stop_server);
 }
 
 // Destructor //
@@ -140,9 +152,12 @@ Server::Server(int const port, std::string const &name, std::string const &passw
  */
 Server::~Server(void)
 {
-	this->_clients_by_socket.clear();
-	if (this->_socket != -1 && close(this->_socket) == -1)
-		throw ProblemWithClose();
+	int ret = 0;
 
-	// TODO: close the epoll socket
+	if (this->_socket != -1)
+		ret = close(this->_socket);
+	if (this->_epoll_socket != -1)
+		ret |= close(this->_epoll_socket);
+	if (ret == -1)
+		throw ProblemWithClose();
 }

@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/18 23:29:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/02 17:59:04 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/05 16:11:01 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,5 +22,6 @@ enum UserMode
 	Invisible,       // 'i'
 	Away,            // 'a'
 	AlreadySentPass,
-	AlreadySentUser
+	AlreadySentUser,
+	IsAboutToBeDisconnected
 };

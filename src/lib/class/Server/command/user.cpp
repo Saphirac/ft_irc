@@ -6,14 +6,13 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 02:00:30 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/06 02:22:49 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ChannelMode.hpp"
 #include "class/Server.hpp"
 #include "class/specialized_string/UserModeMask.hpp"
-#include "ft_irc.hpp"
 #include "replies.hpp"
 #include <cstdlib>
 
@@ -33,47 +32,50 @@
 void Server::_user(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (sender.has_mode(AlreadySentUser))
-		return sender.append_to_msg_out(format_reply(ERR_ALREADYREGISTERED));
+		return sender.append_to_msg_out(sender.formatted_reply(ERR_ALREADYREGISTERED));
 	if ((!this->_password.empty() && !sender.has_mode(AlreadySentPass)) || sender.get_nickname().empty())
-		return this->_remove_client(sender);
+		return sender.set_mode(IsAboutToBeDisconnected);
 	if (parameters.size() < 4)
 	{
-		sender.append_to_msg_out(format_reply(ERR_NEEDMOREPARAMS, "USER"));
-		return this->_remove_client(sender);
+		sender.append_to_msg_out(sender.formatted_reply(ERR_NEEDMOREPARAMS, "USER"));
+		return sender.set_mode(IsAboutToBeDisconnected);
 	}
 
-	HostName const &hostname = parameters[0];
-
-	if (!hostname.is_valid())
-		return this->_remove_client(sender);
-
-	UserName const &username = parameters[1];
+	UserName const &username = parameters[0];
 
 	if (!username.is_valid())
-		return this->_remove_client(sender);
+		return sender.set_mode(IsAboutToBeDisconnected);
 
-	UserModeMask const &umode_mask = parameters[2];
-	uint8_t const       umodes = strtol(umode_mask.c_str(), NULL, 10);
+	// REMIND: this part is commented out because `irssi` doesn't send the user mode mask, it sucks!
+	// UserModeMask const &umode_mask = parameters[1];
+	// uint8_t const       umodes = strtol(umode_mask.c_str(), NULL, 10);
 
-	if (!umode_mask.is_valid(umodes))
-		return this->_remove_client(sender);
+	// if (!umode_mask.is_valid(umodes))
+	// 	return sender.set_mode(IsAboutToBeDisconnected);
+
+	HostName const &hostname = parameters[2];
+
+	if (!hostname.is_valid())
+		return sender.set_mode(IsAboutToBeDisconnected);
 
 	RealName const &realname = parameters[3];
 
 	sender.set_username(username);
 	sender.set_hostname(hostname);
 	sender.set_realname(realname);
-	if (umodes & 1 << 2)
-		sender.set_mode(Invisible);
-	if (umodes & 1 << 3)
-		sender.set_mode(WallopsListener);
+	// REMIND: this part is commented out because `irssi` doesn't send the user mode mask, it sucks!
+	// if (umodes & 1 << 2)
+	// 	sender.set_mode(Invisible);
+	// if (umodes & 1 << 3)
+	// 	sender.set_mode(WallopsListener);
 	sender.set_mode(AlreadySentUser);
 
 	std::string const user_mask = sender.user_mask();
 
-	sender.append_to_msg_out(format_reply(RPL_WELCOME, &user_mask));
-	sender.append_to_msg_out(format_reply(RPL_YOURHOST, &this->_name, &this->_version));
-	sender.append_to_msg_out(format_reply(RPL_CREATED, &this->_creation_date));
-	sender.append_to_msg_out(format_reply(RPL_MYINFO, &this->_name, &this->_version, USER_MODES, CHANNEL_MODES));
+	sender.append_to_msg_out(sender.formatted_reply(RPL_WELCOME, &user_mask));
+	sender.append_to_msg_out(sender.formatted_reply(RPL_YOURHOST, &this->_name, &this->_version));
+	sender.append_to_msg_out(sender.formatted_reply(RPL_CREATED, &this->_creation_date));
+	sender.append_to_msg_out(
+		sender.formatted_reply(RPL_MYINFO, &this->_name, &this->_version, USER_MODES, CHANNEL_MODES));
 }
 // TODO: implement unit tests for this function
