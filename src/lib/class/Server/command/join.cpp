@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 18:12:20 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/06 02:53:02 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,11 +82,11 @@ inline static Channel const *__join_existing_channel(Client &sender, Channel &ch
  * @param keys 
  * @return std::vector<std::pair<std::string, std::string>> 
  */
-inline static std::vector<std::pair<std::string, std::string>> __split_channels_keys(
+inline static std::vector<std::pair<std::string, std::string> > __split_channels_keys(
 	std::string const &channels,
 	std::string const &keys)
 {
-	std::vector<std::pair<std::string, std::string>> channel_key_pairs;
+	std::vector<std::pair<std::string, std::string> > channel_key_pairs;
 	std::vector<std::string>                         split_channels = split<std::vector<std::string>>(channels, ',');
 	std::vector<std::string>                         split_keys = split<std::vector<std::string>>(keys, ',');
 	for (size_t i = 0; i < split_channels.size(); ++i)
