@@ -1041,7 +1041,7 @@
 							<li>
 								If there is, then the server must:
 								<ol>
-									<li>set the away message for the client to the given one</li>
+									<li>set the away message for the user to the given one</li>
 									<li>set the `a` mode for the user</li>
 									<li>
 										send back a <a href="#rpl_nowaway">RPL_NOWAWAY</a> to the client,<br>
@@ -1295,8 +1295,8 @@
 								with the user that is about to disconnect, to inform them of the user's departure
 							</li>
 							<li>close the connection with the client</li>
-							<li>remove them from all their joined channels</li>
-							<li>remove them from its list of known clients</li>
+							<li>remove the user from all their joined channels</li>
+							<li>remove the client from its list of known clients</li>
 						</ol>
 						<br>
 						<b>Note</b>: for each <a href="#command_error">ERROR</a> and QUIT message sent by the server,<br>
@@ -1358,21 +1358,21 @@
 									<li>If it is a list of channels to join, then, for each of them, the server must:
 										<ol>
 											<li>check that the given channel name is valid</li>
-											<li>check that the client hasn't reached the maximum number of joined channel yet</li>
+											<li>check that the user hasn't reached the maximum number of joined channel yet</li>
 											<li>determine whether the channel corresponding to the given channel name exists
 												<ul>
 													<li>If the channel exists, then:
 														<ol>
 															<li>if the channel supports modes, then:
 																<ol>
-																	<li>check that the client doesn't match any of the ban masks of the channel</li>
+																	<li>check that the user doesn't match any of the ban masks of the channel</li>
 																	<li>
-																		if the channel is marked as invite-only, then check that the client<br>
+																		if the channel is marked as invite-only, then check that the user<br>
 																		either matches one of the invite masks of the channel<br>
-																		or has been invited by one of the operators of the channel.
+																		or has been invited by one of the channel operators.
 																	</li>
 																	<li>
-																		if the channel requires a key to join, then check that the client<br>
+																		if the channel requires a key to join, then check that the user<br>
 																		either has been invited by one of the members of the channel<br>
 																		or matches any of the invite masks of the channel<br>
 																		or provided the correct key.
@@ -1385,12 +1385,12 @@
 													<li>If the channel doesn't exist, then:
 														<ol>
 															<li>create the channel</li>
-															<li>add the client to the list of the channel operators</li>
+															<li>add the user to the list of the channel operators</li>
 														</ol>
 													</li>
 												</ul>
 											</li>
-											<li>add the client to the list of the channel members</li>
+											<li>add the user to the list of the channel members</li>
 											<li>send a JOIN message to every member of the channel, to inform them of the user's arrival</li>
 											<li>
 												send back a <a href="#rpl_topic">RPL_TOPIC</a> to the client,
@@ -1403,7 +1403,7 @@
 									<li>
 										If it is the single character <code>0x30</code> (<code>0</code>), then
 										run the <a href="#command_part">PART</a> command<br>
-										for each channel of which the client is a member
+										for each channel of which the user is a member
 									</li>
 								</ul>
 							</li>
@@ -1431,12 +1431,12 @@
 							</li>
 							<li>
 								The channel to join is marked as invite-only and the client neither matches<br>
-								any of the invite masks of the channel nor has been invited by one of the operators<br>
+								any of the invite masks of the channel nor has been invited by one of the channel operators<br>
 								&#x21B3; send back an <a href="#err_inviteonlychan">ERR_INVITEONLYCHAN</a> to the client
 								and proceed to the next channel
 							</li>
 							<li>
-								The channel to join requires a key and the client<br>
+								The channel to join requires a key and the user<br>
 								neither matches one of the invite masks of the channel<br>
 								nor has been invited by one of the members of the channel<br>
 								nor has provided the correct key<br>
@@ -1482,32 +1482,46 @@
 					<!-- #endregion -->
 					<p>
 						The PART command is used to make a user leave a channel.<br>
-						When the server receives a PART message, for each given channel,<br>
-						it must do the following routine:<br>
-						<p>
-							Check that the channel exists.<br>
-							Then check that the user is in it.<br>
-							Then remove the user from the channel,<br>
-							send back a PART message to the client,<br>
-							to confirm that they have successfully left the channel,<br>
-							and finally, send a PART message to every user<br>
-							that are present in the channel,<br>
-							to inform them of the user's departure.<br>
-							<br>
-							<b>Note</b>: for each PART message sent by the server,<br>
-							the server must pass in parameter either the given part message if there is one,<br>
-							or a default one if there is not.<br>
-							<br>
-							<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
-							<!-- TODO -->
-							<ul>
-								<li><a href="#err_nosuchchannel">ERR_NOSUCHCHANNEL</a></li>
-								<li><a href="#err_notonchannel">ERR_NOTONCHANNEL</a></li>
-								<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
-							</ul>
-						</p>
+						When the server receives a PART message, it must:<br>
+						<ol>
+							<li>check that the client provided enough arguments</li>
+							<li>for each given channel name:
+								<ol>
+									<li>check that the channel exists</li>
+									<li>check that the user is a member of the channel</li>
+									<li>
+										send a PART message to every member of the channel,<br>
+										to inform them of the user's departure
+									</li>
+									<li>
+										if the user is one of the channel operators,<br>
+										then remove them from the list of channel operators
+									</li>
+									<li>remove the user from the list of channel members</li>
+								</ol>
+							</li>
+						</ol>
+						<b>Note</b>: for each PART message sent by the server, the server must pass in parameter<br>
+						either the given part message if there is one, or a default one if there is not.<br>
+						<br>
+						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
+						<ul>
+							<li>
+								The list of channels to leave is missing<br>
+								&#x21B3; send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
+							</li>
+							<li>
+								The channel doesn't exist<br>
+								&#x21B3; send back an <a href="#err_nosuchchannel">ERR_NOSUCHCHANNEL</a> to the client
+								and proceed to the next channel
+							</li>
+							<li>
+								The user is not a member of the channel<br>
+								&#x21B3; send back an <a href="#err_notonchannel">ERR_NOTONCHANNEL</a> to the client
+								and proceed to the next channel
+							</li>
+						</ul>
 					</p>
-
 				</section>
 
 				<section id="command_topic">
