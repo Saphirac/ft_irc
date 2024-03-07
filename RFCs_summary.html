@@ -350,7 +350,7 @@
 								1 octet that has any value among the following:
 								<ul>
 									<li><code>0x42</code> (<code>B</code>)</li>
-									<li><code>0x4f</code> (<code>O</code>)</li>
+									<li><code>0x4F</code> (<code>O</code>)</li>
 									<li><code>0x61</code> (<code>a</code>)</li>
 									<li><code>0x69</code> (<code>i</code>)</li>
 									<li><code>0x77</code> (<code>w</code>)</li>
@@ -490,10 +490,10 @@
 								<ul>
 									<li><code>0x62</code> (<code>b</code>)</li>
 									<li><code>0x69</code> (<code>i</code>)</li>
-									<li><code>0x6b</code> (<code>k</code>)</li>
-									<li><code>0x6c</code> (<code>l</code>)</li>
-									<li><code>0x6e</code> (<code>n</code>)</li>
-									<li><code>0x6f</code> (<code>o</code>)</li>
+									<li><code>0x6B</code> (<code>k</code>)</li>
+									<li><code>0x6C</code> (<code>l</code>)</li>
+									<li><code>0x6E</code> (<code>n</code>)</li>
+									<li><code>0x6F</code> (<code>o</code>)</li>
 									<li><code>0x74</code> (<code>t</code>)</li>
 								</ul>
 							</blockquote>
@@ -1207,61 +1207,61 @@
 						<ul>
 							<li>
 								The nickname/channel argument is missing<br>
-								&#x21B3; The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
+								&#x21B3; send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
 							</li>
 							<li>
 								The given nickname doesn't match the sender nickname<br>
-								&#x21B3; The server must send back an <a href="#err_usersdontmatch">ERR_USERSDONTMATCH</a> to the client
+								&#x21B3; send back an <a href="#err_usersdontmatch">ERR_USERSDONTMATCH</a> to the client
 							</li>
 							<li>
 								The given list of user mode changes contains an invalid mode<br>
-								&#x21B3; The server must send back an <a href="#err_umodeunknownflag">ERR_UMODEUNKNOWNFLAG</a> to the client
+								&#x21B3; send back an <a href="#err_umodeunknownflag">ERR_UMODEUNKNOWNFLAG</a> to the client
 							</li>
 							<li>
 								The given channel doesn't exist<br>
-								&#x21B3; The server must send back an <a href="#err_nosuchchannel">ERR_NOSUCHCHANNEL</a> to the client
+								&#x21B3; send back an <a href="#err_nosuchchannel">ERR_NOSUCHCHANNEL</a> to the client
 							</li>
 							<li>
 								The given channel doesn't support modes<br>
-								&#x21B3; The server must send back an <a href="#err_nochanmodes">ERR_NOCHANMODES</a> to the client
+								&#x21B3; send back an <a href="#err_nochanmodes">ERR_NOCHANMODES</a> to the client
 							</li>
 							<li>
 								The sender is neither a channel operator nor the creator of the channel<br>
-								&#x21B3; The server must send back an <a href="#err_chanoprivsneeded">ERR_CHANOPRIVSNEEDED</a> to the client
+								&#x21B3; send back an <a href="#err_chanoprivsneeded">ERR_CHANOPRIVSNEEDED</a> to the client
 							</li>
 							<li>
 								The given list of channel mode changes contains an invalid mode<br>
-								&#x21B3; The server must send back an <a href="#err_unknownmode">ERR_UNKNOWNMODE</a> to the client
+								&#x21B3; send back an <a href="#err_unknownmode">ERR_UNKNOWNMODE</a> to the client
 							</li>
 							<li>
 								The given list of mode changes contains a mode that requires an argument,<br>
 								but the argument is missing<br>
-								&#x21B3; The server must send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
+								&#x21B3; send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
 							</li>
 							<li>
 								The given list of mode changes contains a mode that requires an argument,<br>
 								but the argument is invalid<br>
-								&#x21B3; The server must silently ignore the mode change and proceed to the next one
+								&#x21B3; silently ignore the mode change and proceed to the next one
 							</li>
 							<li>
 								The given list of modes changes contains a <code>-I</code> with a <a href="#nickname">nickname</a><br>
 								that doesn't match any mask in the invite-list of the channel<br>
-								&#x21B3; The server must silently ignore the mode change and proceed to the next one
+								&#x21B3; silently ignore the mode change and proceed to the next one
 							</li>
 							<li>
 								The given list of mode changes contains a <code>+k</code>,<br>
 								but the channel has already the `k` mode set<br>
-								&#x21B3; The server must send back an <a href="#err_keyset">ERR_KEYSET</a> to the client
+								&#x21B3; send back an <a href="#err_keyset">ERR_KEYSET</a> to the client
 							</li>
 							<li>
 								The given list of mode changes contains either a <code>+o</code> or a <code>-o</code><br>
 								with a <a href="#nickname">nickname</a> that doesn't match any user in the channel<br>
-								&#x21B3; The server must send back an <a href="#err_usernotonchannel">ERR_USERNOTONCHANNEL</a> to the client
+								&#x21B3; send back an <a href="#err_usernotonchannel">ERR_USERNOTONCHANNEL</a> to the client
 							</li>
 							<li>
 								The given list of mode changes contains a <code>-o</code> with a <a href="#nickname">nickname</a><br>
 								that doesn't match any channel operator in the channel<br>
-								&#x21B3; The server must silently ignore the mode change and proceed to the next one
+								&#x21B3; silently ignore the mode change and proceed to the next one
 							</li>
 						</ul>
 					</p>
@@ -1284,15 +1284,20 @@
 					<p>
 						The QUIT command is used to disconnect a client from the server.<br>
 						<br>
-						When the server receives a QUIT message,<br>
-						it must send back an <a href="#command_error">ERROR</a> message to the client,<br>
-						to confirm that they are about to be disconnected.<br>
-						Then, it must close the connection with the client,<br>
-						remove them from every channel they were in, and then<br>
-						remove them from its list of known clients.<br>
-						Finally, the server must send a QUIT message<br>
-						to every channel in which the user was,<br>
-						to inform them of the user's departure.<br>
+						When the server receives a QUIT message, it must:
+						<ol>
+							<li>
+								send back an <a href="#command_error">ERROR</a> message to the client,<br>
+								to confirm that they are about to be disconnected
+							</li>
+							<li>
+								send a QUIT message to every other client that shares at least 1 common channel<br>
+								with the user that is about to disconnect, to inform them of the user's departure
+							</li>
+							<li>close the connection with the client</li>
+							<li>remove them from all their joined channels</li>
+							<li>remove them from its list of known clients</li>
+						</ol>
 						<br>
 						<b>Note</b>: for each <a href="#command_error">ERROR</a> and QUIT message sent by the server,<br>
 						the server must pass in parameter either the given quit message if there is one,<br>
@@ -1342,40 +1347,108 @@
 					<!-- #endregion -->
 					<p>
 						The JOIN command is used to make a user join a channel.<br>
-						When the server receives a JOIN message, for each given channel,<br>
-						it must do the following routine:<br>
-						<p>
-							Check that the channel exists.<br>
-							Then check that the user isn't already in it.<br>
-							If they are, then stop the routine here.<br>
-							Check that the channel is neither full, nor marked as invite-only.<br>
-							Then check that the user hasn't reached the maximum number of channels<br>
-							that they can join yet.<br>
-							Then check that the user isn't banned from the channel.<br>
-							If the channel has the `k` mode set, then check that the user provided the correct key.<br>
-							Then add the user to the channel.<br>
-							Finally, send back the following to the client in this order:
-							<ol>
-								<li>A JOIN message, to confirm that the user have successfully joined the channel</li>
-								<li>A <a href="#rpl_topic">RPL_TOPIC</a> to indicate the topic of the joined channel</li>
-								<li>
-									The result of the <a href="#command_names">NAMES</a> command with the joined channel<br>
-									passed in parameter
-								</li>
-							</ol>
-							<br>
-							<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
-							<!-- TODO -->
-							<ul>
-								<li><a href="#err_nosuchchannel">ERR_NOSUCHCHANNEL</a></li>
-								<li><a href="#err_toomanychannels">ERR_TOOMANYCHANNELS</a></li>
-								<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
-								<li><a href="#err_channelisfull">ERR_CHANNELISFULL</a></li>
-								<li><a href="#err_inviteonlychan">ERR_INVITEONLYCHAN</a></li>
-								<li><a href="#err_bannedfromchan">ERR_BANNEDFROMCHAN</a></li>
-								<li><a href="#err_badchannelkey">ERR_BADCHANNELKEY</a></li>
-							</ul>
-						</p>
+						<br>
+						When the server receives a JOIN message, it must:<br>
+						<ol>
+							<li>check that the client provided enough arguments</li>
+							<li>
+								determine whether the first argument is a list of channels to join
+								or the single character <code>0x30</code> (<code>0</code>)
+								<ul>
+									<li>If it is a list of channels to join, then, for each of them, the server must:
+										<ol>
+											<li>check that the given channel name is valid</li>
+											<li>check that the client hasn't reached the maximum number of joined channel yet</li>
+											<li>determine whether the channel corresponding to the given channel name exists
+												<ul>
+													<li>If the channel exists, then:
+														<ol>
+															<li>if the channel supports modes, then:
+																<ol>
+																	<li>check that the client doesn't match any of the ban masks of the channel</li>
+																	<li>
+																		if the channel is marked as invite-only, then check that the client<br>
+																		either matches one of the invite masks of the channel<br>
+																		or has been invited by one of the operators of the channel.
+																	</li>
+																	<li>
+																		if the channel requires a key to join, then check that the client<br>
+																		either has been invited by one of the members of the channel<br>
+																		or matches any of the invite masks of the channel<br>
+																		or provided the correct key.
+																	</li>
+																</ol>
+															</li>
+															<li>check that the channel hasn't reached the maximum number of members yet</li>
+														</ol>
+													</li>
+													<li>If the channel doesn't exist, then:
+														<ol>
+															<li>create the channel</li>
+															<li>add the client to the list of the channel operators</li>
+														</ol>
+													</li>
+												</ul>
+											</li>
+											<li>add the client to the list of the channel members</li>
+											<li>send a JOIN message to every member of the channel, to inform them of the user's arrival</li>
+											<li>
+												send back a <a href="#rpl_topic">RPL_TOPIC</a> to the client,
+												to inform them of the topic of the channel</li>
+											<li>
+												run the <a href="#command_names">NAMES</a> command with the joined channel passed in parameter
+											</li>
+										</ol>
+									</li>
+									<li>
+										If it is the single character <code>0x30</code> (<code>0</code>), then
+										run the <a href="#command_part">PART</a> command<br>
+										for each channel of which the client is a member
+									</li>
+								</ul>
+							</li>
+						</ol>
+						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
+						<ul>
+							<li>
+								The list of channels to join/zero argument is missing<br>
+								&#x21B3; send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
+							</li>
+							<li>
+								A given channel name is invalid<br>
+								&#x21B3; send back an <a href="#err_nosuchchannel">ERR_NOSUCHCHANNEL</a> to the client
+								and proceed to the next channel
+							</li>
+							<li>
+								The client has reached the maximum number of joined channels<br>
+								&#x21B3; send back an <a href="#err_toomanychannels">ERR_TOOMANYCHANNELS</a> to the client
+								and proceed to the next channel
+							</li>
+							<li>
+								The client matches one of the ban masks of the channel<br>
+								&#x21B3; send back an <a href="#err_bannedfromchan">ERR_BANNEDFROMCHAN</a> to the client
+								and proceed to the next channel
+							</li>
+							<li>
+								The channel to join is marked as invite-only and the client neither matches<br>
+								any of the invite masks of the channel nor has been invited by one of the operators<br>
+								&#x21B3; send back an <a href="#err_inviteonlychan">ERR_INVITEONLYCHAN</a> to the client
+								and proceed to the next channel
+							</li>
+							<li>
+								The channel to join requires a key and the client<br>
+								neither matches one of the invite masks of the channel<br>
+								nor has been invited by one of the members of the channel<br>
+								nor has provided the correct key<br>
+								&#x21B3; send back an <a href="#err_badchannelkey">ERR_BADCHANNELKEY</a> to the client
+								and proceed to the next channel
+							</li>
+							<li>
+								The channel to join has reached the maximum number of members<br>
+								&#x21B3; send back an <a href="#err_channelisfull">ERR_CHANNELISFULL</a> to the client
+								and proceed to the next channel
+							</li>
+						</ul>
 					</p>
 				</section>
 
@@ -2196,21 +2269,19 @@
 					<details>
 						<summary>
 							<code id="abnf_reply">
-								<b>reply</b> = prefix space 3digit space nick
+								<b>reply</b> = 3digit
 							</code>
 						</summary>
 						<blockquote>
-							<ol>
-								<li>Starts 1 <code><a href="#abnf_prefix">prefix</a></code></li>
-								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
-								<li>Contain 1 <code><a href="#abnf_3digit">3digit</a></code></li>
-								<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
-								<li>Contain 1 <code><a href="#abnf_nick">nick</a></code></li>
-							</ol>
+							3 <code><a href="#abnf_digit">digits</a></code>
 						</blockquote>
 					</details>
 					<!-- #endregion -->
 				</figure>
+				<p>
+					Every reply must be sent as one message consisting of the sender prefix,<br>
+					the 3 digit reply code, the target of the reply, and additional arguments if any.<br>
+				</p>
 				<p>
 					Replies are not allowed to originate from a client.<br>
 					Any such messages received by the server must be silently discarded.<br>
@@ -3697,7 +3768,7 @@
 						</code>
 					</summary>
 					<blockquote>
-						1 octet that has the value <code>0x2a</code> (<code>*</code>)
+						1 octet that has the value <code>0x2A</code> (<code>*</code>)
 					</blockquote>
 				</details>
 				<!-- #endregion -->
@@ -3709,7 +3780,7 @@
 						</code>
 					</summary>
 					<blockquote>
-						1 octet that has the value <code>0x2b</code> (<code>+</code>)
+						1 octet that has the value <code>0x2B</code> (<code>+</code>)
 					</blockquote>
 				</details>
 				<!-- #endregion -->
@@ -3721,7 +3792,7 @@
 						</code>
 					</summary>
 					<blockquote>
-						1 octet that has the value <code>0x2c</code> (<code>,</code>)
+						1 octet that has the value <code>0x2C</code> (<code>,</code>)
 					</blockquote>
 				</details>
 				<!-- #endregion -->
@@ -3733,7 +3804,7 @@
 						</code>
 					</summary>
 					<blockquote>
-						1 octet that has the value <code>0x2d</code> (<code>-</code>)
+						1 octet that has the value <code>0x2D</code> (<code>-</code>)
 					</blockquote>
 				</details>
 				<!-- #endregion -->
@@ -3745,7 +3816,7 @@
 						</code>
 					</summary>
 					<blockquote>
-						1 octet that has the value <code>0x2e</code> (<code>.</code>)
+						1 octet that has the value <code>0x2E</code> (<code>.</code>)
 					</blockquote>
 				</details>
 				<!-- #endregion -->
@@ -3757,7 +3828,7 @@
 						</code>
 					</summary>
 					<blockquote>
-						1 octet that has the value <code>0x3a</code> (<code>:</code>)
+						1 octet that has the value <code>0x3A</code> (<code>:</code>)
 					</blockquote>
 				</details>
 				<!-- #endregion -->
@@ -3769,7 +3840,7 @@
 						</code>
 					</summary>
 					<blockquote>
-						1 octet that has the value <code>0x3d</code> (<code>=</code>)
+						1 octet that has the value <code>0x3D</code> (<code>=</code>)
 					</blockquote>
 				</details>
 				<!-- #endregion -->
@@ -3793,8 +3864,8 @@
 						</code>
 					</summary>
 					<blockquote>
-						1 octet that has the value <code>0x0d</code> (<code>\r</code>) followed by
-						1 octet that has the value <code>0x0a</code> (<code>\n</code>)
+						1 octet that has the value <code>0x0D</code> (<code>\r</code>) followed by
+						1 octet that has the value <code>0x0A</code> (<code>\n</code>)
 					</blockquote>
 				</details>
 				<!-- #endregion -->
@@ -3807,7 +3878,7 @@
 					</summary>
 					<blockquote>
 						1 octet that has any value between <code>0x61</code> (<code>a</code>)
-						and <code>0x7a</code> (<code>z</code>) both included
+						and <code>0x7A</code> (<code>z</code>) both included
 					</blockquote>
 				</details>
 				<!-- #endregion -->
@@ -3820,7 +3891,7 @@
 					</summary>
 					<blockquote>
 						1 octet that has any value between <code>0x41</code> (<code>A</code>)
-						and <code>0x5a</code> (<code>Z</code>) both included
+						and <code>0x5A</code> (<code>Z</code>) both included
 					</blockquote>
 				</details>
 				<!-- #endregion -->
@@ -3871,15 +3942,15 @@
 					<blockquote>
 						1 octet that has any value among the following:
 						<ul>
-							<li><code>0x5b</code> (<code>[</code>)</li>
-							<li><code>0x5c</code> (<code>\</code>)</li>
-							<li><code>0x5d</code> (<code>]</code>)</li>
-							<li><code>0x5e</code> (<code>^</code>)</li>
-							<li><code>0x5f</code> (<code>_</code>)</li>
+							<li><code>0x5B</code> (<code>[</code>)</li>
+							<li><code>0x5C</code> (<code>\</code>)</li>
+							<li><code>0x5D</code> (<code>]</code>)</li>
+							<li><code>0x5E</code> (<code>^</code>)</li>
+							<li><code>0x5F</code> (<code>_</code>)</li>
 							<li><code>0x60</code> (<code>`</code>)</li>
-							<li><code>0x7b</code> (<code>{</code>)</li>
-							<li><code>0x7c</code> (<code>|</code>)</li>
-							<li><code>0x7d</code> (<code>}</code>)</li>
+							<li><code>0x7B</code> (<code>{</code>)</li>
+							<li><code>0x7C</code> (<code>|</code>)</li>
+							<li><code>0x7D</code> (<code>}</code>)</li>
 						</ul>
 					</blockquote>
 				</details>
@@ -3894,9 +3965,9 @@
 					<blockquote>
 						1 octet that has any value except:
 						<ul>
-							<li><code>0x00</code> (<code>\0</code>)</li>
-							<li><code>0x0a</code> (<code>\n</code>)</li>
-							<li><code>0x0d</code> (<code>\r</code>)</li>
+							<li><code>0x00</code> (<code>NUL</code>)</li>
+							<li><code>0x0A</code> (<code>LF</code>)</li>
+							<li><code>0x0D</code> (<code>CR</code>)</li>
 						</ul>
 					</blockquote>
 				</details>
@@ -3911,10 +3982,10 @@
 					<blockquote>
 						1 octet that has any value except:
 						<ul>
-							<li><code>0x00</code> (<code>\0</code>)</li>
-							<li><code>0x0a</code> (<code>\n</code>)</li>
-							<li><code>0x0d</code> (<code>\r</code>)</li>
-							<li><code>0x20</code> (<code> </code>)</li>
+							<li><code>0x00</code> (<code>NUL</code>)</li>
+							<li><code>0x0A</code> (<code>LF</code>)</li>
+							<li><code>0x0D</code> (<code>CR</code>)</li>
+							<li><code>0x20</code> (<code>SPACE</code>)</li>
 						</ul>
 					</blockquote>
 				</details>
@@ -3929,11 +4000,11 @@
 					<blockquote>
 						1 octet that has any value except:
 						<ul>
-							<li><code>0x00</code> (<code>\0</code>)</li>
-							<li><code>0x0a</code> (<code>\n</code>)</li>
-							<li><code>0x0d</code> (<code>\r</code>)</li>
-							<li><code>0x20</code> (<code> </code>)</li>
-							<li><code>0x3a</code> (<code>:</code>)</li>
+							<li><code>0x00</code> (<code>NUL</code>)</li>
+							<li><code>0x0A</code> (<code>LF</code>)</li>
+							<li><code>0x0D</code> (<code>CR</code>)</li>
+							<li><code>0x20</code> (<code>SPACE</code>)</li>
+							<li><code>0x3A</code> (<code>:</code>)</li>
 						</ul>
 					</blockquote>
 				</details>
@@ -3948,10 +4019,10 @@
 					<blockquote>
 						1 octet that has any value except:
 						<ul>
-							<li><code>0x00</code> (<code>\0</code>)</li>
-							<li><code>0x0a</code> (<code>\n</code>)</li>
-							<li><code>0x0d</code> (<code>\r</code>)</li>
-							<li><code>0x20</code> (<code> </code>)</li>
+							<li><code>0x00</code> (<code>NUL</code>)</li>
+							<li><code>0x0A</code> (<code>LF</code>)</li>
+							<li><code>0x0D</code> (<code>CR</code>)</li>
+							<li><code>0x20</code> (<code>SPACE</code>)</li>
 							<li><code>0x40</code> (<code>@</code>)</li>
 						</ul>
 					</blockquote>
@@ -4170,13 +4241,13 @@
 					<blockquote>
 						1 or more octets that have any value except:
 						<ul>
-							<li><code>0x00</code> (<code>\0</code>)</li>
-							<li><code>0x07</code> (<code>\a</code>)</li>
-							<li><code>0x0a</code> (<code>\n</code>)</li>
-							<li><code>0x0d</code> (<code>\r</code>)</li>
-							<li><code>0x20</code> (<code> </code>)</li>
-							<li><code>0x2c</code> (<code>,</code>)</li>
-							<li><code>0x3a</code> (<code>:</code>)</li>
+							<li><code>0x00</code> (<code>NUL</code>)</li>
+							<li><code>0x07</code> (<code>BEL</code>)</li>
+							<li><code>0x0A</code> (<code>LF</code>)</li>
+							<li><code>0x0D</code> (<code>CR</code>)</li>
+							<li><code>0x20</code> (<code>SPACE</code>)</li>
+							<li><code>0x2C</code> (<code>,</code>)</li>
+							<li><code>0x3A</code> (<code>:</code>)</li>
 						</ul>
 					</blockquote>
 				</details>
@@ -4212,11 +4283,21 @@
 				<details>
 					<summary>
 						<code id="abnf_key">
-							<b>key</b> = middle
+							<b>key</b> = 1*23( %x01-08 / %x0E-1F / %x21-2B / %x2D-7F )
 						</code>
 					</summary>
 					<blockquote>
-						1 <code><a href="#abnf_middle">middle</a></code>
+						1 or more up to 23 octets that have any value except:
+						<ul>
+							<li><code>0x00</code> (<code>NUL</code>)</li>
+							<li><code>0x09</code> (<code>HT</code>)</li>
+							<li><code>0x0A</code> (<code>LF</code>)</li>
+							<li><code>0x0B</code> (<code>VT</code>)</li>
+							<li><code>0x0C</code> (<code>FF</code>)</li>
+							<li><code>0x0D</code> (<code>CR</code>)</li>
+							<li><code>0x20</code> (<code>SPACE</code>)</li>
+							<li><code>0x2C</code> (<code>,</code>)</li>
+						</ul>
 					</blockquote>
 				</details>
 				<!-- #endregion -->
