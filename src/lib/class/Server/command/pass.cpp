@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:23:54 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/06 02:22:14 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/08 23:27:01 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,16 +32,16 @@ void Server::_pass(Client &sender, std::vector<std::string> const &parameters)
 		return sender.append_to_msg_out(sender.formatted_reply(ERR_ALREADYREGISTERED));
 	if (parameters.empty())
 	{
-		sender.append_to_msg_out(sender.formatted_reply(ERR_NEEDMOREPARAMS, "PASS"));
-		return sender.set_mode(IsAboutToBeDisconnected);
+		sender.set_mode(IsAboutToBeDisconnected);
+		return sender.append_to_msg_out(sender.formatted_reply(ERR_NEEDMOREPARAMS, "PASS"));
 	}
 
 	std::string const &password = parameters[0];
 
 	if (password != this->_password)
 	{
-		sender.append_to_msg_out(sender.formatted_reply(ERR_PASSWDMISMATCH));
-		return sender.set_mode(IsAboutToBeDisconnected);
+		sender.set_mode(IsAboutToBeDisconnected);
+		return sender.append_to_msg_out(sender.formatted_reply(ERR_PASSWDMISMATCH));
 	}
 
 	sender.set_mode(AlreadySentPass);

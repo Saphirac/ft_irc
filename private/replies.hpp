@@ -6,13 +6,12 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 22:08:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/06 01:42:09 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/08 23:45:16 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "class/Client.hpp"
 #include <map>
 
 #define RPL_WELCOME  001
@@ -146,8 +145,8 @@ static std::pair<int, char const *> const raw_formats_by_reply[] = {
 	std::make_pair(ERR_UMODEUNKNOWNFLAG, ":Unknown MODE flag"),
 	std::make_pair(ERR_USERSDONTMATCH, ":Cannot change mode for other users"),
 };
-static size_t const raw_replies_len = sizeof(raw_formats_by_reply) / sizeof(*raw_formats_by_reply);
-
-static std::map<int, char const *> const formats_by_reply(raw_formats_by_reply, raw_formats_by_reply + raw_replies_len);
+static std::map<int, char const *> const formats_by_reply(
+	raw_formats_by_reply,
+	raw_formats_by_reply + sizeof(raw_formats_by_reply) / sizeof(*raw_formats_by_reply));
 
 typedef std::map<int, char const *>::const_iterator ReplyIterator;

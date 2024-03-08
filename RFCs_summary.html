@@ -614,7 +614,7 @@
 							<blockquote>
 								<ol>
 									<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
-									<li> Contain either 1 <code><a href="#abnf_server">server</a></code>, or 1 pattern, which must:
+									<li>Contain either 1 <code><a href="#abnf_server">server</a></code>, or 1 pattern, which must:
 										<ol>
 											<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
 											<li>Contain 0 or 1 pattern, which must:
@@ -1160,8 +1160,8 @@
 									<li>If the target is a channel, then the server must:
 										<ol>
 											<li>check that the given channel exists</li>
-											<li>check that the given channel supports modes</li>
-											<li>check that the sender is either one of its channel operator or its creator</li>
+											<li>check that the channel supports modes</li>
+											<li>check that the sender is one of the channel operator</li>
 											<li>determine whether there are any mode changes to apply
 												<ul>
 													<li>If there are, then the server must:
@@ -1169,7 +1169,7 @@
 															<li>check that the given mode changes are valid</li>
 															<li>apply the given mode changes to the channel</li>
 															<li>
-																send a MODE message to every member of the channel,<br>
+																send a MODE message to every channel member,<br>
 																to inform them of the changes
 															</li>
 														</ol>
@@ -4426,7 +4426,7 @@
 					</blockquote>
 				</details>
 				<!-- #endregion -->
-				<!-- #region: ABNG of `part-messag-->
+				<!-- #region: ABNG of `part-message` -->
 				<details>
 					<summary>
 						<code id="abnf_part_message">

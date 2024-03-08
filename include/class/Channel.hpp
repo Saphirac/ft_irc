@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 00:23:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/04 22:43:18 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/08 22:20:20 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,18 +39,18 @@ public:
 		// Accessors
 		Key const                      &get_key(void) const;
 		size_t const                   &get_limit(void) const;
+		std::set<Client const *> const &get_operators(void) const;
 		std::set<NickName> const       &get_invite_masks(void) const;
 		std::set<NickName> const       &get_ban_masks(void) const;
-		std::set<Client const *> const &get_operators(void) const;
 
 		// Methods
-		void set(ChannelMode const mode, void const *arg = NULL);
-		void clear(ChannelMode const mode, void const *arg = NULL);
+		void set(ChannelMode const mode, void const *const arg = NULL);
+		void clear(ChannelMode const mode, void const *const arg = NULL);
 
 		bool is_set(ChannelMode const mode) const;
+		bool has_operator(Client const &client) const;
 		bool has_invite_mask(NickName const &nickname) const;
 		bool has_ban_mask(NickName const &nickname) const;
-		bool has_operator(Client const &client) const;
 
 		std::string to_string(
 			bool const include_operators = false,
@@ -87,9 +87,9 @@ public:
 		Flags                    _flags;
 		size_t                   _limit;
 		Key                      _key;
+		std::set<Client const *> _operators;
 		std::set<NickName>       _invite_masks;
 		std::set<NickName>       _ban_masks;
-		std::set<Client const *> _operators;
 	};
 
 	// Constructors
@@ -103,8 +103,8 @@ public:
 	Channel::Modes const &get_modes(void) const;
 
 	// Methods
-	void set_mode(ChannelMode const mode, void const *arg = NULL);
-	void clear_mode(ChannelMode const mode, void const *arg = NULL);
+	void set_mode(ChannelMode const mode, void const *const arg = NULL);
+	void clear_mode(ChannelMode const mode, void const *const arg = NULL);
 
 	void add_member(Client &client);
 	void remove_member(Client &client);

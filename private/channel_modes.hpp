@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/07 22:57:52 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/02 18:00:20 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/08 23:44:54 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,8 @@ static std::pair<char, ChannelMode> const raw_channel_modes[] = {
 	std::make_pair(CHANNEL_MODES[Limit], Limit),
 	std::make_pair(CHANNEL_MODES[ChannelOperator], ChannelOperator),
 };
-static size_t const raw_channel_modes_len = sizeof(raw_channel_modes) / sizeof(*raw_channel_modes);
-
-static std::map<char, ChannelMode> const channel_modes(raw_channel_modes, raw_channel_modes + raw_channel_modes_len);
+static std::map<char, ChannelMode> const channel_modes(
+	raw_channel_modes,
+	raw_channel_modes + sizeof(raw_channel_modes) / sizeof(*raw_channel_modes));
 
 typedef std::map<char, ChannelMode>::const_iterator ChannelModeIterator;

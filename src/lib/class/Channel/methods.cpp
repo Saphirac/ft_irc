@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 01:29:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 02:31:32 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/08 22:30:58 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,17 +214,17 @@ bool Channel::Modes::is_set(ChannelMode const mode) const
 }
 
 /**
- * @brief Checks whether a nickname is marked as a ban mask.
+ * @brief Checks whether a client is marked as a channel operator.
  *
- * @param nickname The nickname to check.
+ * @param client The client to check.
  *
- * @return `true` if the nickname is marked as a ban mask, `false` otherwise.
+ * @return `true` if the client is marked as a channel operator, `false` otherwise.
  *
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-bool Channel::Modes::has_ban_mask(NickName const &nickname) const
+bool Channel::Modes::has_operator(Client const &client) const
 {
-	return this->_ban_masks.find(nickname) != this->_ban_masks.end();
+	return this->_operators.find(&client) != this->_operators.end();
 }
 
 /**
@@ -242,17 +242,17 @@ bool Channel::Modes::has_invite_mask(NickName const &nickname) const
 }
 
 /**
- * @brief Checks whether a client is marked as a channel operator.
+ * @brief Checks whether a nickname is marked as a ban mask.
  *
- * @param client The client to check.
+ * @param nickname The nickname to check.
  *
- * @return `true` if the client is marked as a channel operator, `false` otherwise.
+ * @return `true` if the nickname is marked as a ban mask, `false` otherwise.
  *
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-bool Channel::Modes::has_operator(Client const &client) const
+bool Channel::Modes::has_ban_mask(NickName const &nickname) const
 {
-	return this->_operators.find(&client) != this->_operators.end();
+	return this->_ban_masks.find(nickname) != this->_ban_masks.end();
 }
 
 /**
@@ -286,7 +286,7 @@ std::string Channel::Modes::to_string(
 	if (include_ban_masks)
 		for (size_t i = 0; i < this->_ban_masks.size(); ++i) modes_as_string += 'b';
 
-	if (this->is_set(Limit))
+	if (limit_is_set)
 	{
 		std::stringstream ss;
 

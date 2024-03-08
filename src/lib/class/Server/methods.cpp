@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/06 02:23:41 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/08 21:08:05 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include "class/exception/ProblemWithRecv.hpp"
 #include "replies.hpp"
 #include <fcntl.h>
+#include <sys/epoll.h>
 
 bool interrupted = false;
 

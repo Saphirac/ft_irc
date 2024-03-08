@@ -6,19 +6,19 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/06 02:22:49 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/08 23:36:15 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ChannelMode.hpp"
+// REMIND: this part is commented out because `irssi` doesn't send the user mode mask, it sucks!
+// #include "class/specialized_string/UserModeMask.hpp"
+// #include <cstdlib>
 #include "class/Server.hpp"
-#include "class/specialized_string/UserModeMask.hpp"
 #include "replies.hpp"
-#include <cstdlib>
 
 /**
  * @brief
- * Finilizes the user registration process for a client,
+ * Finalizes the user registration process for a client,
  * saving their username, their initial modes, their hostname, and their realname.
  *
  * @param sender The client that sent the command.

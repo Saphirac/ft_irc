@@ -6,14 +6,13 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 12:36:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/02 18:00:11 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/08 23:45:27 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "UserMode.hpp"
-#include <cstddef>
 #include <map>
 
 static std::pair<char, UserMode> const raw_user_modes[] = {
@@ -23,8 +22,8 @@ static std::pair<char, UserMode> const raw_user_modes[] = {
 	std::make_pair(USER_MODES[Invisible], Invisible),
 	std::make_pair(USER_MODES[WallopsListener], WallopsListener),
 };
-static size_t const raw_user_modes_len = sizeof(raw_user_modes) / sizeof(*raw_user_modes);
-
-static std::map<char, UserMode> const user_modes(raw_user_modes, raw_user_modes + raw_user_modes_len);
+static std::map<char, UserMode> const user_modes(
+	raw_user_modes,
+	raw_user_modes + sizeof(raw_user_modes) / sizeof(*raw_user_modes));
 
 typedef std::map<char, UserMode>::const_iterator UserModeIterator;

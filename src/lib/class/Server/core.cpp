@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/06 00:53:43 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/08 23:42:47 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,7 @@
 #include "class/exception/ProblemWithStrftime.hpp"
 #include "class/exception/ProblemWithTime.hpp"
 #include <csignal>
-#include <ctime>
-#include <iostream>
-#include <unistd.h>
+#include <sys/epoll.h>
 
 extern bool interrupted;
 
@@ -62,6 +60,77 @@ Server::CommandMap const Server::_commands_by_name = CommandMap(
 // Utils //
 
 /**
+ * @brief Creates a new sockaddr_in instance and initializes its fields.
+ *
+ * @param sin_family The value to assign to the `sockaddr_in::sin_family` field.
+ * @param sin_port The value to assign to the `sockaddr_in::sin_port` field.
+ * @param sin_addr The value to assign to the `sockaddr_in::sin_addr.s_addr` field.
+ *
+ * @return The newly created sockaddr_in instance.
+ */
+inline static sockaddr_in new_sockaddr_in(
+	sa_family_t const sin_family,
+	in_port_t const   sin_port,
+	in_addr_t const   sin_addr)
+{
+	sockaddr_in sock_addr;
+
+	sock_addr.sin_family = sin_family;
+	sock_addr.sin_port = sin_port;
+	sock_addr.sin_addr.s_addr = sin_addr;
+
+	return sock_addr;
+}
+
+/**
+ * @brief Generates the string representation of the now time.
+ *
+ * @return The string representation of the now time.
+ *
+ * @throw `ProblemWithTime` if `time()` fails.
+ * @throw `ProblemWithStrftime` if `strftime()` fails.
+ */
+inline static std::string now_time(void)
+{
+	time_t const raw_time = time(NULL);
+
+	if (raw_time == -1)
+		throw ProblemWithTime();
+
+	tm const *const time_info = localtime(&raw_time);
+	char            buffer[42];
+
+	if (!strftime(buffer, sizeof(buffer), "%H:%M:%S", time_info))
+		throw ProblemWithStrftime();
+
+	return buffer;
+}
+
+/**
+ * @brief Generates the string representation of the now date.
+ *
+ * @return The string representation of the now date.
+ *
+ * @throw `ProblemWithTime` if `time()` fails.
+ * @throw `ProblemWithStrftime` if `strftime()` fails.
+ */
+inline static std::string now_date(void)
+{
+	time_t const raw_time = time(NULL);
+
+	if (raw_time == -1)
+		throw ProblemWithTime();
+
+	tm const *const time_info = localtime(&raw_time);
+	char            buffer[42];
+
+	if (!strftime(buffer, sizeof(buffer), "%Y-%m-%d", time_info))
+		throw ProblemWithStrftime();
+
+	return buffer;
+}
+
+/**
  * @brief
  * Sets the global variable that notice the started Server instances that a SIGINT has been raised, making them stop.
  *
@@ -87,15 +156,14 @@ inline static void stop_server(int signal_number __attribute__((unused))) { inte
  */
 Server::Server(int const port, std::string const &name, std::string const &password) :
 	_socket(socket(AF_INET, SOCK_STREAM, 0)),
-	_sock_addr(),
-	_sock_len(sizeof(this->_sock_addr)),
 	_epoll_socket(epoll_create1(0)),
+	_sock_addr(new_sockaddr_in(AF_INET, htons(port), INADDR_ANY)),
 	_name(name),
 	_password(password),
-	_creation_date(),
-	_creation_time(),
 	_compilation_date(__DATE__),
 	_compilation_time(__TIME__),
+	_creation_date(now_date()),
+	_creation_time(now_time()),
 	_clients_by_socket(),
 	_clients_by_nickname(),
 	_channels_by_name()
@@ -103,18 +171,14 @@ Server::Server(int const port, std::string const &name, std::string const &passw
 	if (this->_socket == -1)
 		throw ProblemWithSocket();
 
-	this->_sock_addr.sin_family = AF_INET;
-	this->_sock_addr.sin_port = htons(port);
-	this->_sock_addr.sin_addr.s_addr = INADDR_ANY;
+	if (this->_epoll_socket == -1)
+		throw ProblemWithEpollCreate1();
 
 	if (bind(this->_socket, (struct sockaddr *)&this->_sock_addr, sizeof(this->_sock_addr)) == -1)
 		throw ProblemWithBind();
 
 	if (listen(this->_socket, 10) == -1)
 		throw ProblemWithListen();
-
-	if (this->_epoll_socket == -1)
-		throw ProblemWithEpollCreate1();
 
 	epoll_event event;
 
@@ -123,24 +187,6 @@ Server::Server(int const port, std::string const &name, std::string const &passw
 
 	if (epoll_ctl(this->_epoll_socket, EPOLL_CTL_ADD, this->_socket, &event) == -1)
 		throw ProblemWithEpollCtl();
-
-	time_t const raw_time = time(NULL);
-
-	if (raw_time == -1)
-		throw ProblemWithTime();
-
-	tm const *const time_info = localtime(&raw_time);
-	char            buffer[42];
-
-	if (!strftime(buffer, sizeof(buffer), "%Y-%m-%d", time_info))
-		throw ProblemWithStrftime();
-
-	this->_creation_date = buffer;
-
-	if (!strftime(buffer, sizeof(buffer), "%H:%M:%S", time_info))
-		throw ProblemWithStrftime();
-
-	this->_creation_time = buffer;
 
 	signal(SIGINT, stop_server);
 }

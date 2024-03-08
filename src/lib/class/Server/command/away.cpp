@@ -6,13 +6,11 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:09 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/06 02:10:00 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/08 23:00:37 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
-#include "class/exception/InvalidConversion.hpp"
-#include "class/exception/UnknownReply.hpp"
 #include "replies.hpp"
 
 /**

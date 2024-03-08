@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/06 00:42:53 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/09 00:20:29 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int main(int const ac, char const *const *const av)
 {
 	if (ac != 3)
 	{
-		std::cerr << "incorrect number of arguments\n";
+		std::cerr << "incorrect number of arguments" << std::endl;
 		return 1;
 	}
 

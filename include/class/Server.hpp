@@ -6,18 +6,14 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/06 00:53:28 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/08 21:36:46 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "class/Client.hpp"
-#include <map>
 #include <netinet/in.h>
-#include <set>
-#include <sys/epoll.h>
-#include <sys/socket.h>
 #include <vector>
 
 // TODO : change this to a proper value
@@ -50,18 +46,18 @@ private:
 	static CommandMap const                               _commands_by_name;
 
 	// Fields
-	int         _socket;
-	sockaddr_in _sock_addr;
-	socklen_t   _sock_len;
-	int         _epoll_socket;
+	int const         _socket;
+	int const         _epoll_socket;
+	sockaddr_in const _sock_addr;
 
-	std::string                       _name;
-	std::string                       _version;
-	std::string                       _password;
-	std::string                       _creation_date;
-	std::string                       _creation_time;
-	std::string                       _compilation_date;
-	std::string                       _compilation_time;
+	std::string const _name;
+	std::string const _version;
+	std::string const _password;
+	std::string const _compilation_date;
+	std::string const _compilation_time;
+	std::string const _creation_date;
+	std::string const _creation_time;
+
 	std::map<int, Client>             _clients_by_socket;
 	std::map<NickName, Client *const> _clients_by_nickname;
 	std::map<ChannelName, Channel>    _channels_by_name;

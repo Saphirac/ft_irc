@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/06 03:01:59 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/08 22:56:45 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@
 #include <ctime>
 #include <map>
 #include <stdint.h>
-#include <sys/epoll.h>
 
 class Channel;
 class ChannelName;
@@ -46,7 +45,7 @@ public:
 		std::string const &get_away_msg(void) const;
 
 		// Methods
-		void set(UserMode const mode, void const *const = NULL);
+		void set(UserMode const mode, void const *const arg = NULL);
 		void clear(UserMode const mode);
 		bool is_set(UserMode const mode) const;
 
@@ -117,7 +116,6 @@ public:
 	std::string formatted_reply(int const reply_number...) const;
 	void        append_to_msg_out(std::string const &msg);
 	void        send_msg_out(void);
-	void        clear_msg_out(void);
 
 	void set_mode(UserMode const mode, void const *const arg = NULL);
 	void clear_mode(UserMode const mode);

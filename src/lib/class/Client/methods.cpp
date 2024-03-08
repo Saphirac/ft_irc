@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/06 02:46:46 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/08 22:56:55 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 #include "class/exception/ProblemWithSend.hpp"
 #include "class/exception/UnknownReply.hpp"
 #include "replies.hpp"
-#include <cstdarg>
 #include <cstdlib>
 #include <cstring>
 #include <iomanip>
@@ -154,9 +153,10 @@ std::string Client::Modes::Flags::to_string(void) const
 }
 
 /**
- * @brief Sets a mode.
+ * @brief Sets a mode for the client.
  *
  * @param mode The mode to set.
+ * @param arg The argument associated with the mode if any.
  */
 void Client::Modes::set(UserMode const mode, void const *const arg)
 {
@@ -321,7 +321,7 @@ std::string Client::prefix(void) const
 /**
  * @brief Computes the `%c` conversion specification.
  *
- * @param fmt The format string to insert the argument in.
+ * @param format The format string to insert the argument in.
  * @param length_modifiers The length modifiers of the conversion specification.
  * @param percent_pos The position of the '%' character in the format string.
  * @param specifier_pos The position of the specifier character in the format string.
@@ -333,7 +333,7 @@ std::string Client::prefix(void) const
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static size_t convert_c(
-	std::string       &fmt,
+	std::string       &format,
 	std::string const &length_modifiers,
 	size_t const       percent_pos,
 	size_t const       specifier_pos,
@@ -349,11 +349,11 @@ inline static size_t convert_c(
 
 		if (byte_count == -1)
 		{
-			fmt.erase(percent_pos, specifier_pos - percent_pos + 1);
+			format.erase(percent_pos, specifier_pos - percent_pos + 1);
 			return 0;
 		}
 
-		fmt.replace(
+		format.replace(
 			percent_pos,
 			specifier_pos - percent_pos + 1,
 			reinterpret_cast<char const *>(&arg),
@@ -363,14 +363,14 @@ inline static size_t convert_c(
 
 	char const arg = static_cast<char>(va_arg(args, int));
 
-	fmt.replace(percent_pos, specifier_pos - percent_pos + 1, 1, arg);
+	format.replace(percent_pos, specifier_pos - percent_pos + 1, 1, arg);
 	return 1;
 }
 
 /**
  * @brief Computes the `%s` conversion specification.
  *
- * @param fmt The format string to insert the argument in.
+ * @param format The format string to insert the argument in.
  * @param length_modifiers The length modifiers of the conversion specification.
  * @param percent_pos The position of the '%' character in the format string.
  * @param specifier_pos The position of the specifier character in the format string.
@@ -382,7 +382,7 @@ inline static size_t convert_c(
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static size_t convert_s(
-	std::string       &fmt,
+	std::string       &format,
 	std::string const &length_modifiers,
 	size_t const       percent_pos,
 	size_t const       specifier_pos,
@@ -393,14 +393,14 @@ inline static size_t convert_s(
 
 	char const *const arg = va_arg(args, char const *);
 
-	fmt.replace(percent_pos, specifier_pos - percent_pos + 1, arg);
+	format.replace(percent_pos, specifier_pos - percent_pos + 1, arg);
 	return strlen(arg);
 }
 
 /**
  * @brief Computes the `%S` conversion specification.
  *
- * @param fmt The format string to insert the argument in.
+ * @param format The format string to insert the argument in.
  * @param length_modifiers The length modifiers of the conversion specification.
  * @param percent_pos The position of the '%' character in the format string.
  * @param specifier_pos The position of the specifier character in the format string.
@@ -412,7 +412,7 @@ inline static size_t convert_s(
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static size_t convert_S(
-	std::string       &fmt,
+	std::string       &format,
 	std::string const &length_modifiers,
 	size_t const       percent_pos,
 	size_t const       specifier_pos,
@@ -425,13 +425,13 @@ inline static size_t convert_S(
 
 		std::wstring const arg = *va_arg(args, std::wstring const *);
 
-		fmt.replace(percent_pos, specifier_pos - percent_pos + 1, reinterpret_cast<char const *>(arg.c_str()));
+		format.replace(percent_pos, specifier_pos - percent_pos + 1, reinterpret_cast<char const *>(arg.c_str()));
 		return arg.size() * sizeof(wchar_t);
 	}
 
 	std::string const arg = *va_arg(args, std::string const *);
 
-	fmt.replace(percent_pos, specifier_pos - percent_pos + 1, arg);
+	format.replace(percent_pos, specifier_pos - percent_pos + 1, arg);
 	return arg.size();
 }
 
@@ -440,7 +440,7 @@ inline static size_t convert_S(
  *
  * @tparam Uint The type of the unsigned integer to convert. (assumed to be either `uint8_t` or `uint16_t`)
  *
- * @param fmt The format string to insert the argument in.
+ * @param format The format string to insert the argument in.
  * @param percent_pos The position of the '%' character in the format string.
  * @param specifier_pos The position of the specifier character in the format string.
  * @param args The list of variadic arguments.
@@ -451,7 +451,7 @@ inline static size_t convert_S(
  */
 template<typename Uint>
 inline static size_t convert_low_uint(
-	std::string &fmt,
+	std::string &format,
 	size_t const percent_pos,
 	size_t const specifier_pos,
 	va_list      args)
@@ -462,7 +462,7 @@ inline static size_t convert_low_uint(
 
 	std::string const arg = ss.str();
 
-	fmt.replace(percent_pos, specifier_pos - percent_pos + 1, arg);
+	format.replace(percent_pos, specifier_pos - percent_pos + 1, arg);
 	return arg.size();
 }
 
@@ -471,7 +471,7 @@ inline static size_t convert_low_uint(
  *
  * @tparam Uint The type of the unsigned integer to convert. (assumed to be either `uint32_t` or `uint64_t`)
  *
- * @param fmt The format string to insert the argument in.
+ * @param format The format string to insert the argument in.
  * @param percent_pos The position of the '%' character in the format string.
  * @param specifier_pos The position of the specifier character in the format string.
  * @param args The list of variadic arguments.
@@ -482,7 +482,7 @@ inline static size_t convert_low_uint(
  */
 template<typename Uint>
 inline static size_t convert_high_uint(
-	std::string &fmt,
+	std::string &format,
 	size_t const percent_pos,
 	size_t const specifier_pos,
 	va_list      args)
@@ -493,14 +493,14 @@ inline static size_t convert_high_uint(
 
 	std::string const arg = ss.str();
 
-	fmt.replace(percent_pos, specifier_pos - percent_pos + 1, arg);
+	format.replace(percent_pos, specifier_pos - percent_pos + 1, arg);
 	return arg.size();
 }
 
 /**
  * @brief Computes the `%u` conversion specification.
  *
- * @param fmt The format string to insert the argument in.
+ * @param format The format string to insert the argument in.
  * @param length_modifiers The length modifiers of the conversion specification.
  * @param percent_pos The position of the '%' character in the format string.
  * @param specifier_pos The position of the specifier character in the format string.
@@ -512,20 +512,20 @@ inline static size_t convert_high_uint(
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static size_t convert_u(
-	std::string       &fmt,
+	std::string       &format,
 	std::string const &length_modifiers,
 	size_t const       percent_pos,
 	size_t const       specifier_pos,
 	va_list            args)
 {
 	if (length_modifiers == "hh")
-		return convert_low_uint<uint8_t>(fmt, percent_pos, specifier_pos, args);
+		return convert_low_uint<uint8_t>(format, percent_pos, specifier_pos, args);
 	if (length_modifiers == "h")
-		return convert_low_uint<uint16_t>(fmt, percent_pos, specifier_pos, args);
+		return convert_low_uint<uint16_t>(format, percent_pos, specifier_pos, args);
 	if (length_modifiers.empty())
-		return convert_high_uint<uint32_t>(fmt, percent_pos, specifier_pos, args);
+		return convert_high_uint<uint32_t>(format, percent_pos, specifier_pos, args);
 	if (length_modifiers == "l" || length_modifiers == "ll")
-		return convert_high_uint<uint64_t>(fmt, percent_pos, specifier_pos, args);
+		return convert_high_uint<uint64_t>(format, percent_pos, specifier_pos, args);
 	return std::string::npos;
 }
 
@@ -616,12 +616,7 @@ std::string Client::formatted_reply(int const reply_number...) const
  *
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-void Client::append_to_msg_out(std::string const &msg) { this->_msg_out += msg + "\r\n"; }
-
-/**
- * @brief Clears the output buffer of the Client instance.
- */
-void Client::clear_msg_out(void) { this->_msg_out.clear(); }
+void Client::append_to_msg_out(std::string const &msg) { this->_msg_out += msg + TERMINATING_SEQUENCE; }
 
 /**
  * @brief
@@ -638,7 +633,7 @@ void Client::send_msg_out(void)
 	if (send(this->_socket, this->_msg_out.c_str(), this->_msg_out.size(), 0) == -1)
 		throw ProblemWithSend();
 
-	this->clear_msg_out();
+	this->_msg_out.clear();
 }
 
 /**
