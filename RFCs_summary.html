@@ -1035,32 +1035,35 @@
 						The AWAY command is used to mark/unmark a user as away.<br>
 						It also allows the user to choose a custom away message.<br>
 						<br>
-						When the server receives an AWAY message, it must check<br>
-						whether a parameter is given.
-						<ul>
-							<li>
-								If there is, then the server must:
-								<ol>
-									<li>set the away message for the user to the given one</li>
-									<li>set the `a` mode for the user</li>
+						When the server receives an AWAY message, it must:
+						<ol>
+							<li>determine whether the client provided an argument
+								<ul>
 									<li>
-										send back a <a href="#rpl_nowaway">RPL_NOWAWAY</a> to the client,<br>
-										to indicate them that they are now marked as away
+										If they did, then the server must:
+										<ol>
+											<li>set the away message for the user to the given one</li>
+											<li>set the `a` mode for the user</li>
+											<li>
+												send back a <a href="#rpl_nowaway">RPL_NOWAWAY</a> to the client,<br>
+												to indicate them that they are now marked as away
+											</li>
+										</ol>
 									</li>
-								</ol>
-							</li>
-							<li>
-								If there is not, then the server must:
-								<ol>
-									<li>unset the away message for the client</li>
-									<li>unset the `a` mode for the user</li>
 									<li>
-										send back a <a href="#rpl_unaway">RPL_UNAWAY</a> to the client,<br>
-										to indicate them that they are no longer marked as away
+										If they didn't, then the server must:
+										<ol>
+											<li>unset the away message for the client</li>
+											<li>unset the `a` mode for the user</li>
+											<li>
+												send back a <a href="#rpl_unaway">RPL_UNAWAY</a> to the client,<br>
+												to indicate them that they are no longer marked as away
+											</li>
+										</ol>
 									</li>
-								</ol>
+								</ul>
 							</li>
-						</ul>
+						</ol>
 					</p>
 				</section>
 
@@ -1385,15 +1388,21 @@
 													<li>If the channel doesn't exist, then:
 														<ol>
 															<li>create the channel</li>
-															<li>add the user to the list of the channel operators</li>
+															<li>
+																if the channel supports modes, then<br>
+																add the user to the list of the channel operators
+															</li>
 														</ol>
 													</li>
 												</ul>
 											</li>
 											<li>add the user to the list of the channel members</li>
-											<li>send a JOIN message to every member of the channel, to inform them of the user's arrival</li>
 											<li>
-												send back a <a href="#rpl_topic">RPL_TOPIC</a> to the client,
+												send a JOIN message to every member of the channel,<br>
+												to inform them of the user's arrival
+											</li>
+											<li>
+												send back a <a href="#rpl_topic">RPL_TOPIC</a> to the client,<br>
 												to inform them of the topic of the channel</li>
 											<li>
 												run the <a href="#command_names">NAMES</a> command with the joined channel passed in parameter
@@ -1488,16 +1497,16 @@
 							<li>for each given channel name:
 								<ol>
 									<li>check that the channel exists</li>
-									<li>check that the user is a member of the channel</li>
+									<li>check that the user is one of the channel members</li>
 									<li>
 										send a PART message to every member of the channel,<br>
 										to inform them of the user's departure
 									</li>
 									<li>
 										if the user is one of the channel operators,<br>
-										then remove them from the list of channel operators
+										then remove them from the list of the channel operators
 									</li>
-									<li>remove the user from the list of channel members</li>
+									<li>remove the user from the list of the channel members</li>
 								</ol>
 							</li>
 						</ol>
@@ -1549,39 +1558,63 @@
 					<!-- #endregion -->
 					<p>
 						The TOPIC command is used to set, unset, or change the topic of a channel.<br>
-						When the server receives a TOPIC message, it must check that the given channel exists.<br>
-						Then the server must check that the user is in it.<br>
-						Then the server must check if there is a given topic to set.
-						<ul>
-							<li>
-								If there is, then the server must check if the `t` channel mode is set.<br>
-								If it is, then the server must check that the user is a channel operator.<br>
-								Then the server must set the topic of the channel to the given one,<br>
-								and finally, send back a TOPIC message to every user<br>
-								that are present in the given channel,<br>
-								to inform them of the new topic of the channel.
-							</li>
-							<li>
-								If there is not, then the server must check whether the current topic<br>
-								of the given channel is an empty string.<br>
-								If it is, then the server must send back a <a href="#rpl_notopic">RPL_NOTOPIC</a><br>
-								to the client, to indicate that the given channel has no topic.<br>
-								Else, the server must send back a <a href="#rpl_topic">RPL_TOPIC</a><br>
-								to the client, to indicate the topic of the given channel.
-							</li>
-						</ul>
 						<br>
-						<b>Note</b>: for each TOPIC message sent by the server,<br>
-						the server must pass in parameter the given topic.<br>
-						<br>
+						When the server receives a TOPIC message, it must:
+						<ol>
+							<li>check that the client provided enough arguments</li>
+							<li>check that the given channel exists</li>
+							<li>check that the user is one of the channel members</li>
+							<li>determine whether the client provided a topic to set
+								<ul>
+									<li>If they did, then:
+										<ol>
+											<li>if the `t` channel mode is set, check that the user is one of the channel operators</li>
+											<li>set the topic of the channel to the given one</li>
+											<li>
+												send a TOPIC message to every channel members,<br>
+												to inform them of the new topic of the channel
+											</li>
+										</ol>
+									</li>
+									<li>
+										If they didn't, then:
+										<ol>
+											<li>determine whether the current topic of the channel is an empty string
+												<ul>
+													<li>
+														If it is, then send back a <a href="#rpl_notopic">RPL_NOTOPIC</a> to the client,<br>
+														to indicate that the given channel has no topic
+													</li>
+													<li>
+														If it isn't, then send back a <a href="#rpl_topic">RPL_TOPIC</a> to the client,<br>
+														to indicate the topic of the given channel
+													</li>
+												</ul>
+											</li>
+										</ol>
+									</li>
+								</ul>
+							</li>
+						</ol>
 						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
-						<!-- TODO -->
 						<ul>
-							<li><a href="#rpl_notopic">RPL_NOTOPIC</a></li>
-							<li><a href="#rpl_topic">RPL_TOPIC</a></li>
-							<li><a href="#err_notonchannel">ERR_NOTONCHANNEL</a></li>
-							<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
-							<li><a href="#err_chanoprivsneeded">ERR_CHANOPRIVSNEEDED</a></li>
+							<li>
+								The channel argument is missing<br>
+								&#x21B3; send back an <a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a> to the client
+							</li>
+							<li>
+								The channel doesn't exist<br>
+								&#x21B3; send back an <a href="#err_nosuchchannel">ERR_NOSUCHCHANNEL</a> to the client
+							</li>
+							<li>
+								The user is not a member of the channel<br>
+								&#x21B3; send back an <a href="#err_notonchannel">ERR_NOTONCHANNEL</a> to the client
+							</li>
+							<li>
+								The user provided a new topic to set and the `t` channel mode is set,<br>
+								but the user is not a channel operator<br>
+								&#x21B3; send back an <a href="#err_chanoprivsneeded">ERR_CHANOPRIVSNEEDED</a> to the client
+							</li>
 						</ul>
 					</p>
 				</section>
