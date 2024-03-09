@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/02 00:48:16 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/09 00:20:29 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,19 +19,18 @@ int main(int const ac, char const *const *const av)
 {
 	if (ac != 3)
 	{
-		std::cerr << "incorrect number of args\n";
+		std::cerr << "incorrect number of arguments" << std::endl;
 		return 1;
 	}
 
-	Server myserver = Server(atoi(av[1]), std::string(av[2]), "MyServer");
-
 	try
 	{
-		myserver.create_server();
+		Server(atoi(av[1]), "MyServer", std::string(av[2])).start();
 	}
-	catch (std::exception &e)
+	catch (std::exception const &e)
 	{
 		std::cerr << e.what() << std::endl;
+		return 1;
 	}
 	return 0;
 }

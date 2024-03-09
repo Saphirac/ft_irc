@@ -3,214 +3,207 @@
 /*                                                        :::      ::::::::   */
 /*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/02 00:48:08 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/08 23:42:47 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Exceptions.hpp"
 #include "class/Server.hpp"
-#include <ctime>
-#include <iostream>
-#include <unistd.h>
+#include "class/exception/ProblemWithBind.hpp"
+#include "class/exception/ProblemWithClose.hpp"
+#include "class/exception/ProblemWithEpollCreate1.hpp"
+#include "class/exception/ProblemWithEpollCtl.hpp"
+#include "class/exception/ProblemWithListen.hpp"
+#include "class/exception/ProblemWithSocket.hpp"
+#include "class/exception/ProblemWithStrftime.hpp"
+#include "class/exception/ProblemWithTime.hpp"
+#include <csignal>
+#include <sys/epoll.h>
 
-// ***************************************************************************************************************** //
-//                                                   Shared Fields                                                   //
-// ***************************************************************************************************************** //
+extern bool interrupted;
+
+// Shared fields //
+
 static std::string const raw_operator_hosts[] = {
 	// TODO: replace this with the actual operator hosts
 	"tmp",
 };
-static size_t const         raw_operator_hosts_len = sizeof(raw_operator_hosts) / sizeof(*raw_operator_hosts);
-std::set<std::string> const Server::_operator_hosts =
-	std::set<std::string>(raw_operator_hosts, raw_operator_hosts + raw_operator_hosts_len);
+std::set<std::string> const Server::_operator_hosts = std::set<std::string>(
+	raw_operator_hosts,
+	raw_operator_hosts + sizeof(raw_operator_hosts) / sizeof(*raw_operator_hosts));
 
-// TODO : add all the commands
-static std::pair<std::string, Server::Command> const raw_cmd[] = {
-	std::make_pair("CAP", &Server::cap),
-	std::make_pair("USER", &Server::user),
+static std::pair<std::string const, std::string const> const raw_operator_ids[] = {
+	std::make_pair("jodufour", "eagle"),
+	std::make_pair("mcourtoi", "black panther"),
+	std::make_pair("gle-mini", "tiger"),
 };
+std::map<std::string, std::string const> const Server::_operator_ids = std::map<std::string, std::string const>(
+	raw_operator_ids,
+	raw_operator_ids + sizeof(raw_operator_ids) / sizeof(*raw_operator_ids));
 
-static size_t const raw_cmd_len = sizeof(raw_cmd) / sizeof(*raw_cmd);
+Server::CommandPair const Server::_raw_commands_by_name[] = {
+	// TODO: add missing commands
+	std::make_pair("AWAY", &Server::_away),
+	std::make_pair("CAP", &Server::_cap),
+	std::make_pair("MODE", &Server::_mode),
+	std::make_pair("NICK", &Server::_nick),
+	std::make_pair("OPER", &Server::_oper),
+	std::make_pair("PASS", &Server::_pass),
+	std::make_pair("USER", &Server::_user),
+};
+Server::CommandMap const Server::_commands_by_name = CommandMap(
+	_raw_commands_by_name,
+	_raw_commands_by_name + sizeof(_raw_commands_by_name) / sizeof(*_raw_commands_by_name));
 
-std::map<std::string, Server::Command> const Server::_map_of_cmds(raw_cmd, raw_cmd + raw_cmd_len);
+// Utils //
+
+/**
+ * @brief Creates a new sockaddr_in instance and initializes its fields.
+ *
+ * @param sin_family The value to assign to the `sockaddr_in::sin_family` field.
+ * @param sin_port The value to assign to the `sockaddr_in::sin_port` field.
+ * @param sin_addr The value to assign to the `sockaddr_in::sin_addr.s_addr` field.
+ *
+ * @return The newly created sockaddr_in instance.
+ */
+inline static sockaddr_in new_sockaddr_in(
+	sa_family_t const sin_family,
+	in_port_t const   sin_port,
+	in_addr_t const   sin_addr)
+{
+	sockaddr_in sock_addr;
+
+	sock_addr.sin_family = sin_family;
+	sock_addr.sin_port = sin_port;
+	sock_addr.sin_addr.s_addr = sin_addr;
+
+	return sock_addr;
+}
+
+/**
+ * @brief Generates the string representation of the now time.
+ *
+ * @return The string representation of the now time.
+ *
+ * @throw `ProblemWithTime` if `time()` fails.
+ * @throw `ProblemWithStrftime` if `strftime()` fails.
+ */
+inline static std::string now_time(void)
+{
+	time_t const raw_time = time(NULL);
+
+	if (raw_time == -1)
+		throw ProblemWithTime();
+
+	tm const *const time_info = localtime(&raw_time);
+	char            buffer[42];
+
+	if (!strftime(buffer, sizeof(buffer), "%H:%M:%S", time_info))
+		throw ProblemWithStrftime();
+
+	return buffer;
+}
+
+/**
+ * @brief Generates the string representation of the now date.
+ *
+ * @return The string representation of the now date.
+ *
+ * @throw `ProblemWithTime` if `time()` fails.
+ * @throw `ProblemWithStrftime` if `strftime()` fails.
+ */
+inline static std::string now_date(void)
+{
+	time_t const raw_time = time(NULL);
+
+	if (raw_time == -1)
+		throw ProblemWithTime();
+
+	tm const *const time_info = localtime(&raw_time);
+	char            buffer[42];
+
+	if (!strftime(buffer, sizeof(buffer), "%Y-%m-%d", time_info))
+		throw ProblemWithStrftime();
+
+	return buffer;
+}
+
+/**
+ * @brief
+ * Sets the global variable that notice the started Server instances that a SIGINT has been raised, making them stop.
+ *
+ * @param signal_number The number of the signal that has been raised.
+ */
+inline static void stop_server(int signal_number __attribute__((unused))) { interrupted = true; }
 
 // Constructors //
 
 /**
+ * @param port The port on which the server will listen.
  * @param name The name of the server.
  * @param version The version of the server.
  * @param password The password of the server (required to connect to it).
+ *
+ * @throw `ProblemWithSocket` if `socket()` fails.
+ * @throw `ProblemWithBind` if `bind()` fails
+ * @throw `ProblemWithListen` if `listen()` fails.
+ * @throw `ProblemWithEpollCreate1` if `epoll_create1()` fails.
+ * @throw `ProblemWithEpollCtl` if `epoll_ctl()` fails.
+ * @throw `ProblemWithTime` if `time()` fails.
+ * @throw `ProblemWithStrftime` if `strftime()` fails.
  */
-/*Server::Server(std::string const &name, std::string const &version, std::string const &password) :
-    _name(name),
-    _version(version),
-    _password(password),
-    _creation_date(),
-    _creation_time(),
-    _compilation_date(__DATE__),
-    _compilation_time(__TIME__),
-    _clients_by_socket(),
-    _clients_by_nickname()
-{
-    time_t const raw_time = time(NULL);
-    tm const    *time_info = localtime(&raw_time);
-    char         buffer[80];
-
-    strftime(buffer, sizeof(buffer), "%Y-%m-%d", time_info);
-    this->_creation_date = buffer;
-    strftime(buffer, sizeof(buffer), "%H:%M:%S", time_info);
-    this->_creation_time = buffer;
-}*/
-
-Server::Server(int const port, std::string const name, std::string const password, bool shutdown) :
-	_port(port),
+Server::Server(int const port, std::string const &name, std::string const &password) :
+	_socket(socket(AF_INET, SOCK_STREAM, 0)),
+	_epoll_socket(epoll_create1(0)),
+	_sock_addr(new_sockaddr_in(AF_INET, htons(port), INADDR_ANY)),
 	_name(name),
 	_password(password),
-	_shutdown(shutdown)
+	_compilation_date(__DATE__),
+	_compilation_time(__TIME__),
+	_creation_date(now_date()),
+	_creation_time(now_time()),
+	_clients_by_socket(),
+	_clients_by_nickname(),
+	_channels_by_name()
 {
-	if (DEBUG)
-		std::cout << "Server constructor called\n";
+	if (this->_socket == -1)
+		throw ProblemWithSocket();
+
+	if (this->_epoll_socket == -1)
+		throw ProblemWithEpollCreate1();
+
+	if (bind(this->_socket, (struct sockaddr *)&this->_sock_addr, sizeof(this->_sock_addr)) == -1)
+		throw ProblemWithBind();
+
+	if (listen(this->_socket, 10) == -1)
+		throw ProblemWithListen();
+
+	epoll_event event;
+
+	event.events = EPOLLIN;
+	event.data.fd = this->_socket;
+
+	if (epoll_ctl(this->_epoll_socket, EPOLL_CTL_ADD, this->_socket, &event) == -1)
+		throw ProblemWithEpollCtl();
+
+	signal(SIGINT, stop_server);
 }
 
 // Destructor //
 
 /**
- * @brief Destroy the Server:: Server object
- * clear the client list and close the socket
- *
  * @throw ProblemWithClose() if close() fails
  */
 Server::~Server(void)
 {
-	this->_clients_socket.clear();
-	if (close(this->_socket) == -1)
+	int ret = 0;
+
+	if (this->_socket != -1)
+		ret = close(this->_socket);
+	if (this->_epoll_socket != -1)
+		ret |= close(this->_epoll_socket);
+	if (ret == -1)
 		throw ProblemWithClose();
-}
-
-// Getters //
-
-int Server::get_port(void) const { return this->_port; }
-int Server::get_socket(void) const { return this->_socket; }
-int Server::get_epoll_socket(void) const { return this->_epoll_socket; }
-
-std::string const &Server::get_name(void) const { return this->_name; }
-std::string const &Server::get_creation_date(void) const { return this->_creation_date; }
-std::string const &Server::get_creation_time(void) const { return this->_creation_time; }
-std::string const &Server::get_compilation_date(void) const { return this->_compilation_date; }
-std::string const &Server::get_compilation_time(void) const { return this->_compilation_time; }
-std::string const &Server::get_password(void) const { return this->_password; }
-
-struct sockaddr_in const &Server::get_sock_addr(void) const { return this->_sock_addr; }
-socklen_t const          &Server::get_sock_len(void) const { return this->_sock_len; }
-
-std::map<int, Client *> const         &Server::get_clients_socket(void) const { return this->_clients_socket; }
-std::map<std::string, Client *> const &Server::get_clients_nick(void) const { return this->_clients_nick; }
-std::vector<Channel *> const          &Server::get_channels(void) const { return this->_channels; }
-
-bool Server::get_shutdown(void) const { return this->_shutdown; }
-
-// Setters //
-
-void Server::set_socket(int const socket) { this->_socket = socket; }
-void Server::set_epoll_socket(int const epoll_socket) { this->_epoll_socket = epoll_socket; }
-void Server::set_port(int const port) { this->_port = port; }
-
-void Server::set_name(std::string const &name) { this->_name = name; }
-void Server::set_creation_date(std::string const &creation_date) { this->_creation_date = creation_date; }
-void Server::set_creation_time(std::string const &creation_time) { this->_creation_time = creation_time; }
-void Server::set_compilation_date(std::string const &compilation_date) { this->_compilation_date = compilation_date; }
-void Server::set_compilation_time(std::string const &compilation_time) { this->_compilation_time = compilation_time; }
-void Server::set_password(std::string const &password) { this->_password = password; }
-
-void Server::set_sock_addr(struct sockaddr_in const &sock_addr) { this->_sock_addr = sock_addr; }
-void Server::set_sock_len() { this->_sock_len = sizeof(this->_sock_addr); }
-
-void Server::set_clients_socket(std::map<int, Client *> const &clients_socket)
-{
-	this->_clients_socket = clients_socket;
-}
-void Server::set_clients_nick(std::map<std::string, Client *> const &clients_nick)
-{
-	this->_clients_nick = clients_nick;
-}
-void Server::set_channels(std::vector<Channel *> const &channels) { this->_channels = channels; }
-void Server::set_shutdown(bool const shutdown) { this->_shutdown = shutdown; }
-
-/**
- * @brief Create a socket object
- *
- * @throw Server::ProblemWithSocket if the socket() function fails
- */
-void Server::create_and_set_socket()
-{
-	this->_socket = socket(AF_INET, SOCK_STREAM, 0);
-	if (this->_socket == -1)
-		throw ProblemWithSocket();
-}
-
-/**
- * @brief this function is intended to set the epoll_event struct for the server socket
- *
- * @throw new can throw different exceptions depending on the error
- */
-void Server::set_epoll_event()
-{
-	if (DEBUG)
-		std::cout << "set_epoll_event() member function of server called\n";
-	this->_epoll_event = new epoll_event;
-	this->_epoll_event->events = EPOLLIN;
-	this->_epoll_event->data.fd = this->_socket;
-}
-
-// Methods
-
-/**
- * @brief create a struct sockaddr to listen to chosen port on any addresses
- *
- * @return sockaddr_in& the new assigned struct sockaddr
- *
- * @throw ProblemWithSockAddr() if bind() fails
- */
-struct sockaddr_in Server::bind_assign_sockaddr()
-{
-	struct sockaddr_in sock_addr;
-
-	sock_addr.sin_family = AF_INET;
-	sock_addr.sin_port = htons(this->_port);
-	sock_addr.sin_addr.s_addr = INADDR_ANY;
-
-	if (bind(this->_socket, (struct sockaddr *)&sock_addr, sizeof(sock_addr)) == -1)
-		throw ProblemWithSockAddr();
-	this->_sock_addr = sock_addr;
-	return sock_addr;
-}
-
-/**
- * @brief add a new client (Client *) to the maps of clients
- *
- * @param client the client to add to the list of clients
- */
-void Server::add_client(Client *client)
-{
-	this->_clients_socket[client->get_socket()] = client;
-
-	if (!client->get_nickname().empty())
-		this->_clients_nick[client->get_nickname()] = client;
-}
-
-/**
- * @brief remove a client (Client *) from the maps of clients
- *
- * @param client the client to remove from the list of clients
- *
- * @throw erase() can throw exceptions
- */
-void Server::remove_client(Client *client)
-{
-	this->_clients_socket.erase(client->get_socket());
-	if (!client->get_nickname().empty())
-		this->_clients_nick.erase(client->get_nickname());
 }
