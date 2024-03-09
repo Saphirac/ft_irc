@@ -3,23 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   UserMode.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/18 23:29:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/29 17:11:08 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/05 16:11:01 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#define USER_MODES "BOwia" // The order of the characters must match the order of the enum UserMode
+
 enum UserMode
 {
-	Bot,
-	LocalOperator,
-	Away,
-	Invisible,
-	WallopsListener,
-	EndOfUserModes,
+	Bot,             // 'B'
+	LocalOperator,   // 'O'
+	WallopsListener, // 'w'
+	Invisible,       // 'i'
+	Away,            // 'a'
 	AlreadySentPass,
-	AlreadySentUser
+	AlreadySentUser,
+	IsAboutToBeDisconnected
 };
