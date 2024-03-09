@@ -3,35 +3,32 @@
 /*                                                        :::      ::::::::   */
 /*   cap.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 13:43:54 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/04 15:22:37 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/06 03:04:05 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// TODO finish the command
-
 #include "class/Server.hpp"
-#include "ft_irc.hpp"
 #include "replies.hpp"
 
 /**
  * @brief Handle the CAP command used by the client to negotiate capabilities
  * Here we send CAP * LS :none to the client because we don't support any capability
  *
- * @param sender the client asking
- * @param parameters the parameters of the command
- * @return StatusCode : how the command went
+ * @param sender The client that sent the command.
+ * @param parameters The parameters of the command.
  *
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-StatusCode Server::cap(Client &sender, std::vector<std::string> const &parameters)
+void Server::_cap(
+	Client                         &sender __attribute__((unused)),
+	std::vector<std::string> const &parameters __attribute__((unused)))
 {
 	if (parameters.empty())
-		sender.append_to_msg_out(format_reply(ERR_NEEDMOREPARAMS, "CAP"));
+		return sender.append_to_msg_out(sender.formatted_reply(ERR_NEEDMOREPARAMS, "CAP"));
 
-	if (parameters.size() > 1 && parameters[0] == "LS" && parameters[1] == "302")
-		sender.append_to_msg_out(':' + this->_name + "CAP * LS :none\n\r");
-	return Success;
+	if (parameters[0] == "LS")
+		sender.append_to_msg_out("CAP * LS :none");
 }

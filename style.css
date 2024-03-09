@@ -31,3 +31,7 @@ th, td {
 	border: 2px solid;
 	padding: 0.2em;
 }
+
+ul, ol {
+	padding-inline-start: 21px;
+}
