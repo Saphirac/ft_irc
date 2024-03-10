@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 00:23:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 01:27:31 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/10 03:25:09 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,7 @@ public:
 	// Accessors
 	Topic const          &get_topic(void) const;
 	Channel::Modes const &get_modes(void) const;
+	size_t                get_members_size(void) const;
 
 	// Methods
 	void set_mode(ChannelMode const mode, void const *const arg = NULL);

@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/09 22:53:28 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/10 03:12:48 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,9 @@ public:
 
 	std::string user_mask(void) const;
 
-	void disconnect(std::string const &quit_msg = DEFAULT_QUIT_MSG);
+	void join_channel(ChannelName const &chan_name, Channel &channel);
+	void leave_channel(ChannelName const &chan_name);
+	void disconnect(void);
 
 private:
 	// Fields

@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/09 22:56:02 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/10 03:12:41 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -671,15 +671,32 @@ std::string Client::user_mask(void) const { return this->_nickname + "!" + this-
 
 // Methods //
 /**
+ * @brief Join a channel and adds a channel to the list of channels the client has joined.
+ *
+ * @param channel The channel to add.
+ */
+void Client::join_channel(ChannelName const &chan_name, Channel &channel)
+{
+	this->_joined_channels_by_name.insert(std::make_pair(chan_name, &channel));
+}
+
+/**
+ * @brief Leaves a channel and removes it from the list of channels the client has joined.
+ * 
+ * @param channel the channel to leave
+ */
+void Client::leave_channel(ChannelName const &chan_name)
+{
+	this->_joined_channels_by_name.erase(chan_name);
+}
+
+/**
  * @brief Closes the socket of the Client instance and deletes it's associated epoll_event
  *
  * @throw ProblemWithClose() if the close() function fails.
  */
-void Client::disconnect(std::string const &quit_msg)
+void Client::disconnect(void)
 {
-	this->append_to_msg_out(this->prefix() + "ERROR :" + quit_msg);
-	if (send(this->_socket, this->_msg_out.c_str(), this->_msg_out.size(), 0))
-		throw ProblemWithSend();
 	if (this->_socket != -1)
 	{
 		if (close(this->_socket) == -1)
