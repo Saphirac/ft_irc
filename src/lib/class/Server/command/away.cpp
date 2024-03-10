@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   away.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:09 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 23:00:37 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/10 02:04:33 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,10 @@ void Server::_away(Client &sender, std::vector<std::string> const &parameters)
 
 		sender.set_mode(Away, &away_msg);
 
-		return sender.append_to_msg_out(sender.formatted_reply(RPL_NOWAWAY));
+		return sender.append_formatted_reply_to_msg_out(RPL_NOWAWAY);
 	}
 	sender.clear_mode(Away);
 
-	sender.append_to_msg_out(sender.formatted_reply(RPL_UNAWAY));
+	sender.append_formatted_reply_to_msg_out(RPL_UNAWAY);
 }
 // TODO: Implement unit tests for this function

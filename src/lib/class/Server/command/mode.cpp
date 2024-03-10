@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mode.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/06 02:20:27 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/10 02:11:47 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,19 +186,19 @@ inline static void mode_for_user(Client &sender, std::vector<std::string> const 
 	NickName const &nickname = parameters[0];
 
 	if (nickname != sender.get_nickname())
-		return sender.append_to_msg_out(sender.formatted_reply(ERR_USERSDONTMATCH));
+		return sender.append_formatted_reply_to_msg_out(ERR_USERSDONTMATCH);
 
 	if (parameters.size() == 1)
 	{
 		std::string const modes_as_string = sender.get_modes().to_string();
 
-		return sender.append_to_msg_out(sender.formatted_reply(RPL_UMODEIS, &nickname, &modes_as_string));
+		return sender.append_formatted_reply_to_msg_out(RPL_UMODEIS, &nickname, &modes_as_string);
 	}
 
 	Client::Modes modes_to_be[2];
 
 	if (save_changes_for_user(sender.get_modes(), modes_to_be, parameters[1]))
-		return sender.append_to_msg_out(sender.formatted_reply(ERR_UMODEUNKNOWNFLAG));
+		return sender.append_formatted_reply_to_msg_out(ERR_UMODEUNKNOWNFLAG);
 	apply_changes_for_user(sender, modes_to_be);
 
 	sender.append_to_msg_out(
@@ -222,32 +222,24 @@ inline static void mode_for_user(Client &sender, std::vector<std::string> const 
 inline static void reply_channel_mode_is(Client &client, ChannelName const &name, Channel::Modes const &modes)
 {
 	std::string const        modes_as_string = modes.to_string();
-	std::string const        channel_mode_is = client.formatted_reply(RPL_CHANNELMODEIS, &name, &modes_as_string);
 	std::set<NickName> const invite_masks = modes.get_invite_masks();
-	std::list<std::string>   invite_list;
 
+	client.append_formatted_reply_to_msg_out(RPL_CHANNELMODEIS, &name, &modes_as_string);
 	if (!invite_masks.empty())
 	{
 		for (std::set<NickName>::const_iterator cit = invite_masks.begin(); cit != invite_masks.end(); ++cit)
-			invite_list.push_back(client.formatted_reply(RPL_INVITELIST, &name, &*cit));
-		invite_list.push_back(client.formatted_reply(RPL_ENDOFINVITELIST, &name));
+			client.append_formatted_reply_to_msg_out(RPL_INVITELIST, &name, &*cit);
+		client.append_formatted_reply_to_msg_out(RPL_ENDOFINVITELIST, &name);
 	}
 
 	std::set<NickName> const ban_masks = modes.get_ban_masks();
-	std::list<std::string>   ban_list;
 
 	if (!ban_masks.empty())
 	{
 		for (std::set<NickName>::const_iterator cit = ban_masks.begin(); cit != ban_masks.end(); ++cit)
-			ban_list.push_back(client.formatted_reply(RPL_BANLIST, &name, &*cit));
-		ban_list.push_back(client.formatted_reply(RPL_ENDOFBANLIST, &name));
+			client.append_formatted_reply_to_msg_out(RPL_BANLIST, &name, &*cit);
+		client.append_formatted_reply_to_msg_out(RPL_ENDOFBANLIST, &name);
 	}
-
-	client.append_to_msg_out(channel_mode_is);
-	for (std::list<std::string>::const_iterator cit = invite_list.begin(); cit != invite_list.end(); ++cit)
-		client.append_to_msg_out(*cit);
-	for (std::list<std::string>::const_iterator cit = ban_list.begin(); cit != ban_list.end(); ++cit)
-		client.append_to_msg_out(*cit);
 }
 
 /**
@@ -1050,15 +1042,15 @@ inline static void mode_for_channel(
 	std::map<ChannelName, Channel>::iterator const it = channels_by_name.find(name);
 
 	if (it == channels_by_name.end())
-		return sender.append_to_msg_out(sender.formatted_reply(ERR_NOSUCHCHANNEL, &name));
+		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &name);
 
 	if (name[0] == '+')
-		return sender.append_to_msg_out(sender.formatted_reply(ERR_NOCHANMODES, &name));
+		return sender.append_formatted_reply_to_msg_out(ERR_NOCHANMODES, &name);
 
 	Channel &channel = it->second;
 
 	if (!channel.get_modes().has_operator(sender))
-		return sender.append_to_msg_out(sender.formatted_reply(ERR_CHANOPRIVSNEEDED, &name));
+		return sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &name);
 
 	if (parameters.size() == 1)
 		return reply_channel_mode_is(sender, name, channel.get_modes());
@@ -1070,14 +1062,13 @@ inline static void mode_for_channel(
 	switch (ret)
 	{
 	case ERR_USERNOTONCHANNEL:
-		return sender.append_to_msg_out(sender.formatted_reply(ERR_USERNOTONCHANNEL, &sender.get_nickname(), &name));
+		return sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &sender.get_nickname(), &name);
 	case ERR_NEEDMOREPARAMS:
-		return sender.append_to_msg_out(sender.formatted_reply(ERR_NEEDMOREPARAMS, "MODE"));
+		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "MODE");
 	case ERR_KEYSET:
-		return sender.append_to_msg_out(sender.formatted_reply(ERR_KEYSET, &name));
+		return sender.append_formatted_reply_to_msg_out(ERR_KEYSET, &name);
 	case ERR_UNKNOWNMODE:
-		return sender.append_to_msg_out(
-			sender.formatted_reply(ERR_UNKNOWNMODE, *parsing_tools.current_character, &name));
+		return sender.append_formatted_reply_to_msg_out(ERR_UNKNOWNMODE, *parsing_tools.current_character, &name);
 	}
 
 	apply_changes_for_channel(channel, modes_to_be);
@@ -1101,7 +1092,7 @@ inline static void mode_for_channel(
 void Server::_mode(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (parameters.empty())
-		return sender.append_to_msg_out(sender.formatted_reply(ERR_NEEDMOREPARAMS, "MODE"));
+		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "MODE");
 
 	if (std::string("#&+!").find(parameters[0][0]) == std::string::npos)
 		return mode_for_user(sender, parameters);

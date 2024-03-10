@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   user.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 23:36:15 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/10 02:13:27 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,12 +32,12 @@
 void Server::_user(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (sender.has_mode(AlreadySentUser))
-		return sender.append_to_msg_out(sender.formatted_reply(ERR_ALREADYREGISTERED));
+		return sender.append_formatted_reply_to_msg_out(ERR_ALREADYREGISTERED);
 	if ((!this->_password.empty() && !sender.has_mode(AlreadySentPass)) || sender.get_nickname().empty())
 		return sender.set_mode(IsAboutToBeDisconnected);
 	if (parameters.size() < 4)
 	{
-		sender.append_to_msg_out(sender.formatted_reply(ERR_NEEDMOREPARAMS, "USER"));
+		sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "USER");
 		return sender.set_mode(IsAboutToBeDisconnected);
 	}
 
@@ -72,10 +72,9 @@ void Server::_user(Client &sender, std::vector<std::string> const &parameters)
 
 	std::string const user_mask = sender.user_mask();
 
-	sender.append_to_msg_out(sender.formatted_reply(RPL_WELCOME, &user_mask));
-	sender.append_to_msg_out(sender.formatted_reply(RPL_YOURHOST, &this->_name, &this->_version));
-	sender.append_to_msg_out(sender.formatted_reply(RPL_CREATED, &this->_creation_date));
-	sender.append_to_msg_out(
-		sender.formatted_reply(RPL_MYINFO, &this->_name, &this->_version, USER_MODES, CHANNEL_MODES));
+	sender.append_formatted_reply_to_msg_out(RPL_WELCOME, &user_mask);
+	sender.append_formatted_reply_to_msg_out(RPL_YOURHOST, &this->_name, &this->_version);
+	sender.append_formatted_reply_to_msg_out(RPL_CREATED, &this->_creation_date);
+	sender.append_formatted_reply_to_msg_out(RPL_MYINFO, &this->_name, &this->_version, USER_MODES, CHANNEL_MODES);
 }
 // TODO: implement unit tests for this function
