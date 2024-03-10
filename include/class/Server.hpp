@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/09 22:32:20 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/10 06:44:11 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ private:
 
 	// Methods
 	void _add_client(Client const &client);
-	void _remove_client(Client const &client);
+	void _remove_client(Client &client, std::string const &quit_msg = DEFAULT_QUIT_MSG);
 
 	void _handle_epoll_events(void);
 	void _compute_next_msg_for_a_client(Client &client);

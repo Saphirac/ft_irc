@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 04:00:32 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/10 06:17:06 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,10 +144,7 @@ void Server::_join(Client &sender, std::vector<std::string> const &params)
 	if (sender.has_mode(AlreadySentPass) == false)
 		sender.append_to_msg_out(':' + this->_name + " Password required.\nTry /quote PASS <password>");
 	if (params.size() < 1)
-	{
-		sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "JOIN");
-		return;
-	}
+		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "JOIN");
 	if (params.size() == 1 && params[0] == "0")
 	{
 		std::vector<std::string> channel_and_msg;

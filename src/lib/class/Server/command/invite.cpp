@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 03:59:58 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/10 06:16:34 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,28 +22,19 @@
 void Server::_invite(Client &sender, std::vector<std::string> const &params)
 {
 	if (params.size() < 2)
-	{
-		sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "INVITE");
-		return;
-	}
+		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "INVITE");
 
 	NickName const &nickname = sender.get_nickname();
 	NickName const &user_to_invite_nickname = params[0];
 
 	if (this->_clients_by_nickname.count(user_to_invite_nickname) == 0)
-	{
-		sender.append_formatted_reply_to_msg_out(ERR_NOSUCHNICK, &nickname);
-		return;
-	}
+		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHNICK, &nickname);
 
 	Client            &user_to_invite = *this->_clients_by_nickname[user_to_invite_nickname];
 	ChannelName const &chan_name = params[1];
 
 	if (this->_channels_by_name.count(chan_name) == 0)
-	{
-		sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &params[1]);
-		return;
-	}
+		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &params[1]);
 
 	Channel       &chan = this->_channels_by_name[params[1]];
 	Channel::Modes chan_modes = chan.get_modes();

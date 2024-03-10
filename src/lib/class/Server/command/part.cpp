@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:26:34 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/09 22:57:02 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/10 06:15:49 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,38 +25,37 @@
  *
  * @throw std:exception if a std function critically fails
  */
-void Server::_part(Client &sender, std::vector<std::string> const &parameters)
+void Server::_part(Client &sender, std::vector<std::string> const &params)
 {
 	if (params.empty())
-	{
-		sender.append_to_msg_out(sender.formatted_reply(ERR_NEEDMOREPARAMS, "PART"));
-		return;
-	}
+		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "PART");
 
-	std::list<std::string> channels = split<std::list>(params[0], ',');
+	std::list<std::string> channels = split<std::list<std::string> >(params[0], ',');
 
 	for (std::list<std::string>::const_iterator actual_channel = channels.begin(); actual_channel != channels.end();
 	     ++actual_channel)
 	{
-		ChannelName const                               &chan_name = actual_channel.get_name();
-		std::map<ChannelName, Channel *>::const_iterator chan_by_name = this->_channels_by_name.find(chan_name);
+		ChannelName const                       &chan_name = *actual_channel;
+		std::map<ChannelName, Channel>::iterator chan_by_name = this->_channels_by_name.find(chan_name);
+
 		if (chan_by_name == this->_channels_by_name.end())
-			sender.append_to_msg_out(sender.formatted_reply(ERR_NOSUCHCHANNEL, chan_name));
-		else if (!chan_by_name->has_member(sender.get_nickname()))
-			sender.append_to_msg_out(sender.formatted_reply(ERR_NOTONCHANNEL, chan_name));
+			return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &chan_name);
+
+		Channel &channel = chan_by_name->second;
+
+		if (!chan_by_name->second.has_member(sender))
+			return sender.append_formatted_reply_to_msg_out(ERR_NOTONCHANNEL, &chan_name);
+
+		channel.remove_member(sender);
+		if (!params[1].empty())
+		{
+			sender.append_to_msg_out(sender.prefix() + "PART :" + params[1]);
+			channel.broadcast_to_all_members(sender.prefix() + "PART : " + params[1]);
+		}
 		else
 		{
-			actual_channel->remove_member(sender);
-			if (!params[1].empty())
-			{
-				sender.append_to_msg_out(sender.prefix() + "PART :" + params[1]);
-				actual_channel->broadcast_to_all_members(sender.prefix() + "PART : " + params[1]);
-			}
-			else
-			{
-				sender.append_to_msg_out(sender.prefix() + "PART : Successfully left channel " + chan_name);
-				actual_channel->broadcast_to_all_members(sender.prefix() + "PART : " + DEFAULT_PART_MESSAGE);
-			}
+			sender.append_to_msg_out(sender.prefix() + "PART : Successfully left channel " + chan_name);
+			channel.broadcast_to_all_members(sender.prefix() + "PART : " + DEFAULT_PART_MESSAGE);
 		}
 	}
 }

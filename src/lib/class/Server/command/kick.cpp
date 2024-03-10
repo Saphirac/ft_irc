@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 04:50:36 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/10 06:18:06 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,18 +39,13 @@ inline static void __kick_only_one_channel_given(
 	ChannelName const &chan_name = split_channels_names[0];
 
 	if (channels_by_name.count(chan_name))
-	{
-		sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &chan_name);
-		return;
-	}
+		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &chan_name);
 
 	Channel &channel = channels_by_name.find(chan_name)->second;
 
 	if (channel.get_modes().has_operator(sender) == false)
-	{
-		sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &chan_name);
-		return;
-	}
+		return sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &chan_name);
+
 	for (size_t i = 0; !split_nicknames[i].empty(); ++i)
 	{
 		if (clients_by_nickname.count(split_nicknames[i]) == 0)
@@ -100,10 +95,7 @@ inline static void __kick_multiple_channel_given(
 void Server::_kick(Client &sender, std::vector<std::string> const &params)
 {
 	if (params.size() < 2)
-	{
-		sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "KICK");
-		return;
-	}
+		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "KICK");
 
 	ChannelNameVector split_channels_names = split<ChannelNameVector>(params[0], ',');
 	NickNameVector    split_nicknames = split<NickNameVector>(params[1], ',');
@@ -111,10 +103,7 @@ void Server::_kick(Client &sender, std::vector<std::string> const &params)
 	size_t split_channels_names_size = split_channels_names.size();
 
 	if (split_channels_names_size != 1 && split_nicknames.size() != split_channels_names_size)
-	{
-		sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "KICK");
-		return;
-	}
+		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "KICK");
 
 	if (split_channels_names_size == 1)
 		__kick_only_one_channel_given(

@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 03:58:11 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/10 06:45:40 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,20 +69,21 @@ void Server::_add_client(Client const &client)
  *
  * @throw `ProblemWithClose` if `close()` fails.
  */
-void Server::_remove_client(Client const &client, std::string const &quit_msg)
+void Server::_remove_client(Client &client, std::string const &quit_msg)
 {
 	std::vector<std::string> channel_and_msg;
-	std::map<ChannelName, Channel *const>::const_iterator my_end = client->get_joined_channels_by_name().end();
-	for (std::map<ChannelName, Channel *const>::const_iterator cit = client->get_joined_channels_by_name().begin();
+	std::map<ChannelName, Channel *const>::const_iterator my_end = client.get_joined_channels_by_name().end();
+
+	for (std::map<ChannelName, Channel *const>::const_iterator cit = client.get_joined_channels_by_name().begin();
 	     cit != my_end;
 	     ++cit)
 		channel_and_msg.push_back(cit->first);
 	channel_and_msg.push_back(quit_msg);
-	part(client, channel_and_msg);
+	this->_part(client, channel_and_msg);
 
 	if (this->_clients_by_nickname.erase(client.get_nickname()) != 0)
 		this->_clients_by_socket.erase(client.get_socket());
-	client->set_mode(IsAboutToBeDisconnected);
+	client.set_mode(IsAboutToBeDisconnected);
 }
 
 #define EPOLL_WAIT_TIMEOUT 100
