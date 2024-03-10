@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 01:42:30 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/10 03:59:58 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ void Server::_invite(Client &sender, std::vector<std::string> const &params)
 {
 	if (params.size() < 2)
 	{
-		sender.append_to_msg_out(sender.formatted_reply(ERR_NEEDMOREPARAMS, "INVITE"));
+		sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "INVITE");
 		return;
 	}
 
@@ -32,7 +32,7 @@ void Server::_invite(Client &sender, std::vector<std::string> const &params)
 
 	if (this->_clients_by_nickname.count(user_to_invite_nickname) == 0)
 	{
-		sender.append_to_msg_out(sender.formatted_reply(ERR_NOSUCHNICK, &nickname));
+		sender.append_formatted_reply_to_msg_out(ERR_NOSUCHNICK, &nickname);
 		return;
 	}
 
@@ -41,7 +41,7 @@ void Server::_invite(Client &sender, std::vector<std::string> const &params)
 
 	if (this->_channels_by_name.count(chan_name) == 0)
 	{
-		sender.append_to_msg_out(sender.formatted_reply(ERR_NOSUCHCHANNEL, &params[1]));
+		sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &params[1]);
 		return;
 	}
 
@@ -49,22 +49,21 @@ void Server::_invite(Client &sender, std::vector<std::string> const &params)
 	Channel::Modes chan_modes = chan.get_modes();
 
 	if (!chan.has_member(sender))
-		sender.append_to_msg_out(sender.formatted_reply(ERR_NOTONCHANNEL, &chan_name));
+		sender.append_formatted_reply_to_msg_out(ERR_NOTONCHANNEL, &chan_name);
 	else if (chan.has_member(user_to_invite))
-		sender.append_to_msg_out(sender.formatted_reply(ERR_USERONCHANNEL, &user_to_invite_nickname, &chan_name));
+		sender.append_formatted_reply_to_msg_out(ERR_USERONCHANNEL, &user_to_invite_nickname, &chan_name);
 	else if (chan_modes.is_set(InviteOnly) && !chan_modes.has_operator(sender))
-		sender.append_to_msg_out(sender.formatted_reply(ERR_CHANOPRIVSNEEDED, &nickname));
+		sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &nickname);
 	else
 	{
 		Client::Modes const &user_modes = user_to_invite.get_modes();
 		if (user_modes.is_set(Away))
-			sender.append_to_msg_out(
-				sender.formatted_reply(RPL_AWAY, &user_to_invite_nickname, &user_modes.get_away_msg()));
+			sender.append_formatted_reply_to_msg_out(RPL_AWAY, &user_to_invite_nickname, &user_modes.get_away_msg());
 		else
 		{
 			chan.set_mode(InviteMask, &user_to_invite_nickname);
 			user_to_invite.append_to_msg_out(sender.prefix() + "INVITE : " + chan_name);
-			sender.append_to_msg_out(sender.formatted_reply(RPL_INVITING, &user_to_invite_nickname, &chan_name));
+			sender.append_formatted_reply_to_msg_out(RPL_INVITING, &user_to_invite_nickname, &chan_name);
 		}
 	}
 }

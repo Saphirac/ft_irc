@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 03:56:40 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/10 04:00:32 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ inline static Channel *__join_new_channel(
 	std::map<ChannelName, Channel> &channels_by_name)
 {
 	if (sender.get_joined_channels_by_name().size() == MAX_CHANNELS)
-		sender.append_to_msg_out(sender.formatted_reply(ERR_TOOMANYCHANNELS));
+		sender.append_formatted_reply_to_msg_out(ERR_TOOMANYCHANNELS);
 	else if (chan_name.is_valid())
 	{
 		Channel &channel = channels_by_name[chan_name];
@@ -40,7 +40,7 @@ inline static Channel *__join_new_channel(
 		return &channel;
 	}
 	else
-		sender.append_to_msg_out(sender.formatted_reply(ERR_NOSUCHCHANNEL, &chan_name));
+		sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &chan_name);
 	return NULL;
 }
 
@@ -66,17 +66,17 @@ inline static Channel *__join_existing_channel(
 		size_t                user_limit = channel_modes.get_limit();
 
 		if (user_limit != 0 && user_limit == channel.get_members_size())
-			sender.append_to_msg_out(sender.formatted_reply(ERR_CHANNELISFULL, &chan_name));
+			sender.append_formatted_reply_to_msg_out(ERR_CHANNELISFULL, &chan_name);
 		else if (channel_modes.is_set(InviteOnly) && !channel_modes.has_invite_mask(nickname))
-			sender.append_to_msg_out(sender.formatted_reply(ERR_INVITEONLYCHAN, &chan_name));
+			sender.append_formatted_reply_to_msg_out(ERR_INVITEONLYCHAN, &chan_name);
 		else if (sender.get_joined_channels_by_name().size() == MAX_CHANNELS)
-			sender.append_to_msg_out(sender.formatted_reply(ERR_TOOMANYCHANNELS));
+			sender.append_formatted_reply_to_msg_out(ERR_TOOMANYCHANNELS);
 		else if (channel_modes.has_ban_mask(nickname))
-			sender.append_to_msg_out(sender.formatted_reply(ERR_BANNEDFROMCHAN, &chan_name));
+			sender.append_formatted_reply_to_msg_out(ERR_BANNEDFROMCHAN, &chan_name);
 		else if (
 			channel_modes.is_set(KeyProtected)
 			&& (!channel_modes.has_invite_mask(nickname) || channel_modes.get_key() != key))
-			sender.append_to_msg_out(sender.formatted_reply(ERR_BADCHANNELKEY, &chan_name));
+			sender.append_formatted_reply_to_msg_out(ERR_BADCHANNELKEY, &chan_name);
 		else
 		{
 			channel.add_member(sender);
@@ -127,7 +127,7 @@ inline static void __send_join_message_for_each_channel(
 		ChannelName const &chan_name = channel->first;
 
 		sender.append_to_msg_out(sender.prefix() + "JOIN : Successfully joined " + chan_name);
-		sender.append_to_msg_out(sender.formatted_reply(RPL_TOPIC, &chan_name, &channel->second->get_topic()));
+		sender.append_formatted_reply_to_msg_out(RPL_TOPIC, &chan_name, &channel->second->get_topic());
 		// names(sender, {chan_name});
 	}
 }
@@ -145,7 +145,7 @@ void Server::_join(Client &sender, std::vector<std::string> const &params)
 		sender.append_to_msg_out(':' + this->_name + " Password required.\nTry /quote PASS <password>");
 	if (params.size() < 1)
 	{
-		sender.append_to_msg_out(sender.formatted_reply(ERR_NEEDMOREPARAMS, "JOIN"));
+		sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "JOIN");
 		return;
 	}
 	if (params.size() == 1 && params[0] == "0")
