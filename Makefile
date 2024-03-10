@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
+#    By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/06 02:23:58 by jodufour         ###   ########.fr        #
+#    Updated: 2024/03/10 06:53:28 by gle-mini         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -53,6 +53,9 @@ LIB_SRC := \
 				${addprefix Channel/, \
 					core \
 					methods \
+				} \
+				${addprefix Message/, \
+					core \
 				} \
 				${addprefix Client/, \
 					core \
@@ -199,10 +202,15 @@ LIB_SRC := \
 						core \
 						methods \
 					} \
+					${addprefix Prefix/, \
+						core \
+						methods \
+					} \
 				} \
 			} \
 		} \
-	}
+	} \
+
 
 ######################################
 #            OBJECT FILES            #
