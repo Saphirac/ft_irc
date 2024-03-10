@@ -3,18 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   replies.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 22:08:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/02/29 17:29:09 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/08 23:45:16 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include <map>
-#include <string>
-#include <utility>
 
 #define RPL_WELCOME  001
 #define RPL_YOURHOST 002
@@ -82,7 +80,7 @@
 #define ERR_UMODEUNKNOWNFLAG  501
 #define ERR_USERSDONTMATCH    502
 
-static std::pair<int, char const *> const raw_replies[] = {
+static std::pair<int, char const *> const raw_formats_by_reply[] = {
 	std::make_pair(RPL_WELCOME, ":Welcome to the Internet Relay Network %S"),
 	std::make_pair(RPL_YOURHOST, ":Your host is %S, running version %S"),
 	std::make_pair(RPL_CREATED, ":This server was created %S"),
@@ -98,7 +96,7 @@ static std::pair<int, char const *> const raw_replies[] = {
 	std::make_pair(RPL_WHOISCHANNELS, "%S :%S"),
 	std::make_pair(RPL_LIST, "%S %hhu :%S"),
 	std::make_pair(RPL_LISTEND, ":End of LIST"),
-	std::make_pair(RPL_CHANNELMODEIS, "%S %S %S"),
+	std::make_pair(RPL_CHANNELMODEIS, "%S +%S"),
 	std::make_pair(RPL_NOTOPIC, "%S :No topic is set"),
 	std::make_pair(RPL_TOPIC, "%S :%S"),
 	std::make_pair(RPL_INVITING, "%S %S"),
@@ -136,7 +134,7 @@ static std::pair<int, char const *> const raw_replies[] = {
 	std::make_pair(ERR_PASSWDMISMATCH, ":Password incorrect"),
 	std::make_pair(ERR_KEYSET, "%S :Channel key already set"),
 	std::make_pair(ERR_CHANNELISFULL, "%S :Cannot join channel (+l)"),
-	std::make_pair(ERR_UNKNOWNMODE, "{char} :is unknown mode char to me for %S"),
+	std::make_pair(ERR_UNKNOWNMODE, "%c :is unknown mode char to me for %S"),
 	std::make_pair(ERR_INVITEONLYCHAN, "%S :Cannot join channel (+i)"),
 	std::make_pair(ERR_BANNEDFROMCHAN, "%S :Cannot join channel (+b)"),
 	std::make_pair(ERR_BADCHANNELKEY, "%S :Cannot join channel (+k)"),
@@ -147,8 +145,8 @@ static std::pair<int, char const *> const raw_replies[] = {
 	std::make_pair(ERR_UMODEUNKNOWNFLAG, ":Unknown MODE flag"),
 	std::make_pair(ERR_USERSDONTMATCH, ":Cannot change mode for other users"),
 };
-static size_t const raw_replies_len = sizeof(raw_replies) / sizeof(*raw_replies);
-
-static std::map<int, char const *> const replies(raw_replies, raw_replies + raw_replies_len);
+static std::map<int, char const *> const formats_by_reply(
+	raw_formats_by_reply,
+	raw_formats_by_reply + sizeof(raw_formats_by_reply) / sizeof(*raw_formats_by_reply));
 
 typedef std::map<int, char const *>::const_iterator ReplyIterator;

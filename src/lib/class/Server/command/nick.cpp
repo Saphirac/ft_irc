@@ -6,97 +6,39 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:22 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/02 03:26:46 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 00:26:57 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "abnf_components.hpp"
 #include "class/Server.hpp"
-#include "ft_irc.hpp"
 #include "replies.hpp"
-#include <iostream>
-
-/**
- * @brief Sends an ERR_NONICKNAMEGIVEN to a client.
- *
- * @param client The client to send the reply to.
- *
- * @return A positive error code in case of an internal error. Otherwise, returns zero.
- */
-inline static StatusCode error_no_nickname_given(Client &client)
-{
-	std::string const msg = format_reply(ERR_NONICKNAMEGIVEN);
-
-	if (msg.empty())
-		return ErrorFormatReply;
-
-	client.append_to_msg_out(msg);
-	return Success;
-}
-
-/**
- * @brief Sends an ERR_ERRONEUSNICKNAME to a client.
- *
- * @param client The client to send the reply to.
- * @param nickname The nickname that caused the error.
- *
- * @return A positive error code in case of an internal error. Otherwise, returns zero.
- */
-inline static StatusCode error_erroneus_nickname(Client &client, std::string const &nickname)
-{
-	std::string const msg = format_reply(ERR_ERRONEUSNICKNAME, &nickname);
-
-	if (msg.empty())
-		return ErrorFormatReply;
-
-	client.append_to_msg_out(msg);
-	return Success;
-}
-
-/**
- * @brief Sends an ERR_NICKNAMEINUSE to a client.
- *
- * @param client The client to send the reply to.
- * @param nickname The nickname that caused the error.
- *
- * @return A positive error code in case of an internal error. Otherwise, returns zero.
- */
-inline static StatusCode error_nickname_in_use(Client &client, std::string const &nickname)
-{
-	std::string const msg = format_reply(ERR_NICKNAMEINUSE, &nickname);
-
-	if (msg.empty())
-		return ErrorFormatReply;
-
-	client.append_to_msg_out(msg);
-	return Success;
-}
 
 /**
  * @brief Changes the nickname of a user.
  *
  * @param sender The client that sent the command.
- * @param parameters The parameters that were passed to the command.
+ * @param parameters The parameters of the command.
  *
- * @return A positive error code in case of an internal error. Otherwise, returns zero.
+ * @throw `UnknownReply` if a given reply number isn't recognized.
+ * @throw `InvalidConversion` if a conversion specification is invalid.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-StatusCode Server::nick(Client &sender, std::vector<std::string> const &parameters)
+void Server::_nick(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (parameters.empty())
-		return error_no_nickname_given(sender);
+		return sender.append_formatted_reply_to_msg_out(ERR_NONICKNAMEGIVEN);
 
-	Nickname const &nickname = parameters[0];
+	NickName const &nickname = parameters[0];
 
 	if (!nickname.is_valid())
-		return error_erroneus_nickname(sender, nickname);
-	if (this->_clients_nick.count(nickname))
-		return error_nickname_in_use(sender, nickname);
+		return sender.append_formatted_reply_to_msg_out(ERR_ERRONEUSNICKNAME, &nickname);
+	if (this->_clients_by_nickname.count(nickname) != 0)
+		return sender.append_formatted_reply_to_msg_out(ERR_NICKNAMEINUSE, &nickname);
 
-	this->_clients_nick.erase(sender.get_nickname());
+	this->_clients_by_nickname.erase(sender.get_nickname());
 	sender.set_nickname(nickname);
-	this->_clients_nick[nickname] = &sender;
+	this->_clients_by_nickname.insert(std::make_pair(nickname, &sender));
 
-	sender.append_to_msg_out("NICK " + nickname);
-	return Success;
+	sender.append_to_msg_out(sender.prefix() + "NICK " + nickname);
 }
 // TODO: implement unit tests for this function

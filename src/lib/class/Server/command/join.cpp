@@ -6,23 +6,8 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/02 03:26:38 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 00:26:52 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Server.hpp"
-#include <iostream>
-
-// TODO : everything
-
-StatusCode	Server::join(Client &sender, std::vector<std::string> const &parameters)
-{
-	(void)parameters;
-	std::cout << "JOIN cmd called\n";
-	if (sender.has_mode(AlreadySentPass) == false)
-	{
-		std::string message = ":ircserv Password required.\nTry /quote PASS <password>\n\r";
-		sender.append_to_msg_out(message);
-	}
-	return Success;
-}
+// TODO

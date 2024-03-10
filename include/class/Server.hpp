@@ -6,151 +6,79 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/02 04:06:06 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 00:20:42 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "class/Client.hpp"
-#include "StatusCode.hpp"
-#include "ft_irc.hpp"
-#include <map>
 #include <netinet/in.h>
-#include <set>
-#include <string>
-#include <sys/epoll.h>
-#include <sys/socket.h>
 #include <vector>
 #include <ctime>
-
-class Client;
-class Channel;
 
 // TODO : change this to a proper value
 
 #define MAX_CLIENTS 3
 
-// Class //
-
-/**
- * @brief class Server to contain everything I need for my server
- * _port, password etc.
- *
- * // TODO : make a prefix method for server
- */
 class Server
 {
 public:
-	// Typedef
-	typedef StatusCode (Server::*Command)(Client &sender, std::vector<std::string> const &parameters);
-
 	// Constructors
-	Server(int const port, std::string const name, std::string const password, bool shutdown = false);
+	Server(int const port, std::string const &name, std::string const &password = "");
 
 	// Destructor
 	~Server(void);
 
-	// Getters //
-	int get_port() const;
-	int get_socket() const;
-	int get_epoll_socket() const;
-
-	std::string const &get_name() const;
-	std::string const &get_password() const;
-	std::string const &get_creation_date() const;
-	std::string const &get_creation_time() const;
-	std::string const &get_compilation_date() const;
-	std::string const &get_compilation_time() const;
-
-	struct sockaddr_in const &get_sock_addr() const;
-	socklen_t const          &get_sock_len() const;
-
-	std::vector<Channel *> const          &get_channels() const;
-	std::map<int, Client *> const         &get_clients_socket() const;
-	std::map<std::string, Client *> const &get_clients_nick() const;
-
-	bool get_shutdown() const;
-
-	// Setters //
-	void set_port(int const port);
-	void set_socket(int const socket);
-	void set_epoll_socket(int const epoll_socket);
-
-	void set_name(std::string const &name);
-	void set_creation_date(std::string const &creation_date);
-	void set_creation_time(std::string const &creation_time);
-	void set_compilation_date(std::string const &compilation_date);
-	void set_compilation_time(std::string const &compilation_time);
-	void set_password(std::string const &password);
-
-	void set_sock_addr(struct sockaddr_in const &sock_addr);
-	void set_sock_len();
-	void set_epoll_event();
-
-	void set_clients_socket(std::map<int, Client *> const &clients_socket);
-	void set_clients_nick(std::map<std::string, Client *> const &clients_nick);
-	void set_channels(std::vector<Channel *> const &channels);
-
-	void set_shutdown(bool shutdown);
-
-	// Member functions
-	// void add_client(Client *client);
-	// void remove_client(Client *client);
-
-	// Commands
-	StatusCode cap(Client &sender, std::vector<std::string> const &parameters);
-	StatusCode join(Client &sender, std::vector<std::string> const &parameters);
-	StatusCode away(Client &sender, std::vector<std::string> const &parameters);
-	StatusCode nick(Client &sender, std::vector<std::string> const &parameters);
-	StatusCode pass(Client &sender, std::vector<std::string> const &parameters);
-	StatusCode oper(Client &sender, std::vector<std::string> const &parameters);
-	StatusCode user(Client &sender, std::vector<std::string> const &parameters);
-
-	// Others
-	void create_and_set_socket();
-	void init_socket_server();
-	void create_server();
-	void ctrl_epoll_add(int epoll_fd, int socket, epoll_event *e_event);
-	void handle_client_event(Client *client, std::string msg);
-	void handle_new_connection();
-	void epoll_loop();
-	void handle_all_events_routine();
-	void rcv_client_event(Client *client);
-	void send_msg_out();
-	void create_epoll();
-	void check_time_of_last_msg();
-
-	struct sockaddr_in bind_assign_sockaddr();
-
-	void add_client(Client *client);
-	void remove_client(Client *client);
+	// Methods
+	void start(void);
 
 private:
+	// Types
+	typedef void (Server::*Command)(Client &sender, std::vector<std::string> const &parameters);
+	typedef std::pair<std::string const, Command const> CommandPair;
+	typedef std::map<std::string, Command const>        CommandMap;
+	typedef CommandMap::const_iterator                  CommandIterator;
+
 	// Shared fields
-	static std::set<std::string> const              _operator_hosts;
-	static std::map<std::string, std::string> const _operator_ids;
-	static std::map<std::string, Command> const     _map_of_cmds;
+	static std::set<std::string> const                    _operator_hosts;
+	static std::map<std::string, std::string const> const _operator_ids;
+	static CommandPair const                              _raw_commands_by_name[];
+	static CommandMap const                               _commands_by_name;
 
 	// Fields
-	int                 _port;
-	int                 _socket;
-	int                 _epoll_socket;
-	sockaddr_in         _sock_addr;
-	socklen_t           _sock_len;
-	struct epoll_event *_epoll_event;
-	std::string         _name;
-	std::string         _version;
-	std::string         _password;
-	std::string         _creation_date;
-	std::string         _creation_time;
-	std::string         _compilation_date;
-	std::string         _compilation_time;
+	int const         _socket;
+	int const         _epoll_socket;
+	sockaddr_in const _sock_addr;
 
-	// TODO : get back to a non pointer (hopefully)
-	std::map<int, Client *>         _clients_socket;
-	std::map<std::string, Client *> _clients_nick;
-	std::vector<Channel *>          _channels;
+	std::string const _name;
+	std::string const _version;
+	std::string const _password;
+	std::string const _compilation_date;
+	std::string const _compilation_time;
+	std::string const _creation_date;
+	std::string const _creation_time;
 
-	bool _shutdown;
+	std::map<int, Client>             _clients_by_socket;
+	std::map<NickName, Client *const> _clients_by_nickname;
+	std::map<ChannelName, Channel>    _channels_by_name;
+
+	// Methods
+	void _add_client(Client const &client);
+	void _remove_client(Client const &client);
+
+	void _handle_epoll_events(void);
+	void _compute_next_msg_for_a_client(Client &client);
+	void _new_client_connection(void);
+	void _receive_data_from_client(Client &client);
+
+	// Commands
+	void _away(Client &sender, std::vector<std::string> const &parameters);
+	void _cap(Client &sender, std::vector<std::string> const &parameters);
+	void _mode(Client &sender, std::vector<std::string> const &parameters);
+	void _nick(Client &sender, std::vector<std::string> const &parameters);
+	void _oper(Client &sender, std::vector<std::string> const &parameters);
+	void _pass(Client &sender, std::vector<std::string> const &parameters);
+	void _quit(Client &sender, std::vector<std::string> const &parameters);
+	void _user(Client &sender, std::vector<std::string> const &parameters);
 };

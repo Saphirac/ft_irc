@@ -56,7 +56,7 @@ IncludeCategories:
     Priority: 1
     SortPriority: 0
     CaseSensitive: false
-IndentCaseLabels: true
+IndentCaseLabels: false
 IndentGotoLabels: false
 IndentPPDirectives: AfterHash
 IndentRequires: true

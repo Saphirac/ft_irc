@@ -6,103 +6,120 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/02 03:40:01 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 00:19:58 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "UserMode.hpp"
-#include "class/Hostname.hpp"
-#include "class/Nickname.hpp"
-#include "class/Realname.hpp"
-#include "class/Server.hpp"
-#include "class/UserModes.hpp"
-#include "class/Username.hpp"
+#include "class/Channel.hpp"
+#include "class/specialized_string/HostName.hpp"
+#include "class/specialized_string/NickName.hpp"
+#include "class/specialized_string/RealName.hpp"
+#include "class/specialized_string/UserName.hpp"
 #include <ctime>
-#include <string>
+#include <map>
+#include <stdint.h>
 
-class Server;
+class Channel;
+class ChannelName;
 
 class Client
 {
-private:
-	// Fields
-	int         _socket;
-	std::string _msg_in;
-	std::string _msg_out;
-
-	Nickname  _nickname;
-	Hostname  _hostname;
-	Username  _username;
-	Realname  _realname;
-	UserModes _modes;
-
-	struct epoll_event *_epoll_event;
-
-	std::clock_t _time_last_msg;
-	bool         _has_been_pinged;
-	std::string  _ping_token;
-
 public:
 	// Shared fields
-	static std::string const _default_away_msg;
+	static std::string const _default_quit_msg;
+
+	// Nested classes
+	class Modes
+	{
+	public:
+		// Constructors
+		Modes(void);
+
+		// Destructor
+		~Modes(void);
+
+		// Accessors
+		std::string const &get_away_msg(void) const;
+
+		// Methods
+		void set(UserMode const mode, void const *const arg = NULL);
+		void clear(UserMode const mode);
+		bool is_set(UserMode const mode) const;
+
+		std::string to_string(void) const;
+
+	private:
+		// Nested classes
+		class Flags
+		{
+		public:
+			// Constructors
+			Flags(void);
+
+			// Destructor
+			~Flags(void);
+
+			// Methods
+			void set(UserMode const mode);
+			void clear(UserMode const mode);
+			bool is_set(UserMode const mode) const;
+
+			std::string to_string(void) const;
+
+		private:
+			// Types
+			typedef uint8_t _BitField;
+
+			// Fields
+			_BitField _bits;
+		};
+
+		// Fields
+		Flags       _flags;
+		std::string _away_msg;
+	};
 
 	// Constructors
 	Client(
 		int const       socket = -1,
-		Nickname const &nickname = Nickname(),
-		Hostname const &hostname = Hostname(),
-		Username const &username = Username(),
-		Realname const &realname = Realname(),
-		UserModes const modes = UserModes());
-	Client(Client const &src);
+		NickName const &nickname = NickName(),
+		HostName const &hostname = HostName(),
+		UserName const &username = UserName(),
+		RealName const &realname = RealName());
 
 	// Destructor
 	~Client(void);
 
 	// Accessors
-	int get_socket(void) const;
-
-	std::string const &get_msg_in(void) const;
-	std::string const &get_msg_out(void) const;
-
-	Nickname const &get_nickname(void) const;
-	Hostname const &get_hostname(void) const;
-	Username const &get_username(void) const;
-	Realname const &get_realname(void) const;
-
-	UserModes get_modes(void) const;
-
-	epoll_event       *get_mut_epoll_event(void) const;
-	std::clock_t       get_time_last_msg(void) const;
-	bool const         get_has_been_pinged(void) const;
-	std::string const &get_ping_token(void) const;
+	int                  get_socket(void) const;
+	NickName const      &get_nickname(void) const;
+	HostName const      &get_hostname(void) const;
+	Client::Modes const &get_modes(void) const;
+	bool                 get_has_been_pinged(void) const;
 
 	// Mutators
 	void set_socket(int const socket);
-	void set_msg_in(std::string const &messages);
-	void set_msg_out(std::string const &messages);
+	void set_last_msg_time(std::clock_t const time);
+	void set_nickname(NickName const &nickname);
+	void set_hostname(HostName const &hostname);
+	void set_username(UserName const &username);
+	void set_realname(RealName const &realname);
 
-	void set_nickname(Nickname const &nickname);
-	void set_hostname(Hostname const &hostname);
-	void set_username(Username const &username);
-	void set_realname(Realname const &realname);
+	// Methods
+	void         append_to_msg_in(std::string const &s);
+	std::string  get_next_msg(void);
+	std::clock_t time_since_last_msg(void) const;
 
-	void set_modes(UserModes const modes);
-	void set_time_last_msg(void);
-	void set_has_been_pinged(bool const has_been_pinged);
-	void set_ping_token(std::string const &ping_token);
+	std::string prefix(void) const;
+	void        append_formatted_reply_to_msg_out(int const reply_number...);
+	void        append_to_msg_out(std::string const &msg);
+	void        send_msg_out(void);
 
-	// Member functions
-	void disconnect(void);
-	void append_to_msg_in(std::string const &s);
-	void append_to_msg_out(std::string const &msg);
-	void clear_msg_out(void);
-	void set_mode(UserMode const mode);
+	void set_mode(UserMode const mode, void const *const arg = NULL);
 	void clear_mode(UserMode const mode);
-	void set_time_last_msg(void);
-
 	bool has_mode(UserMode const mode) const;
 
 	// ssize_t send_message(std::string const &message) const;
@@ -110,10 +127,22 @@ public:
 
 	std::string user_mask(void) const;
 
-	std::clock_t check_time_since_last_msg(void) const;
+	void disconnect(void);
 
-	void send_msg_out(void);
+private:
+	// Fields
+	int          _socket;
+	std::string  _msg_in;
+	std::string  _msg_out;
+	std::clock_t _last_msg_time;
 
-	std::string const get_next_msg(void);
-	epoll_event      *set_epoll_event();
+	NickName      _nickname;
+	HostName      _hostname;
+	UserName      _username;
+	RealName      _realname;
+	Client::Modes _modes;
+
+	std::map<ChannelName, Channel *const> _joined_channels_by_name;
+
+	bool _has_been_pinged;
 };
