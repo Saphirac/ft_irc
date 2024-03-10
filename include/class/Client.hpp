@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 03:12:48 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/10 03:57:41 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ public:
 	std::clock_t time_since_last_msg(void) const;
 
 	std::string prefix(void) const;
-	std::string formatted_reply(int const reply_number...) const;
+	void        append_formatted_reply_to_msg_out(int const reply_number...);
 	void        append_to_msg_out(std::string const &msg);
 	void        send_msg_out(void);
 

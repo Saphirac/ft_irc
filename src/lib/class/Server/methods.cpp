@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 02:42:14 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/10 03:58:11 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,7 +190,7 @@ void Server::_compute_next_msg_for_a_client(Client &client)
 		CommandIterator const command_by_name = this->_commands_by_name.find(command_name);
 
 		if (command_by_name == this->_commands_by_name.end())
-			client.append_to_msg_out(client.formatted_reply(ERR_UNKNOWNCOMMAND, &command_name));
+			client.append_formatted_reply_to_msg_out(ERR_UNKNOWNCOMMAND, &command_name);
 		else
 			(this->*(command_by_name->second))(client, msg.get_parameters());
 	}
