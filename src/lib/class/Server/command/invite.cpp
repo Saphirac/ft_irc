@@ -6,12 +6,11 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 20:53:16 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/10 01:42:30 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
-#include "ft_irc.hpp"
 #include "replies.hpp"
 
 /**
@@ -20,43 +19,52 @@
  * @param sender the client inviting
  * @param params the command parameters (nickname, channel)
  */
-void Server::invite(Client &sender, std::vector<std::string> const &params)
+void Server::_invite(Client &sender, std::vector<std::string> const &params)
 {
 	if (params.size() < 2)
 	{
-		sender.append_to_msg_out(format_reply(ERR_NEEDMOREPARAMS, "INVITE"));
+		sender.append_to_msg_out(sender.formatted_reply(ERR_NEEDMOREPARAMS, "INVITE"));
 		return;
 	}
 
-	Nickname const &nickname = sender.get_nickname();
-	Client const   &user_to_invite = this->_clients_by_nickname.find(params[0]);
+	NickName const &nickname = sender.get_nickname();
+	NickName const &user_to_invite_nickname = params[0];
 
-	if (user_to_invite == this->_clients_by_nickname.end())
+	if (this->_clients_by_nickname.count(user_to_invite_nickname) == 0)
 	{
-		sender.append_to_msg_out(format_reply(ERR_NOSUCHNICK, params[0]));
+		sender.append_to_msg_out(sender.formatted_reply(ERR_NOSUCHNICK, &nickname));
 		return;
 	}
 
-	Channel const &chan = this->_channels_by_name.find(params[1]);
+	Client            &user_to_invite = *this->_clients_by_nickname[user_to_invite_nickname];
+	ChannelName const &chan_name = params[1];
 
-	if (chan == this->_channels_by_name.end() || !chan.has_member(nickname))
-		sender.append_to_msg_out(format_reply(ERR_NOTONCHANNEL, params[1]));
-	else if (chan.has_member(params[0]))
-		sender.append_to_msg_out(format_reply(ERR_USERONCHANNEL, params[0], params[1]));
-	else if (chan.has_mode(InviteOnly) && !chan.has_operator(nickname))
-		sender.append_to_msg_out(format_reply(ERR_CHANOPRIVSNEEDED, nickname));
+	if (this->_channels_by_name.count(chan_name) == 0)
+	{
+		sender.append_to_msg_out(sender.formatted_reply(ERR_NOSUCHCHANNEL, &params[1]));
+		return;
+	}
+
+	Channel       &chan = this->_channels_by_name[params[1]];
+	Channel::Modes chan_modes = chan.get_modes();
+
+	if (!chan.has_member(sender))
+		sender.append_to_msg_out(sender.formatted_reply(ERR_NOTONCHANNEL, &chan_name));
+	else if (chan.has_member(user_to_invite))
+		sender.append_to_msg_out(sender.formatted_reply(ERR_USERONCHANNEL, &user_to_invite_nickname, &chan_name));
+	else if (chan_modes.is_set(InviteOnly) && !chan_modes.has_operator(sender))
+		sender.append_to_msg_out(sender.formatted_reply(ERR_CHANOPRIVSNEEDED, &nickname));
 	else
 	{
-		if (user_to_invite.is_away())
-			sender.append_to_msg_out(format_reply(
-				RPL_AWAY,
-				params[0],
-				user_to_invite.get_away_message()));
+		Client::Modes const &user_modes = user_to_invite.get_modes();
+		if (user_modes.is_set(Away))
+			sender.append_to_msg_out(
+				sender.formatted_reply(RPL_AWAY, &user_to_invite_nickname, &user_modes.get_away_msg()));
 		else
 		{
-			chan.add_to_invite_list(user_to_invite);
-			user_to_invite.append_to_msg_out("INVITE : " + nickname + " has invited you to " + params[1]);
-			sender.append_to_msg_out(format_reply(RPL_INVITING, params[0], params[1]));
+			chan.set_mode(InviteMask, &user_to_invite_nickname);
+			user_to_invite.append_to_msg_out(sender.prefix() + "INVITE : " + chan_name);
+			sender.append_to_msg_out(sender.formatted_reply(RPL_INVITING, &user_to_invite_nickname, &chan_name));
 		}
 	}
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 22:56:55 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/09 22:56:02 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 #include <sstream>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <vector>
 
 /**
  * @brief Sets a flag.
@@ -668,16 +669,20 @@ bool Client::has_mode(UserMode const mode) const { return this->_modes.is_set(mo
  */
 std::string Client::user_mask(void) const { return this->_nickname + "!" + this->_username + "@" + this->_hostname; }
 
+// Methods //
 /**
- * @brief Closes the socket of the Client instance.
+ * @brief Closes the socket of the Client instance and deletes it's associated epoll_event
  *
- * @throw `ProblemWithClose` if `close()` fails.
+ * @throw ProblemWithClose() if the close() function fails.
  */
-void Client::disconnect(void)
+void Client::disconnect(std::string const &quit_msg)
 {
+	this->append_to_msg_out(this->prefix() + "ERROR :" + quit_msg);
+	if (send(this->_socket, this->_msg_out.c_str(), this->_msg_out.size(), 0))
+		throw ProblemWithSend();
 	if (this->_socket != -1)
 	{
-		if (close(this->_socket))
+		if (close(this->_socket) == -1)
 			throw ProblemWithClose();
 		this->_socket = -1;
 	}

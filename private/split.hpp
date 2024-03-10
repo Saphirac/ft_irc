@@ -1,29 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   split.cpp                                          :+:      :+:    :+:   */
+/*   split.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/04 16:06:35 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/04 18:10:36 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/03/09 19:56:37 by mcourtoi          #+#    #+#             */
+/*   Updated: 2024/03/09 19:56:50 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
-#include <string>
-#include <vector>
+#pragma once
 
 /**
- * @brief Split a string into a vector of strings using a delimiter
+ * @brief Split a string into substrings using a delimiter
  *
+ * @tparam ReturnType the type of the return value
  * @param str the string to split
  * @param delimiter the delimiter to use to split the string
- * @return the vector of strings
+ * @return the resulting split strings.
+ * 
  */
-std::vector<std::string> split(std::string const &str, char const delimiter)
+template<typename ReturnType>
+ReturnType split(std::string const &str, char const delimiter)
 {
-	std::vector<std::string> result;
+	ReturnType result;
 	std::string::size_type   start = str.find_first_not_of(delimiter);
 	std::string::size_type   end = start == std::string::npos ? std::string::npos : str.find(delimiter, start);
 

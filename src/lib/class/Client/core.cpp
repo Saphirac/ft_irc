@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:46:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 02:32:03 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/09 22:55:30 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ int                  Client::get_socket(void) const { return this->_socket; }
 NickName const      &Client::get_nickname(void) const { return this->_nickname; }
 HostName const      &Client::get_hostname(void) const { return this->_hostname; }
 Client::Modes const &Client::get_modes(void) const { return this->_modes; }
+std::map<ChannelName, Channel *const> const &Client::get_joined_channels_by_name(void) const { return this->_joined_channels_by_name; }
 
 // Mutators //
 

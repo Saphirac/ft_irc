@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 21:08:05 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/09 22:52:56 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,17 @@ void Server::_add_client(Client const &client)
  */
 void Server::_remove_client(Client const &client)
 {
+	for (std::map<ChannelName, Channel *const>::const_iterator it = client->get_joined_channels_by_name().begin();
+	     it != client->get_joined_channels_by_name().end();
+	     ++it)
+	{
+		std::vector<std::string> channel_and_msg;
+		
+		channel_and_msg.push_back(it->first);
+		channel_and_msg.push_back(quit_msg);
+		part(client, channel_and_msg);
+	}
+
 	if (this->_clients_by_nickname.erase(client.get_nickname()) != 0)
 		this->_clients_by_socket.erase(client.get_socket());
 }

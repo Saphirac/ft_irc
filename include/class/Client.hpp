@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 22:56:45 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/09 22:53:28 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 #include <ctime>
 #include <map>
 #include <stdint.h>
+
+#define DEFAULT_QUIT_MSG "Goodbye!"
 
 class Channel;
 class ChannelName;
@@ -98,6 +100,7 @@ public:
 	NickName const      &get_nickname(void) const;
 	HostName const      &get_hostname(void) const;
 	Client::Modes const &get_modes(void) const;
+	std::map<ChannelName, Channel *const> const &get_joined_channels_by_name(void) const;
 
 	// Mutators
 	void set_socket(int const socket);
@@ -123,7 +126,7 @@ public:
 
 	std::string user_mask(void) const;
 
-	void disconnect(void);
+	void disconnect(std::string const &quit_msg = DEFAULT_QUIT_MSG);
 
 private:
 	// Fields

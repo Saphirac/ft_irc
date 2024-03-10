@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 21:36:46 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/09 22:32:20 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,12 @@ private:
 	void _nick(Client &sender, std::vector<std::string> const &parameters);
 	void _oper(Client &sender, std::vector<std::string> const &parameters);
 	void _pass(Client &sender, std::vector<std::string> const &parameters);
-	void _quit(Client &sender, std::vector<std::string> const &parameters);
 	void _user(Client &sender, std::vector<std::string> const &parameters);
+	void _quit(Client &sender, std::vector<std::string> const &parameters);
+	void _join(Client &sender, std::vector<std::string> const &parameters);
+	void _part(Client &sender, std::vector<std::string> const &parameters);
+	void _topic(Client &sender, std::vector<std::string> const &parameters);
+	void _invite(Client &sender, std::vector<std::string> const &parameters);
+	void _kick(Client &sender, std::vector<std::string> const &parameters);
+	
 };
