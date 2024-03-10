@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 22:56:45 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/09 21:56:34 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,6 @@ class ChannelName;
 class Client
 {
 public:
-	// Shared fields
-	static std::string const _default_quit_msg;
-
 	// Nested classes
 	class Modes
 	{
