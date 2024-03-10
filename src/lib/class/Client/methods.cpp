@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 22:56:55 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/10 02:14:48 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -538,13 +538,11 @@ inline static size_t convert_u(
  * @param reply_number The number of the reply to format.
  * @param ... The variadic arguments to use for the conversion specifications.
  *
- * @return The formatted reply message.
- *
  * @throw `UnknownReply` if a given reply number isn't recognized.
  * @throw `InvalidConversion` if a conversion specification is invalid.
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-std::string Client::formatted_reply(int const reply_number...) const
+void Client::append_formatted_reply_to_msg_out(int const reply_number...)
 {
 	ReplyIterator const format_by_reply = formats_by_reply.find(reply_number);
 
@@ -604,7 +602,7 @@ std::string Client::formatted_reply(int const reply_number...) const
 	ss << this->prefix() << std::setw(3) << std::setfill('0') << reply_number << ' ' << this->_nickname << ' '
 	   << format;
 
-	return ss.str();
+	this->append_to_msg_out(ss.str());
 }
 // TODO: implement unit tests for this function
 

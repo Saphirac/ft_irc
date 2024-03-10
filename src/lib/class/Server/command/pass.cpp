@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pass.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:23:54 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 23:27:01 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/10 02:12:54 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,11 @@
 void Server::_pass(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (sender.has_mode(AlreadySentPass))
-		return sender.append_to_msg_out(sender.formatted_reply(ERR_ALREADYREGISTERED));
+		return sender.append_formatted_reply_to_msg_out(ERR_ALREADYREGISTERED);
 	if (parameters.empty())
 	{
 		sender.set_mode(IsAboutToBeDisconnected);
-		return sender.append_to_msg_out(sender.formatted_reply(ERR_NEEDMOREPARAMS, "PASS"));
+		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "PASS");
 	}
 
 	std::string const &password = parameters[0];
@@ -41,7 +41,7 @@ void Server::_pass(Client &sender, std::vector<std::string> const &parameters)
 	if (password != this->_password)
 	{
 		sender.set_mode(IsAboutToBeDisconnected);
-		return sender.append_to_msg_out(sender.formatted_reply(ERR_PASSWDMISMATCH));
+		return sender.append_formatted_reply_to_msg_out(ERR_PASSWDMISMATCH);
 	}
 
 	sender.set_mode(AlreadySentPass);
