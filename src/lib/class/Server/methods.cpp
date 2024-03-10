@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 07:01:07 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/10 07:05:37 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,15 +71,18 @@ void Server::_add_client(Client const &client)
  */
 void Server::_remove_client(Client &client, std::string const &quit_msg)
 {
-	std::vector<std::string> channel_and_msg;
-	std::map<ChannelName, Channel *const>::const_iterator my_end = client.get_joined_channels_by_name().end();
+	if (!client.get_joined_channels_by_name().empty())
+	{
+		std::vector<std::string> channel_and_msg;
+		std::map<ChannelName, Channel *const>::const_iterator my_end = client.get_joined_channels_by_name().end();
 
-	for (std::map<ChannelName, Channel *const>::const_iterator cit = client.get_joined_channels_by_name().begin();
-	     cit != my_end;
-	     ++cit)
-		channel_and_msg.push_back(cit->first);
-	channel_and_msg.push_back(quit_msg);
-	this->_part(client, channel_and_msg);
+		for (std::map<ChannelName, Channel *const>::const_iterator cit = client.get_joined_channels_by_name().begin();
+		     cit != my_end;
+		     ++cit)
+			channel_and_msg.push_back(cit->first);
+		channel_and_msg.push_back(quit_msg);
+		this->_part(client, channel_and_msg);
+	}
 
 	if (this->_clients_by_nickname.erase(client.get_nickname()) != 0)
 		this->_clients_by_socket.erase(client.get_socket());
