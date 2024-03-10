@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cap.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 13:43:54 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/06 03:04:05 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/10 02:04:49 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void Server::_cap(
 	std::vector<std::string> const &parameters __attribute__((unused)))
 {
 	if (parameters.empty())
-		return sender.append_to_msg_out(sender.formatted_reply(ERR_NEEDMOREPARAMS, "CAP"));
+		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "CAP");
 
 	if (parameters[0] == "LS")
 		sender.append_to_msg_out("CAP * LS :none");
