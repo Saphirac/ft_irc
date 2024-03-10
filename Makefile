@@ -6,7 +6,7 @@
 #    By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/09 20:13:03 by gle-mini         ###   ########.fr        #
+#    Updated: 2024/03/10 06:53:28 by gle-mini         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -55,7 +55,8 @@ LIB_SRC := \
 					methods \
 				} \
 				${addprefix Message/, \
-					Message \
+					core \
+				} \
 				${addprefix Client/, \
 					core \
 					methods \
@@ -201,11 +202,15 @@ LIB_SRC := \
 						core \
 						methods \
 					} \
+					${addprefix Prefix/, \
+						core \
+						methods \
+					} \
 				} \
 			} \
 		} \
-	}
-}
+	} \
+
 
 ######################################
 #            OBJECT FILES            #
