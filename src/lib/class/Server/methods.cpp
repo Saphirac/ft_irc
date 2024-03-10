@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 21:08:05 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/10 06:54:29 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,6 +176,7 @@ void Server::_compute_next_msg_for_a_client(Client &client)
 	if (!raw_msg.empty())
 	{
 		Message const         msg(raw_msg);
+		
 		std::string const    &command_name = msg.get_command();
 		CommandIterator const command_by_name = this->_commands_by_name.find(command_name);
 
