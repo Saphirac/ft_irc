@@ -6,7 +6,7 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/09 20:13:37 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/11 16:52:29 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 // TODO : create a checker for the arguments
 int main(int const ac, char const *const *const av)
 {
+	srand(time(NULL));
+	
 	if (ac != 3)
 	{
 		std::cerr << "incorrect number of arguments" << std::endl;

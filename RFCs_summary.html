@@ -23,6 +23,7 @@
 							<li><a href="#nickname">Nickname</a></li>
 							<li><a href="#hostname">Hostname</a></li>
 							<li><a href="#username">Username</a></li>
+							<li><a href="#realname">Realname</a></li>
 							<li><a href="#user_modes">Modes</a></li>
 						</ul>
 					</li>
@@ -133,19 +134,11 @@
 								<details>
 									<summary>
 										<code id="abnf_server">
-											<b>server</b> = shortname *( dot shortname )
+											<b>server</b> = host
 										</code>
 									</summary>
 									<blockquote>
-										<ol>
-											<li>Start with 1 <code><a href="#abnf_shortname">shortname</a></code></li>
-											<li>Contain 0 or more patterns, which must:
-												<ol>
-													<li>Start with 1 <code><a href="#abnf_dot">dot</a></code></li>
-													<li>Contain 1 <code><a href="#abnf_shortname">shortname</a></code></li>
-												</ol>
-											</li>
-										</ol>
+										1 <code><a href="#abnf_host">host</a></code>
 									</blockquote>
 								</details>
 								<!-- #endregion -->
@@ -2230,7 +2223,6 @@
 						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
 						<!-- TODO -->
 						<ul>
-							<li><a href="#err_noorigin">ERR_NOORIGIN</a></li>
 							<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
 						</ul>
 					</p>
@@ -2242,7 +2234,7 @@
 					<details>
 						<summary>
 							<code>
-								<b>parameters</b> = [ server space ] colon token
+								<b>parameters</b> = [ server space ] token
 							</code>
 						</summary>
 						<blockquote>
@@ -2253,7 +2245,6 @@
 										<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
 									</ol>
 								</li>
-								<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
 								<li>Contain 1 <code><a href="#abnf_token">token</a></code></li>
 							</ol>
 						</blockquote>
@@ -2262,9 +2253,7 @@
 					<p>
 						The PONG command is used as a reply to a previous PING message.<br>
 						When the server receives a PONG message, it must check<br>
-						that both a server is given as the origin in parameter<br>
-						and a token is given in parameter.<br>
-						Then the server must check that the given server is itself.<br>
+						that a token is given in parameter.<br>
 						Then the server must check that the given token is the same<br>
 						as the one given in the previous PING message, sent by the server to the client.<br>
 						Then the server must update the time of the last activity of the client.<br>
@@ -2272,7 +2261,18 @@
 						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
 						<!-- TODO -->
 						<ul>
-							<li><a href="#err_noorigin">ERR_NOORIGIN</a></li>
+							<li>
+								The token argument is missing<br>
+								&#x21B3; silently abort the command
+							</li>
+							<li>
+								The token argument is different from the one given in the previous PING message<br>
+								&#x21B3; silently abort the command
+							</li>
+							<li>
+								The client was not pinged before<br>
+								&#x21B3; silently abort the command
+							</li>
 						</ul>
 					</p>
 				</section>
@@ -2571,7 +2571,7 @@
 								<details>
 									<summary>
 										<code>
-											nick space user space host " * :" realname
+											nick space user space host " * " realname
 										</code>
 									</summary>
 									<blockquote>
