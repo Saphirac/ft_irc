@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 15:58:17 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 17:15:47 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ typedef std::vector<Key>                  KeyVector;
  *
  * @return The address of the joined channed upon success, `NULL` otherwise.
  */
-inline static Channel const *join_new_channel(
+inline static Channel *join_new_channel(
 	Client                         &user,
 	ChannelName const              &chan_name,
 	std::map<ChannelName, Channel> &channels_by_name)
@@ -53,8 +53,6 @@ inline static Channel const *join_new_channel(
 	Channel &channel =
 		channels_by_name.insert(std::make_pair(chan_name, Channel(chan_name.are_modes_supported()))).first->second;
 
-	user.join_channel(chan_name, channel);
-	channel.add_member(user);
 	channel.set_mode(ChannelOperator, &user);
 	return &channel;
 }
@@ -68,7 +66,7 @@ inline static Channel const *join_new_channel(
  *
  * @return The address of the joined channel upon success, `NULL` otherwise.
  */
-inline static Channel const *join_existing_channel(
+inline static Channel *join_existing_channel(
 	Client            &user,
 	Channel           &channel,
 	ChannelName const &chan_name,
@@ -116,9 +114,7 @@ inline static Channel const *join_existing_channel(
 		return NULL;
 	}
 
-	channel.add_member(user);
 	channel.remove_invited_user(user);
-	user.join_channel(chan_name, channel);
 	return &channel;
 }
 
@@ -145,20 +141,23 @@ inline static std::vector<PairChannelNameKey> split_channels_keys(std::string co
 }
 
 /**
- * @brief Add the sender to the channels in params if they exist, create them otherwise
- * The second params if present is the key to join the channel
+ * @brief Makes a user either join existing channel(s) or create and join new channel(s).
  *
- * @param sender
- * @param params
+ * @param sender The client that sent the command.
+ * @param parameters The parameters of the command.
+ *
+ * @throw `UnknownReply` if a given reply number isn't recognized.
+ * @throw `InvalidConversion` if a conversion specification is invalid.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-void Server::_join(Client &sender, std::vector<std::string> const &params)
+void Server::_join(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (!sender.has_mode(AlreadySentUser))
 		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
-	if (params.empty())
+	if (parameters.empty())
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "JOIN");
 
-	if (params[0] == "0")
+	if (parameters[0] == "0")
 	{
 		std::vector<std::string>            part_arguments;
 		Client::JoinedChannelMap const      joined_channels_by_name = sender.get_joined_channels_by_name();
@@ -174,20 +173,25 @@ void Server::_join(Client &sender, std::vector<std::string> const &params)
 	}
 
 	std::vector<PairChannelNameKey> const channel_key_pairs =
-		split_channels_keys(params[0], params.size() > 1 ? params[1] : std::string());
+		split_channels_keys(parameters[0], parameters.size() > 1 ? parameters[1] : std::string());
 
 	for (size_t i = 0; i < channel_key_pairs.size(); ++i)
 	{
 		ChannelName const                       &channel_name = channel_key_pairs[i].first;
 		std::map<ChannelName, Channel>::iterator channel_by_name = this->_channels_by_name.find(channel_name);
-		Channel const *const                     channel =
-            channel_by_name == this->_channels_by_name.end()
-									? join_new_channel(sender, channel_name, this->_channels_by_name)
-									: join_existing_channel(sender, channel_by_name->second, channel_name, channel_key_pairs[i].second);
+		Channel                                 *channel;
+
+		if (channel_by_name == this->_channels_by_name.end())
+			channel = join_new_channel(sender, channel_name, this->_channels_by_name);
+		else
+			channel = join_existing_channel(sender, channel_by_name->second, channel_name, channel_key_pairs[i].second);
 
 		if (!channel)
 			continue;
-		sender.append_to_msg_out(sender.prefix() + "JOIN " + channel_name);
+
+		channel->add_member(sender);
+		sender.join_channel(channel_name, channel);
+		channel->broadcast_to_all_members(sender.prefix() + "JOIN :" + channel_name);
 		sender.append_formatted_reply_to_msg_out(RPL_TOPIC, &channel_name, &channel->get_topic());
 
 		std::vector<std::string> names_arguments;

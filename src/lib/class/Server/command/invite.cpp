@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 13:03:24 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 17:41:09 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,10 @@
 #include "replies.hpp"
 
 /**
- * @brief Invite a user to a channel, adding him to the Invite list
+ * @brief Makes a user invite another user to a channel.
  *
- * @param sender the client inviting
- * @param params the command parameters (nickname, channel)
+ * @param sender The client that sent the command.
+ * @param parameters The parameters of the command.
  */
 void Server::_invite(Client &sender, std::vector<std::string> const &params)
 {
@@ -26,37 +26,40 @@ void Server::_invite(Client &sender, std::vector<std::string> const &params)
 	if (params.size() < 2)
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "INVITE");
 
-	NickName const &nickname = sender.get_nickname();
-	NickName const &user_to_invite_nickname = params[0];
+	NickName const                                         &sender_nickname = sender.get_nickname();
+	NickName const                                         &target_nickname = params[0];
+	std::map<NickName, Client *const>::const_iterator const user_by_nickname =
+		this->_clients_by_nickname.find(target_nickname);
 
-	if (this->_clients_by_nickname.count(user_to_invite_nickname) == 0)
-		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHNICK, &nickname);
+	if (user_by_nickname == this->_clients_by_nickname.end())
+		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHNICK, &target_nickname);
 
-	Client            &user_to_invite = *this->_clients_by_nickname[user_to_invite_nickname];
-	ChannelName const &chan_name = params[1];
+	Client               &target = *user_by_nickname->second;
+	ChannelName const    &channel_name = params[1];
+	ChannelIterator const channel_by_name = this->_channels_by_name.find(channel_name);
 
-	if (this->_channels_by_name.count(chan_name) == 0)
-		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &params[1]);
+	if (channel_by_name == this->_channels_by_name.end())
+		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &channel_name);
 
-	Channel       &channel = this->_channels_by_name[chan_name];
-	Channel::Modes chan_modes = channel.get_modes();
+	Channel &channel = channel_by_name->second;
 
 	if (!channel.has_member(sender))
-		sender.append_formatted_reply_to_msg_out(ERR_NOTONCHANNEL, &chan_name);
-	else if (channel.has_member(user_to_invite))
-		sender.append_formatted_reply_to_msg_out(ERR_USERONCHANNEL, &user_to_invite_nickname, &chan_name);
-	else if (chan_modes.is_set(InviteOnly) && !chan_modes.has_operator(sender))
-		sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &nickname);
-	else
-	{
-		Client::Modes const &user_modes = user_to_invite.get_modes();
-		if (user_modes.is_set(Away))
-			sender.append_formatted_reply_to_msg_out(RPL_AWAY, &user_to_invite_nickname, &user_modes.get_away_msg());
-		else
-		{
-			channel.set_mode(InviteMask, &user_to_invite_nickname);
-			user_to_invite.append_to_msg_out(sender.prefix() + "INVITE " + chan_name);
-			sender.append_formatted_reply_to_msg_out(RPL_INVITING, &user_to_invite_nickname, &chan_name);
-		}
-	}
+		return sender.append_formatted_reply_to_msg_out(ERR_NOTONCHANNEL, &channel_name);
+	if (channel.has_member(target))
+		return sender.append_formatted_reply_to_msg_out(ERR_USERONCHANNEL, &target_nickname, &channel_name);
+
+	Channel::Modes const &channel_modes = channel.get_modes();
+	bool const            is_sender_operator = channel_modes.has_operator(sender);
+
+	if (channel_modes.is_set(InviteOnly) && !is_sender_operator)
+		return sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &sender_nickname);
+
+	Client::Modes const &user_modes = target.get_modes();
+
+	if (user_modes.is_set(Away))
+		return sender.append_formatted_reply_to_msg_out(RPL_AWAY, &target_nickname, &user_modes.get_away_msg());
+
+	channel.add_invited_user(target, is_sender_operator);
+	target.append_to_msg_out(sender.prefix() + "INVITE :" + channel_name);
+	sender.append_formatted_reply_to_msg_out(RPL_INVITING, &target_nickname, &channel_name);
 }

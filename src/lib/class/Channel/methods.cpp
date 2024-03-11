@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 01:29:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 12:02:33 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 17:52:03 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -405,8 +405,9 @@ std::string Channel::members_as_string(void) const
  */
 void Channel::broadcast_to_all_members(std::string const &msg) const
 {
-	for (std::set<Client *>::const_iterator cit = this->_members.begin(); cit != this->_members.end(); ++cit)
-		(*cit)->append_to_msg_out(msg);
+	_MemberIterator const end = this->_members.end();
+
+	for (_MemberIterator cit = this->_members.begin(); cit != end; ++cit) (*cit)->append_to_msg_out(msg);
 }
 
 /**
