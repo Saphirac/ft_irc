@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ping.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:32:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 01:38:29 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 04:59:36 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,19 @@
 #include "replies.hpp"
 
 /**
- * @brief Sends a response to the PING command by sending a PONG with the corresponding token
+ * @brief Sends back a PONG to a client asking if the server connection is still alive.
  *
- * @param sender the client sending the ping
- * @param params the parameters containing the ping token
- * @return StatusCode depending on the success of the command
+ * @param sender The client that sent the command.
+ * @param parameters The parameters of the command.
+ *
+ * @throw `UnknownReply` if a given reply number isn't recognized.
+ * @throw `InvalidConversion` if a conversion specification is invalid.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-void Server::_ping(Client &sender, std::vector<std::string> const &params)
+void Server::_ping(Client &sender, std::vector<std::string> const &parameters)
 {
-	if (params.empty())
+	if (parameters.empty())
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "PING");
 
-	sender.append_to_msg_out(sender.prefix() + this->_name + "PONG " + params[0]);
+	sender.append_to_msg_out(sender.prefix() + " PONG " + this->_name + " :" + parameters[0]);
 }

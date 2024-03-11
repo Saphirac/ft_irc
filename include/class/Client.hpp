@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 02:00:55 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 05:46:54 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,21 +95,21 @@ public:
 
 	// Accessors
 	int                  get_socket(void) const;
+	bool                 get_has_been_pinged(void) const;
+	std::string const   &get_ping_token(void) const;
 	NickName const      &get_nickname(void) const;
 	HostName const      &get_hostname(void) const;
 	Client::Modes const &get_modes(void) const;
-	bool                 get_has_been_pinged(void) const;
-	std::string const   &get_ping_token(void) const;
 
 	// Mutators
 	void set_socket(int const socket);
 	void set_last_msg_time(clock_t const time);
+	void set_has_been_pinged(bool const has_been_pinged);
+	void set_ping_token(std::string const &ping_token);
 	void set_nickname(NickName const &nickname);
 	void set_hostname(HostName const &hostname);
 	void set_username(UserName const &username);
 	void set_realname(RealName const &realname);
-	void set_has_been_pinged(bool has_been_pinged);
-	void set_ping_token(std::string const &ping_token);
 
 	// Methods
 	void        append_to_msg_in(std::string const &s);
@@ -125,9 +125,6 @@ public:
 	void clear_mode(UserMode const mode);
 	bool has_mode(UserMode const mode) const;
 
-	// ssize_t send_message(std::string const &message) const;
-	// ssize_t send_messages(void) const;
-
 	std::string user_mask(void) const;
 
 	void disconnect(void);
@@ -138,6 +135,8 @@ private:
 	std::string _msg_in;
 	std::string _msg_out;
 	clock_t     _last_msg_time;
+	bool        _has_been_pinged;
+	std::string _ping_token;
 
 	NickName      _nickname;
 	HostName      _hostname;
@@ -146,7 +145,4 @@ private:
 	Client::Modes _modes;
 
 	std::map<ChannelName, Channel *const> _joined_channels_by_name;
-
-	bool        _has_been_pinged;
-	std::string _ping_token;
 };

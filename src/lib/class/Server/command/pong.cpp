@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pong.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:32:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 02:49:26 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 05:03:12 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,10 @@
 #include "replies.hpp"
 
 /**
- * @brief Handle the receiving of a PONG msg : if the client has been pinged before, and the pong token matches the
- * previous ping token, it will set back the has_been_pinged flag to false and the time_last_msg to the current time.
- * Else it will simply return without doing anything.
+ * @brief Reset the time of the last activity of a client after that this client has responded to a PING by a PONG.
  *
- * The PONG command takes as params the server name and the token of the ping.
- *
- * @param sender the client sending the pong
- * @param params the parameters of the pong
- *
+ * @param sender The client that sent the command.
+ * @param parameters The parameters of the command.
  */
 void Server::_pong(Client &sender, std::vector<std::string> const &params)
 {

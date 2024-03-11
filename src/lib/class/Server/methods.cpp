@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 02:01:32 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 05:29:50 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,11 @@
 #include <fcntl.h>
 #include <sys/epoll.h>
 
-#define TIMEOUT            180
+// How many seconds since the last received message from a client the server will wait
+// before sending a PING to that client.
+#define TIMEOUT 180
+// How many seconds since the last PING sent to a client the server will wait without receiving a PONG from that client
+// before disconnecting that client.
 #define TIMEOUT_SINCE_PING 15
 
 bool interrupted = false;
@@ -193,41 +197,46 @@ void Server::_compute_next_msg_for_a_client(Client &client)
 
 inline static std::string const random_string(size_t len)
 {
-	std::string str = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+-*/!~@#$%^&()_+{}[]|;<>,.?/";
-	std::string newstr;
-	int         pos;
+	std::string const available_characters =
+		"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+-*/!~@#$%^&()_+{}[]|;<>,.?/";
+	size_t const available_characters_len = available_characters.size();
+	std::string  s;
 
-	while (newstr.size() != len)
-	{
-		pos = ((rand() % (str.size() - 1)));
-		newstr += str.substr(pos, 1);
-	}
-	return newstr;
+	while (len--) s += available_characters[rand() % available_characters_len];
+	return s;
 }
 
 /**
- * @brief Check the time of last activity of each clients, if that time delay is greater than TIMEOUT, send a PING and
+ * @brief
+ * Check the time of last activity of each clients, if that time delay is greater than TIMEOUT, send a PING and
  * set the has_been_pinged flag to true
  * If the client has been pinged and the time delay is greater than TIMEOUT_SINCE_PING, disconnect the client
  *
  * @throw disconnect() can throw ProblemWithClose() if the close() function fails.
  */
-void Server::check_time_of_last_msg()
+void Server::_check_time_of_last_msg(void)
 {
-	for (std::map<int, Client>::iterator client_by_socket = this->_clients_by_socket.begin();
-	     client_by_socket != this->_clients_by_socket.end();
+	std::map<int, Client>::iterator const end = this->_clients_by_socket.end();
+
+	for (std::map<int, Client>::iterator client_by_socket = this->_clients_by_socket.begin(); client_by_socket != end;
 	     ++client_by_socket)
 	{
 		Client &client = client_by_socket->second;
 
-		if (client.get_has_been_pinged() == false && client.time_since_last_msg() / CLOCKS_PER_SEC > TIMEOUT)
+		if (client.get_has_been_pinged())
 		{
+			if (client.time_since_last_msg() / CLOCKS_PER_SEC < TIMEOUT_SINCE_PING)
+				continue;
+			client.set_mode(IsAboutToBeDisconnected);
+		}
+		else
+		{
+			if (client.time_since_last_msg() / CLOCKS_PER_SEC < TIMEOUT)
+				continue;
 			client.set_ping_token(random_string(10));
 			client.set_has_been_pinged(true);
 			client.set_last_msg_time(clock());
-			client.append_to_msg_out(':' + this->_name + "PING " + client.get_ping_token());
+			client.append_to_msg_out(':' + this->_name + " PING " + client.get_ping_token());
 		}
-		if (client.get_has_been_pinged() == true && client.time_since_last_msg() / CLOCKS_PER_SEC > TIMEOUT_SINCE_PING)
-			client.set_mode(IsAboutToBeDisconnected);
 	}
 }

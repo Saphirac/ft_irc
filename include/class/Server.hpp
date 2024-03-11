@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 01:54:47 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 05:21:27 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ private:
 	void _compute_next_msg_for_a_client(Client &client);
 	void _new_client_connection(void);
 	void _receive_data_from_client(Client &client);
-	void check_time_of_last_msg(void);
+	void _check_time_of_last_msg(void);
 
 	// Commands
 	void _away(Client &sender, std::vector<std::string> const &parameters);
@@ -79,8 +79,8 @@ private:
 	void _nick(Client &sender, std::vector<std::string> const &parameters);
 	void _oper(Client &sender, std::vector<std::string> const &parameters);
 	void _pass(Client &sender, std::vector<std::string> const &parameters);
-	void _quit(Client &sender, std::vector<std::string> const &parameters);
-	void _user(Client &sender, std::vector<std::string> const &parameters);
 	void _ping(Client &sender, std::vector<std::string> const &parameters);
 	void _pong(Client &sender, std::vector<std::string> const &parameters);
+	void _quit(Client &sender, std::vector<std::string> const &parameters);
+	void _user(Client &sender, std::vector<std::string> const &parameters);
 };
