@@ -6,7 +6,7 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 03:04:48 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/11 15:11:07 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:14:11 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #include "class/specialized_string/NickName.hpp"
 #include "class/specialized_string/Prefix.hpp"
 #include "class/specialized_string/UserName.hpp"
-#include <cctype>
 
 /**
  * Determines if the current Prefix instance represents a valid prefix according
