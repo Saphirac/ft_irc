@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:26:34 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 08:27:42 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 09:49:55 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include <list>
 
 #define DEFAULT_PART_MESSAGE "Goodbye to all!"
+
+typedef std::list<std::string> StringList;
 
 /**
  * @brief Remove member of each channel sent in params
@@ -28,13 +30,13 @@
 void Server::_part(Client &sender, std::vector<std::string> const &params)
 {
 	if (!sender.has_mode(AlreadySentUser))
-		return sender.append_to_msg_out(':' + this->_name + " You are not registered.\n");
+		return sender.append_to_msg_out(sender.prefix() + "You are not registered.");
 	if (params.empty())
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "PART");
 
-	std::list<std::string> channels = split<std::list<std::string> >(params[0], ',');
+	StringList channels = split<StringList>(params[0], ',');
 
-	for (std::list<std::string>::const_iterator actual_channel = channels.begin(); actual_channel != channels.end();
+	for (StringList::const_iterator actual_channel = channels.begin(); actual_channel != channels.end();
 	     ++actual_channel)
 	{
 		ChannelName const                       &chan_name = *actual_channel;

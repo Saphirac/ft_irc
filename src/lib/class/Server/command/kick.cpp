@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 08:25:09 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 09:47:33 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,10 @@ inline static void __kick_client(
 {
 	channel.remove_member(user_to_remove);
 	user_to_remove.leave_channel(chan_name);
-	user_to_remove.append_to_msg_out(user_to_remove.prefix() + "KICK " + chan_name + " " + user_to_remove_nickname + " " + comment);
-	channel.broadcast_to_all_members(user_to_remove.prefix() + "KICK " + chan_name + " " + user_to_remove_nickname + " " + comment);
+	user_to_remove.append_to_msg_out(
+		user_to_remove.prefix() + "KICK " + chan_name + " " + user_to_remove_nickname + " " + comment);
+	channel.broadcast_to_all_members(
+		user_to_remove.prefix() + "KICK " + chan_name + " " + user_to_remove_nickname + " " + comment);
 }
 
 inline static void __kick_only_one_channel_given(
@@ -40,7 +42,7 @@ inline static void __kick_only_one_channel_given(
 {
 	ChannelName const &chan_name = split_channels_names[0];
 
-	if (channels_by_name.count(chan_name))
+	if (!channels_by_name.count(chan_name))
 		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &chan_name);
 
 	Channel &channel = channels_by_name.find(chan_name)->second;
@@ -68,9 +70,10 @@ inline static void __kick_multiple_channel_given(
 	Client                            &sender,
 	ChannelNameVector                  split_channels_names,
 	NickNameVector                     split_nicknames,
-	size_t                             split_channels_names_size,
 	std::string const                 &comment)
 {
+	size_t                             split_channels_names_size = split_channels_names.size();
+	
 	for (size_t i = 0; i < split_channels_names_size; ++i)
 	{
 		if (channels_by_name.count(split_channels_names[i]) == 0)
@@ -100,7 +103,7 @@ void Server::_kick(Client &sender, std::vector<std::string> const &params)
 	size_t const params_size = params.size();
 
 	if (!sender.has_mode(AlreadySentUser))
-		return sender.append_to_msg_out(':' + this->_name + " You are not registered.\n");
+		return sender.append_to_msg_out(sender.prefix() + "You are not registered.");
 	if (params_size < 2)
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "KICK");
 
@@ -119,7 +122,7 @@ void Server::_kick(Client &sender, std::vector<std::string> const &params)
 			sender,
 			split_channels_names,
 			split_nicknames,
-			params_size < 3 ? params[2] : std::string());
+			params_size > 2 ? params[2] : std::string());
 	else
 		__kick_multiple_channel_given(
 			this->_channels_by_name,
@@ -127,6 +130,5 @@ void Server::_kick(Client &sender, std::vector<std::string> const &params)
 			sender,
 			split_channels_names,
 			split_nicknames,
-			split_channels_names_size,
-			params_size < 3 ? params[2] : std::string());
+			params_size > 2 ? params[2] : std::string());
 }

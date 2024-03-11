@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 08:10:45 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 09:45:49 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,12 @@ inline static Channel *__join_new_channel(
 		sender.append_formatted_reply_to_msg_out(ERR_TOOMANYCHANNELS);
 	else if (chan_name.is_valid())
 	{
-		Channel &channel = channels_by_name[chan_name];
+		Channel &channel =
+			channels_by_name.insert(std::make_pair(chan_name, Channel(chan_name.is_mode_supported()))).first->second;
+
 		sender.join_channel(chan_name, channel);
+		channel.add_member(sender);
+		channel.set_mode(ChannelOperator, &sender);
 		return &channel;
 	}
 	else
@@ -134,7 +138,7 @@ inline static void __send_join_message_for_each_channel(
 	{
 		ChannelName const &chan_name = channel->first;
 
-		sender.append_to_msg_out(sender.prefix() + "JOIN : Successfully joined " + chan_name);
+		sender.append_to_msg_out(sender.prefix() + "JOIN " + chan_name);
 		sender.append_formatted_reply_to_msg_out(RPL_TOPIC, &chan_name, &channel->second->get_topic());
 		// names(sender, {chan_name});
 	}
@@ -150,7 +154,7 @@ inline static void __send_join_message_for_each_channel(
 void Server::_join(Client &sender, std::vector<std::string> const &params)
 {
 	if (!sender.has_mode(AlreadySentUser))
-		return sender.append_to_msg_out(':' + this->_name + " You are not registered.\n");
+		return sender.append_to_msg_out(sender.prefix() + "You are not registered.");
 	if (params.size() < 1)
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "JOIN");
 	if (params.size() == 1 && params[0] == "0")

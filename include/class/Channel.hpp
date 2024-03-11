@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 00:23:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 06:30:52 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 08:48:55 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ public:
 	};
 
 	// Constructors
-	Channel(void);
+	Channel(bool const is_mode_supported = true);
 
 	// Destructor
 	~Channel(void);
@@ -102,6 +102,7 @@ public:
 	Topic const          &get_topic(void) const;
 	Channel::Modes const &get_modes(void) const;
 	size_t                get_members_size(void) const;
+	bool                  get_is_mode_supported(void) const;
 
 	// Setters
 
@@ -121,4 +122,5 @@ private:
 	Topic              _topic;
 	Modes              _modes;
 	std::set<Client *> _members;
+	bool               _is_mode_supported;
 };

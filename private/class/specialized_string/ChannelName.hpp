@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ChannelName.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/18 23:03:36 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/02 18:01:23 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 08:51:47 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,4 +25,6 @@ public:
 
 	// Methods
 	bool is_valid(void) const;
+	bool is_mode_supported(void) const;
+	
 };
