@@ -6,7 +6,7 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 03:04:48 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/11 10:12:54 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:11:07 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,18 +40,18 @@ bool Prefix::is_valid(void) const
 	if (!NickName(server_or_nick).is_valid())
 		return false;
 
-	std::string remainder = this->substr(end_server_or_nick + 1);
+	std::string remaining = this->substr(end_server_or_nick + 1);
 
 	if (this->at(end_server_or_nick) == '!')
 	{
-		size_t at_pos = remainder.find('@');
+		size_t at_pos = remaining.find('@');
 		if (at_pos == std::string::npos)
 			return false;
 
-		std::string username = remainder.substr(0, at_pos);
-		std::string hostname = remainder.substr(at_pos + 1);
+		std::string username = remaining.substr(0, at_pos);
+		std::string hostname = remaining.substr(at_pos + 1);
 
 		return UserName(username).is_valid() && HostName(hostname).is_valid();
 	}
-	return HostName(remainder).is_valid();
+	return HostName(remaining).is_valid();
 }
