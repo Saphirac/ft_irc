@@ -6,7 +6,7 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 03:04:48 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/11 16:38:32 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/11 16:57:29 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@ bool Prefix::is_valid(void) const
 	if (this->at(0) != ':')
 		return false;
 
-	size_t      end_server_or_nick = this->find_first_of("!@", 1);
-	std::string server_or_nick = this->substr(1, end_server_or_nick - 1);
+	size_t      const end_server_or_nick = this->find_first_of("!@", 1);
+	std::string const server_or_nick = this->substr(1, end_server_or_nick - 1);
 
 	if (end_server_or_nick == std::string::npos)
 		return HostName(server_or_nick).is_valid();
@@ -39,7 +39,7 @@ bool Prefix::is_valid(void) const
 	if (!NickName(server_or_nick).is_valid())
 		return false;
 
-	std::string remaining = this->substr(end_server_or_nick + 1);
+	std::string const remaining = this->substr(end_server_or_nick + 1);
 
 	if (this->at(end_server_or_nick) == '!')
 	{
