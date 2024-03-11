@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:46:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 01:34:11 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 02:01:06 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ Client::Client(
 	_socket(socket),
 	_msg_in(),
 	_msg_out(),
-	_last_msg_time(std::clock()),
+	_last_msg_time(clock()),
 	_nickname(nickname),
 	_hostname(hostname),
 	_username(username),
@@ -74,15 +74,15 @@ NickName const      &Client::get_nickname(void) const { return this->_nickname; 
 HostName const      &Client::get_hostname(void) const { return this->_hostname; }
 Client::Modes const &Client::get_modes(void) const { return this->_modes; }
 bool                 Client::get_has_been_pinged(void) const { return this->_has_been_pinged; }
-std::string          Client::get_ping_token(void) const { return this->_ping_token; }
+std::string const   &Client::get_ping_token(void) const { return this->_ping_token; }
 
 // Mutators //
 
 void Client::set_socket(int const socket) { this->_socket = socket; }
-void Client::set_last_msg_time(std::clock_t const time) { this->_last_msg_time = time; }
+void Client::set_last_msg_time(clock_t const time) { this->_last_msg_time = time; }
 void Client::set_nickname(NickName const &nickname) { this->_nickname = nickname; }
 void Client::set_hostname(HostName const &hostname) { this->_hostname = hostname; }
 void Client::set_username(UserName const &username) { this->_username = username; }
 void Client::set_realname(RealName const &realname) { this->_realname = realname; }
-void Client::set_has_been_pinged(bool const has_been_pinged) { this->_has_been_pinged = has_been_pinged; }
+void Client::set_has_been_pinged(bool has_been_pinged) { this->_has_been_pinged = has_been_pinged; }
 void Client::set_ping_token(std::string const &ping_token) { this->_ping_token = ping_token; }

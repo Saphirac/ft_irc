@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 01:37:41 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 02:01:32 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,7 +224,7 @@ void Server::check_time_of_last_msg()
 		{
 			client.set_ping_token(random_string(10));
 			client.set_has_been_pinged(true);
-			client.set_last_msg_time(std::clock());
+			client.set_last_msg_time(clock());
 			client.append_to_msg_out(':' + this->_name + "PING " + client.get_ping_token());
 		}
 		if (client.get_has_been_pinged() == true && client.time_since_last_msg() / CLOCKS_PER_SEC > TIMEOUT_SINCE_PING)

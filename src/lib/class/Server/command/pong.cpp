@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:32:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 01:38:31 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 01:58:53 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,5 +40,5 @@ void Server::_pong(Client &sender, std::vector<std::string> const &params)
 		return;
 
 	sender.set_has_been_pinged(false);
-	sender.set_last_msg_time(std::clock());
+	sender.set_last_msg_time(clock());
 }
