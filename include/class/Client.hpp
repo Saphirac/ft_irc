@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 07:46:59 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 08:24:26 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,6 @@ public:
 	~Client(void);
 
 	// Accessors
-	int                     get_socket(void) const;
 	int                     get_socket(void) const;
 	bool                    get_has_been_pinged(void) const;
 	std::string const      &get_ping_token(void) const;

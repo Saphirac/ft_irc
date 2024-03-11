@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:26:59 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 07:35:25 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 08:29:46 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,14 +34,14 @@ inline static void list_channel_members(Client &client, ChannelName const &chann
 
 	while (members_as_string.size() > maximum_length_for_members_as_string)
 	{
-		size_t const space_pos = members_as_string.rfind(' ', maximum_length_for_members_as_string - 1);
+		size_t const      space_pos = members_as_string.rfind(' ', maximum_length_for_members_as_string - 1);
+		std::string const members_as_string_part = members_as_string.substr(0, space_pos);
 
-		// TODO: Send 1 RPL_NAMESREPLY, passing `channel_name` and `members_as_string.substr(0, space_pos).
+		client.append_formatted_reply_to_msg_out(RPL_NAMESREPLY, &prefixed_channel_name, &members_as_string_part);
 		members_as_string.erase(0, space_pos + 1);
 	}
-	// TODO: Send 1 RPL_NAMESREPLY, passing `channel_name` and `members_as_string`.
-	// TODO: Send 1 RLP_ENDOFNAMES, passing `channel_name`.
-	(void)client;
+	client.append_formatted_reply_to_msg_out(RPL_NAMESREPLY, &prefixed_channel_name, &members_as_string);
+	client.append_formatted_reply_to_msg_out(RPL_ENDOFNAMES, &channel_name);
 }
 
 /**
@@ -82,9 +82,7 @@ inline static void list_members_of_specific_channels(
 }
 
 /**
- * @brief
- * Lists either the members of specific channels,
- * or the members of the channels joined by a user.
+ * @brief Lists either the members of specific channels or the members of the channels joined by a user.
  *
  * @param sender The client that sent the command.
  * @param parameters The parameters of the command.
@@ -93,7 +91,7 @@ inline static void list_members_of_specific_channels(
  * @throw `InvalidConversion` if a conversion specification is invalid.
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-void Server::_names(Client &sender, ChannelNameVector const &parameters)
+void Server::_names(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (parameters.empty())
 		return list_members_of_joined_channels(sender);

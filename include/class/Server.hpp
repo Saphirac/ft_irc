@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 07:47:23 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 08:27:57 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ private:
 	// Commands
 	void _away(Client &sender, std::vector<std::string> const &parameters);
 	void _cap(Client &sender, std::vector<std::string> const &parameters);
+	void _list(Client &sender, std::vector<std::string> const &parameters);
 	void _mode(Client &sender, std::vector<std::string> const &parameters);
 	void _names(Client &sender, std::vector<std::string> const &parameters);
 	void _nick(Client &sender, std::vector<std::string> const &parameters);
