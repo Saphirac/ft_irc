@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:06:05 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/11 03:48:51 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 05:49:32 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ Message::Message(std::string const &msg) : _prefix(), _command(), _parameters()
 	if (msg[pos] == ':')
 	{
 		space_pos = msg.find(' ', pos);
-		this->_prefix = msg.substr(pos + 1, space_pos - pos - 1);
+		this->_prefix = msg.substr(pos, space_pos - pos);
 		pos = space_pos + 1;
 	}
 
