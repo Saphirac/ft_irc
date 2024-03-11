@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 03:58:00 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 07:22:16 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -297,9 +297,9 @@ std::string Client::get_next_msg(void)
  *
  * @throw `ProblemWithClock` if `clock()` fails.
  */
-std::clock_t Client::time_since_last_msg(void) const
+clock_t Client::time_since_last_msg(void) const
 {
-	std::clock_t const now = std::clock();
+	clock_t const now = clock();
 
 	if (now == -1)
 		throw ProblemWithClock();
