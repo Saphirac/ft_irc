@@ -2230,7 +2230,6 @@
 						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
 						<!-- TODO -->
 						<ul>
-							<li><a href="#err_noorigin">ERR_NOORIGIN</a></li>
 							<li><a href="#err_needmoreparams">ERR_NEEDMOREPARAMS</a></li>
 						</ul>
 					</p>
@@ -2261,9 +2260,7 @@
 					<p>
 						The PONG command is used as a reply to a previous PING message.<br>
 						When the server receives a PONG message, it must check<br>
-						that both a server is given as the origin in parameter<br>
-						and a token is given in parameter.<br>
-						Then the server must check that the given server is itself.<br>
+						that a token is given in parameter.<br>
 						Then the server must check that the given token is the same<br>
 						as the one given in the previous PING message, sent by the server to the client.<br>
 						Then the server must update the time of the last activity of the client.<br>
@@ -2271,7 +2268,17 @@
 						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
 						<!-- TODO -->
 						<ul>
-							<li><a href="#err_noorigin">ERR_NOORIGIN</a></li>
+							<li>
+								The token argument is missing<br>
+								&#x21B3; silently abort the command
+							<li>
+								The client was not pinged before<br>
+								&#x21B3; silently abort the command
+							</li>
+							<li>
+								The token argument is missing or is different from the one given in the previous PING message<br>
+								&#x21B3; silently abort the command
+							</li>
 						</ul>
 					</p>
 				</section>
