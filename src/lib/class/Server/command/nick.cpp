@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:22 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 09:49:46 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 18:50:50 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@
  */
 void Server::_nick(Client &sender, std::vector<std::string> const &parameters)
 {
-	if (!sender.has_mode(AlreadySentUser))
-		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
 	if (parameters.empty())
 		return sender.append_formatted_reply_to_msg_out(ERR_NONICKNAMEGIVEN);
 
@@ -37,10 +35,12 @@ void Server::_nick(Client &sender, std::vector<std::string> const &parameters)
 	if (this->_clients_by_nickname.count(nickname) != 0)
 		return sender.append_formatted_reply_to_msg_out(ERR_NICKNAMEINUSE, &nickname);
 
+	std::string const old_prefix = sender.prefix();
+
 	this->_clients_by_nickname.erase(sender.get_nickname());
 	sender.set_nickname(nickname);
 	this->_clients_by_nickname.insert(std::make_pair(nickname, &sender));
 
-	sender.append_to_msg_out(sender.prefix() + "NICK " + nickname);
+	sender.append_to_msg_out(old_prefix + " NICK :" + nickname);
 }
 // TODO: implement unit tests for this function

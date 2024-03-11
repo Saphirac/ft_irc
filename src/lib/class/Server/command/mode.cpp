@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 13:25:44 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 18:29:43 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,9 +201,14 @@ inline static void mode_for_user(Client &sender, std::vector<std::string> const 
 		return sender.append_formatted_reply_to_msg_out(ERR_UMODEUNKNOWNFLAG);
 	apply_changes_for_user(sender, modes_to_be);
 
-	sender.append_to_msg_out(
-		sender.prefix() + "MODE " + sender.get_nickname() + " +" + modes_to_be[Set].to_string() + '-'
-		+ modes_to_be[Cleared].to_string());
+	std::string msg = sender.prefix() + "MODE " + sender.get_nickname();
+
+	if (modes_to_be[Set].has_any_mode_set())
+		msg += " +" + modes_to_be[Set].to_string();
+	if (modes_to_be[Cleared].has_any_mode_set())
+		msg += " -" + modes_to_be[Cleared].to_string();
+
+	sender.append_to_msg_out(msg);
 }
 #pragma endregion USER MODE
 

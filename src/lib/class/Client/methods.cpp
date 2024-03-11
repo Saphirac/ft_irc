@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 12:41:57 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 18:50:44 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,6 +136,13 @@ bool Client::Modes::Flags::is_set(UserMode const flag) const
 }
 
 /**
+ * @brief Checks whether any flag is set.
+ *
+ * @return `true` if any flag is set, `false` otherwise.
+ */
+bool Client::Modes::Flags::has_any_flag_set(void) const { return this->_bits != 0; }
+
+/**
  * @return The string representation of the flags that are currently set.
  *
  * @throw `std::exception` if a function of the C++ standard library critically fails.
@@ -252,6 +259,13 @@ bool Client::Modes::is_set(UserMode const mode) const
 		return this->_flags.is_set(IsAboutToBeDisconnected);
 	}
 }
+
+/**
+ * @brief Checks whether any mode is set.
+ *
+ * @return `true` if any mode is set, `false` otherwise.
+ */
+bool Client::Modes::has_any_mode_set(void) const { return this->_flags.has_any_flag_set(); }
 
 /**
  * @return The string representation of the modes that are currently set.

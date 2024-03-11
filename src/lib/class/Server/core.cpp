@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 08:48:17 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 18:47:50 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,24 +45,16 @@ std::map<std::string, std::string const> const Server::_operator_ids = std::map<
 
 Server::CommandPair const Server::_raw_commands_by_name[] = {
 	// TODO: add missing commands
-	std::make_pair("AWAY", &Server::_away),
-	std::make_pair("CAP", &Server::_cap),
-	std::make_pair("MODE", &Server::_mode),
-	std::make_pair("NAMES", &Server::_names),
-	std::make_pair("NICK", &Server::_nick),
-	std::make_pair("PING", &Server::_ping),
-	std::make_pair("PONG", &Server::_pong),
-	std::make_pair("OPER", &Server::_oper),
-	std::make_pair("PASS", &Server::_pass),
+	std::make_pair("AWAY", &Server::_away),     std::make_pair("CAP", &Server::_cap),
+	std::make_pair("INVITE", &Server::_invite), std::make_pair("JOIN", &Server::_join),
+	std::make_pair("KICK", &Server::_kick),     std::make_pair("LIST", &Server::_list),
+	std::make_pair("MODE", &Server::_mode),     std::make_pair("NAMES", &Server::_names),
+	std::make_pair("NICK", &Server::_nick),     std::make_pair("NOTICE", &Server::_notice),
+	std::make_pair("OPER", &Server::_oper),     std::make_pair("PART", &Server::_part),
+	std::make_pair("PASS", &Server::_pass),     std::make_pair("PING", &Server::_ping),
+	std::make_pair("PONG", &Server::_pong),     std::make_pair("PRIVMSG", &Server::_privmsg),
+	std::make_pair("QUIT", &Server::_quit),     std::make_pair("TOPIC", &Server::_topic),
 	std::make_pair("USER", &Server::_user),
-	std::make_pair("QUIT", &Server::_quit),
-	std::make_pair("JOIN", &Server::_join),
-	std::make_pair("PART", &Server::_part),
-	std::make_pair("TOPIC", &Server::_topic),
-	std::make_pair("INVITE", &Server::_invite),
-	std::make_pair("KICK", &Server::_kick),
-	std::make_pair("PRIVMSG", &Server::_privmsg),
-	std::make_pair("NOTICE", &Server::_notice),
 };
 Server::CommandMap const Server::_commands_by_name = CommandMap(
 	_raw_commands_by_name,

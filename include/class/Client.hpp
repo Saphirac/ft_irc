@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 12:59:01 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 18:28:59 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ public:
 		void set(UserMode const mode, void const *const arg = NULL);
 		void clear(UserMode const mode);
 		bool is_set(UserMode const mode) const;
+		bool has_any_mode_set(void) const;
 
 		std::string to_string(void) const;
 
@@ -63,6 +64,7 @@ public:
 			void set(UserMode const mode);
 			void clear(UserMode const mode);
 			bool is_set(UserMode const mode) const;
+			bool has_any_flag_set(void) const;
 
 			std::string to_string(void) const;
 
