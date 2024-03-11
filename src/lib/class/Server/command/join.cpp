@@ -6,17 +6,23 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 07:09:03 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 08:10:45 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
 #include "replies.hpp"
 #include "split.hpp"
+#include <cstdio>
 #include <list>
 #include <utility>
 
 #define MAX_CHANNELS 42
+
+typedef std::pair<ChannelName, Key>       PairChannelNameKey;
+typedef std::pair<ChannelName, Channel *> PairChannelNameChannel;
+typedef std::vector<ChannelName>          ChannelNameVector;
+typedef std::vector<Key>                  KeyVector;
 
 /**
  * @brief Join a new channel
@@ -87,6 +93,8 @@ inline static Channel *__join_existing_channel(
 	return NULL;
 }
 
+#include <iostream>
+
 /**
  * @brief Create a list of pairs of channels and keys
  *
@@ -94,20 +102,19 @@ inline static Channel *__join_existing_channel(
  * @param keys
  * @return std::vector<std::pair<std::string, std::string>>
  */
-inline static std::vector<std::pair<ChannelName, Key> > __split_channels_keys(
+inline static std::vector<PairChannelNameKey> __split_channels_keys(
 	std::string const &channels,
-	Key const         &keys)
+	std::string const &keys)
 {
-	std::vector<std::pair<ChannelName, Key> > channel_key_pairs;
-	std::vector<ChannelName>                 split_channels = split<std::vector<ChannelName> >(channels, ',');
-	std::vector<Key>                         split_keys = split<std::vector<Key> >(keys, ',');
-	for (size_t i = 0; i < split_channels.size(); ++i)
-	{
-		if (split_keys[i].empty())
-			channel_key_pairs.push_back(std::make_pair(split_channels[i], Key()));
-		else
-			channel_key_pairs.push_back(std::make_pair(split_channels[i], split_keys[i]));
-	}
+	std::vector<PairChannelNameKey> channel_key_pairs;
+	ChannelNameVector               split_channels = split<ChannelNameVector>(channels, ',');
+	KeyVector                       split_keys = split<KeyVector>(keys, ',');
+	size_t const                    split_keys_size = split_keys.size();
+	size_t const                    split_channels_size = split_channels.size();
+
+	for (size_t i = 0; i < split_channels_size; ++i)
+		channel_key_pairs.push_back(std::make_pair(split_channels[i], i < split_keys_size ? split_keys[i] : Key()));
+
 	return channel_key_pairs;
 }
 
@@ -118,10 +125,11 @@ inline static std::vector<std::pair<ChannelName, Key> > __split_channels_keys(
  * @param sender
  */
 inline static void __send_join_message_for_each_channel(
-	std::list<std::pair<ChannelName, Channel *> > const &joined_channels,
-	Client                           &sender)
+	std::list<PairChannelNameChannel> const &joined_channels,
+	Client                                  &sender)
 {
-	for (std::list<std::pair<ChannelName, Channel *> >::const_iterator channel = joined_channels.begin(); channel != joined_channels.end();
+	for (std::list<PairChannelNameChannel>::const_iterator channel = joined_channels.begin();
+	     channel != joined_channels.end();
 	     ++channel)
 	{
 		ChannelName const &chan_name = channel->first;
@@ -141,13 +149,14 @@ inline static void __send_join_message_for_each_channel(
  */
 void Server::_join(Client &sender, std::vector<std::string> const &params)
 {
-	if (sender.has_mode(AlreadySentPass) == false)
-		return sender.append_to_msg_out(':' + this->_name + " Password required.\nTry /quote PASS <password>");
+	if (!sender.has_mode(AlreadySentUser))
+		return sender.append_to_msg_out(':' + this->_name + " You are not registered.\n");
 	if (params.size() < 1)
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "JOIN");
 	if (params.size() == 1 && params[0] == "0")
 	{
 		std::vector<std::string> channel_and_msg;
+
 		for (std::map<ChannelName, Channel *const>::const_iterator it = sender.get_joined_channels_by_name().begin();
 		     it != sender.get_joined_channels_by_name().end();
 		     ++it)
@@ -156,20 +165,19 @@ void Server::_join(Client &sender, std::vector<std::string> const &params)
 		_part(sender, channel_and_msg);
 	}
 
-	std::vector<std::pair<ChannelName, Key> > const channel_key_pairs = __split_channels_keys(params[0], params[1]);
-	std::list<std::pair<ChannelName, Channel *> >          joined_channels;
+	std::vector<PairChannelNameKey> const channel_key_pairs =
+		__split_channels_keys(params[0], params.size() > 1 ? params[1] : std::string());
+	std::list<PairChannelNameChannel> joined_channels;
 
 	for (size_t i = 0; i < channel_key_pairs.size(); ++i)
 	{
-		ChannelName const &chan_name = channel_key_pairs[i].first;
-		std::map<ChannelName, Channel>::iterator chan_by_name =
-			this->_channels_by_name.find(chan_name);
+		ChannelName const                       &chan_name = channel_key_pairs[i].first;
+		std::map<ChannelName, Channel>::iterator chan_by_name = this->_channels_by_name.find(chan_name);
 
 		Channel *const new_joined_channel =
 			chan_by_name == this->_channels_by_name.end()
 				? __join_new_channel(sender, chan_name, this->_channels_by_name)
 				: __join_existing_channel(sender, chan_by_name->second, chan_name, channel_key_pairs[i].second);
-
 		if (new_joined_channel)
 			joined_channels.push_back(std::make_pair(chan_name, new_joined_channel));
 	}

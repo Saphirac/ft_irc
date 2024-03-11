@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 19:56:37 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/09 19:56:50 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 07:55:34 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,20 +19,18 @@
  * @param str the string to split
  * @param delimiter the delimiter to use to split the string
  * @return the resulting split strings.
- * 
+ *
  */
 template<typename ReturnType>
 ReturnType split(std::string const &str, char const delimiter)
 {
 	ReturnType result;
-	std::string::size_type   start = str.find_first_not_of(delimiter);
-	std::string::size_type   end = start == std::string::npos ? std::string::npos : str.find(delimiter, start);
+	size_t     start = str.find_first_not_of(delimiter);
 
-	while (end != std::string::npos)
+	for (size_t end = str.find(delimiter, start); end != std::string::npos; end = str.find(delimiter, end))
 	{
 		result.push_back(str.substr(start, end - start));
 		start = str.find_first_not_of(delimiter, end + 1);
-		end = start == std::string::npos ? std::string::npos : str.find(delimiter, start);
 	}
 	if (start != std::string::npos)
 		result.push_back(str.substr(start));

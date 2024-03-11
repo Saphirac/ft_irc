@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 07:22:27 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 08:34:13 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ Server::CommandPair const Server::_raw_commands_by_name[] = {
 	std::make_pair("QUIT", &Server::_quit),
 	std::make_pair("JOIN", &Server::_join),
 	std::make_pair("PART", &Server::_part),
+	std::make_pair("TOPIC", &Server::_topic),
 	std::make_pair("INVITE", &Server::_invite),
 	std::make_pair("KICK", &Server::_kick),
 	std::make_pair("PRIVMSG", &Server::_privmsg),

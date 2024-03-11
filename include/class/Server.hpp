@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 07:21:57 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 07:23:12 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,6 @@ private:
 	void _pong(Client &sender, std::vector<std::string> const &parameters);
 	void _quit(Client &sender, std::vector<std::string> const &parameters);
 	void _user(Client &sender, std::vector<std::string> const &parameters);
-	void _quit(Client &sender, std::vector<std::string> const &parameters);
 	void _join(Client &sender, std::vector<std::string> const &parameters);
 	void _part(Client &sender, std::vector<std::string> const &parameters);
 	void _topic(Client &sender, std::vector<std::string> const &parameters);

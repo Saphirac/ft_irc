@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 06:18:06 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 08:25:09 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,13 @@ inline static void __kick_client(
 	Channel           &channel,
 	ChannelName const &chan_name,
 	NickName const    &user_to_remove_nickname,
-	Client            &user_to_remove)
+	Client            &user_to_remove,
+	std::string const &comment)
 {
 	channel.remove_member(user_to_remove);
 	user_to_remove.leave_channel(chan_name);
-	user_to_remove.append_to_msg_out(user_to_remove.prefix() + "KICK :" + chan_name + " " + user_to_remove_nickname);
-	channel.broadcast_to_all_members(user_to_remove.prefix() + "KICK " + chan_name + " " + user_to_remove_nickname);
+	user_to_remove.append_to_msg_out(user_to_remove.prefix() + "KICK " + chan_name + " " + user_to_remove_nickname + " " + comment);
+	channel.broadcast_to_all_members(user_to_remove.prefix() + "KICK " + chan_name + " " + user_to_remove_nickname + " " + comment);
 }
 
 inline static void __kick_only_one_channel_given(
@@ -34,7 +35,8 @@ inline static void __kick_only_one_channel_given(
 	std::map<NickName, Client *const> &clients_by_nickname,
 	Client                            &sender,
 	ChannelNameVector                  split_channels_names,
-	NickNameVector                     split_nicknames)
+	NickNameVector                     split_nicknames,
+	std::string const                 &comment)
 {
 	ChannelName const &chan_name = split_channels_names[0];
 
@@ -46,7 +48,7 @@ inline static void __kick_only_one_channel_given(
 	if (channel.get_modes().has_operator(sender) == false)
 		return sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &chan_name);
 
-	for (size_t i = 0; !split_nicknames[i].empty(); ++i)
+	for (size_t i = 0; i < split_nicknames.size(); ++i)
 	{
 		if (clients_by_nickname.count(split_nicknames[i]) == 0)
 			sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &split_nicknames[i]);
@@ -56,7 +58,7 @@ inline static void __kick_only_one_channel_given(
 		if (channel.has_member(user_to_remove) == false)
 			sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &split_nicknames[i], &chan_name);
 		else
-			__kick_client(channel, chan_name, NickName(split_nicknames[i]), user_to_remove);
+			__kick_client(channel, chan_name, NickName(split_nicknames[i]), user_to_remove, comment);
 	}
 }
 
@@ -66,7 +68,8 @@ inline static void __kick_multiple_channel_given(
 	Client                            &sender,
 	ChannelNameVector                  split_channels_names,
 	NickNameVector                     split_nicknames,
-	size_t                             split_channels_names_size)
+	size_t                             split_channels_names_size,
+	std::string const                 &comment)
 {
 	for (size_t i = 0; i < split_channels_names_size; ++i)
 	{
@@ -87,14 +90,18 @@ inline static void __kick_multiple_channel_given(
 			else if (!channel.has_member(user_to_remove))
 				sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &split_nicknames[i], &chan_name);
 			else
-				__kick_client(channel, chan_name, split_nicknames[i], user_to_remove);
+				__kick_client(channel, chan_name, split_nicknames[i], user_to_remove, comment);
 		}
 	}
 }
 
 void Server::_kick(Client &sender, std::vector<std::string> const &params)
 {
-	if (params.size() < 2)
+	size_t const params_size = params.size();
+
+	if (!sender.has_mode(AlreadySentUser))
+		return sender.append_to_msg_out(':' + this->_name + " You are not registered.\n");
+	if (params_size < 2)
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "KICK");
 
 	ChannelNameVector split_channels_names = split<ChannelNameVector>(params[0], ',');
@@ -111,7 +118,8 @@ void Server::_kick(Client &sender, std::vector<std::string> const &params)
 			this->_clients_by_nickname,
 			sender,
 			split_channels_names,
-			split_nicknames);
+			split_nicknames,
+			params_size < 3 ? params[2] : std::string());
 	else
 		__kick_multiple_channel_given(
 			this->_channels_by_name,
@@ -119,5 +127,6 @@ void Server::_kick(Client &sender, std::vector<std::string> const &params)
 			sender,
 			split_channels_names,
 			split_nicknames,
-			split_channels_names_size);
+			split_channels_names_size,
+			params_size < 3 ? params[2] : std::string());
 }

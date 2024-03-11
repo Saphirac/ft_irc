@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:26:34 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 06:15:49 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 08:27:42 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@
  */
 void Server::_part(Client &sender, std::vector<std::string> const &params)
 {
+	if (!sender.has_mode(AlreadySentUser))
+		return sender.append_to_msg_out(':' + this->_name + " You are not registered.\n");
 	if (params.empty())
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "PART");
 
@@ -47,15 +49,15 @@ void Server::_part(Client &sender, std::vector<std::string> const &params)
 			return sender.append_formatted_reply_to_msg_out(ERR_NOTONCHANNEL, &chan_name);
 
 		channel.remove_member(sender);
-		if (!params[1].empty())
+		if (params.size() > 1)
 		{
-			sender.append_to_msg_out(sender.prefix() + "PART :" + params[1]);
-			channel.broadcast_to_all_members(sender.prefix() + "PART : " + params[1]);
+			sender.append_to_msg_out(sender.prefix() + "PART " + params[1]);
+			channel.broadcast_to_all_members(sender.prefix() + "PART " + params[1]);
 		}
 		else
 		{
-			sender.append_to_msg_out(sender.prefix() + "PART : Successfully left channel " + chan_name);
-			channel.broadcast_to_all_members(sender.prefix() + "PART : " + DEFAULT_PART_MESSAGE);
+			sender.append_to_msg_out(sender.prefix() + "PART " + chan_name + " " + DEFAULT_PART_MESSAGE);
+			channel.broadcast_to_all_members(sender.prefix() + "PART " + DEFAULT_PART_MESSAGE);
 		}
 	}
 }

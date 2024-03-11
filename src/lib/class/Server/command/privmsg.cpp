@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:52 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 04:40:30 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 07:30:28 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ inline static void privmsg_to_user(Client &sender, NickName const &nickname, Cli
 
 void Server::_privmsg(Client &sender, std::vector<std::string> const &params)
 {
+	if (!sender.has_mode(AlreadySentUser))
+		return sender.append_to_msg_out(':' + this->_name + " You are not registered.\n");
 	if (params.size() < 2)
 	{
 		std::string const &to_check = params[0].substr(0, ',');
