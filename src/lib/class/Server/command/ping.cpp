@@ -6,14 +6,11 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:32:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/02 04:20:04 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 01:38:29 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// TODO
-
 #include "class/Server.hpp"
-#include "ft_irc.hpp"
 #include "replies.hpp"
 
 /**
@@ -23,14 +20,10 @@
  * @param params the parameters containing the ping token
  * @return StatusCode depending on the success of the command
  */
-StatusCode Server::Ping(Client &sender, std::vector<std::string> const &params)
+void Server::_ping(Client &sender, std::vector<std::string> const &params)
 {
 	if (params.empty())
-	{
-		std::string msg = format_reply(ERR_NEEDMOREPARAMS, "PING");
-		sender.append_to_msg_out(msg);
-		return Success;
-	}
-	sender.append_to_msg_out("PONG " + params[0]);
-	return Success;
+		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "PING");
+
+	sender.append_to_msg_out(sender.prefix() + this->_name + "PONG " + params[0]);
 }

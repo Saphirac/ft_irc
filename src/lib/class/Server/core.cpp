@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 00:25:42 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 01:33:38 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,8 @@ Server::CommandPair const Server::_raw_commands_by_name[] = {
 	std::make_pair("OPER", &Server::_oper),
 	std::make_pair("PASS", &Server::_pass),
 	std::make_pair("USER", &Server::_user),
+	std::make_pair("PING", &Server::_ping),
+	std::make_pair("PONG", &Server::_pong),
 };
 Server::CommandMap const Server::_commands_by_name = CommandMap(
 	_raw_commands_by_name,

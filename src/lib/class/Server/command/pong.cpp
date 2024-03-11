@@ -6,14 +6,11 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:32:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/02 04:19:57 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 01:38:31 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// TODO
-
 #include "class/Server.hpp"
-#include "ft_irc.hpp"
 #include "replies.hpp"
 
 /**
@@ -26,20 +23,22 @@
  * @param sender the client sending the pong
  * @param params the parameters of the pong
  *
- * // TODO : put the method back as void when all command are back to void
  */
-StatusCode Server::pong(Client &sender, std::vector<std::string> const &params)
+void Server::_pong(Client &sender, std::vector<std::string> const &params)
 {
-	if (sender.get_has_been_pinged() == false)
+	if (sender.get_has_been_pinged() == false || params.empty())
 		return;
-	if (params[0].empty() || (params[0] && params[0] != this->_name))
-	{
-		std::string msg = format_reply(ERR_NEEDMOREPARAMS, "PONG");
-		sender.append_to_msg_out(msg);
+
+	std::string const &ping_token = sender.get_ping_token();
+
+	if (!ping_token.empty() && params[0].empty())
 		return;
-	}
-	if (!sender.get_ping_token().empty() && (param[1].empty() || params[1] != sender.get_ping_token()))
+
+	std::string pong_token = (params[0][0] == ':') ? params[0].substr(1) : params[0];
+
+	if (ping_token != pong_token)
 		return;
+
 	sender.set_has_been_pinged(false);
-	sender.set_time_last_msg();
+	sender.set_last_msg_time(std::clock());
 }

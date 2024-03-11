@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 00:19:58 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 00:31:39 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,7 @@ public:
 	HostName const      &get_hostname(void) const;
 	Client::Modes const &get_modes(void) const;
 	bool                 get_has_been_pinged(void) const;
+	std::string          get_ping_token(void) const;
 
 	// Mutators
 	void set_socket(int const socket);
@@ -107,6 +108,8 @@ public:
 	void set_hostname(HostName const &hostname);
 	void set_username(UserName const &username);
 	void set_realname(RealName const &realname);
+	void set_has_been_pinged(bool const has_been_pinged);
+	void set_ping_token(std::string const &ping_token);
 
 	// Methods
 	void         append_to_msg_in(std::string const &s);
@@ -144,5 +147,6 @@ private:
 
 	std::map<ChannelName, Channel *const> _joined_channels_by_name;
 
-	bool _has_been_pinged;
+	bool        _has_been_pinged;
+	std::string _ping_token;
 };
