@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 03:04:48 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/11 03:43:50 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 10:12:54 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,25 +31,27 @@ bool Prefix::is_valid(void) const
 	if (this->at(0) != ':')
 		return false;
 
-	size_t const bang_pos = this->find('!', 1);
-	size_t const at_pos = this->find('@', 1);
+	size_t      end_server_or_nick = this->find_first_of("!@", 1);
+	std::string server_or_nick = this->substr(1, end_server_or_nick - 1);
 
-	// TODO: Determine whether the first part is a server name or a nickname
-	if (/* The first part is a server name */)
+	if (end_server_or_nick == std::string::npos)
+		return HostName(server_or_nick).is_valid();
+
+	if (!NickName(server_or_nick).is_valid())
+		return false;
+
+	std::string remainder = this->substr(end_server_or_nick + 1);
+
+	if (this->at(end_server_or_nick) == '!')
 	{
-		// TODO: Check that the server name is valid
-		return true;
+		size_t at_pos = remainder.find('@');
+		if (at_pos == std::string::npos)
+			return false;
+
+		std::string username = remainder.substr(0, at_pos);
+		std::string hostname = remainder.substr(at_pos + 1);
+
+		return UserName(username).is_valid() && HostName(hostname).is_valid();
 	}
-	// TODO: Get the provided nickname and check that it is valid
-	if (bang_pos != std::string::npos)
-	{
-		// TODO: Get the provided user name and check that it is valid
-		// TODO: Get the provided host name and check that it is valid
-		return true;
-	}
-	if (at_pos != std::string::npos)
-	{
-		// TODO: Get the provided host name and check that it is valid
-	}
-	return true;
+	return HostName(remainder).is_valid();
 }
