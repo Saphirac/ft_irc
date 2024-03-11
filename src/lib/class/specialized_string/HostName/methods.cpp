@@ -6,7 +6,7 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:34:17 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 08:20:25 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/11 09:47:54 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ bool HostName::is_valid(void) const
         std::string const shortname = this->substr(begin, (end = this->find('.', begin)) - begin);
 
 		if ((letter + digit).find(shortname[0]) == std::string::npos
-		    || shortname.find_first_not_of(letter + digit + '-', 1) != std::string::npos)
+		    || shortname.find_first_not_of(letter + digit + dash, 1) != std::string::npos)
 			return false;
 
 		begin += shortname.size() + 1;
