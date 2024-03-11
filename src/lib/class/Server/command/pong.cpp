@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:32:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 01:58:53 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 02:49:26 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,17 +26,7 @@
  */
 void Server::_pong(Client &sender, std::vector<std::string> const &params)
 {
-	if (sender.get_has_been_pinged() == false || params.empty())
-		return;
-
-	std::string const &ping_token = sender.get_ping_token();
-
-	if (!ping_token.empty() && params[0].empty())
-		return;
-
-	std::string pong_token = (params[0][0] == ':') ? params[0].substr(1) : params[0];
-
-	if (ping_token != pong_token)
+	if (sender.get_has_been_pinged() == false || params.empty() || sender.get_ping_token() != params[0])
 		return;
 
 	sender.set_has_been_pinged(false);
