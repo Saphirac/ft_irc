@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/09 21:56:34 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 02:00:53 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,10 @@ public:
 		std::string _away_msg;
 	};
 
+	// Types
+	typedef std::map<ChannelName, Channel *const> JoinedChannelMap;
+	typedef JoinedChannelMap::const_iterator      JoinedChannelIterator;
+
 	// Constructors
 	Client(
 		int const       socket = -1,
@@ -91,23 +95,24 @@ public:
 	~Client(void);
 
 	// Accessors
-	int                  get_socket(void) const;
-	NickName const      &get_nickname(void) const;
-	HostName const      &get_hostname(void) const;
-	Client::Modes const &get_modes(void) const;
+	int                     get_socket(void) const;
+	NickName const         &get_nickname(void) const;
+	HostName const         &get_hostname(void) const;
+	Client::Modes const    &get_modes(void) const;
+	JoinedChannelMap const &get_joined_channels_by_name(void) const;
 
 	// Mutators
 	void set_socket(int const socket);
-	void set_last_msg_time(std::clock_t const time);
+	void set_last_msg_time(clock_t const time);
 	void set_nickname(NickName const &nickname);
 	void set_hostname(HostName const &hostname);
 	void set_username(UserName const &username);
 	void set_realname(RealName const &realname);
 
 	// Methods
-	void         append_to_msg_in(std::string const &s);
-	std::string  get_next_msg(void);
-	std::clock_t time_since_last_msg(void) const;
+	void        append_to_msg_in(std::string const &s);
+	std::string get_next_msg(void);
+	clock_t     time_since_last_msg(void) const;
 
 	std::string prefix(void) const;
 	std::string formatted_reply(int const reply_number...) const;
@@ -124,10 +129,10 @@ public:
 
 private:
 	// Fields
-	int          _socket;
-	std::string  _msg_in;
-	std::string  _msg_out;
-	std::clock_t _last_msg_time;
+	int         _socket;
+	std::string _msg_in;
+	std::string _msg_out;
+	clock_t     _last_msg_time;
 
 	NickName      _nickname;
 	HostName      _hostname;
@@ -135,5 +140,5 @@ private:
 	RealName      _realname;
 	Client::Modes _modes;
 
-	std::map<ChannelName, Channel *const> _joined_channels_by_name;
+	JoinedChannelMap _joined_channels_by_name;
 };

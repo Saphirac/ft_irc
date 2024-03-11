@@ -5,16 +5,17 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/04 22:42:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 00:47:11 by jodufour         ###   ########.fr       */
+/*   Created: 2024/03/11 00:45:56 by jodufour          #+#    #+#             */
+/*   Updated: 2024/03/11 01:40:26 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/specialized_string/UserName.hpp"
+#include "abnf_components.hpp"
+#include "class/specialized_string/RealName.hpp"
 
 /**
- * @brief Check whether the user name is valid.
+ * @brief Checks whether the real name is valid.
  *
- * @return `true` if the user name is valid, `false` otherwise.
+ * @return `true` if the real name is valid, `false` otherwise.
  */
-bool UserName::is_valid(void) const { return this->find('@') == std::string::npos; }
+bool RealName::is_valid(void) const { return !this->empty() }

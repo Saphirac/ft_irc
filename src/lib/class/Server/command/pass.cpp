@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:23:54 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 23:27:01 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/10 03:49:59 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,9 @@
  * @param sender The client that sent the command.
  * @param parameters The parameters of the command.
  *
+ * @throw `UnknownReply` if a given reply number isn't recognized.
  * @throw `InvalidConversion` if a conversion specification is invalid.
  * @throw `ProblemWithSend` if the `send()` function fails.
- * @throw `UnknownReply` if a given reply number isn't recognized.
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 void Server::_pass(Client &sender, std::vector<std::string> const &parameters)

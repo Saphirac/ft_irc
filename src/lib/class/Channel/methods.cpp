@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 01:29:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 22:30:58 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 02:03:19 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -355,6 +355,36 @@ void Channel::remove_member(Client &client) { this->_members.erase(&client); }
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 bool Channel::has_member(Client &client) const { return this->_members.find(&client) != this->_members.end(); }
+
+/**
+ * @brief Generates the string representation of the members of the channel.
+ *
+ * @return The string representation of the members of the channel.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+std::string Channel::members_as_string(void) const
+{
+	std::string members_as_string;
+
+	if (this->_members.empty())
+		return members_as_string;
+
+	_MemberIterator cit = this->_members.begin();
+
+	if (this->_modes.has_operator(**cit))
+		members_as_string += '@';
+	members_as_string += (*cit)->get_nickname();
+	while (++cit != this->_members.end())
+	{
+		members_as_string += ' ';
+		if (this->_modes.has_operator(**cit))
+			members_as_string += '@';
+		members_as_string += (*cit)->get_nickname();
+	}
+
+	return members_as_string;
+}
 
 /**
  * @brief Broadcasts a message to all the members of the channel.

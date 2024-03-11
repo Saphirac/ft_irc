@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 00:23:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 22:20:20 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/10 08:46:30 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,12 +106,17 @@ public:
 	void set_mode(ChannelMode const mode, void const *const arg = NULL);
 	void clear_mode(ChannelMode const mode, void const *const arg = NULL);
 
-	void add_member(Client &client);
-	void remove_member(Client &client);
-	bool has_member(Client &client) const;
-	void broadcast_to_all_members(std::string const &msg) const;
+	void        add_member(Client &client);
+	void        remove_member(Client &client);
+	bool        has_member(Client &client) const;
+	std::string members_as_string(void) const;
+	void        broadcast_to_all_members(std::string const &msg) const;
 
 private:
+	// Types
+	typedef std::set<Client *>                 _MemberSet;
+	typedef std::set<Client *>::const_iterator _MemberIterator;
+
 	// Fields
 	Topic              _topic;
 	Modes              _modes;

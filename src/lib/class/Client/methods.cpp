@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 22:56:55 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 07:35:09 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "class/exception/ProblemWithClose.hpp"
 #include "class/exception/ProblemWithSend.hpp"
 #include "class/exception/UnknownReply.hpp"
+#include "maximum_length_for_message.hpp"
 #include "replies.hpp"
 #include <cstdlib>
 #include <cstring>
@@ -265,7 +266,6 @@ void Client::append_to_msg_in(std::string const &s) { this->_msg_in += s; }
 
 #define TERMINATING_SEQUENCE        "\r\n"
 #define TERMINATING_SEQUENCE_LENGTH sizeof(TERMINATING_SEQUENCE) - 1
-#define MAXIMUM_LENGTH_FOR_MESSAGE  512
 /**
  * @brief Get the first message in the input buffer of the Client instance.
  * A message is <= 512 characters and is suffixed with a CRLF sequence.
@@ -296,9 +296,9 @@ std::string Client::get_next_msg(void)
  *
  * @throw `ProblemWithClock` if `clock()` fails.
  */
-std::clock_t Client::time_since_last_msg(void) const
+clock_t Client::time_since_last_msg(void) const
 {
-	std::clock_t const now = std::clock();
+	clock_t const now = clock();
 
 	if (now == -1)
 		throw ProblemWithClock();

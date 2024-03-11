@@ -1,20 +1,15 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   methods.cpp                                        :+:      :+:    :+:   */
+/*   maximum_length_for_message.hpp                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/04 22:42:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 00:47:11 by jodufour         ###   ########.fr       */
+/*   Created: 2024/03/11 01:21:03 by jodufour          #+#    #+#             */
+/*   Updated: 2024/03/11 01:22:50 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/specialized_string/UserName.hpp"
+#pragma once
 
-/**
- * @brief Check whether the user name is valid.
- *
- * @return `true` if the user name is valid, `false` otherwise.
- */
-bool UserName::is_valid(void) const { return this->find('@') == std::string::npos; }
+#define MAXIMUM_LENGTH_FOR_MESSAGE 512

@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 21:36:46 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/10 08:52:04 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,10 @@
 class Server
 {
 public:
+	// Types
+	typedef std::map<ChannelName, Channel> ChannelMap;
+	typedef ChannelMap::const_iterator     ChannelIterator;
+
 	// Constructors
 	Server(int const port, std::string const &name, std::string const &password = "");
 
@@ -60,7 +64,7 @@ private:
 
 	std::map<int, Client>             _clients_by_socket;
 	std::map<NickName, Client *const> _clients_by_nickname;
-	std::map<ChannelName, Channel>    _channels_by_name;
+	ChannelMap                        _channels_by_name;
 
 	// Methods
 	void _add_client(Client const &client);
@@ -75,6 +79,7 @@ private:
 	void _away(Client &sender, std::vector<std::string> const &parameters);
 	void _cap(Client &sender, std::vector<std::string> const &parameters);
 	void _mode(Client &sender, std::vector<std::string> const &parameters);
+	void _names(Client &sender, std::vector<std::string> const &parameters);
 	void _nick(Client &sender, std::vector<std::string> const &parameters);
 	void _oper(Client &sender, std::vector<std::string> const &parameters);
 	void _pass(Client &sender, std::vector<std::string> const &parameters);

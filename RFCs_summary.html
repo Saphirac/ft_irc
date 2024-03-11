@@ -1643,10 +1643,7 @@
 					</details>
 					<!-- #endregion -->
 					<p>
-						The NAMES command is used to list the users<br>
-						that are present in 1 or more given channels.<br>
-						Used with no arguments, the NAMES command lists every user<br>
-						that shares at least 1 common channel with the user that sent the command.<br>
+						The NAMES command is used to get lists of channel members.<br>
 						<br>
 						When the server receives a NAMES message, it must:
 						<ol>
@@ -1664,9 +1661,9 @@
 										</ol>
 									</li>
 									<li>
-										If they didn't, then<br>
+										If they didn't, then, for each channel joined by the user,<br>
 										send back as many <a href="#rpl_namesreply">RPL_NAMESREPLY</a> as needed to the client,<br>
-										to indicate them the list of users that share at least 1 common channel with them
+										to indicate them the list of the channel members
 									</li>
 								</ul>
 							</li>
@@ -2265,7 +2262,7 @@
 					<details>
 						<summary>
 							<code>
-								<b>parameters</b> = [ server space ] colon token
+								<b>parameters</b> = [ server space ] token
 							</code>
 						</summary>
 						<blockquote>
