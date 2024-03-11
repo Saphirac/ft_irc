@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:06:05 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/11 02:26:24 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 03:48:51 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,44 +35,37 @@ Message::Message(std::string const &msg) : _prefix(), _command(), _parameters()
 	}
 
 	// Command
-	space_pos = msg.find(' ', pos);
-	if (space_pos != std::string::npos)
-	{
-		this->_command = msg.substr(pos, space_pos - pos);
-		pos = space_pos + 1;
-	}
-	else
+	if ((space_pos = msg.find(' ', pos)) == std::string::npos)
 	{
 		this->_command = msg.substr(pos);
 		return;
 	}
+	this->_command = msg.substr(pos, space_pos - pos);
+	pos = space_pos + 1;
 
 	size_t const length = msg.length();
 
 	// Parameters
-	while (pos < length && (space_pos = msg.find(' ', pos)) != std::string::npos)
+	while (pos < length)
 	{
 		if (msg[pos] == ':')
+		{
+			this->_parameters.push_back(msg.substr(pos + 1));
+			return;
+		}
+		if ((space_pos = msg.find(' ', pos)) == std::string::npos)
 		{
 			this->_parameters.push_back(msg.substr(pos));
 			return;
 		}
-		else
-		{
-			this->_parameters.push_back(msg.substr(pos, space_pos - pos));
-			pos = space_pos + 1;
-		}
-	}
-
-	if (pos < length)
-	{
-		this->_parameters.push_back(msg[pos] == ':' ? msg.substr(pos) : msg.substr(pos));
+		this->_parameters.push_back(msg.substr(pos, space_pos - pos));
+		pos = space_pos + 1;
 	}
 }
 
 // Destructors //
 
-Message::~Message() {}
+Message::~Message(void) {}
 
 // Accessors //
 

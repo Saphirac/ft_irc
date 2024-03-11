@@ -19,7 +19,6 @@ class Message
 {
 public:
 	// Constructors
-
 	Message(std::string const &raw_msg);
 
 	// Destructor
