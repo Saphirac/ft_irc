@@ -1,23 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   methods.cpp                                        :+:      :+:    :+:   */
+/*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/04 22:42:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 16:21:24 by gle-mini         ###   ########.fr       */
+/*   Created: 2024/03/10 03:04:36 by gle-mini          #+#    #+#             */
+/*   Updated: 2024/03/10 03:59:28 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/specialized_string/UserName.hpp"
+#include "class/specialized_string/Prefix.hpp"
 
 /**
- * @brief Check whether the username is valid.
- *
- * @return `true` if the username is valid, `false` otherwise.
+ * @param prefix The prefix to initialize the instance with.
  */
-bool UserName::is_valid(void) const
-{
-	return !this->empty() && this->find('@') == std::string::npos;
-}
+Prefix::Prefix(std::string const &prefix) : std::string(prefix) {}
+
+// Destructor //
+
+Prefix::~Prefix(void) {}
