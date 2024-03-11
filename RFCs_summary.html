@@ -133,19 +133,11 @@
 								<details>
 									<summary>
 										<code id="abnf_server">
-											<b>server</b> = shortname *( dot shortname )
+											<b>server</b> = host
 										</code>
 									</summary>
 									<blockquote>
-										<ol>
-											<li>Start with 1 <code><a href="#abnf_shortname">shortname</a></code></li>
-											<li>Contain 0 or more patterns, which must:
-												<ol>
-													<li>Start with 1 <code><a href="#abnf_dot">dot</a></code></li>
-													<li>Contain 1 <code><a href="#abnf_shortname">shortname</a></code></li>
-												</ol>
-											</li>
-										</ol>
+										1 <code><a href="#abnf_host">host</a></code>
 									</blockquote>
 								</details>
 								<!-- #endregion -->
@@ -2241,7 +2233,7 @@
 					<details>
 						<summary>
 							<code>
-								<b>parameters</b> = [ server space ] colon token
+								<b>parameters</b> = [ server space ] token
 							</code>
 						</summary>
 						<blockquote>
@@ -2578,7 +2570,7 @@
 								<details>
 									<summary>
 										<code>
-											nick space user space host " * :" realname
+											nick space user space host " * " realname
 										</code>
 									</summary>
 									<blockquote>
