@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   abnf_components.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 20:17:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/02 18:00:25 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 09:36:48 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,3 +21,4 @@ static std::string const digit = "0123456789";
 static std::string const special = "[\\]^_`{|}";
 static std::string const lfcrspcl = "\n\r :";
 static std::string const lfcrsp = "\n\r ";
+static std::string const dash = "-";
