@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   invite.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 08:17:07 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 09:34:28 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 void Server::_invite(Client &sender, std::vector<std::string> const &params)
 {
 	if (!sender.has_mode(AlreadySentUser))
-		return sender.append_to_msg_out(':' + this->_name + " You are not registered.\n");
+		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
 	if (params.size() < 2)
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "INVITE");
 

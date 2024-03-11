@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 08:40:05 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 10:49:37 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@
 
 // TODO : change this to a proper value
 
-#define MAX_CLIENTS 3
+#define DEFAULT_QUIT_MESSAGE      "Leaving, bye! <3"
+#define MAXIMUM_NUMBER_OF_CLIENTS 3
 
 class Server
 {
@@ -68,7 +69,7 @@ private:
 
 	// Methods
 	void _add_client(Client const &client);
-	void _remove_client(Client &client, std::string const &quit_msg = DEFAULT_QUIT_MSG);
+	void _remove_client(Client &client, std::string const &quit_msg = DEFAULT_QUIT_MESSAGE);
 
 	void _handle_epoll_events(void);
 	void _compute_next_msg_for_a_client(Client &client);

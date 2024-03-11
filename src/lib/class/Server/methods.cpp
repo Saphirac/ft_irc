@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 09:08:08 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 10:49:23 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,9 +114,9 @@ void Server::_remove_client(Client &client, std::string const &quit_msg)
 void Server::_handle_epoll_events(void)
 {
 	int         fds_ready;
-	epoll_event events[MAX_CLIENTS];
+	epoll_event events[MAXIMUM_NUMBER_OF_CLIENTS];
 
-	fds_ready = epoll_wait(this->_epoll_socket, events, MAX_CLIENTS, EPOLL_WAIT_TIMEOUT);
+	fds_ready = epoll_wait(this->_epoll_socket, events, MAXIMUM_NUMBER_OF_CLIENTS, EPOLL_WAIT_TIMEOUT);
 	if (fds_ready == -1)
 		throw ProblemWithEpollWait();
 

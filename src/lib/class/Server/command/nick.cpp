@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   nick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:22 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 02:12:02 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 09:49:46 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@
  */
 void Server::_nick(Client &sender, std::vector<std::string> const &parameters)
 {
+	if (!sender.has_mode(AlreadySentUser))
+		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
 	if (parameters.empty())
 		return sender.append_formatted_reply_to_msg_out(ERR_NONICKNAMEGIVEN);
 

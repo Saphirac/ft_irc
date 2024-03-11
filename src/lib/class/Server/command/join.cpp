@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   join.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 08:10:45 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 09:37:28 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,9 +150,10 @@ inline static void __send_join_message_for_each_channel(
 void Server::_join(Client &sender, std::vector<std::string> const &params)
 {
 	if (!sender.has_mode(AlreadySentUser))
-		return sender.append_to_msg_out(':' + this->_name + " You are not registered.\n");
+		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
 	if (params.size() < 1)
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "JOIN");
+
 	if (params.size() == 1 && params[0] == "0")
 	{
 		std::vector<std::string> channel_and_msg;
@@ -161,7 +162,7 @@ void Server::_join(Client &sender, std::vector<std::string> const &params)
 		     it != sender.get_joined_channels_by_name().end();
 		     ++it)
 			channel_and_msg.push_back(it->first);
-		channel_and_msg.push_back(DEFAULT_QUIT_MSG);
+		channel_and_msg.push_back(DEFAULT_QUIT_MESSAGE);
 		_part(sender, channel_and_msg);
 	}
 

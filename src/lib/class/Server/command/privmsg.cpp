@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   privmsg.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:52 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 07:30:28 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 10:16:08 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include "replies.hpp"
 #include "split.hpp"
 #include <list>
+
+typedef std::list<std::string> StringList;
 
 inline static bool is_channel(std::string const &s) { return s[0] == '#' || s[0] == '&' || s[0] == '+' || s[0] == '!'; }
 
@@ -40,7 +42,8 @@ inline static void privmsg_to_user(Client &sender, NickName const &nickname, Cli
 void Server::_privmsg(Client &sender, std::vector<std::string> const &params)
 {
 	if (!sender.has_mode(AlreadySentUser))
-		return sender.append_to_msg_out(':' + this->_name + " You are not registered.\n");
+		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
+
 	if (params.size() < 2)
 	{
 		std::string const &to_check = params[0].substr(0, ',');
@@ -50,10 +53,9 @@ void Server::_privmsg(Client &sender, std::vector<std::string> const &params)
 		return sender.append_formatted_reply_to_msg_out(ERR_NORECIPIENT, "PRIVMSG");
 	}
 
-	std::list<std::string> list_of_targets = split<std::list<std::string> >(params[0], ',');
+	StringList const targets = split<StringList>(params[0], ',');
 
-	for (std::list<std::string>::const_iterator target = list_of_targets.begin(); target != list_of_targets.end();
-	     ++target)
+	for (StringList::const_iterator target = targets.begin(); target != targets.end(); ++target)
 	{
 		if (is_channel(params[0]))
 		{

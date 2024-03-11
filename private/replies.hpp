@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 22:08:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 23:45:16 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 09:34:11 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@
 #define ERR_USERNOTONCHANNEL  441
 #define ERR_NOTONCHANNEL      442
 #define ERR_USERONCHANNEL     443
+#define ERR_NOTREGISTERED     451
 #define ERR_NEEDMOREPARAMS    461
 #define ERR_ALREADYREGISTERED 462
 #define ERR_PASSWDMISMATCH    464
@@ -129,6 +130,7 @@ static std::pair<int, char const *> const raw_formats_by_reply[] = {
 	std::make_pair(ERR_USERNOTONCHANNEL, "%S %S :They aren't on that channel"),
 	std::make_pair(ERR_NOTONCHANNEL, "%S :You're not on that channel"),
 	std::make_pair(ERR_USERONCHANNEL, "%S %S :is already on channel"),
+	std::make_pair(ERR_NOTREGISTERED, ":You have not registered"),
 	std::make_pair(ERR_NEEDMOREPARAMS, "%s :Not enough parameters"),
 	std::make_pair(ERR_ALREADYREGISTERED, ":Unauthorized command (already registered)"),
 	std::make_pair(ERR_PASSWDMISMATCH, ":Password incorrect"),
