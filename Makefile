@@ -6,7 +6,7 @@
 #    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/11 08:39:08 by jodufour         ###   ########.fr        #
+#    Updated: 2024/03/11 12:55:08 by jodufour         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -237,7 +237,7 @@ CXXFLAGS = \
 	-I${INC_DIR}
 
 ifeq (${DEBUG}, 1)
-	CXXFLAGS += -gdwarf-4 -DDEBUG=1
+	CXXFLAGS += -gdwarf-4 -DDEBUG
 endif
 
 #######################################

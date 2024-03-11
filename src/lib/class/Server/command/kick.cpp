@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 09:45:06 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 14:11:00 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,85 +14,99 @@
 #include "replies.hpp"
 #include "split.hpp"
 
+#define DEFAULT_KICK_MSG "You have been kicked from the channel"
+
 typedef std::vector<ChannelName> ChannelNameVector;
 typedef std::vector<NickName>    NickNameVector;
 
-inline static void __kick_client(
+inline static void kick_user(
+	Client const      &sender,
+	ChannelName const &channel_name,
 	Channel           &channel,
-	ChannelName const &chan_name,
-	NickName const    &user_to_remove_nickname,
-	Client            &user_to_remove,
+	NickName const    &target_nickname,
+	Client            &target,
 	std::string const &comment)
 {
-	channel.remove_member(user_to_remove);
-	user_to_remove.leave_channel(chan_name);
-	user_to_remove.append_to_msg_out(
-		user_to_remove.prefix() + "KICK " + chan_name + " " + user_to_remove_nickname + " " + comment);
 	channel.broadcast_to_all_members(
-		user_to_remove.prefix() + "KICK " + chan_name + " " + user_to_remove_nickname + " " + comment);
+		sender.prefix() + "KICK " + channel_name + ' ' + target_nickname + " :"
+		+ (comment.empty() ? DEFAULT_KICK_MSG : comment));
+	target.leave_channel(channel_name);
+	channel.remove_member(target);
 }
 
-inline static void __kick_only_one_channel_given(
-	std::map<ChannelName, Channel>    &channels_by_name,
-	std::map<NickName, Client *const> &clients_by_nickname,
-	Client                            &sender,
-	ChannelNameVector                  split_channels_names,
-	NickNameVector                     split_nicknames,
-	std::string const                 &comment)
+inline static void kick_from_one_channel(
+	Client                                  &sender,
+	Server::ChannelMap                      &channels_by_name,
+	std::map<NickName, Client *const> const &users_by_nickname,
+	ChannelName const                       &channel_name,
+	NickNameVector const                    &nicknames,
+	std::string const                       &comment)
 {
-	ChannelName const &chan_name = split_channels_names[0];
+	Server::ChannelIterator const channel_by_name = channels_by_name.find(channel_name);
 
-	if (channels_by_name.count(chan_name) == 0)
-		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &chan_name);
+	if (channel_by_name == channels_by_name.end())
+		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &channel_name);
 
-	Channel &channel = channels_by_name.find(chan_name)->second;
+	Channel &channel = channel_by_name->second;
 
-	if (channel.get_modes().has_operator(sender) == false)
-		return sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &chan_name);
+	if (!channel.get_modes().has_operator(sender))
+		return sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &channel_name);
 
-	for (size_t i = 0; i < split_nicknames.size(); ++i)
+	size_t const nicknames_len = nicknames.size();
+
+	for (size_t i = 0; i < nicknames_len; ++i)
 	{
-		if (clients_by_nickname.count(split_nicknames[i]) == 0)
-			sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &split_nicknames[i]);
+		NickName const                                         &target_nickname = nicknames[i];
+		std::map<NickName, Client *const>::const_iterator const user_by_nickname =
+			users_by_nickname.find(target_nickname);
 
-		Client &user_to_remove = *clients_by_nickname[split_nicknames[i]];
+		if (user_by_nickname == users_by_nickname.end())
+			sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &target_nickname);
 
-		if (channel.has_member(user_to_remove) == false)
-			sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &split_nicknames[i], &chan_name);
+		Client &target = *user_by_nickname->second;
+
+		if (!channel.has_member(target))
+			sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &target_nickname, &channel_name);
 		else
-			__kick_client(channel, chan_name, NickName(split_nicknames[i]), user_to_remove, comment);
+			kick_user(sender, channel_name, channel, target_nickname, target, comment);
 	}
 }
 
-inline static void __kick_multiple_channel_given(
-	std::map<ChannelName, Channel>    &channels_by_name,
-	std::map<NickName, Client *const> &clients_by_nickname,
-	Client                            &sender,
-	ChannelNameVector                  split_channels_names,
-	NickNameVector                     split_nicknames,
-	size_t                             split_channels_names_len,
-	std::string const                 &comment)
+inline static void kick_from_several_channels(
+	Client                                  &sender,
+	Server::ChannelMap                      &channels_by_name,
+	std::map<NickName, Client *const> const &users_by_nickname,
+	ChannelNameVector const                 &channel_names,
+	NickNameVector const                    &nicknames,
+	std::string const                       &comment)
 {
-	for (size_t i = 0; i < split_channels_names_len; ++i)
+	size_t const channel_names_len = channel_names.size();
+
+	for (size_t i = 0; i < channel_names_len; ++i)
 	{
-		if (channels_by_name.count(split_channels_names[i]) == 0)
-			sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &split_channels_names[i]);
+		ChannelName const            &channel_name = channel_names[i];
+		Server::ChannelIterator const channel_by_name = channels_by_name.find(channel_name);
+
+		if (channel_by_name == channels_by_name.end())
+			sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &channel_names[i]);
 		else
 		{
-			ChannelName const &chan_name = split_channels_names[i];
-			Channel           &channel = channels_by_name[chan_name];
+			NickName const                                         &target_nickname = nicknames[i];
+			std::map<NickName, Client *const>::const_iterator const user_by_nickname =
+				users_by_nickname.find(target_nickname);
 
-			if (clients_by_nickname.count(split_nicknames[i]) == 0)
-				sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &split_nicknames[i]);
+			if (user_by_nickname == users_by_nickname.end())
+				sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &target_nickname);
 
-			Client &user_to_remove = *clients_by_nickname.find(split_nicknames[i])->second;
+			Channel &channel = channel_by_name->second;
+			Client  &target = *user_by_nickname->second;
 
 			if (!channel.get_modes().has_operator(sender))
-				sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &chan_name);
-			else if (!channel.has_member(user_to_remove))
-				sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &split_nicknames[i], &chan_name);
+				sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &channel_name);
+			else if (!channel.has_member(target))
+				sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &target_nickname, &channel_name);
 			else
-				__kick_client(channel, chan_name, split_nicknames[i], user_to_remove, comment);
+				kick_user(sender, channel_name, channel, target_nickname, target, comment);
 		}
 	}
 }
@@ -107,28 +121,28 @@ void Server::_kick(Client &sender, std::vector<std::string> const &parameters)
 	if (parameters_len < 2)
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "KICK");
 
-	ChannelNameVector split_channels_names = split<ChannelNameVector>(parameters[0], ',');
-	NickNameVector    split_nicknames = split<NickNameVector>(parameters[1], ',');
+	ChannelNameVector const channel_names = split<ChannelNameVector>(parameters[0], ',');
+	size_t const            channel_names_len = channel_names.size();
+	NickNameVector const    nicknames = split<NickNameVector>(parameters[1], ',');
 
-	size_t const split_channels_names_len = split_channels_names.size();
-
-	if (split_channels_names_len != 1 && split_nicknames.size() != split_channels_names_len)
+	if (channel_names_len != 1 && nicknames.size() != channel_names_len)
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "KICK");
 
-	if (split_channels_names_len == 1)
-		return __kick_only_one_channel_given(
+	std::string const comment = parameters_len > 2 ? parameters[2] : std::string();
+
+	if (channel_names_len == 1)
+		return kick_from_one_channel(
+			sender,
 			this->_channels_by_name,
 			this->_clients_by_nickname,
-			sender,
-			split_channels_names,
-			split_nicknames,
-			parameters_len < 3 ? parameters[2] : std::string());
-	__kick_multiple_channel_given(
+			channel_names[0],
+			nicknames,
+			comment);
+	kick_from_several_channels(
+		sender,
 		this->_channels_by_name,
 		this->_clients_by_nickname,
-		sender,
-		split_channels_names,
-		split_nicknames,
-		split_channels_names_len,
-		parameters_len < 3 ? parameters[2] : std::string());
+		channel_names,
+		nicknames,
+		comment);
 }

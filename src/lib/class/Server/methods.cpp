@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 11:00:51 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 13:02:59 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,18 +79,18 @@ void Server::_add_client(Client const &client)
  */
 void Server::_remove_client(Client &client, std::string const &quit_msg)
 {
-	// BUG: This implementation is incorrect, to be fixed
 	if (!client.get_joined_channels_by_name().empty())
 	{
-		std::vector<std::string>                              channel_and_msg;
-		std::map<ChannelName, Channel *const>::const_iterator my_end = client.get_joined_channels_by_name().end();
+		std::vector<std::string>        part_arguments;
+		Client::JoinedChannelMap const &joined_channels_by_name = client.get_joined_channels_by_name();
+		Client::JoinedChannelIterator   end = joined_channels_by_name.end();
 
-		for (std::map<ChannelName, Channel *const>::const_iterator cit = client.get_joined_channels_by_name().begin();
-		     cit != my_end;
-		     ++cit)
-			channel_and_msg.push_back(cit->first);
-		channel_and_msg.push_back(quit_msg);
-		this->_part(client, channel_and_msg);
+		for (Client::JoinedChannelIterator joined_channel_by_name = joined_channels_by_name.begin();
+		     joined_channel_by_name != end;
+		     ++joined_channel_by_name)
+			part_arguments.push_back(joined_channel_by_name->first);
+		part_arguments.push_back(quit_msg);
+		this->_part(client, part_arguments);
 	}
 
 	if (this->_clients_by_nickname.erase(client.get_nickname()) != 0)

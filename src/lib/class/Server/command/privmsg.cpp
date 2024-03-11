@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:52 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 10:16:08 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 14:48:30 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,63 +17,69 @@
 
 typedef std::list<std::string> StringList;
 
-inline static bool is_channel(std::string const &s) { return s[0] == '#' || s[0] == '&' || s[0] == '+' || s[0] == '!'; }
+static std::string const possible_channel_prefix = "#&+!";
 
+// TODO: Write the doxygen comment of this function
+inline static bool is_channel(std::string const &s) { return possible_channel_prefix.find(s[0]); }
+
+// TODO: Write the doxygen comment of this function
 inline static void privmsg_to_channel(
 	Client            &sender,
-	ChannelName const &chan_name,
 	Channel const     &channel,
+	ChannelName const &chan_name,
 	std::string const &msg)
 {
 	if (channel.get_modes().is_set(NoMessagesFromOutside) && !channel.has_member(sender))
 		return sender.append_formatted_reply_to_msg_out(ERR_CANNOTSENDTOCHAN, &chan_name);
-	channel.broadcast_to_all_members(sender.prefix() + "PRIVMSG " + msg);
+	if (!msg.empty())
+		channel.broadcast_to_all_members(sender.prefix() + "PRIVMSG " + chan_name + " :" + msg);
 }
 
+// TODO: Write the doxygen comment of this function
 inline static void privmsg_to_user(Client &sender, NickName const &nickname, Client &receiver, std::string const &msg)
 {
 	Client::Modes const &user_modes = receiver.get_modes();
 
 	if (user_modes.is_set(Away))
 		sender.append_formatted_reply_to_msg_out(RPL_AWAY, &nickname, &user_modes.get_away_msg());
-	receiver.append_to_msg_out(sender.prefix() + "PRIVMSG " + msg);
+	receiver.append_to_msg_out(sender.prefix() + "PRIVMSG " + nickname + " :" + msg);
 }
 
-void Server::_privmsg(Client &sender, std::vector<std::string> const &params)
+// TODO: Write the doxygen comment of this method
+void Server::_privmsg(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (!sender.has_mode(AlreadySentUser))
 		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
-
-	if (params.size() < 2)
-	{
-		std::string const &to_check = params[0].substr(0, ',');
-
-		if (NickName(to_check).is_valid() || ChannelName(to_check).is_valid())
-			return sender.append_formatted_reply_to_msg_out(ERR_NOTEXTTOSEND, "PRIVMSG");
+	if (parameters.empty())
 		return sender.append_formatted_reply_to_msg_out(ERR_NORECIPIENT, "PRIVMSG");
-	}
+	if (parameters.size() < 2)
+		return sender.append_formatted_reply_to_msg_out(ERR_NOTEXTTOSEND, "PRIVMSG");
 
-	StringList const targets = split<StringList>(params[0], ',');
+	StringList const                 targets = split<StringList>(parameters[0], ',');
+	StringList::const_iterator const end = targets.end();
 
-	for (StringList::const_iterator target = targets.begin(); target != targets.end(); ++target)
+	for (StringList::const_iterator target = targets.begin(); target != end; ++target)
 	{
-		if (is_channel(params[0]))
+		if (is_channel(*target))
 		{
-			ChannelName const &chan_name = ChannelName(params[0]);
+			ChannelName const         &channel_name = ChannelName(*target);
+			ChannelConstIterator const channel_by_name = this->_channels_by_name.find(channel_name);
 
-			if (this->_channels_by_name.count(chan_name) == 0)
-				sender.append_formatted_reply_to_msg_out(ERR_CANNOTSENDTOCHAN, &params[0]);
+			if (channel_by_name == this->_channels_by_name.end())
+				sender.append_formatted_reply_to_msg_out(ERR_CANNOTSENDTOCHAN, &target);
 			else
-				privmsg_to_channel(sender, chan_name, this->_channels_by_name[chan_name], params[1]);
+				privmsg_to_channel(sender, channel_by_name->second, channel_name, parameters[1]);
 		}
 		else
 		{
-			NickName const &nickname = NickName(params[0]);
+			NickName const                                   &nickname = NickName(*target);
+			std::map<NickName, Client *const>::const_iterator client_by_nickname =
+				this->_clients_by_nickname.find(nickname);
 
-			if (this->_clients_by_nickname.count(nickname) == 0)
-				sender.append_formatted_reply_to_msg_out(ERR_NOSUCHNICK, &params[0]);
+			if (client_by_nickname == this->_clients_by_nickname.end())
+				sender.append_formatted_reply_to_msg_out(ERR_NOSUCHNICK, &target);
 			else
-				privmsg_to_user(sender, nickname, *this->_clients_by_nickname[nickname], params[1]);
+				privmsg_to_user(sender, nickname, *client_by_nickname->second, parameters[1]);
 		}
 	}
 }

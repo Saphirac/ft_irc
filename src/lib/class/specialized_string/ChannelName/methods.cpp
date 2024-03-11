@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/18 23:06:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 01:38:41 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 14:58:31 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,3 +55,10 @@ bool ChannelName::is_valid(void) const
 
 	return true;
 }
+
+/**
+ * @brief Check whether the channel name is mode supported.
+ *
+ * @return `true` if the channel name is mode supported, `false` otherwise.
+ */
+bool ChannelName::are_modes_supported(void) const { return *this->begin() != '+'; }

@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 00:23:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 12:00:21 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 13:05:17 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,13 +98,14 @@ public:
 	};
 
 	// Constructors
-	Channel(void);
+	Channel(bool const are_modes_supported = true);
 
 	// Destructor
 	~Channel(void);
 
 	// Accessors
 	Topic const          &get_topic(void) const;
+	bool                  get_are_modes_supported(void) const;
 	Channel::Modes const &get_modes(void) const;
 
 	// Setters
@@ -136,6 +137,7 @@ private:
 
 	// Fields
 	Topic           _topic;
+	bool            _are_modes_supported;
 	Modes           _modes;
 	_MemberSet      _members;
 	_InvitedUserMap _invited_users;

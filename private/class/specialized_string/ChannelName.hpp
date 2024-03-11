@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/18 23:03:36 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/02 18:01:23 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 13:05:17 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,4 +25,5 @@ public:
 
 	// Methods
 	bool is_valid(void) const;
+	bool are_modes_supported(void) const;
 };

@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:26:59 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 09:49:36 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 13:14:48 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,8 +73,8 @@ inline static void list_members_of_specific_channels(
 
 	for (ChannelNameIterator cit = channel_names.begin(); cit != end; ++cit)
 	{
-		ChannelName const            &channel_name = *cit;
-		Server::ChannelIterator const channel_by_name = channels_by_name.find(channel_name);
+		ChannelName const                 &channel_name = *cit;
+		Server::ChannelConstIterator const channel_by_name = channels_by_name.find(channel_name);
 
 		if (channel_by_name != channels_by_name.end())
 			list_channel_members(client, channel_name, channel_by_name->second);

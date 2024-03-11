@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 10:49:37 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 13:12:16 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,8 @@ class Server
 public:
 	// Types
 	typedef std::map<ChannelName, Channel> ChannelMap;
-	typedef ChannelMap::const_iterator     ChannelIterator;
+	typedef ChannelMap::const_iterator     ChannelConstIterator;
+	typedef ChannelMap::iterator           ChannelIterator;
 
 	// Constructors
 	Server(int const port, std::string const &name, std::string const &password = "");
