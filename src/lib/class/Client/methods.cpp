@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 08:41:51 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 12:41:57 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <vector>
+
+// Flags //
 
 /**
  * @brief Sets a flag.
@@ -154,6 +156,8 @@ std::string Client::Modes::Flags::to_string(void) const
 	return flags_as_string;
 }
 
+// Modes //
+
 /**
  * @brief Sets a mode for the client.
  *
@@ -255,6 +259,8 @@ bool Client::Modes::is_set(UserMode const mode) const
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 std::string Client::Modes::to_string(void) const { return this->_flags.to_string(); }
+
+// Client //
 
 /**
  * @brief Appends a string to the input buffer of the Client instance.
@@ -665,15 +671,14 @@ bool Client::has_mode(UserMode const mode) const { return this->_modes.is_set(mo
  *
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-std::string Client::user_mask(void) const { return this->_nickname + "!" + this->_username + "@" + this->_hostname; }
+std::string Client::user_mask(void) const { return this->_nickname + '!' + this->_username + '@' + this->_hostname; }
 
-// Methods //
 /**
  * @brief Join a channel and adds a channel to the list of channels the client has joined.
  *
  * @param channel The channel to add.
  */
-void Client::join_channel(ChannelName const &chan_name, Channel &channel)
+void Client::join_channel(ChannelName const &chan_name, Channel const &channel)
 {
 	this->_joined_channels_by_name.insert(std::make_pair(chan_name, &channel));
 }
@@ -684,6 +689,11 @@ void Client::join_channel(ChannelName const &chan_name, Channel &channel)
  * @param channel the channel to leave
  */
 void Client::leave_channel(ChannelName const &chan_name) { this->_joined_channels_by_name.erase(chan_name); }
+
+/**
+ * @return The number of channels that the client has joined.
+ */
+size_t Client::joined_channel_count(void) const { return this->_joined_channels_by_name.size(); }
 
 /**
  * @brief Closes the socket of the Client instance and deletes it's associated epoll_event

@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 09:37:28 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 12:49:52 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,8 @@
 #include <list>
 #include <utility>
 
-#define MAX_CHANNELS 42
+#define MAXIMUM_NUMBER_OF_JOINED_CHANNELS_BY_USER 42
+#define MAXIMUM_NUMBER_OF_MEMBERS_BY_CHANNEL      42
 
 typedef std::pair<ChannelName, Key>       PairChannelNameKey;
 typedef std::pair<ChannelName, Channel *> PairChannelNameChannel;
@@ -32,16 +33,17 @@ typedef std::vector<Key>                  KeyVector;
  * @param channels_by_name the map of channels by name
  * @return the joined channel if successful, NULL otherwise
  */
-inline static Channel *__join_new_channel(
+inline static Channel *join_new_channel(
 	Client                         &sender,
 	ChannelName const              &chan_name,
 	std::map<ChannelName, Channel> &channels_by_name)
 {
-	if (sender.get_joined_channels_by_name().size() == MAX_CHANNELS)
+	if (sender.joined_channel_count() == MAXIMUM_NUMBER_OF_JOINED_CHANNELS_BY_USER)
 		sender.append_formatted_reply_to_msg_out(ERR_TOOMANYCHANNELS);
 	else if (chan_name.is_valid())
 	{
 		Channel &channel = channels_by_name[chan_name];
+
 		sender.join_channel(chan_name, channel);
 		return &channel;
 	}
@@ -53,44 +55,64 @@ inline static Channel *__join_new_channel(
 /**
  * @brief Join an existing channel
  *
- * @param sender
+ * @param user
  * @param channel
  * @param key
+ *
  * @return the joined channel if successful, NULL otherwise
  */
-inline static Channel *__join_existing_channel(
-	Client            &sender,
+inline static Channel *join_existing_channel(
+	Client            &user,
 	Channel           &channel,
 	ChannelName const &chan_name,
 	Key const         &key)
 {
-	NickName const &nickname = sender.get_nickname();
-
-	if (channel.has_member(sender) == false)
+	if (user.joined_channel_count() == MAXIMUM_NUMBER_OF_JOINED_CHANNELS_BY_USER)
 	{
-		Channel::Modes const &channel_modes = channel.get_modes();
-		size_t                user_limit = channel_modes.get_limit();
+		user.append_formatted_reply_to_msg_out(ERR_TOOMANYCHANNELS);
+		return NULL;
+	}
 
-		if (user_limit != 0 && user_limit == channel.get_members_size())
-			sender.append_formatted_reply_to_msg_out(ERR_CHANNELISFULL, &chan_name);
-		else if (channel_modes.is_set(InviteOnly) && !channel_modes.has_invite_mask(nickname))
-			sender.append_formatted_reply_to_msg_out(ERR_INVITEONLYCHAN, &chan_name);
-		else if (sender.get_joined_channels_by_name().size() == MAX_CHANNELS)
-			sender.append_formatted_reply_to_msg_out(ERR_TOOMANYCHANNELS);
-		else if (channel_modes.has_ban_mask(nickname))
-			sender.append_formatted_reply_to_msg_out(ERR_BANNEDFROMCHAN, &chan_name);
-		else if (
-			channel_modes.is_set(KeyProtected)
-			&& (!channel_modes.has_invite_mask(nickname) || channel_modes.get_key() != key))
-			sender.append_formatted_reply_to_msg_out(ERR_BADCHANNELKEY, &chan_name);
-		else
+	size_t const member_count = channel.member_count();
+
+	if (channel.get_are_modes_supported())
+	{
+		NickName const       &nickname = user.get_nickname();
+		Channel::Modes const &channel_modes = channel.get_modes();
+
+		if (channel_modes.has_ban_mask(nickname))
 		{
-			channel.add_member(sender);
-			sender.join_channel(chan_name, channel);
-			return &channel;
+			user.append_formatted_reply_to_msg_out(ERR_BANNEDFROMCHAN, &chan_name);
+			return NULL;
+		}
+		if (channel_modes.is_set(InviteOnly) && !channel.has_invited_user_by_operator(user)
+		    && !channel_modes.has_invite_mask(nickname))
+		{
+			user.append_formatted_reply_to_msg_out(ERR_INVITEONLYCHAN, &chan_name);
+			return NULL;
+		}
+		if (channel_modes.is_set(KeyProtected) && channel_modes.get_key() != key && !channel.has_invited_user(user)
+		    && !channel_modes.has_invite_mask(nickname))
+		{
+			user.append_formatted_reply_to_msg_out(ERR_BADCHANNELKEY, &chan_name);
+			return NULL;
+		}
+		if (channel_modes.is_set(Limit) && member_count == channel_modes.get_limit())
+		{
+			user.append_formatted_reply_to_msg_out(ERR_CHANNELISFULL, &chan_name);
+			return NULL;
 		}
 	}
-	return NULL;
+	if (member_count == MAXIMUM_NUMBER_OF_MEMBERS_BY_CHANNEL)
+	{
+		user.append_formatted_reply_to_msg_out(ERR_CHANNELISFULL, &chan_name);
+		return NULL;
+	}
+
+	channel.add_member(user);
+	channel.remove_invited_user(user);
+	user.join_channel(chan_name, channel);
+	return &channel;
 }
 
 #include <iostream>
@@ -151,19 +173,22 @@ void Server::_join(Client &sender, std::vector<std::string> const &params)
 {
 	if (!sender.has_mode(AlreadySentUser))
 		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
-	if (params.size() < 1)
+	if (params.empty())
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "JOIN");
 
-	if (params.size() == 1 && params[0] == "0")
+	if (params[0] == "0")
 	{
-		std::vector<std::string> channel_and_msg;
+		std::vector<std::string>            part_arguments;
+		Client::JoinedChannelMap const      joined_channels_by_name = sender.get_joined_channels_by_name();
+		Client::JoinedChannelIterator const end = joined_channels_by_name.end();
 
-		for (std::map<ChannelName, Channel *const>::const_iterator it = sender.get_joined_channels_by_name().begin();
-		     it != sender.get_joined_channels_by_name().end();
-		     ++it)
-			channel_and_msg.push_back(it->first);
-		channel_and_msg.push_back(DEFAULT_QUIT_MESSAGE);
-		_part(sender, channel_and_msg);
+		for (Client::JoinedChannelIterator joined_channel_by_name = joined_channels_by_name.begin();
+		     joined_channel_by_name != end;
+		     ++joined_channel_by_name)
+			part_arguments.push_back(joined_channel_by_name->first);
+		part_arguments.push_back(DEFAULT_QUIT_MESSAGE);
+
+		return this->_part(sender, part_arguments);
 	}
 
 	std::vector<PairChannelNameKey> const channel_key_pairs =
@@ -177,8 +202,8 @@ void Server::_join(Client &sender, std::vector<std::string> const &params)
 
 		Channel *const new_joined_channel =
 			chan_by_name == this->_channels_by_name.end()
-				? __join_new_channel(sender, chan_name, this->_channels_by_name)
-				: __join_existing_channel(sender, chan_by_name->second, chan_name, channel_key_pairs[i].second);
+				? join_new_channel(sender, chan_name, this->_channels_by_name)
+				: join_existing_channel(sender, chan_by_name->second, chan_name, channel_key_pairs[i].second);
 		if (new_joined_channel)
 			joined_channels.push_back(std::make_pair(chan_name, new_joined_channel));
 	}

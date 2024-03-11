@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 10:49:23 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 11:00:51 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,6 @@ void Server::_remove_client(Client &client, std::string const &quit_msg)
 
 	if (this->_clients_by_nickname.erase(client.get_nickname()) != 0)
 		this->_clients_by_socket.erase(client.get_socket());
-	client.set_mode(IsAboutToBeDisconnected);
 }
 
 #define EPOLL_WAIT_TIMEOUT 100
