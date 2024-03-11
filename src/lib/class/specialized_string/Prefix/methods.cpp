@@ -6,7 +6,7 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 03:04:48 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/11 15:11:07 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/11 16:24:24 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #include "class/specialized_string/NickName.hpp"
 #include "class/specialized_string/Prefix.hpp"
 #include "class/specialized_string/UserName.hpp"
-#include <cctype>
 
 /**
  * Determines if the current Prefix instance represents a valid prefix according
@@ -48,10 +47,7 @@ bool Prefix::is_valid(void) const
 		if (at_pos == std::string::npos)
 			return false;
 
-		std::string username = remaining.substr(0, at_pos);
-		std::string hostname = remaining.substr(at_pos + 1);
-
-		return UserName(username).is_valid() && HostName(hostname).is_valid();
+		return UserName(remaining.substr(0, at_pos)).is_valid() && HostName(remaining.substr(at_pos + 1)).is_valid();
 	}
 	return HostName(remaining).is_valid();
 }
