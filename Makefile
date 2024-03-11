@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
+#    By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/06 02:23:58 by jodufour         ###   ########.fr        #
+#    Updated: 2024/03/11 15:23:08 by gle-mini         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -196,6 +196,10 @@ LIB_SRC := \
 						methods \
 					} \
 					${addprefix UserName/, \
+						core \
+						methods \
+					} \
+					${addprefix Password/, \
 						core \
 						methods \
 					} \
