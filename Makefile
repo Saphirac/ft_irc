@@ -6,7 +6,7 @@
 #    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/06 02:23:58 by jodufour         ###   ########.fr        #
+#    Updated: 2024/03/11 08:33:55 by jodufour         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -136,7 +136,6 @@ LIB_SRC := \
 						away \
 						cap \
 						die \
-						error \
 						info \
 						invite \
 						ison \
