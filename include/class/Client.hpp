@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 07:21:37 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 11:19:40 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,6 @@ class ChannelName;
 class Client
 {
 public:
-	// Shared fields
-	static std::string const _default_quit_msg;
 
 	// Nested classes
 	class Modes

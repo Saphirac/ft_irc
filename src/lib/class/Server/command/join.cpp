@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 09:45:49 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 11:35:52 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,8 +96,6 @@ inline static Channel *__join_existing_channel(
 	}
 	return NULL;
 }
-
-#include <iostream>
 
 /**
  * @brief Create a list of pairs of channels and keys

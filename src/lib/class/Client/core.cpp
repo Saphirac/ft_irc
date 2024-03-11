@@ -6,16 +6,12 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:46:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 07:22:08 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 11:19:29 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Client.hpp"
 #include "class/exception/ProblemWithClock.hpp"
-
-// Shared fields //
-
-std::string const Client::_default_quit_msg = "Leaving, bye! <3";
 
 // Constructors //
 

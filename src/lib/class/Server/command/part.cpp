@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:26:34 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 09:49:55 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 11:45:57 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ typedef std::list<std::string> StringList;
  *
  * @throw std:exception if a std function critically fails
  */
+
+//TODO : delete channel if empty
 void Server::_part(Client &sender, std::vector<std::string> const &params)
 {
 	if (!sender.has_mode(AlreadySentUser))

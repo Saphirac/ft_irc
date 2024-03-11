@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:28:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 07:29:02 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 11:41:39 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,19 +20,19 @@ inline static bool is_channel(std::string const &s) { return s[0] == '#' || s[0]
 inline static void notice_to_channel(
 	Client            &sender,
 	Channel const     &channel,
+	ChannelName const &chan_name,
 	std::string const &msg)
 {
 	if (channel.get_modes().is_set(NoMessagesFromOutside) && !channel.has_member(sender))
 		return ;
-	channel.broadcast_to_all_members(sender.prefix() + "PRIVMSG " + msg);
+	if (!msg.empty())
+		channel.broadcast_to_all_members(sender.prefix() + "PRIVMSG " + chan_name + " :" + msg);
 }
 
 inline static void notice_to_user(Client &sender, Client &receiver, std::string const &msg)
 {
-	Client::Modes const &user_modes = receiver.get_modes();
-
-	if (!user_modes.is_set(Away))
-		receiver.append_to_msg_out(sender.prefix() + "PRIVMSG " + msg);
+	if (!receiver.get_modes().is_set(Away))
+		receiver.append_to_msg_out(sender.prefix() + "PRIVMSG " + receiver.get_nickname() + " :" + msg);
 }
 
 void Server::_notice(Client &sender, std::vector<std::string> const &params)
@@ -50,7 +50,7 @@ void Server::_notice(Client &sender, std::vector<std::string> const &params)
 			ChannelName const &chan_name = ChannelName(params[0]);
 
 			if (this->_channels_by_name.count(chan_name) != 0)
-				notice_to_channel(sender, this->_channels_by_name[chan_name], params[1]);
+				notice_to_channel(sender, this->_channels_by_name[chan_name], chan_name, params[1]);
 		}
 		else
 		{

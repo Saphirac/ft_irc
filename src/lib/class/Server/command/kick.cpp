@@ -6,13 +6,15 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 09:47:33 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 11:23:33 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
 #include "replies.hpp"
 #include "split.hpp"
+
+#define DEFAULT_KICK_MSG "You have been kicked from the channel"
 
 typedef std::vector<ChannelName> ChannelNameVector;
 typedef std::vector<NickName>    NickNameVector;
@@ -24,12 +26,12 @@ inline static void __kick_client(
 	Client            &user_to_remove,
 	std::string const &comment)
 {
-	channel.remove_member(user_to_remove);
 	user_to_remove.leave_channel(chan_name);
-	user_to_remove.append_to_msg_out(
-		user_to_remove.prefix() + "KICK " + chan_name + " " + user_to_remove_nickname + " " + comment);
+
 	channel.broadcast_to_all_members(
-		user_to_remove.prefix() + "KICK " + chan_name + " " + user_to_remove_nickname + " " + comment);
+		user_to_remove.prefix() + "KICK " + chan_name + " " + user_to_remove_nickname + " :"
+		+ (!comment.empty() ? comment : DEFAULT_KICK_MSG));
+	channel.remove_member(user_to_remove);
 }
 
 inline static void __kick_only_one_channel_given(
@@ -72,8 +74,8 @@ inline static void __kick_multiple_channel_given(
 	NickNameVector                     split_nicknames,
 	std::string const                 &comment)
 {
-	size_t                             split_channels_names_size = split_channels_names.size();
-	
+	size_t split_channels_names_size = split_channels_names.size();
+
 	for (size_t i = 0; i < split_channels_names_size; ++i)
 	{
 		if (channels_by_name.count(split_channels_names[i]) == 0)
