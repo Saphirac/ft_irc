@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 06:44:11 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 04:52:30 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,5 +85,7 @@ private:
 	void _topic(Client &sender, std::vector<std::string> const &parameters);
 	void _invite(Client &sender, std::vector<std::string> const &parameters);
 	void _kick(Client &sender, std::vector<std::string> const &parameters);
+	void _privmsg(Client &sender, std::vector<std::string> const &parameters);
+	void _notice(Client &sender, std::vector<std::string> const &parameters);
 	
 };

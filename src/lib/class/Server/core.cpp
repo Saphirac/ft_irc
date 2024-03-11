@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/09 22:32:37 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 04:52:56 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,8 @@ Server::CommandPair const Server::_raw_commands_by_name[] = {
 	std::make_pair("PART", &Server::_part),
 	std::make_pair("INVITE", &Server::_invite),
 	std::make_pair("KICK", &Server::_kick),
+	std::make_pair("PRIVMSG", &Server::_privmsg),
+	std::make_pair("NOTICE", &Server::_notice),
 };
 Server::CommandMap const Server::_commands_by_name = CommandMap(
 	_raw_commands_by_name,
