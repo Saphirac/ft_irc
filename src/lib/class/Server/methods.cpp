@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 13:02:59 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 17:56:44 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,8 +198,7 @@ void Server::_compute_next_msg_for_a_client(Client &client)
 
 	if (!raw_msg.empty())
 	{
-		Message const msg(raw_msg);
-
+		Message const         msg(raw_msg);
 		std::string const    &command_name = msg.get_command();
 		CommandIterator const command_by_name = this->_commands_by_name.find(command_name);
 
