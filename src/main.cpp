@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/09 00:20:29 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 01:36:09 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 // TODO : create a checker for the arguments
 int main(int const ac, char const *const *const av)
 {
+	srand(time(NULL));
+	
 	if (ac != 3)
 	{
 		std::cerr << "incorrect number of arguments" << std::endl;

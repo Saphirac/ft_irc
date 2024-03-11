@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 04:41:32 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 07:49:06 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ Server::CommandPair const Server::_raw_commands_by_name[] = {
 	std::make_pair("MODE", &Server::_mode),
 	std::make_pair("NAMES", &Server::_names),
 	std::make_pair("NICK", &Server::_nick),
+	std::make_pair("PING", &Server::_ping),
+	std::make_pair("PONG", &Server::_pong),
 	std::make_pair("OPER", &Server::_oper),
 	std::make_pair("PASS", &Server::_pass),
 	std::make_pair("USER", &Server::_user),

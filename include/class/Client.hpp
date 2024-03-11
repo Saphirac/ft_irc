@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 02:00:53 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 07:46:59 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,9 @@ public:
 
 	// Accessors
 	int                     get_socket(void) const;
+	int                     get_socket(void) const;
+	bool                    get_has_been_pinged(void) const;
+	std::string const      &get_ping_token(void) const;
 	NickName const         &get_nickname(void) const;
 	HostName const         &get_hostname(void) const;
 	Client::Modes const    &get_modes(void) const;
@@ -104,6 +107,8 @@ public:
 	// Mutators
 	void set_socket(int const socket);
 	void set_last_msg_time(clock_t const time);
+	void set_has_been_pinged(bool const has_been_pinged);
+	void set_ping_token(std::string const &ping_token);
 	void set_nickname(NickName const &nickname);
 	void set_hostname(HostName const &hostname);
 	void set_username(UserName const &username);
@@ -115,7 +120,7 @@ public:
 	clock_t     time_since_last_msg(void) const;
 
 	std::string prefix(void) const;
-	std::string formatted_reply(int const reply_number...) const;
+	void        append_formatted_reply_to_msg_out(int const reply_number...);
 	void        append_to_msg_out(std::string const &msg);
 	void        send_msg_out(void);
 
@@ -133,6 +138,8 @@ private:
 	std::string _msg_in;
 	std::string _msg_out;
 	clock_t     _last_msg_time;
+	bool        _has_been_pinged;
+	std::string _ping_token;
 
 	NickName      _nickname;
 	HostName      _hostname;
