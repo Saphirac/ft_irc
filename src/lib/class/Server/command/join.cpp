@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 11:35:52 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 14:31:07 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,11 +75,11 @@ inline static Channel *__join_existing_channel(
 		Channel::Modes const &channel_modes = channel.get_modes();
 		size_t                user_limit = channel_modes.get_limit();
 
-		if (user_limit != 0 && user_limit == channel.get_members_size())
+		if (user_limit != 0 && user_limit >= channel.get_members_size())
 			sender.append_formatted_reply_to_msg_out(ERR_CHANNELISFULL, &chan_name);
 		else if (channel_modes.is_set(InviteOnly) && !channel_modes.has_invite_mask(nickname))
 			sender.append_formatted_reply_to_msg_out(ERR_INVITEONLYCHAN, &chan_name);
-		else if (sender.get_joined_channels_by_name().size() == MAX_CHANNELS)
+		else if (sender.get_joined_channels_by_name().size() >= MAX_CHANNELS)
 			sender.append_formatted_reply_to_msg_out(ERR_TOOMANYCHANNELS);
 		else if (channel_modes.has_ban_mask(nickname))
 			sender.append_formatted_reply_to_msg_out(ERR_BANNEDFROMCHAN, &chan_name);

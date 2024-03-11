@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 08:34:13 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 14:25:07 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,8 @@ extern bool interrupted;
 
 static std::string const raw_operator_hosts[] = {
 	// TODO: replace this with the actual operator hosts
-	"tmp",
+	"localhost",
+	"127.0.0.1",
 };
 std::set<std::string> const Server::_operator_hosts = std::set<std::string>(
 	raw_operator_hosts,

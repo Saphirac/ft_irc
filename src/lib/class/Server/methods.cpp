@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 10:59:14 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 14:50:28 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ void Server::_remove_client(Client &client, std::string const &quit_msg)
 		this->_clients_by_socket.erase(client.get_socket());
 }
 
-#define EPOLL_WAIT_TIMEOUT 100
+#define EPOLL_WAIT_TIMEOUT 42
 /**
  * @brief
  * Iterates over the file descriptors for which `epoll()` marks a new event

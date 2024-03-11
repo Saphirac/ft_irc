@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:32:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 11:42:55 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 14:38:23 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,5 +30,5 @@ void Server::_ping(Client &sender, std::vector<std::string> const &params)
 	if (params.empty())
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "PING");
 
-	sender.append_to_msg_out(sender.prefix() + " PONG " + this->_name + " :" + params[0]);
+	sender.append_to_msg_out(sender.prefix() + " PONG :" + params[0]);
 }

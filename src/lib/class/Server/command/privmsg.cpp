@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:52 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 11:45:33 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:17:51 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,7 @@ inline static void privmsg_to_channel(
 {
 	if (channel.get_modes().is_set(NoMessagesFromOutside) && !channel.has_member(sender))
 		return sender.append_formatted_reply_to_msg_out(ERR_CANNOTSENDTOCHAN, &chan_name);
-	if (!msg.empty())
-		channel.broadcast_to_all_members(sender.prefix() + "PRIVMSG " + chan_name + " :" + msg);
+	channel.broadcast_to_all_members(sender.prefix() + "PRIVMSG " + chan_name + " :" + msg);
 }
 
 inline static void privmsg_to_user(Client &sender, NickName const &nickname, Client &receiver, std::string const &msg)
@@ -52,10 +51,6 @@ void Server::_privmsg(Client &sender, std::vector<std::string> const &params)
 			return sender.append_formatted_reply_to_msg_out(ERR_NOTEXTTOSEND, "PRIVMSG");
 		return sender.append_formatted_reply_to_msg_out(ERR_NORECIPIENT, "PRIVMSG");
 	}
-
-#ifdef DEBUG
-	std::cerr << "PRIVMSG " << params[0] << " " << params[1] << std::endl;
-#endif
 
 	StringList list_of_targets = split<StringList>(params[0], ',');
 
