@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 00:23:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 08:46:30 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 08:39:15 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,11 @@ public:
 	// Accessors
 	Topic const          &get_topic(void) const;
 	Channel::Modes const &get_modes(void) const;
+	size_t                get_members_size(void) const;
+
+	// Setters
+
+	void set_topic(Topic const &topic);
 
 	// Methods
 	void set_mode(ChannelMode const mode, void const *const arg = NULL);

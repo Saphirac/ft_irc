@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:43:58 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 22:20:11 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/10 06:31:16 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,3 +38,7 @@ std::set<NickName> const       &Channel::Modes::get_ban_masks(void) const { retu
 
 Topic const          &Channel::get_topic(void) const { return this->_topic; }
 Channel::Modes const &Channel::get_modes(void) const { return this->_modes; }
+size_t                Channel::get_members_size(void) const { return this->_members.size(); }
+
+void Channel::set_topic(Topic const &topic) { this->_topic = topic; }
+

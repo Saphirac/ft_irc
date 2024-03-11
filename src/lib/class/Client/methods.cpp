@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 07:48:51 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 08:41:51 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #include <sstream>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <vector>
 
 /**
  * @brief Sets a flag.
@@ -666,16 +667,34 @@ bool Client::has_mode(UserMode const mode) const { return this->_modes.is_set(mo
  */
 std::string Client::user_mask(void) const { return this->_nickname + "!" + this->_username + "@" + this->_hostname; }
 
+// Methods //
 /**
- * @brief Closes the socket of the Client instance.
+ * @brief Join a channel and adds a channel to the list of channels the client has joined.
  *
- * @throw `ProblemWithClose` if `close()` fails.
+ * @param channel The channel to add.
+ */
+void Client::join_channel(ChannelName const &chan_name, Channel &channel)
+{
+	this->_joined_channels_by_name.insert(std::make_pair(chan_name, &channel));
+}
+
+/**
+ * @brief Leaves a channel and removes it from the list of channels the client has joined.
+ *
+ * @param channel the channel to leave
+ */
+void Client::leave_channel(ChannelName const &chan_name) { this->_joined_channels_by_name.erase(chan_name); }
+
+/**
+ * @brief Closes the socket of the Client instance and deletes it's associated epoll_event
+ *
+ * @throw ProblemWithClose() if the close() function fails.
  */
 void Client::disconnect(void)
 {
 	if (this->_socket != -1)
 	{
-		if (close(this->_socket))
+		if (close(this->_socket) == -1)
 			throw ProblemWithClose();
 		this->_socket = -1;
 	}

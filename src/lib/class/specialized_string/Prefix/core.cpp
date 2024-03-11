@@ -1,15 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   methods.cpp                                        :+:      :+:    :+:   */
+/*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/05 00:59:48 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/09 19:56:59 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/03/10 03:04:36 by gle-mini          #+#    #+#             */
+/*   Updated: 2024/03/10 03:59:28 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/exception/ProblemWithClose.hpp"
+#include "class/specialized_string/Prefix.hpp"
 
-char const *ProblemWithClose::what(void) const throw() { return "Problem with close()"; }
+/**
+ * @param prefix The prefix to initialize the instance with.
+ */
+Prefix::Prefix(std::string const &prefix) : std::string(prefix) {}
+
+// Destructor //
+
+Prefix::~Prefix(void) {}

@@ -1,15 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   methods.cpp                                        :+:      :+:    :+:   */
+/*   Prefix.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/05 00:59:48 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/09 19:56:59 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/03/10 03:04:01 by gle-mini          #+#    #+#             */
+/*   Updated: 2024/03/10 03:34:56 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/exception/ProblemWithClose.hpp"
+#pragma once
 
-char const *ProblemWithClose::what(void) const throw() { return "Problem with close()"; }
+#include <string>
+
+class Prefix : public std::string
+{
+public:
+	// Constructors
+	Prefix(std::string const &prefix = "");
+
+	// Destructor
+	~Prefix(void);
+
+	// Methods
+	bool is_valid(void) const;
+};

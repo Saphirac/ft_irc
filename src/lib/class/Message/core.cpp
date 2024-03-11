@@ -3,66 +3,92 @@
 /*                                                        :::      ::::::::   */
 /*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:06:05 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/04 22:03:52 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/10 03:35:13 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Message.hpp"
 
-// Constructors //
-
 /**
- * @param raw_msg The raw message to parse and get the prefix, the command, and the arguments from.
+ * Constructor for the Message class.
+ * Parses a single message from the given string.
+ *
+ * @param msg A constant reference to a std::string containing the message to be parsed.
+ *
+ * @return A new instance of the Message class.
  */
-Message::Message(std::string const &raw_msg) : _prefix(), _command(), _parameters()
+Message::Message(std::string const &msg)
 {
 	size_t pos = 0;
 	size_t space_pos = 0;
 
 	// Prefix
-	if (raw_msg[pos] == ':')
+	if (msg[pos] == ':')
 	{
-		space_pos = raw_msg.find(' ', pos);
-		this->_prefix = raw_msg.substr(pos + 1, space_pos - pos - 1);
+		space_pos = msg.find(' ', pos);
+		this->_prefix = msg.substr(pos + 1, space_pos - pos - 1);
 		pos = space_pos + 1;
 	}
 
 	// Command
-	space_pos = raw_msg.find(' ', pos);
-	if (space_pos == std::string::npos)
+	space_pos = msg.find(' ', pos);
+	if (space_pos != std::string::npos)
 	{
-		this->_command = raw_msg.substr(pos);
-		return;
-	}
-	this->_command = raw_msg.substr(pos, space_pos - pos);
-	pos = space_pos + 1;
-
-	// Params
-	while ((space_pos = raw_msg.find(' ', pos)) != std::string::npos)
-	{
-		if (raw_msg[pos] == ':')
-		{
-			this->_parameters.push_back(raw_msg.substr(pos + 1));
-			break;
-		}
-		this->_parameters.push_back(raw_msg.substr(pos, space_pos - pos));
+		this->_command = msg.substr(pos, space_pos - pos);
 		pos = space_pos + 1;
 	}
+	else
+	{
+		this->_command = msg.substr(pos);
+		return;
+	}
 
-	// Last param without space
-	if (pos < raw_msg.length() && raw_msg[pos] != ':')
-		this->_parameters.push_back(raw_msg.substr(pos));
+	// Parameters
+	while (pos < msg.length() && (space_pos = msg.find(' ', pos)) != std::string::npos)
+	{
+		if (msg[pos] == ':')
+		{
+			this->_parameters.push_back(msg.substr(pos));
+			return;
+		}
+		else
+		{
+			this->_parameters.push_back(msg.substr(pos, space_pos - pos));
+			pos = space_pos + 1;
+		}
+	}
+
+	if (pos < msg.length())
+	{
+		this->_parameters.push_back(msg[pos] == ':' ? msg.substr(pos) : msg.substr(pos));
+	}
 }
 
-// Destructor //
+/**
+ * Destructor for the Message class.
+ */
+Message::~Message() {}
 
-Message::~Message(void) {}
+/**
+ * Parses a single message from the given string.
+ *
+ * @param msg A constant reference to a std::string containing the message to be parsed.
+ */
+std::string const &Message::get_prefix() const { return _prefix; }
 
-// Accessors //
+/**
+ * Returns the command of the message.
+ *
+ * @return A constant reference to a std::string containing the command of the message.
+ */
+std::string const &Message::get_command() const { return _command; }
 
-std::string const              &Message::get_prefix(void) const { return this->_prefix; }
-std::string const              &Message::get_command(void) const { return this->_command; }
-std::vector<std::string> const &Message::get_parameters(void) const { return this->_parameters; }
+/**
+ * Returns the parameters of the message.
+ *
+ * @return A reference to a vector of std::string containing the parameters of the message.
+ */
+std::vector<std::string> const &Message::get_parameters() const { return _parameters; }

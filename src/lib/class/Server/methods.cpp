@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 05:29:50 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 09:08:08 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,10 +77,25 @@ void Server::_add_client(Client const &client)
  *
  * @throw `ProblemWithClose` if `close()` fails.
  */
-void Server::_remove_client(Client const &client)
+void Server::_remove_client(Client &client, std::string const &quit_msg)
 {
+	// BUG: This implementation is incorrect, to be fixed
+	if (!client.get_joined_channels_by_name().empty())
+	{
+		std::vector<std::string>                              channel_and_msg;
+		std::map<ChannelName, Channel *const>::const_iterator my_end = client.get_joined_channels_by_name().end();
+
+		for (std::map<ChannelName, Channel *const>::const_iterator cit = client.get_joined_channels_by_name().begin();
+		     cit != my_end;
+		     ++cit)
+			channel_and_msg.push_back(cit->first);
+		channel_and_msg.push_back(quit_msg);
+		this->_part(client, channel_and_msg);
+	}
+
 	if (this->_clients_by_nickname.erase(client.get_nickname()) != 0)
 		this->_clients_by_socket.erase(client.get_socket());
+	client.set_mode(IsAboutToBeDisconnected);
 }
 
 #define EPOLL_WAIT_TIMEOUT 100
@@ -184,7 +199,8 @@ void Server::_compute_next_msg_for_a_client(Client &client)
 
 	if (!raw_msg.empty())
 	{
-		Message const         msg(raw_msg);
+		Message const msg(raw_msg);
+
 		std::string const    &command_name = msg.get_command();
 		CommandIterator const command_by_name = this->_commands_by_name.find(command_name);
 

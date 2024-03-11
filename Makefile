@@ -6,7 +6,7 @@
 #    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/11 08:33:55 by jodufour         ###   ########.fr        #
+#    Updated: 2024/03/11 08:39:08 by jodufour         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -53,6 +53,9 @@ LIB_SRC := \
 				${addprefix Channel/, \
 					core \
 					methods \
+				} \
+				${addprefix Message/, \
+					core \
 				} \
 				${addprefix Client/, \
 					core \
@@ -198,10 +201,15 @@ LIB_SRC := \
 						core \
 						methods \
 					} \
+					${addprefix Prefix/, \
+						core \
+						methods \
+					} \
 				} \
 			} \
 		} \
-	}
+	} \
+
 
 ######################################
 #            OBJECT FILES            #

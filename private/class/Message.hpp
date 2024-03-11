@@ -19,15 +19,16 @@ class Message
 {
 public:
 	// Constructors
+
 	Message(std::string const &raw_msg);
 
 	// Destructor
 	~Message(void);
 
 	// Accessors
-	std::string const              &get_prefix(void) const;
-	std::string const              &get_command(void) const;
-	std::vector<std::string> const &get_parameters(void) const;
+	std::string const              &get_prefix() const;
+	std::string const              &get_command() const;
+	std::vector<std::string> const &get_parameters() const;
 
 private:
 	// Fields

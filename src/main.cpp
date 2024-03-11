@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/11 01:36:09 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/11 07:22:00 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,5 +34,6 @@ int main(int const ac, char const *const *const av)
 		std::cerr << e.what() << std::endl;
 		return 1;
 	}
+
 	return 0;
 }

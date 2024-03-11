@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 08:24:26 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 08:51:00 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,6 +129,8 @@ public:
 
 	std::string user_mask(void) const;
 
+	void join_channel(ChannelName const &chan_name, Channel &channel);
+	void leave_channel(ChannelName const &chan_name);
 	void disconnect(void);
 
 private:

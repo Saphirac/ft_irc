@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 08:27:57 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 08:40:05 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ private:
 
 	// Methods
 	void _add_client(Client const &client);
-	void _remove_client(Client const &client);
+	void _remove_client(Client &client, std::string const &quit_msg = DEFAULT_QUIT_MSG);
 
 	void _handle_epoll_events(void);
 	void _compute_next_msg_for_a_client(Client &client);
@@ -89,4 +89,11 @@ private:
 	void _pong(Client &sender, std::vector<std::string> const &parameters);
 	void _quit(Client &sender, std::vector<std::string> const &parameters);
 	void _user(Client &sender, std::vector<std::string> const &parameters);
+	void _join(Client &sender, std::vector<std::string> const &parameters);
+	void _part(Client &sender, std::vector<std::string> const &parameters);
+	void _topic(Client &sender, std::vector<std::string> const &parameters);
+	void _invite(Client &sender, std::vector<std::string> const &parameters);
+	void _kick(Client &sender, std::vector<std::string> const &parameters);
+	void _privmsg(Client &sender, std::vector<std::string> const &parameters);
+	void _notice(Client &sender, std::vector<std::string> const &parameters);
 };
