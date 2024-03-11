@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 03:04:48 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/10 06:39:12 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/11 02:27:42 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,7 @@ static bool is_valid_nolfcrspat(char c)
 
 	if ((uc >= 0x01 && uc <= 0x09) || (uc >= 0x0B && uc <= 0x0C) || (uc >= 0x0E && uc <= 0x1F)
 	    || (uc >= 0x21 && uc <= 0x3F) || (uc >= 0x41 && uc <= 0xFF))
-	{
 		return true;
-	}
 
 	return false;
 }

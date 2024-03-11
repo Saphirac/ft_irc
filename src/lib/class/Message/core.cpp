@@ -3,27 +3,28 @@
 /*                                                        :::      ::::::::   */
 /*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:06:05 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/10 03:35:13 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/11 02:26:24 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Message.hpp"
 
+// Constructors //
+
 /**
- * Constructor for the Message class.
- * Parses a single message from the given string.
+ * @brief Parses a message as a string to extract the prefix, the command, and the parameters from it.
  *
- * @param msg A constant reference to a std::string containing the message to be parsed.
+ * @param msg The message string to parse.
  *
- * @return A new instance of the Message class.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-Message::Message(std::string const &msg)
+Message::Message(std::string const &msg) : _prefix(), _command(), _parameters()
 {
 	size_t pos = 0;
-	size_t space_pos = 0;
+	size_t space_pos;
 
 	// Prefix
 	if (msg[pos] == ':')
@@ -46,8 +47,10 @@ Message::Message(std::string const &msg)
 		return;
 	}
 
+	size_t const length = msg.length();
+
 	// Parameters
-	while (pos < msg.length() && (space_pos = msg.find(' ', pos)) != std::string::npos)
+	while (pos < length && (space_pos = msg.find(' ', pos)) != std::string::npos)
 	{
 		if (msg[pos] == ':')
 		{
@@ -61,34 +64,18 @@ Message::Message(std::string const &msg)
 		}
 	}
 
-	if (pos < msg.length())
+	if (pos < length)
 	{
 		this->_parameters.push_back(msg[pos] == ':' ? msg.substr(pos) : msg.substr(pos));
 	}
 }
 
-/**
- * Destructor for the Message class.
- */
+// Destructors //
+
 Message::~Message() {}
 
-/**
- * Parses a single message from the given string.
- *
- * @param msg A constant reference to a std::string containing the message to be parsed.
- */
-std::string const &Message::get_prefix() const { return _prefix; }
+// Accessors //
 
-/**
- * Returns the command of the message.
- *
- * @return A constant reference to a std::string containing the command of the message.
- */
-std::string const &Message::get_command() const { return _command; }
-
-/**
- * Returns the parameters of the message.
- *
- * @return A reference to a vector of std::string containing the parameters of the message.
- */
-std::vector<std::string> const &Message::get_parameters() const { return _parameters; }
+std::string const              &Message::get_prefix(void) const { return this->_prefix; }
+std::string const              &Message::get_command(void) const { return this->_command; }
+std::vector<std::string> const &Message::get_parameters(void) const { return this->_parameters; }
