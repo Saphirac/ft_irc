@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:28:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 03:22:04 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/12 05:29:01 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ inline static void notice_to_user(Client &sender, Client &receiver, std::string 
 
 void Server::_notice(Client &sender, std::vector<std::string> const &params)
 {
-	if (!sender.has_mode(AlreadySentUser) || params.size() < 2)
+	if (!sender.is_registered() || params.size() < 2)
 		return;
 
 	StringList list_of_targets = split<StringList>(params[0], ',');

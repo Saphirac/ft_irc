@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 01:00:06 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/12 05:25:26 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,8 +104,7 @@ public:
 	HostName const         &get_hostname(void) const;
 	Client::Modes const    &get_modes(void) const;
 	JoinedChannelMap const &get_joined_channels_by_name(void) const;
-	std::string const  &get_msg_in(void) const;
-// REMIND : debug function
+
 	// Mutators
 	void set_socket(int const socket);
 	void set_last_msg_time(clock_t const time);
@@ -120,6 +119,8 @@ public:
 	void        append_to_msg_in(std::string const &s);
 	std::string get_next_msg(void);
 	clock_t     time_since_last_msg(void) const;
+
+	bool is_registered(void) const;
 
 	std::string prefix(void) const;
 	void        append_formatted_reply_to_msg_out(int const reply_number...);

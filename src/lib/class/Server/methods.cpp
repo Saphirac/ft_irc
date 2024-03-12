@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 04:21:12 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/12 05:38:04 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,21 @@ void Server::start(void)
 				this->_remove_client(client);
 		}
 	}
+}
+
+/**
+ * @brief Sends the welcome message to a client that registered.
+ *
+ * @param client The client that registered.
+ */
+void Server::_welcome(Client &client) const
+{
+	std::string const user_mask = client.user_mask();
+
+	client.append_formatted_reply_to_msg_out(RPL_WELCOME, &user_mask);
+	client.append_formatted_reply_to_msg_out(RPL_YOURHOST, &this->_name, &this->_version);
+	client.append_formatted_reply_to_msg_out(RPL_CREATED, &this->_creation_date);
+	client.append_formatted_reply_to_msg_out(RPL_MYINFO, &this->_name, &this->_version, USER_MODES, CHANNEL_MODES);
 }
 
 /**

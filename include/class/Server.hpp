@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 13:12:16 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/12 05:35:33 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,8 @@ private:
 	ChannelMap                        _channels_by_name;
 
 	// Methods
+	void _welcome(Client &client) const;
+
 	void _add_client(Client const &client);
 	void _remove_client(Client &client, std::string const &quit_msg = DEFAULT_QUIT_MESSAGE);
 

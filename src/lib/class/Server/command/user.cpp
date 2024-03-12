@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:09:56 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/12 05:41:35 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,9 @@
  */
 void Server::_user(Client &sender, std::vector<std::string> const &parameters)
 {
-	if (sender.has_mode(AlreadySentUser))
+	if (sender.is_registered())
 		return sender.append_formatted_reply_to_msg_out(ERR_ALREADYREGISTERED);
-	if ((!this->_password.empty() && !sender.has_mode(AlreadySentPass)) || !sender.get_nickname().is_valid())
+	if ((!this->_password.empty() && !sender.has_mode(AlreadySentPass)))
 		return sender.set_mode(IsAboutToBeDisconnected);
 	if (parameters.size() < 4)
 	{
@@ -74,11 +74,7 @@ void Server::_user(Client &sender, std::vector<std::string> const &parameters)
 	// 	sender.set_mode(WallopsListener);
 	sender.set_mode(AlreadySentUser);
 
-	std::string const user_mask = sender.user_mask();
-
-	sender.append_formatted_reply_to_msg_out(RPL_WELCOME, &user_mask);
-	sender.append_formatted_reply_to_msg_out(RPL_YOURHOST, &this->_name, &this->_version);
-	sender.append_formatted_reply_to_msg_out(RPL_CREATED, &this->_creation_date);
-	sender.append_formatted_reply_to_msg_out(RPL_MYINFO, &this->_name, &this->_version, USER_MODES, CHANNEL_MODES);
+	if (sender.get_nickname().is_valid())
+		this->_welcome(sender);
 }
 // TODO: implement unit tests for this function

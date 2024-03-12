@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:26:34 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 04:07:37 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/12 05:29:01 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ typedef ChannelNameList::const_iterator ChannelNameIterator;
  */
 void Server::_part(Client &sender, std::vector<std::string> const &parameters)
 {
-	if (!sender.has_mode(AlreadySentUser))
+	if (!sender.is_registered())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
 	if (parameters.empty())
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "PART");

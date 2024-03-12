@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   kick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 00:25:51 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/12 05:29:01 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,7 @@ inline static void kick_from_several_channels(
 
 void Server::_kick(Client &sender, std::vector<std::string> const &parameters)
 {
-	if (!sender.has_mode(AlreadySentUser))
+	if (!sender.is_registered())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
 
 	size_t const parameters_len = parameters.size();

@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:22 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:10:18 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/12 05:36:13 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,5 +46,8 @@ void Server::_nick(Client &sender, std::vector<std::string> const &parameters)
 	this->_clients_by_nickname.insert(std::make_pair(nickname, &sender));
 
 	sender.append_to_msg_out(old_prefix + " NICK :" + nickname);
+
+	if (sender.has_mode(AlreadySentUser))
+		this->_welcome(sender);
 }
 // TODO: implement unit tests for this function

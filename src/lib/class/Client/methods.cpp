@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 18:50:44 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/12 05:26:52 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -326,6 +326,13 @@ clock_t Client::time_since_last_msg(void) const
 
 	return now - this->_last_msg_time;
 }
+
+/**
+ * @brief Checks whether the client is registered.
+ *
+ * @return `true` if the client is registered, `false` otherwise.
+ */
+bool Client::is_registered(void) const { return this->_modes.is_set(AlreadySentUser) && this->_nickname.is_valid(); }
 
 /**
  * @brief Generates the prefix of the client, with 1 leading colon and 1 trailing space.

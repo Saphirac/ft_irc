@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:46:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 00:59:11 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/12 05:38:57 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,6 @@ Client::JoinedChannelMap const &Client::get_joined_channels_by_name(void) const
 	return this->_joined_channels_by_name;
 }
 
-std::string const &Client::get_msg_in(void) const { return this->_msg_in; }
 // Mutators //
 
 void Client::set_socket(int const socket) { this->_socket = socket; }
