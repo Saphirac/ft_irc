@@ -6,24 +6,27 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:37:23 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 15:06:41 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/12 04:25:50 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "abnf_components.hpp"
 #include "class/specialized_string/Password.hpp"
 
-static bool is_nolfcr(char ch)
+#define MAXIMUM_LENGTH_FOR_PASSWORD 50
+
+static bool is_nolfcrspcl(char c)
 {
-	return ch != '\n' && ch != '\r'
-	    && (ch >= 0x01 && ch <= 0x09 || ch >= 0x0B && ch <= 0x0C || ch >= 0x0E && ch <= 0xFF);
+	return (c >= 0x01 && c <= 0x09) || (c >= 0x0B && c <= 0x0C) || (c >= 0x0E && c <= 0x1F) || (c >= 0x21 && c <= 0x39)
+	    || (c >= 0x3B);
 }
 
-static bool is_nolfcrsp(char ch) { return is_nolfcr(ch) && ch != ' '; }
+static bool is_nolfcrsp(char c)
+{
+	return (c >= 0x01 && c <= 0x09) || (c >= 0x0B && c <= 0x0C) || (c >= 0x0E && c <= 0x1F) || (c >= 0x21);
+}
 
-static bool is_nolfcrspcl(char ch) { return is_nolfcrsp(ch) && !(ch >= 0x3A && ch <= 0x40); }
-
-static bool is_nolfcrspat(char ch) { return is_nolfcrsp(ch) && ch != '@'; }
+static bool is_nolfcr(char c) { return c != '\n' && c != '\r'; }
 
 /**
  * @brief Checks whether the password is valid.
@@ -32,16 +35,30 @@ static bool is_nolfcrspat(char ch) { return is_nolfcrsp(ch) && ch != '@'; }
  */
 bool Password::is_valid() const
 {
-	if (this->empty())
+	if (this->empty() || this->length() > MAXIMUM_LENGTH_FOR_PASSWORD)
 		return false;
 
-	for (size_t index = this->begin(); index != this->end(); ++index)
+	size_t const length = this->length();
+
+	char const firstChar = this->at(0);
+	if (!is_nolfcrspcl(firstChar))
+		return false;
+
+	for (size_t i = 1; i < length; ++i)
 	{
-		char ch = *index;
-		if (!is_nolfcr(ch) && !is_nolfcrsp(ch) && !is_nolfcrspcl(ch) && !is_nolfcrspat(ch))
+		char c = this->at(i);
+		if (c == ':')
 		{
-			return false;
+			for (size_t j = i + 1; j < length; ++j)
+			{
+				if (!is_nolfcr(this->at(j)))
+					return false;
+			}
+			break; // Exit the loop after processing the portion following ':'
 		}
+		else if (!is_nolfcrsp(c))
+			return false;
 	}
+
 	return true;
 }
