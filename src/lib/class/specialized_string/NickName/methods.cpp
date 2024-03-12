@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:37:23 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/06 02:46:51 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 16:27:51 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
  */
 bool NickName::is_valid(void) const
 {
-	return this->size() <= MAXIMUM_LENGTH_FOR_NICKNAME && (letter + special).find(this->at(0)) != this->npos
-	    && this->find_first_not_of(letter + digit + special, 1) == this->npos;
+	return !this->empty() && this->size() <= MAXIMUM_LENGTH_FOR_NICKNAME
+	    && (letter + special).find(this->at(0)) != this->npos
+	    && this->find_first_not_of(letter + digit + special + dash, 1) == this->npos;
 }

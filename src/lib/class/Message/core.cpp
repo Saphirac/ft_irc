@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:06:05 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/04 22:03:52 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 05:49:32 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,49 +15,55 @@
 // Constructors //
 
 /**
- * @param raw_msg The raw message to parse and get the prefix, the command, and the arguments from.
+ * @brief Parses a message as a string to extract the prefix, the command, and the parameters from it.
+ *
+ * @param msg The message string to parse.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-Message::Message(std::string const &raw_msg) : _prefix(), _command(), _parameters()
+Message::Message(std::string const &msg) : _prefix(), _command(), _parameters()
 {
 	size_t pos = 0;
-	size_t space_pos = 0;
+	size_t space_pos;
 
 	// Prefix
-	if (raw_msg[pos] == ':')
+	if (msg[pos] == ':')
 	{
-		space_pos = raw_msg.find(' ', pos);
-		this->_prefix = raw_msg.substr(pos + 1, space_pos - pos - 1);
+		space_pos = msg.find(' ', pos);
+		this->_prefix = msg.substr(pos, space_pos - pos);
 		pos = space_pos + 1;
 	}
 
 	// Command
-	space_pos = raw_msg.find(' ', pos);
-	if (space_pos == std::string::npos)
+	if ((space_pos = msg.find(' ', pos)) == std::string::npos)
 	{
-		this->_command = raw_msg.substr(pos);
+		this->_command = msg.substr(pos);
 		return;
 	}
-	this->_command = raw_msg.substr(pos, space_pos - pos);
+	this->_command = msg.substr(pos, space_pos - pos);
 	pos = space_pos + 1;
 
-	// Params
-	while ((space_pos = raw_msg.find(' ', pos)) != std::string::npos)
+	size_t const length = msg.length();
+
+	// Parameters
+	while (pos < length)
 	{
-		if (raw_msg[pos] == ':')
+		if (msg[pos] == ':')
 		{
-			this->_parameters.push_back(raw_msg.substr(pos + 1));
-			break;
+			this->_parameters.push_back(msg.substr(pos + 1));
+			return;
 		}
-		this->_parameters.push_back(raw_msg.substr(pos, space_pos - pos));
+		if ((space_pos = msg.find(' ', pos)) == std::string::npos)
+		{
+			this->_parameters.push_back(msg.substr(pos));
+			return;
+		}
+		this->_parameters.push_back(msg.substr(pos, space_pos - pos));
 		pos = space_pos + 1;
 	}
-
-	// Last param without space
-	if (pos < raw_msg.length() && raw_msg[pos] != ':')
-		this->_parameters.push_back(raw_msg.substr(pos));
 }
 
-// Destructor //
+// Destructors //
 
 Message::~Message(void) {}
 

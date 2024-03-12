@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   abnf_components.hpp                                :+:      :+:    :+:   */
+/*   Prefix.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/05 20:17:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 09:36:48 by gle-mini         ###   ########.fr       */
+/*   Created: 2024/03/10 03:04:01 by gle-mini          #+#    #+#             */
+/*   Updated: 2024/03/10 03:34:56 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,15 @@
 
 #include <string>
 
-static std::string const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static std::string const lowercase = "abcdefghijklmnopqrstuvwxyz";
-static std::string const letter = uppercase + lowercase;
-static std::string const digit = "0123456789";
-static std::string const special = "[\\]^_`{|}";
-static std::string const lfcrspcl = "\n\r :";
-static std::string const lfcrsp = "\n\r ";
-static std::string const dash = "-";
+class Prefix : public std::string
+{
+public:
+	// Constructors
+	Prefix(std::string const &prefix = "");
+
+	// Destructor
+	~Prefix(void);
+
+	// Methods
+	bool is_valid(void) const;
+};
