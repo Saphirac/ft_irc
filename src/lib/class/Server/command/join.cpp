@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   join.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:29:01 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/12 23:04:10 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,6 +180,8 @@ void Server::_join(Client &sender, std::vector<std::string> const &parameters)
 		std::map<ChannelName, Channel>::iterator channel_by_name = this->_channels_by_name.find(channel_name);
 		Channel                                 *channel;
 
+		if (channel_by_name->second.has_member(sender))
+			continue;
 		if (channel_by_name == this->_channels_by_name.end())
 			channel = join_new_channel(sender, channel_name, this->_channels_by_name);
 		else
