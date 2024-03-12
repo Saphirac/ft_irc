@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   kick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 14:11:00 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/12 00:25:51 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,7 @@ inline static void kick_user(
 	Client            &target,
 	std::string const &comment)
 {
-	channel.broadcast_to_all_members(
-		sender.prefix() + "KICK " + channel_name + ' ' + target_nickname + " :"
-		+ (comment.empty() ? DEFAULT_KICK_MSG : comment));
+	channel.broadcast_to_all_members(sender.prefix() + "KICK " + channel_name + ' ' + target_nickname + " :" + comment);
 	target.leave_channel(channel_name);
 	channel.remove_member(target);
 }
@@ -61,7 +59,10 @@ inline static void kick_from_one_channel(
 			users_by_nickname.find(target_nickname);
 
 		if (user_by_nickname == users_by_nickname.end())
-			sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &target_nickname);
+		{
+			sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &target_nickname, &channel_name);
+			continue;
+		}
 
 		Client &target = *user_by_nickname->second;
 
@@ -96,7 +97,10 @@ inline static void kick_from_several_channels(
 				users_by_nickname.find(target_nickname);
 
 			if (user_by_nickname == users_by_nickname.end())
-				sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &target_nickname);
+			{
+				sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &target_nickname, &channel_name);
+				continue;
+			}
 
 			Channel &channel = channel_by_name->second;
 			Client  &target = *user_by_nickname->second;
@@ -125,10 +129,10 @@ void Server::_kick(Client &sender, std::vector<std::string> const &parameters)
 	size_t const            channel_names_len = channel_names.size();
 	NickNameVector const    nicknames = split<NickNameVector>(parameters[1], ',');
 
-	if (channel_names_len != 1 && nicknames.size() != channel_names_len)
+	if (channel_names_len != 1 && (nicknames.size() != channel_names_len))
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "KICK");
 
-	std::string const comment = parameters_len > 2 ? parameters[2] : std::string();
+	std::string const comment = parameters_len > 2 ? parameters[2] : DEFAULT_KICK_MSG;
 
 	if (channel_names_len == 1)
 		return kick_from_one_channel(

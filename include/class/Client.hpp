@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 18:28:59 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/12 01:00:06 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,8 @@ public:
 	HostName const         &get_hostname(void) const;
 	Client::Modes const    &get_modes(void) const;
 	JoinedChannelMap const &get_joined_channels_by_name(void) const;
-
+	std::string const  &get_msg_in(void) const;
+// REMIND : debug function
 	// Mutators
 	void set_socket(int const socket);
 	void set_last_msg_time(clock_t const time);

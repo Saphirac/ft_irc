@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   join.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 17:15:47 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 22:24:24 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,7 +139,6 @@ inline static std::vector<PairChannelNameKey> split_channels_keys(std::string co
 
 	return channel_key_pairs;
 }
-
 /**
  * @brief Makes a user either join existing channel(s) or create and join new channel(s).
  *

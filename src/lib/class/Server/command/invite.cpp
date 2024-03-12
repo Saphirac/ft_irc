@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   invite.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 17:41:09 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 21:22:29 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void Server::_invite(Client &sender, std::vector<std::string> const &params)
 
 	NickName const                                         &sender_nickname = sender.get_nickname();
 	NickName const                                         &target_nickname = params[0];
-	std::map<NickName, Client *const>::const_iterator const user_by_nickname =
+	std::map<NickName, Client *const>::iterator const user_by_nickname =
 		this->_clients_by_nickname.find(target_nickname);
 
 	if (user_by_nickname == this->_clients_by_nickname.end())
@@ -60,6 +60,6 @@ void Server::_invite(Client &sender, std::vector<std::string> const &params)
 		return sender.append_formatted_reply_to_msg_out(RPL_AWAY, &target_nickname, &user_modes.get_away_msg());
 
 	channel.add_invited_user(target, is_sender_operator);
-	target.append_to_msg_out(sender.prefix() + "INVITE :" + channel_name);
+	target.append_to_msg_out(sender.prefix() + "INVITE " + target_nickname + " :" + channel_name);
 	sender.append_formatted_reply_to_msg_out(RPL_INVITING, &target_nickname, &channel_name);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   privmsg.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:52 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 14:48:30 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/11 22:34:35 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,10 @@ typedef std::list<std::string> StringList;
 static std::string const possible_channel_prefix = "#&+!";
 
 // TODO: Write the doxygen comment of this function
-inline static bool is_channel(std::string const &s) { return possible_channel_prefix.find(s[0]); }
+inline static bool is_channel(std::string const &s) { return possible_channel_prefix.find(s[0]) != std::string::npos; }
 
 // TODO: Write the doxygen comment of this function
+// TODO : create a broadcast_to_all_members except the sender
 inline static void privmsg_to_channel(
 	Client            &sender,
 	Channel const     &channel,
@@ -31,8 +32,7 @@ inline static void privmsg_to_channel(
 {
 	if (channel.get_modes().is_set(NoMessagesFromOutside) && !channel.has_member(sender))
 		return sender.append_formatted_reply_to_msg_out(ERR_CANNOTSENDTOCHAN, &chan_name);
-	if (!msg.empty())
-		channel.broadcast_to_all_members(sender.prefix() + "PRIVMSG " + chan_name + " :" + msg);
+	channel.broadcast_to_all_members(sender.prefix() + "PRIVMSG " + chan_name + " :" + msg);
 }
 
 // TODO: Write the doxygen comment of this function
@@ -56,9 +56,8 @@ void Server::_privmsg(Client &sender, std::vector<std::string> const &parameters
 		return sender.append_formatted_reply_to_msg_out(ERR_NOTEXTTOSEND, "PRIVMSG");
 
 	StringList const                 targets = split<StringList>(parameters[0], ',');
-	StringList::const_iterator const end = targets.end();
 
-	for (StringList::const_iterator target = targets.begin(); target != end; ++target)
+	for (StringList::const_iterator target = targets.begin(); target != targets.end(); ++target)
 	{
 		if (is_channel(*target))
 		{
@@ -66,7 +65,7 @@ void Server::_privmsg(Client &sender, std::vector<std::string> const &parameters
 			ChannelConstIterator const channel_by_name = this->_channels_by_name.find(channel_name);
 
 			if (channel_by_name == this->_channels_by_name.end())
-				sender.append_formatted_reply_to_msg_out(ERR_CANNOTSENDTOCHAN, &target);
+				sender.append_formatted_reply_to_msg_out(ERR_CANNOTSENDTOCHAN, &channel_name);
 			else
 				privmsg_to_channel(sender, channel_by_name->second, channel_name, parameters[1]);
 		}
@@ -77,7 +76,7 @@ void Server::_privmsg(Client &sender, std::vector<std::string> const &parameters
 				this->_clients_by_nickname.find(nickname);
 
 			if (client_by_nickname == this->_clients_by_nickname.end())
-				sender.append_formatted_reply_to_msg_out(ERR_NOSUCHNICK, &target);
+				sender.append_formatted_reply_to_msg_out(ERR_NOSUCHNICK, &nickname);
 			else
 				privmsg_to_user(sender, nickname, *client_by_nickname->second, parameters[1]);
 		}
