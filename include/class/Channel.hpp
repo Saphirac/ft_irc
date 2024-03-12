@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 00:23:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 13:05:17 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/12 02:43:49 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,6 +122,7 @@ public:
 	size_t      member_count(void) const;
 	std::string members_as_string(void) const;
 	void        broadcast_to_all_members(std::string const &msg) const;
+	void        broadcast_to_all_members_but_one(std::string const &msg, Client &user) const;
 
 	void add_invited_user(Client const &user, bool const is_invited_by_operator = false);
 	void remove_invited_user(Client const &user);

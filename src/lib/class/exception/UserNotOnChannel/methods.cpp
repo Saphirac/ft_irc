@@ -5,17 +5,11 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/11 00:45:56 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 03:22:31 by jodufour         ###   ########.fr       */
+/*   Created: 2024/03/12 03:07:44 by jodufour          #+#    #+#             */
+/*   Updated: 2024/03/12 03:10:15 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "abnf_components.hpp"
-#include "class/specialized_string/RealName.hpp"
+#include "class/exception/UserNotOnChannel.hpp"
 
-/**
- * @brief Checks whether the real name is valid.
- *
- * @return `true` if the real name is valid, `false` otherwise.
- */
-bool RealName::is_valid(void) const { return !this->empty(); }
+char const *UserNotOnChannel::what(void) const throw() { return "The given user is not a channel member"; }

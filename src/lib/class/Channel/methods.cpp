@@ -6,12 +6,13 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 01:29:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 17:52:03 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/12 03:03:56 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Channel.hpp"
 #include "class/exception/NotAFlag.hpp"
+#include "class/exception/UserNotOnChannel.hpp"
 #include <sstream>
 
 // Flags //
@@ -397,7 +398,7 @@ std::string Channel::members_as_string(void) const
 }
 
 /**
- * @brief Broadcasts a message to all the members of the channel.
+ * @brief Broadcasts a message to all the channel members.
  *
  * @param msg The message to broadcast.
  *
@@ -408,6 +409,29 @@ void Channel::broadcast_to_all_members(std::string const &msg) const
 	_MemberIterator const end = this->_members.end();
 
 	for (_MemberIterator cit = this->_members.begin(); cit != end; ++cit) (*cit)->append_to_msg_out(msg);
+}
+
+/**
+ * @brief Broadcasts a message to all the channel members except one.
+ *
+ * @param msg The message to broadcast.
+ * @param user The user to exclude from the broadcast.
+ *
+ * @throw `UserNotOnChannel` if the user isn't a member of the channel.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+void Channel::broadcast_to_all_members_but_one(std::string const &msg, Client &user) const
+{
+	_MemberIterator const member = this->_members.find(&user);
+	_MemberIterator const end = this->_members.end();
+
+	if (member == end)
+		throw UserNotOnChannel();
+
+	_MemberIterator cit;
+
+	for (cit = this->_members.begin(); cit != member; ++cit) (*cit)->append_to_msg_out(msg);
+	while (++cit != end) (*cit)->append_to_msg_out(msg);
 }
 
 /**

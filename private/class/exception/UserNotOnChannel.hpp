@@ -1,21 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   methods.cpp                                        :+:      :+:    :+:   */
+/*   UserNotOnChannel.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/11 00:45:56 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 03:22:31 by jodufour         ###   ########.fr       */
+/*   Created: 2024/03/12 03:08:06 by jodufour          #+#    #+#             */
+/*   Updated: 2024/03/12 03:08:30 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "abnf_components.hpp"
-#include "class/specialized_string/RealName.hpp"
+#pragma once
 
-/**
- * @brief Checks whether the real name is valid.
- *
- * @return `true` if the real name is valid, `false` otherwise.
- */
-bool RealName::is_valid(void) const { return !this->empty(); }
+#include <exception>
+
+class UserNotOnChannel : public std::exception
+{
+public:
+	// Constructors
+	UserNotOnChannel(void) throw();
+
+	// Destructor
+	virtual ~UserNotOnChannel(void) throw();
+
+	// Methods
+	virtual char const *what(void) const throw();
+};
