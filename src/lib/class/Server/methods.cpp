@@ -3,12 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 02:04:52 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/12 04:21:12 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#ifdef DEBUG
+#	include <iostream>
+#endif
 
 #include "class/Message.hpp"
 #include "class/Server.hpp"
@@ -198,6 +202,10 @@ void Server::_compute_next_msg_for_a_client(Client &client)
 
 	if (!raw_msg.empty())
 	{
+#ifdef DEBUG
+		std::cout << "Server::_compute_next_msg_for_a_client: raw_msg: [" << raw_msg << "]\n";
+#endif
+
 		Message const         msg(raw_msg);
 		std::string const    &command_name = msg.get_command();
 		CommandIterator const command_by_name = this->_commands_by_name.find(command_name);

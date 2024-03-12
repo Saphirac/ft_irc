@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:22 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 04:15:38 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/12 05:10:18 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,6 @@ void Server::_nick(Client &sender, std::vector<std::string> const &parameters)
 		return sender.append_formatted_reply_to_msg_out(ERR_NONICKNAMEGIVEN);
 
 	NickName const &nickname = parameters[0];
-
-#ifdef DEBUG
-	std::cout << "Server::_nick: Given nickname: [" << nickname << "]\n";
-#endif
 
 	if (!nickname.is_valid())
 		return sender.append_formatted_reply_to_msg_out(ERR_ERRONEUSNICKNAME, &nickname);

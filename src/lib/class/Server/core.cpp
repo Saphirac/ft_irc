@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 18:47:50 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/12 05:10:39 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "class/exception/ProblemWithEpollCreate1.hpp"
 #include "class/exception/ProblemWithEpollCtl.hpp"
 #include "class/exception/ProblemWithListen.hpp"
+#include "class/exception/ProblemWithSetSockOpt.hpp"
 #include "class/exception/ProblemWithSocket.hpp"
 #include "class/exception/ProblemWithStrftime.hpp"
 #include "class/exception/ProblemWithTime.hpp"
@@ -28,7 +29,7 @@ extern bool interrupted;
 
 static std::string const raw_operator_hosts[] = {
 	// TODO: replace this with the actual operator hosts
-	"tmp",
+	"localhost",
 };
 std::set<std::string> const Server::_operator_hosts = std::set<std::string>(
 	raw_operator_hosts,
@@ -173,6 +174,11 @@ Server::Server(int const port, std::string const &name, std::string const &passw
 {
 	if (this->_socket == -1)
 		throw ProblemWithSocket();
+
+	int optval = 1;
+
+	if (setsockopt(this->_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
+		throw ProblemWithSetSockOpt();
 
 	if (this->_epoll_socket == -1)
 		throw ProblemWithEpollCreate1();

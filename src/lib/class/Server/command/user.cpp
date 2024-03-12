@@ -3,12 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   user.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 02:13:27 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/12 05:09:56 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#ifdef DEBUG
+#	include <iostream>
+#endif
 
 // REMIND: this part is commented out because `irssi` doesn't send the user mode mask, it sucks!
 // #include "class/specialized_string/UserModeMask.hpp"
@@ -33,7 +37,7 @@ void Server::_user(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (sender.has_mode(AlreadySentUser))
 		return sender.append_formatted_reply_to_msg_out(ERR_ALREADYREGISTERED);
-	if ((!this->_password.empty() && !sender.has_mode(AlreadySentPass)) || sender.get_nickname().empty())
+	if ((!this->_password.empty() && !sender.has_mode(AlreadySentPass)) || !sender.get_nickname().is_valid())
 		return sender.set_mode(IsAboutToBeDisconnected);
 	if (parameters.size() < 4)
 	{
