@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 18:29:43 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/12 04:02:37 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1054,11 +1054,11 @@ inline static void mode_for_channel(
 
 	Channel &channel = it->second;
 
-	if (!channel.get_modes().has_operator(sender))
-		return sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &name);
-
 	if (parameters.size() == 1)
 		return reply_channel_mode_is(sender, name, channel.get_modes());
+
+	if (!channel.get_modes().has_operator(sender))
+		return sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &name);
 
 	Channel::Modes modes_to_be[2];
 	ParsingTools   parsing_tools(parameters.begin() + 1, parameters.end());
