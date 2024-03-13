@@ -14,6 +14,7 @@
 
 #include <string>
 #include <vector>
+#include "class/specialized_string/Prefix.hpp"
 
 class Message
 {
@@ -25,13 +26,13 @@ public:
 	~Message(void);
 
 	// Accessors
-	std::string const              &get_prefix(void) const;
+	Prefix const                   &get_prefix(void) const;
 	std::string const              &get_command(void) const;
 	std::vector<std::string> const &get_parameters(void) const;
 
 private:
 	// Fields
-	std::string              _prefix;
+	Prefix                   _prefix;
 	std::string              _command;
 	std::vector<std::string> _parameters;
 };

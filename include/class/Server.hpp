@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:35:33 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 13:23:41 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,4 +100,8 @@ private:
 	void _kick(Client &sender, std::vector<std::string> const &parameters);
 	void _privmsg(Client &sender, std::vector<std::string> const &parameters);
 	void _notice(Client &sender, std::vector<std::string> const &parameters);
+
+	// Bot
+	void	launch_bot(NickName const &nickname);
+
 };
