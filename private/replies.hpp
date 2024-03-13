@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 22:08:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 09:34:11 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 07:14:18 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,8 @@
 #define ERR_UMODEUNKNOWNFLAG  501
 #define ERR_USERSDONTMATCH    502
 
+typedef std::map<int, char const *> FormatMap;
+
 static std::pair<int, char const *> const raw_formats_by_reply[] = {
 	std::make_pair(RPL_WELCOME, ":Welcome to the Internet Relay Network %S"),
 	std::make_pair(RPL_YOURHOST, ":Your host is %S, running version %S"),
@@ -147,8 +149,6 @@ static std::pair<int, char const *> const raw_formats_by_reply[] = {
 	std::make_pair(ERR_UMODEUNKNOWNFLAG, ":Unknown MODE flag"),
 	std::make_pair(ERR_USERSDONTMATCH, ":Cannot change mode for other users"),
 };
-static std::map<int, char const *> const formats_by_reply(
+static FormatMap const formats_by_reply(
 	raw_formats_by_reply,
 	raw_formats_by_reply + sizeof(raw_formats_by_reply) / sizeof(*raw_formats_by_reply));
-
-typedef std::map<int, char const *>::const_iterator ReplyIterator;

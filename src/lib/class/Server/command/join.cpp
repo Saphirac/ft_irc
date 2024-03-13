@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   join.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 23:04:10 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/13 10:34:55 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,6 @@ inline static Channel *join_new_channel(
 	ChannelName const              &chan_name,
 	std::map<ChannelName, Channel> &channels_by_name)
 {
-	if (user.joined_channel_count() == MAXIMUM_NUMBER_OF_JOINED_CHANNELS_BY_USER)
-	{
-		user.append_formatted_reply_to_msg_out(ERR_TOOMANYCHANNELS);
-		return NULL;
-	}
 	if (!chan_name.is_valid())
 	{
 		user.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &chan_name);
@@ -72,12 +67,6 @@ inline static Channel *join_existing_channel(
 	ChannelName const &chan_name,
 	Key const         &key)
 {
-	if (user.joined_channel_count() == MAXIMUM_NUMBER_OF_JOINED_CHANNELS_BY_USER)
-	{
-		user.append_formatted_reply_to_msg_out(ERR_TOOMANYCHANNELS);
-		return NULL;
-	}
-
 	size_t const member_count = channel.member_count();
 
 	if (channel.get_are_modes_supported())
@@ -158,12 +147,11 @@ void Server::_join(Client &sender, std::vector<std::string> const &parameters)
 
 	if (parameters[0] == "0")
 	{
-		std::vector<std::string>            part_arguments;
-		Client::JoinedChannelMap const      joined_channels_by_name = sender.get_joined_channels_by_name();
-		Client::JoinedChannelIterator const end = joined_channels_by_name.end();
+		std::vector<std::string>       part_arguments;
+		Client::JoinedChannelMap const joined_channels_by_name = sender.get_joined_channels_by_name();
 
-		for (Client::JoinedChannelIterator joined_channel_by_name = joined_channels_by_name.begin();
-		     joined_channel_by_name != end;
+		for (Client::JoinedChannelMap::const_iterator joined_channel_by_name = joined_channels_by_name.begin();
+		     joined_channel_by_name != joined_channels_by_name.end();
 		     ++joined_channel_by_name)
 			part_arguments.push_back(joined_channel_by_name->first);
 		part_arguments.push_back(DEFAULT_QUIT_MESSAGE);
@@ -176,16 +164,21 @@ void Server::_join(Client &sender, std::vector<std::string> const &parameters)
 
 	for (size_t i = 0; i < channel_key_pairs.size(); ++i)
 	{
-		ChannelName const                       &channel_name = channel_key_pairs[i].first;
-		std::map<ChannelName, Channel>::iterator channel_by_name = this->_channels_by_name.find(channel_name);
-		Channel                                 *channel;
+		ChannelName const                             &channel_name = channel_key_pairs[i].first;
+		std::map<ChannelName, Channel>::iterator const channel_by_name = this->_channels_by_name.find(channel_name);
 
 		if (channel_by_name->second.has_member(sender))
 			continue;
-		if (channel_by_name == this->_channels_by_name.end())
-			channel = join_new_channel(sender, channel_name, this->_channels_by_name);
-		else
-			channel = join_existing_channel(sender, channel_by_name->second, channel_name, channel_key_pairs[i].second);
+		if (sender.joined_channel_count() == MAXIMUM_NUMBER_OF_JOINED_CHANNELS_BY_USER)
+		{
+			sender.append_formatted_reply_to_msg_out(ERR_TOOMANYCHANNELS);
+			continue;
+		}
+
+		Channel *const channel =
+			channel_by_name == this->_channels_by_name.end()
+				? join_new_channel(sender, channel_name, this->_channels_by_name)
+				: join_existing_channel(sender, channel_by_name->second, channel_name, channel_key_pairs[i].second);
 
 		if (!channel)
 			continue;

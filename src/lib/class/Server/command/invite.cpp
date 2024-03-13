@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:29:01 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 08:43:46 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,9 @@ void Server::_invite(Client &sender, std::vector<std::string> const &params)
 	if (user_by_nickname == this->_clients_by_nickname.end())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHNICK, &target_nickname);
 
-	Client               &target = *user_by_nickname->second;
-	ChannelName const    &channel_name = params[1];
-	ChannelIterator const channel_by_name = this->_channels_by_name.find(channel_name);
+	Client                    &target = *user_by_nickname->second;
+	ChannelName const         &channel_name = params[1];
+	ChannelMap::iterator const channel_by_name = this->_channels_by_name.find(channel_name);
 
 	if (channel_by_name == this->_channels_by_name.end())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &channel_name);
@@ -54,10 +54,10 @@ void Server::_invite(Client &sender, std::vector<std::string> const &params)
 	if (channel_modes.is_set(InviteOnly) && !is_sender_operator)
 		return sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &sender_nickname);
 
-	Client::Modes const &user_modes = target.get_modes();
+	Client::Modes const &target_modes = target.get_modes();
 
-	if (user_modes.is_set(Away))
-		return sender.append_formatted_reply_to_msg_out(RPL_AWAY, &target_nickname, &user_modes.get_away_msg());
+	if (target_modes.is_set(Away))
+		return sender.append_formatted_reply_to_msg_out(RPL_AWAY, &target_nickname, &target_modes.get_away_msg());
 
 	channel.add_invited_user(target, is_sender_operator);
 	target.append_to_msg_out(sender.prefix() + "INVITE " + target_nickname + " :" + channel_name);

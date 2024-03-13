@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:25:26 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 09:47:51 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,6 @@ public:
 
 	// Types
 	typedef std::map<ChannelName, Channel const *const> JoinedChannelMap;
-	typedef JoinedChannelMap::const_iterator            JoinedChannelIterator;
 
 	// Constructors
 	Client(

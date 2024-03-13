@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:29:01 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 08:25:44 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ inline static void kick_from_one_channel(
 	NickNameVector const                    &nicknames,
 	std::string const                       &comment)
 {
-	Server::ChannelIterator const channel_by_name = channels_by_name.find(channel_name);
+	Server::ChannelMap::iterator const channel_by_name = channels_by_name.find(channel_name);
 
 	if (channel_by_name == channels_by_name.end())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &channel_name);
@@ -85,8 +85,8 @@ inline static void kick_from_several_channels(
 
 	for (size_t i = 0; i < channel_names_len; ++i)
 	{
-		ChannelName const            &channel_name = channel_names[i];
-		Server::ChannelIterator const channel_by_name = channels_by_name.find(channel_name);
+		ChannelName const                 &channel_name = channel_names[i];
+		Server::ChannelMap::iterator const channel_by_name = channels_by_name.find(channel_name);
 
 		if (channel_by_name == channels_by_name.end())
 			sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &channel_names[i]);

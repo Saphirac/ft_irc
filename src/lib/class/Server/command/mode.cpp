@@ -6,16 +6,45 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:29:01 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 08:40:28 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "channel_modes.hpp"
 #include "class/Server.hpp"
 #include "replies.hpp"
-#include "user_modes.hpp"
 #include <list>
 #include <sstream>
+
+typedef std::pair<char, UserMode>    UserModePair;
+typedef std::map<char, UserMode>     UserModeMap;
+typedef std::pair<char, ChannelMode> ChannelModePair;
+typedef std::map<char, ChannelMode>  ChannelModeMap;
+
+static UserModePair const raw_user_modes_by_identifier[] = {
+	std::make_pair(USER_MODES[Bot], Bot),
+	std::make_pair(USER_MODES[LocalOperator], LocalOperator),
+	std::make_pair(USER_MODES[Away], Away),
+	std::make_pair(USER_MODES[Invisible], Invisible),
+	std::make_pair(USER_MODES[WallopsListener], WallopsListener),
+};
+static UserModeMap const user_modes_by_identifier(
+	raw_user_modes_by_identifier,
+	raw_user_modes_by_identifier + sizeof(raw_user_modes_by_identifier) / sizeof(*raw_user_modes_by_identifier));
+
+static ChannelModePair const raw_channel_modes_by_identifier[] = {
+	std::make_pair(CHANNEL_MODES[InviteOnly], InviteOnly),
+	std::make_pair(CHANNEL_MODES[NoMessagesFromOutside], NoMessagesFromOutside),
+	std::make_pair(CHANNEL_MODES[RestrictedTopic], RestrictedTopic),
+	std::make_pair(CHANNEL_MODES[InviteMask], InviteMask),
+	std::make_pair(CHANNEL_MODES[BanMask], BanMask),
+	std::make_pair(CHANNEL_MODES[KeyProtected], KeyProtected),
+	std::make_pair(CHANNEL_MODES[Limit], Limit),
+	std::make_pair(CHANNEL_MODES[ChannelOperator], ChannelOperator),
+};
+static ChannelModeMap const channel_modes_by_identifier(
+	raw_channel_modes_by_identifier,
+	raw_channel_modes_by_identifier
+		+ sizeof(raw_channel_modes_by_identifier) / sizeof(*raw_channel_modes_by_identifier));
 
 enum
 {
@@ -62,12 +91,12 @@ inline static bool save_user_mode_to_be_set(
 	Client::Modes *const modes_to_be,
 	char const           identifer)
 {
-	UserModeIterator const cit = user_modes.find(identifer);
+	UserModeMap::const_iterator const user_mode_by_identifier = user_modes_by_identifier.find(identifer);
 
-	if (cit == user_modes.end())
+	if (user_mode_by_identifier == user_modes_by_identifier.end())
 		return false;
 
-	UserMode const &mode = cit->second;
+	UserMode const &mode = user_mode_by_identifier->second;
 
 	if (mode != LocalOperator && mode != Away)
 	{
@@ -94,12 +123,12 @@ inline static bool save_user_mode_to_be_cleared(
 	Client::Modes *const modes_to_be,
 	char const           identifer)
 {
-	UserModeIterator const cit = user_modes.find(identifer);
+	UserModeMap::const_iterator const user_mode_by_identifier = user_modes_by_identifier.find(identifer);
 
-	if (cit == user_modes.end())
+	if (user_mode_by_identifier == user_modes_by_identifier.end())
 		return false;
 
-	UserMode const &mode = cit->second;
+	UserMode const &mode = user_mode_by_identifier->second;
 
 	if (mode != Away)
 	{
@@ -504,12 +533,13 @@ inline static int save_channel_mode_to_be_set(
 	ParsingTools                            &parsing_tools,
 	std::map<NickName, Client *const> const &clients_by_nickname)
 {
-	ChannelModeIterator const cit = channel_modes.find(*parsing_tools.current_character);
+	ChannelModeMap::const_iterator const channel_mode_by_identifier =
+		channel_modes_by_identifier.find(*parsing_tools.current_character);
 
-	if (cit == channel_modes.end())
+	if (channel_mode_by_identifier == channel_modes_by_identifier.end())
 		return ERR_UNKNOWNMODE;
 
-	ChannelMode const &mode = cit->second;
+	ChannelMode const &mode = channel_mode_by_identifier->second;
 
 	switch (mode)
 	{
@@ -762,12 +792,13 @@ inline static int save_channel_mode_to_be_cleared(
 	ParsingTools                            &parsing_tools,
 	std::map<NickName, Client *const> const &clients_by_nickname)
 {
-	ChannelModeIterator const cit = channel_modes.find(*parsing_tools.current_character);
+	ChannelModeMap::const_iterator const channel_mode_by_identifier =
+		channel_modes_by_identifier.find(*parsing_tools.current_character);
 
-	if (cit == channel_modes.end())
+	if (channel_mode_by_identifier == channel_modes_by_identifier.end())
 		return ERR_UNKNOWNMODE;
 
-	ChannelMode const &mode = cit->second;
+	ChannelMode const &mode = channel_mode_by_identifier->second;
 
 	switch (mode)
 	{

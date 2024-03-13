@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 00:23:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 02:43:49 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 11:04:31 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,10 +131,8 @@ public:
 
 private:
 	// Types
-	typedef std::set<Client *>              _MemberSet;
-	typedef _MemberSet::const_iterator      _MemberIterator;
-	typedef std::map<Client const *, bool>  _InvitedUserMap;
-	typedef _InvitedUserMap::const_iterator _InvitedUserIterator;
+	typedef std::set<Client *>                   _MemberSet;
+	typedef std::map<Client const *, bool const> _InvitedUserMap;
 
 	// Fields
 	Topic           _topic;

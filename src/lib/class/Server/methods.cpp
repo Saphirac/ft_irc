@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:38:04 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 09:27:45 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,71 +49,13 @@ void Server::start(void)
 			Client &client = it->second;
 
 			this->_compute_next_msg_for_a_client(client);
+			this->_check_time_of_last_msg(client);
 			client.send_msg_out();
-			// TODO: check if the client connection is still active.
 			++it;
 			if (client.has_mode(IsAboutToBeDisconnected))
 				this->_remove_client(client);
 		}
 	}
-}
-
-/**
- * @brief Sends the welcome message to a client that registered.
- *
- * @param client The client that registered.
- */
-void Server::_welcome(Client &client) const
-{
-	std::string const user_mask = client.user_mask();
-
-	client.append_formatted_reply_to_msg_out(RPL_WELCOME, &user_mask);
-	client.append_formatted_reply_to_msg_out(RPL_YOURHOST, &this->_name, &this->_version);
-	client.append_formatted_reply_to_msg_out(RPL_CREATED, &this->_creation_date);
-	client.append_formatted_reply_to_msg_out(RPL_MYINFO, &this->_name, &this->_version, USER_MODES, CHANNEL_MODES);
-}
-
-/**
- * @brief Copies a given Client instance to the list of known clients.
- *
- * @param client The Client instance to copy.
- *
- * @throw `std::exception` if a function of the C++ standard library critically fails.
- */
-void Server::_add_client(Client const &client)
-{
-	std::pair<std::map<int, Client>::iterator, bool> ret =
-		this->_clients_by_socket.insert(std::make_pair(client.get_socket(), client));
-
-	if (ret.second)
-		this->_clients_by_nickname.insert(std::make_pair(client.get_nickname(), &ret.first->second));
-}
-
-/**
- * @brief Removes a client from the list of known clients.
- *
- * @param client The Client instance to remove.
- *
- * @throw `ProblemWithClose` if `close()` fails.
- */
-void Server::_remove_client(Client &client, std::string const &quit_msg)
-{
-	if (!client.get_joined_channels_by_name().empty())
-	{
-		std::vector<std::string>        part_arguments;
-		Client::JoinedChannelMap const &joined_channels_by_name = client.get_joined_channels_by_name();
-		Client::JoinedChannelIterator   end = joined_channels_by_name.end();
-
-		for (Client::JoinedChannelIterator joined_channel_by_name = joined_channels_by_name.begin();
-		     joined_channel_by_name != end;
-		     ++joined_channel_by_name)
-			part_arguments.push_back(joined_channel_by_name->first);
-		part_arguments.push_back(quit_msg);
-		this->_part(client, part_arguments);
-	}
-
-	if (this->_clients_by_nickname.erase(client.get_nickname()) != 0)
-		this->_clients_by_socket.erase(client.get_socket());
 }
 
 #define EPOLL_WAIT_TIMEOUT 100
@@ -217,13 +159,9 @@ void Server::_compute_next_msg_for_a_client(Client &client)
 
 	if (!raw_msg.empty())
 	{
-#ifdef DEBUG
-		std::cout << "Server::_compute_next_msg_for_a_client: raw_msg: [" << raw_msg << "]\n";
-#endif
-
-		Message const         msg(raw_msg);
-		std::string const    &command_name = msg.get_command();
-		CommandIterator const command_by_name = this->_commands_by_name.find(command_name);
+		Message const                    msg(raw_msg);
+		std::string const               &command_name = msg.get_command();
+		CommandMap::const_iterator const command_by_name = this->_commands_by_name.find(command_name);
 
 		if (command_by_name == this->_commands_by_name.end())
 			client.append_formatted_reply_to_msg_out(ERR_UNKNOWNCOMMAND, &command_name);
@@ -245,35 +183,73 @@ inline static std::string const random_string(size_t len)
 
 /**
  * @brief
- * Check the time of last activity of each clients, if that time delay is greater than TIMEOUT, send a PING and
- * set the has_been_pinged flag to true
- * If the client has been pinged and the time delay is greater than TIMEOUT_SINCE_PING, disconnect the client
+ * Checks whether a client connection is still alive by checking the time since the last message was received,
+ * and sending a PING if necessary.
  *
- * @throw disconnect() can throw ProblemWithClose() if the close() function fails.
+ * @param client The client for which the connection will be checked.
+ *
+ * @throw `ProblemWithClose` if `close()` fails.
  */
-void Server::_check_time_of_last_msg(void)
+void Server::_check_time_of_last_msg(Client &client) const
 {
-	std::map<int, Client>::iterator const end = this->_clients_by_socket.end();
+	clock_t const time_since_last_msg = client.time_since_last_msg();
 
-	for (std::map<int, Client>::iterator client_by_socket = this->_clients_by_socket.begin(); client_by_socket != end;
-	     ++client_by_socket)
+	if (client.get_has_been_pinged())
 	{
-		Client &client = client_by_socket->second;
-
-		if (client.get_has_been_pinged())
-		{
-			if (client.time_since_last_msg() / CLOCKS_PER_SEC < TIMEOUT_SINCE_PING)
-				continue;
+		if (time_since_last_msg / CLOCKS_PER_SEC > TIMEOUT_SINCE_PING)
 			client.set_mode(IsAboutToBeDisconnected);
-		}
-		else
-		{
-			if (client.time_since_last_msg() / CLOCKS_PER_SEC < TIMEOUT)
-				continue;
-			client.set_ping_token(random_string(10));
-			client.set_has_been_pinged(true);
-			client.set_last_msg_time(clock());
-			client.append_to_msg_out(':' + this->_name + " PING " + client.get_ping_token());
-		}
+		return;
 	}
+	if (time_since_last_msg / CLOCKS_PER_SEC < TIMEOUT)
+		return;
+	client.set_ping_token(random_string(10));
+	client.set_has_been_pinged(true);
+	client.set_last_msg_time(clock());
+	client.append_to_msg_out(':' + this->_name + " PING " + client.get_ping_token());
+}
+
+/**
+ * @brief Removes a client from the list of known clients.
+ *
+ * @param client The Client instance to remove.
+ *
+ * @throw `ProblemWithClose` if `close()` fails.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+void Server::_remove_client(Client &client, std::string const &quit_msg)
+{
+	Client::JoinedChannelMap const &joined_channels_by_name = client.get_joined_channels_by_name();
+
+	if (!joined_channels_by_name.empty())
+	{
+		Client::JoinedChannelMap::const_iterator joined_channel_by_name = joined_channels_by_name.begin();
+		std::string                              channels_to_leave = joined_channel_by_name->first;
+
+		while (++joined_channel_by_name != joined_channels_by_name.end())
+			channels_to_leave += ',' + joined_channel_by_name->first;
+
+		std::vector<std::string> part_arguments(2);
+
+		part_arguments[0] = channels_to_leave;
+		part_arguments[1] = quit_msg;
+		this->_part(client, part_arguments);
+	}
+
+	if (this->_clients_by_nickname.erase(client.get_nickname()) != 0)
+		this->_clients_by_socket.erase(client.get_socket());
+}
+
+/**
+ * @brief Sends the welcome message to a client that registered.
+ *
+ * @param client The client that registered.
+ */
+void Server::_welcome(Client &client) const
+{
+	std::string const user_mask = client.user_mask();
+
+	client.append_formatted_reply_to_msg_out(RPL_WELCOME, &user_mask);
+	client.append_formatted_reply_to_msg_out(RPL_YOURHOST, &this->_name, &this->_version);
+	client.append_formatted_reply_to_msg_out(RPL_CREATED, &this->_creation_date);
+	client.append_formatted_reply_to_msg_out(RPL_MYINFO, &this->_name, &this->_version, USER_MODES, CHANNEL_MODES);
 }

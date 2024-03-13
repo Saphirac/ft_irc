@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:35:33 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 09:21:35 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,6 @@ class Server
 public:
 	// Types
 	typedef std::map<ChannelName, Channel> ChannelMap;
-	typedef ChannelMap::const_iterator     ChannelConstIterator;
-	typedef ChannelMap::iterator           ChannelIterator;
 
 	// Constructors
 	Server(int const port, std::string const &name, std::string const &password = "");
@@ -43,7 +41,6 @@ private:
 	typedef void (Server::*Command)(Client &sender, std::vector<std::string> const &parameters);
 	typedef std::pair<std::string const, Command const> CommandPair;
 	typedef std::map<std::string, Command const>        CommandMap;
-	typedef CommandMap::const_iterator                  CommandIterator;
 
 	// Shared fields
 	static std::set<std::string> const                    _operator_hosts;
@@ -69,16 +66,14 @@ private:
 	ChannelMap                        _channels_by_name;
 
 	// Methods
-	void _welcome(Client &client) const;
-
-	void _add_client(Client const &client);
-	void _remove_client(Client &client, std::string const &quit_msg = DEFAULT_QUIT_MESSAGE);
-
 	void _handle_epoll_events(void);
-	void _compute_next_msg_for_a_client(Client &client);
 	void _new_client_connection(void);
 	void _receive_data_from_client(Client &client);
-	void _check_time_of_last_msg(void);
+	void _compute_next_msg_for_a_client(Client &client);
+	void _check_time_of_last_msg(Client &client) const;
+	void _remove_client(Client &client, std::string const &quit_msg = DEFAULT_QUIT_MESSAGE);
+
+	void _welcome(Client &client) const;
 
 	// Commands
 	void _away(Client &sender, std::vector<std::string> const &parameters);
