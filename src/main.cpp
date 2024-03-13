@@ -6,17 +6,17 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/13 12:37:19 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/13 18:33:23 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
 #include "class/specialized_string/Password.hpp"
 #include <cctype>
-#include <cstdlib>
-#include <iostream>
 #include <cerrno>
 #include <climits>
+#include <cstdlib>
+#include <iostream>
 
 #define MINIMUM_PORT 1024
 #define MAXIMUM_PORT 49151
@@ -46,16 +46,17 @@ inline static bool check_main_arguments(int const ac, char const *const *const a
 		}
 	}
 
-	char *end_ptr;
-	errno = 0;
+	char          *end_ptr;
 	long int const port = strtol(av[1], &end_ptr, 10);
+
+	errno = 0;
 
 	if ((errno == ERANGE && (port == LONG_MAX || port == LONG_MIN)) || (errno != 0 && port == 0))
 	{
 		std::cerr << "incorrect: port conversion error" << std::endl;
 		return false;
 	}
-	
+
 	if (*end_ptr != '\0' || !(port >= MINIMUM_PORT && port <= MAXIMUM_PORT))
 	{
 		std::cerr << "incorrect: port must be between 1024 and 49151" << std::endl;
