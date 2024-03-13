@@ -6,7 +6,7 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:37:23 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 04:25:50 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/13 12:17:11 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,18 +15,18 @@
 
 #define MAXIMUM_LENGTH_FOR_PASSWORD 50
 
-static bool is_nolfcrspcl(char c)
+inline static bool is_nolfcrspcl(char c)
 {
 	return (c >= 0x01 && c <= 0x09) || (c >= 0x0B && c <= 0x0C) || (c >= 0x0E && c <= 0x1F) || (c >= 0x21 && c <= 0x39)
 	    || (c >= 0x3B);
 }
 
-static bool is_nolfcrsp(char c)
+inline static bool is_nolfcrsp(char c)
 {
 	return (c >= 0x01 && c <= 0x09) || (c >= 0x0B && c <= 0x0C) || (c >= 0x0E && c <= 0x1F) || (c >= 0x21);
 }
 
-static bool is_nolfcr(char c) { return c != '\n' && c != '\r'; }
+inline static bool is_nolfcr(char c) { return c != '\n' && c != '\r'; }
 
 /**
  * @brief Checks whether the password is valid.
@@ -40,8 +40,8 @@ bool Password::is_valid() const
 
 	size_t const length = this->length();
 
-	char const firstChar = this->at(0);
-	if (!is_nolfcrspcl(firstChar))
+	char const first_char = this->at(0);
+	if (!is_nolfcrspcl(first_char))
 		return false;
 
 	for (size_t i = 1; i < length; ++i)

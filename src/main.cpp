@@ -6,7 +6,7 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/13 11:55:56 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/13 12:37:19 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 #include <cctype>
 #include <cstdlib>
 #include <iostream>
+#include <cerrno>
+#include <climits>
 
 #define MINIMUM_PORT 1024
 #define MAXIMUM_PORT 49151
@@ -22,7 +24,7 @@
 /**
  * @brief check if the main arguments are correct
  *
- * The server can only use ports with numbers 1024-49151 that are registered ports;
+ * The server can only use ports with numbers 1024-49151 because that are registered ports;
  *
  * @param ac number of arguments
  * @param av arguments
@@ -35,16 +37,26 @@ inline static bool check_main_arguments(int const ac, char const *const *const a
 		std::cerr << "incorrect: number of arguments" << std::endl;
 		return false;
 	}
-	for (const char *p = av[1]; *p; ++p)
+	for (const char *it = av[1]; *it; ++it)
 	{
-		if (!isdigit(*p))
+		if (!isdigit(*it))
 		{
 			std::cerr << "incorrect: port must be only digit" << std::endl;
 			return false;
 		}
 	}
-	int const port = atoi(av[1]);
-	if (!(port >= MINIMUM_PORT && port <= MAXIMUM_PORT))
+
+	char *end_ptr;
+	errno = 0;
+	long int const port = strtol(av[1], &end_ptr, 10);
+
+	if ((errno == ERANGE && (port == LONG_MAX || port == LONG_MIN)) || (errno != 0 && port == 0))
+	{
+		std::cerr << "incorrect: port conversion error" << std::endl;
+		return false;
+	}
+	
+	if (*end_ptr != '\0' || !(port >= MINIMUM_PORT && port <= MAXIMUM_PORT))
 	{
 		std::cerr << "incorrect: port must be between 1024 and 49151" << std::endl;
 		return false;
@@ -58,6 +70,7 @@ inline static bool check_main_arguments(int const ac, char const *const *const a
 
 	return true;
 }
+
 int main(int const ac, char const *const *const av)
 {
 	srand(time(NULL));
