@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 09:27:45 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 15:38:16 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,10 @@
 
 // How many seconds since the last received message from a client the server will wait
 // before sending a PING to that client.
-#define TIMEOUT 180
+#define INACTIVITY_TIMEOUT 60
 // How many seconds since the last PING sent to a client the server will wait without receiving a PONG from that client
 // before disconnecting that client.
-#define TIMEOUT_SINCE_PING 15
+#define PING_TIMEOUT 15
 
 bool interrupted = false;
 
@@ -138,9 +138,17 @@ void Server::_receive_data_from_client(Client &client)
 		throw ProblemWithRecv();
 
 	if (client.get_has_been_pinged() == false)
-		client.set_last_msg_time(clock());
+		client.set_last_msg_time(time(NULL));
 	if (bytes_received == 0)
 		return this->_remove_client(client);
+
+#ifdef DEBUG
+	std::string buffer_as_string(buffer, bytes_received);
+
+	while (buffer_as_string.find("\r\n") != std::string::npos)
+		buffer_as_string.replace(buffer_as_string.find("\r\n"), 2, "\\r\\n");
+	std::cout << "Received [" << buffer_as_string << "] from " << client.get_nickname() << '\n';
+#endif
 	client.append_to_msg_in(std::string(buffer, bytes_received));
 }
 
@@ -192,19 +200,20 @@ inline static std::string const random_string(size_t len)
  */
 void Server::_check_time_of_last_msg(Client &client) const
 {
-	clock_t const time_since_last_msg = client.time_since_last_msg();
+	time_t const time_since_last_msg = client.time_since_last_msg();
 
 	if (client.get_has_been_pinged())
 	{
-		if (time_since_last_msg / CLOCKS_PER_SEC > TIMEOUT_SINCE_PING)
+		if (time_since_last_msg > PING_TIMEOUT)
 			client.set_mode(IsAboutToBeDisconnected);
 		return;
 	}
-	if (time_since_last_msg / CLOCKS_PER_SEC < TIMEOUT)
+
+	if (time_since_last_msg < INACTIVITY_TIMEOUT)
 		return;
 	client.set_ping_token(random_string(10));
 	client.set_has_been_pinged(true);
-	client.set_last_msg_time(clock());
+	client.set_last_msg_time(time(NULL));
 	client.append_to_msg_out(':' + this->_name + " PING " + client.get_ping_token());
 }
 
@@ -235,8 +244,8 @@ void Server::_remove_client(Client &client, std::string const &quit_msg)
 		this->_part(client, part_arguments);
 	}
 
-	if (this->_clients_by_nickname.erase(client.get_nickname()) != 0)
-		this->_clients_by_socket.erase(client.get_socket());
+	this->_clients_by_nickname.erase(client.get_nickname());
+	this->_clients_by_socket.erase(client.get_socket());
 }
 
 /**

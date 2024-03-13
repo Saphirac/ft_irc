@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:32:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:29:01 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 14:59:22 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,9 @@
  */
 void Server::_pong(Client &sender, std::vector<std::string> const &parameters)
 {
-	if (!sender.is_registered())
-		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
-
 	if (sender.get_has_been_pinged() == false || parameters.empty() || sender.get_ping_token() != parameters[0])
 		return;
 
 	sender.set_has_been_pinged(false);
-	sender.set_last_msg_time(clock());
+	sender.set_last_msg_time(time(NULL));
 }

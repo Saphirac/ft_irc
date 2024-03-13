@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 08:40:28 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 12:37:11 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,14 +221,21 @@ inline static void mode_for_user(Client &sender, std::vector<std::string> const 
 	{
 		std::string const modes_as_string = sender.get_modes().to_string();
 
-		return sender.append_formatted_reply_to_msg_out(RPL_UMODEIS, &nickname, &modes_as_string);
+		return sender.append_formatted_reply_to_msg_out(RPL_UMODEIS, &modes_as_string);
 	}
 
 	Client::Modes modes_to_be[2];
 
 	if (save_changes_for_user(sender.get_modes(), modes_to_be, parameters[1]))
 		return sender.append_formatted_reply_to_msg_out(ERR_UMODEUNKNOWNFLAG);
+
 	apply_changes_for_user(sender, modes_to_be);
+
+	bool const has_any_modes_to_be_set = modes_to_be[Set].has_any_mode_set();
+	bool const has_any_modes_to_be_cleared = modes_to_be[Cleared].has_any_mode_set();
+
+	if (!has_any_modes_to_be_set && !has_any_modes_to_be_cleared)
+		return;
 
 	std::string msg = sender.prefix() + "MODE " + sender.get_nickname();
 
@@ -1107,11 +1114,22 @@ inline static void mode_for_channel(
 		return sender.append_formatted_reply_to_msg_out(ERR_UNKNOWNMODE, *parsing_tools.current_character, &name);
 	}
 
+	bool const is_any_mode_to_be_set = modes_to_be[Set].has_any_mode_set();
+	bool const is_any_mode_to_be_cleared = modes_to_be[Cleared].has_any_mode_set();
+
+	if (!is_any_mode_to_be_set && !is_any_mode_to_be_cleared)
+		return;
+
 	apply_changes_for_channel(channel, modes_to_be);
 
-	channel.broadcast_to_all_members(
-		sender.prefix() + "MODE " + name + " +" + modes_to_be[Set].to_string(true, true, true) + " -"
-		+ modes_to_be[Cleared].to_string(true, true, true));
+	std::string msg = sender.prefix() + "MODE " + name;
+
+	if (is_any_mode_to_be_set)
+		msg += " +" + modes_to_be[Set].to_string(true, true, true);
+	if (is_any_mode_to_be_cleared)
+		msg += " -" + modes_to_be[Cleared].to_string(true, true, true);
+
+	channel.broadcast_to_all_members(msg);
 }
 #pragma endregion CHANNEL MODE
 

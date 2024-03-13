@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 10:34:55 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 12:43:00 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,10 +63,13 @@ inline static Channel *join_new_channel(
  */
 inline static Channel *join_existing_channel(
 	Client            &user,
-	Channel           &channel,
 	ChannelName const &chan_name,
+	Channel           &channel,
 	Key const         &key)
 {
+	if (channel.has_member(user))
+		return &channel;
+
 	size_t const member_count = channel.member_count();
 
 	if (channel.get_are_modes_supported())
@@ -167,8 +170,6 @@ void Server::_join(Client &sender, std::vector<std::string> const &parameters)
 		ChannelName const                             &channel_name = channel_key_pairs[i].first;
 		std::map<ChannelName, Channel>::iterator const channel_by_name = this->_channels_by_name.find(channel_name);
 
-		if (channel_by_name->second.has_member(sender))
-			continue;
 		if (sender.joined_channel_count() == MAXIMUM_NUMBER_OF_JOINED_CHANNELS_BY_USER)
 		{
 			sender.append_formatted_reply_to_msg_out(ERR_TOOMANYCHANNELS);
@@ -178,7 +179,7 @@ void Server::_join(Client &sender, std::vector<std::string> const &parameters)
 		Channel *const channel =
 			channel_by_name == this->_channels_by_name.end()
 				? join_new_channel(sender, channel_name, this->_channels_by_name)
-				: join_existing_channel(sender, channel_by_name->second, channel_name, channel_key_pairs[i].second);
+				: join_existing_channel(sender, channel_name, channel_by_name->second, channel_key_pairs[i].second);
 
 		if (!channel)
 			continue;
@@ -188,9 +189,9 @@ void Server::_join(Client &sender, std::vector<std::string> const &parameters)
 		channel->broadcast_to_all_members(sender.prefix() + "JOIN :" + channel_name);
 		sender.append_formatted_reply_to_msg_out(RPL_TOPIC, &channel_name, &channel->get_topic());
 
-		std::vector<std::string> names_arguments;
+		std::vector<std::string> names_arguments(1);
 
-		names_arguments.push_back(channel_name);
+		names_arguments[0] = channel_name;
 		this->_names(sender, names_arguments);
 	}
 }

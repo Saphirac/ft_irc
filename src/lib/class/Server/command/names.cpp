@@ -6,9 +6,13 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:26:59 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 08:42:11 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 13:43:48 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#ifdef DEBUG
+#	include <iostream>
+#endif
 
 #include "class/Server.hpp"
 #include "maximum_length_for_message.hpp"
@@ -27,7 +31,7 @@ typedef std::list<ChannelName> ChannelNameList;
  */
 inline static void list_channel_members(Client &client, ChannelName const &channel_name, Channel const &channel)
 {
-	std::string const prefixed_channel_name = "=" + channel_name;
+	std::string const prefixed_channel_name = "= " + channel_name;
 	size_t const maximum_length_for_members_as_string = MAXIMUM_LENGTH_FOR_MESSAGE - prefixed_channel_name.size() - 2;
 	std::string  members_as_string = channel.members_as_string();
 

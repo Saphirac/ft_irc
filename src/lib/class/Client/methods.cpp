@@ -6,16 +6,20 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 09:52:08 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 15:22:11 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#ifdef DEBUG
+#	include <iostream>
+#endif
 
 #include "class/Client.hpp"
 #include "class/exception/InvalidConversion.hpp"
 #include "class/exception/NotAFlag.hpp"
-#include "class/exception/ProblemWithClock.hpp"
 #include "class/exception/ProblemWithClose.hpp"
 #include "class/exception/ProblemWithSend.hpp"
+#include "class/exception/ProblemWithTime.hpp"
 #include "class/exception/UnknownReply.hpp"
 #include "maximum_length_for_message.hpp"
 #include "replies.hpp"
@@ -315,16 +319,16 @@ std::string Client::get_next_msg(void)
  *
  * @return The difference between the current time and the time of the last message.
  *
- * @throw `ProblemWithClock` if `clock()` fails.
+ * @throw `ProblemWithTime` if `time()` fails.
  */
-clock_t Client::time_since_last_msg(void) const
+time_t Client::time_since_last_msg(void) const
 {
-	clock_t const now = clock();
+	time_t const now = time(NULL);
 
 	if (now == -1)
-		throw ProblemWithClock();
+		throw ProblemWithTime();
 
-	return now - this->_last_msg_time;
+	return (now - this->_last_msg_time);
 }
 
 /**
@@ -486,7 +490,7 @@ inline static size_t convert_low_uint(
 {
 	std::stringstream ss;
 
-	ss << static_cast<Uint>(va_arg(args, uint32_t));
+	ss << static_cast<uint16_t>(static_cast<Uint>(va_arg(args, uint32_t)));
 
 	std::string const arg = ss.str();
 
@@ -655,6 +659,13 @@ void Client::send_msg_out(void)
 {
 	if (this->_msg_out.empty())
 		return;
+
+#ifdef DEBUG
+	std::string msg_out = this->_msg_out;
+
+	while (msg_out.find("\r\n") != std::string::npos) msg_out.replace(msg_out.find("\r\n"), 2, "\\r\\n");
+	std::cout << "Sending: [" << msg_out << "] to " << this->_nickname << '\n';
+#endif
 
 	if (send(this->_socket, this->_msg_out.c_str(), this->_msg_out.size(), 0) == -1)
 		throw ProblemWithSend();

@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:22 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 06:02:29 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 14:12:18 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ void Server::_nick(Client &sender, std::vector<std::string> const &parameters)
 
 	sender.append_to_msg_out(old_prefix + " NICK :" + nickname);
 
-	if (!was_registered)
+	if (!was_registered && sender.is_registered())
 		this->_welcome(sender);
 }
 // TODO: implement unit tests for this function

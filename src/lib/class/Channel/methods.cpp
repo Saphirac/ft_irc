@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 01:29:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 07:17:26 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 12:31:02 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,13 @@ bool Channel::Modes::Flags::is_set(ChannelMode const flag) const
 		throw NotAFlag();
 	}
 }
+
+/**
+ * @brief Checks whether any flag is set.
+ *
+ * @return `true` if any flag is set, `false` otherwise.
+ */
+bool Channel::Modes::Flags::has_any_flag_set(void) const { return this->_bits != 0; }
 
 /**
  * @return The string representation of the flags that are currently set.
@@ -258,6 +265,17 @@ bool Channel::Modes::has_invite_mask(NickName const &nickname) const
 bool Channel::Modes::has_ban_mask(NickName const &nickname) const
 {
 	return this->_ban_masks.find(nickname) != this->_ban_masks.end();
+}
+
+/**
+ * @brief Checks whether any mode is set.
+ *
+ * @return `true` if any mode is set, `false` otherwise.
+ */
+bool Channel::Modes::has_any_mode_set(void) const
+{
+	return this->_flags.has_any_flag_set() || this->is_set(Limit) || this->is_set(KeyProtected)
+	    || this->is_set(ChannelOperator) || this->is_set(InviteMask) || this->is_set(BanMask);
 }
 
 /**
