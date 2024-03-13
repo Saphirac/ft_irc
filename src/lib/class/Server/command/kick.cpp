@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   kick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:29:01 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 00:53:20 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,8 @@ inline static void kick_from_several_channels(
 	}
 }
 
+#include <iostream>
+
 void Server::_kick(Client &sender, std::vector<std::string> const &parameters)
 {
 	if (!sender.is_registered())
@@ -128,6 +130,15 @@ void Server::_kick(Client &sender, std::vector<std::string> const &parameters)
 	ChannelNameVector const channel_names = split<ChannelNameVector>(parameters[0], ',');
 	size_t const            channel_names_len = channel_names.size();
 	NickNameVector const    nicknames = split<NickNameVector>(parameters[1], ',');
+
+	#ifdef DEBUG
+		std::cout << "channel_names_len: " << channel_names_len << std::endl;
+		std::cout << "nicknames.size(): " << nicknames.size() << std::endl;
+		for (size_t i = 0; i < channel_names_len; ++i)
+			std::cout << "channel_names[" << i << "]: " << channel_names[i] << std::endl;
+		for (size_t i = 0; i < nicknames.size(); ++i)
+			std::cout << "nicknames[" << i << "]: " << nicknames[i] << std::endl;
+	#endif
 
 	if (channel_names_len != 1 && (nicknames.size() != channel_names_len))
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "KICK");

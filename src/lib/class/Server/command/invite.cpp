@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   invite.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:29:01 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 00:06:51 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,8 @@ void Server::_invite(Client &sender, std::vector<std::string> const &params)
 
 	if (channel_modes.is_set(InviteOnly) && !is_sender_operator)
 		return sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &sender_nickname);
+	if (channel_modes.has_ban_mask(target_nickname))
+		return sender.append_formatted_reply_to_msg_out(ERR_BANNEDFROMCHAN, &target_nickname);
 
 	Client::Modes const &user_modes = target.get_modes();
 
