@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 03:04:48 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/13 15:32:23 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/13 17:25:54 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
  * @return True if the Prefix instance is valid, false if it is either empty, does not
  * start with a colon, or contains an invalid server, nickname, user, or host structure.
  */
-bool Prefix::is_valid(void)
+bool Prefix::is_valid(void) const
 {
 	if (this->empty())
 		return true;
@@ -38,8 +38,6 @@ bool Prefix::is_valid(void)
 
 	if (!NickName(server_or_nick).is_valid())
 		return false;
-	
-	this->_sender = server_or_nick;
 
 	std::string const remaining = this->substr(end_server_or_nick + 1);
 
@@ -53,4 +51,9 @@ bool Prefix::is_valid(void)
 		return UserName(remaining.substr(0, at_pos)).is_valid() && HostName(remaining.substr(at_pos + 1)).is_valid();
 	}
 	return HostName(remaining).is_valid();
+}
+
+std::string const Prefix::who_is_sender(void) const 
+{
+	return this->substr(1, this->find_first_of("!@") - 1);
 }
