@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 19:01:27 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/15 00:07:23 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/15 00:51:47 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 #include <unistd.h>
 
 #define BUFFER_SIZE 4096
-#define TIMEOUT 5
+#define TIMEOUT 1
 
 /**
  * @brief the global variable to stop the bot
@@ -39,6 +39,7 @@ void Bot::_append_to_msg_in(std::string const &s) { this->_msg_in += s; }
 #define TERMINATING_SEQUENCE "\r\n"
 #define TERMINATING_SEQUENCE_LENGTH 2
 #define MAXIMUM_LENGTH_FOR_MESSAGE 512
+
 /**
  * @brief Get the first message in the input buffer of the Client instance.
  * A message is <= 512 characters and is suffixed with a CRLF sequence.
@@ -166,18 +167,21 @@ void Bot::_bot_routine(fd_set &read_fds, int &max_fd, timeval &timeout)
 			return;
 		}	
 		this->_append_to_msg_in(std::string(buffer, bytes_received));
+	}
 
-		std::string const raw_msg = this->_get_next_msg();
+	if (this->_msg_in.empty())
+		return ;
 
-		if (!raw_msg.empty())
-		{
-			Message const                     msg(raw_msg);
-			_CommandMap::const_iterator const command_by_name = this->_commands_by_name.find(msg.get_command());
+	std::string raw_msg;
 
-			if (command_by_name == this->_commands_by_name.end())
-				return ;
-			(this->*(command_by_name->second))(msg);
-		}
+	while (!(raw_msg = this->_get_next_msg()).empty())
+	{
+		Message const                     msg(raw_msg);
+		_CommandMap::const_iterator const command_by_name = this->_commands_by_name.find(msg.get_command());
+
+		if (command_by_name == this->_commands_by_name.end())
+			return ;
+		(this->*(command_by_name->second))(msg);
 	}
 }
 
