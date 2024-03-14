@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/14 15:21:40 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/03/14 18:30:16 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -196,6 +196,10 @@ LIB_SRC := \
 						methods \
 					} \
 					${addprefix NickName/, \
+						core \
+						methods \
+					} \
+					${addprefix Password/, \
 						core \
 						methods \
 					} \
