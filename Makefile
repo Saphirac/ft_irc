@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
+#    By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/11 03:23:24 by jodufour         ###   ########.fr        #
+#    Updated: 2024/03/13 11:33:51 by gle-mini         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -53,9 +53,6 @@ LIB_SRC := \
 				${addprefix Channel/, \
 					core \
 					methods \
-				} \
-				${addprefix Message/, \
-					core \
 				} \
 				${addprefix Client/, \
 					core \
@@ -187,6 +184,14 @@ LIB_SRC := \
 						core \
 						methods \
 					} \
+					${addprefix Password/, \
+						core \
+						methods \
+					} \
+					${addprefix Prefix/, \
+						core \
+						methods \
+					} \
 					${addprefix RealName/, \
 						core \
 					} \
@@ -199,10 +204,6 @@ LIB_SRC := \
 						methods \
 					} \
 					${addprefix UserName/, \
-						core \
-						methods \
-					} \
-					${addprefix Prefix/, \
 						core \
 						methods \
 					} \
