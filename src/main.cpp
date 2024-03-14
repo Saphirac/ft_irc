@@ -6,7 +6,7 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 17:05:50 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/14 17:38:20 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #include "class/specialized_string/Password.hpp"
 #include <cctype>
 #include <cerrno>
-#include <climits>
 #include <cstdlib>
 #include <iostream>
 
