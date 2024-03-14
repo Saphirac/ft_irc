@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 03:04:48 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/13 17:25:54 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 18:50:23 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,11 @@ bool Prefix::is_valid(void) const
 	return HostName(remaining).is_valid();
 }
 
+/**
+ * @brief Extracts the sender from the prefix and gives it back as string
+ * 
+ * @return the sender as a string
+ */
 std::string const Prefix::who_is_sender(void) const 
 {
 	return this->substr(1, this->find_first_of("!@") - 1);

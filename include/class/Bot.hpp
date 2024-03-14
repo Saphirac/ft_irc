@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 18:56:18 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 18:08:14 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 18:49:11 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 class Bot
 {
 public:
+
 	Bot(int const port = 0, std::string const &password = "");
 
 	~Bot();
