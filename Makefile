@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+         #
+#    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/13 11:33:51 by gle-mini         ###   ########.fr        #
+#    Updated: 2024/03/14 22:46:06 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ MKDIR := ${shell which mkdir} -p
 ######################################
 #             EXECUTABLE             #
 ######################################
-NAME := ft_irc
+NAME := ircserv
 
 #######################################
 #               LIBRARY               #
@@ -75,10 +75,6 @@ LIB_SRC := \
 						core \
 						methods \
 					} \
-					${addprefix ProblemWithClock/, \
-						core \
-						methods \
-					} \
 					${addprefix ProblemWithClose/, \
 						core \
 						methods \
@@ -111,6 +107,10 @@ LIB_SRC := \
 						core \
 						methods \
 					} \
+					${addprefix ProblemWithSetSockOpt/, \
+						core \
+						methods \
+					} \
 					${addprefix ProblemWithSocket/, \
 						core \
 						methods \
@@ -127,6 +127,10 @@ LIB_SRC := \
 						core \
 						methods \
 					} \
+					${addprefix UserNotOnChannel/, \
+						core \
+						methods \
+					} \
 				} \
 				${addprefix Message/, \
 					core \
@@ -136,7 +140,6 @@ LIB_SRC := \
 						away \
 						cap \
 						die \
-						error \
 						info \
 						invite \
 						ison \
@@ -194,6 +197,7 @@ LIB_SRC := \
 					} \
 					${addprefix RealName/, \
 						core \
+						methods \
 					} \
 					${addprefix Topic/, \
 						core \
@@ -223,6 +227,7 @@ LIB_DEP := ${LIB_OBJ:.o=.d}
 #######################################
 #                FLAGS                #
 #######################################
+	
 CXXFLAGS = \
 	-c \
 	-Wall \
@@ -238,7 +243,7 @@ CXXFLAGS = \
 	-I${INC_DIR}
 
 ifeq (${DEBUG}, 1)
-	CXXFLAGS += -gdwarf-4 -DDEBUG=1
+	CXXFLAGS += -gdwarf-4 -DDEBUG
 endif
 
 #######################################

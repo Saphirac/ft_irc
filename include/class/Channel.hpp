@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 00:23:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 22:20:20 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 12:22:52 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "class/specialized_string/ChannelName.hpp"
 #include "class/specialized_string/Key.hpp"
 #include "class/specialized_string/Topic.hpp"
+#include <map>
 #include <set>
 #include <stdint.h>
 
@@ -46,11 +47,11 @@ public:
 		// Methods
 		void set(ChannelMode const mode, void const *const arg = NULL);
 		void clear(ChannelMode const mode, void const *const arg = NULL);
-
 		bool is_set(ChannelMode const mode) const;
 		bool has_operator(Client const &client) const;
 		bool has_invite_mask(NickName const &nickname) const;
 		bool has_ban_mask(NickName const &nickname) const;
+		bool has_any_mode_set(void) const;
 
 		std::string to_string(
 			bool const include_operators = false,
@@ -72,6 +73,7 @@ public:
 			void set(ChannelMode const mode);
 			void clear(ChannelMode const mode);
 			bool is_set(ChannelMode const mode) const;
+			bool has_any_flag_set(void) const;
 
 			std::string to_string(void) const;
 
@@ -83,37 +85,60 @@ public:
 			_BitField _bits;
 		};
 
+		// Types
+		typedef std::set<Client const *> _OperatorSet;
+		typedef std::set<NickName>       _MaskSet;
+
 		// Fields
-		Flags                    _flags;
-		size_t                   _limit;
-		Key                      _key;
-		std::set<Client const *> _operators;
-		std::set<NickName>       _invite_masks;
-		std::set<NickName>       _ban_masks;
+		Flags        _flags;
+		size_t       _limit;
+		Key          _key;
+		_OperatorSet _operators;
+		_MaskSet     _invite_masks;
+		_MaskSet     _ban_masks;
 	};
 
 	// Constructors
-	Channel(void);
+	Channel(bool const are_modes_supported = true);
 
 	// Destructor
 	~Channel(void);
 
 	// Accessors
 	Topic const          &get_topic(void) const;
+	bool                  get_are_modes_supported(void) const;
 	Channel::Modes const &get_modes(void) const;
+
+	// Setters
+
+	void set_topic(Topic const &topic);
 
 	// Methods
 	void set_mode(ChannelMode const mode, void const *const arg = NULL);
 	void clear_mode(ChannelMode const mode, void const *const arg = NULL);
 
-	void add_member(Client &client);
-	void remove_member(Client &client);
-	bool has_member(Client &client) const;
-	void broadcast_to_all_members(std::string const &msg) const;
+	void        add_member(Client &user);
+	void        remove_member(Client &user);
+	bool        has_member(Client &user) const;
+	size_t      member_count(void) const;
+	std::string members_as_string(void) const;
+	void        broadcast_to_all_members(std::string const &msg) const;
+	void        broadcast_to_all_members_but_one(std::string const &msg, Client &user) const;
+
+	void add_invited_user(Client const &user, bool const is_invited_by_operator = false);
+	void remove_invited_user(Client const &user);
+	bool has_invited_user(Client const &user) const;
+	bool has_invited_user_by_operator(Client const &user) const;
 
 private:
+	// Types
+	typedef std::set<Client *>                   _MemberSet;
+	typedef std::map<Client const *, bool const> _InvitedUserMap;
+
 	// Fields
-	Topic              _topic;
-	Modes              _modes;
-	std::set<Client *> _members;
+	Topic           _topic;
+	bool            _are_modes_supported;
+	Modes           _modes;
+	_MemberSet      _members;
+	_InvitedUserMap _invited_users;
 };

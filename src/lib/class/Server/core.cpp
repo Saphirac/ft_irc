@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 05:03:59 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 23:55:53 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "class/exception/ProblemWithEpollCreate1.hpp"
 #include "class/exception/ProblemWithEpollCtl.hpp"
 #include "class/exception/ProblemWithListen.hpp"
+#include "class/exception/ProblemWithSetSockOpt.hpp"
 #include "class/exception/ProblemWithSocket.hpp"
 #include "class/exception/ProblemWithStrftime.hpp"
 #include "class/exception/ProblemWithTime.hpp"
@@ -27,8 +28,7 @@ extern bool interrupted;
 // Shared fields //
 
 static std::string const raw_operator_hosts[] = {
-	// TODO: replace this with the actual operator hosts
-	"tmp",
+	"localhost",
 };
 std::set<std::string> const Server::_operator_hosts = std::set<std::string>(
 	raw_operator_hosts,
@@ -43,19 +43,20 @@ std::map<std::string, std::string const> const Server::_operator_ids = std::map<
 	raw_operator_ids,
 	raw_operator_ids + sizeof(raw_operator_ids) / sizeof(*raw_operator_ids));
 
-Server::CommandPair const Server::_raw_commands_by_name[] = {
+Server::_CommandPair const Server::_raw_commands_by_name[] = {
 	// TODO: add missing commands
-	std::make_pair("AWAY", &Server::_away),
-	std::make_pair("CAP", &Server::_cap),
-	std::make_pair("MODE", &Server::_mode),
-	std::make_pair("NICK", &Server::_nick),
-	std::make_pair("PING", &Server::_ping),
-	std::make_pair("PONG", &Server::_pong),
-	std::make_pair("OPER", &Server::_oper),
-	std::make_pair("PASS", &Server::_pass),
+	std::make_pair("AWAY", &Server::_away),     std::make_pair("CAP", &Server::_cap),
+	std::make_pair("INVITE", &Server::_invite), std::make_pair("JOIN", &Server::_join),
+	std::make_pair("KICK", &Server::_kick),     std::make_pair("LIST", &Server::_list),
+	std::make_pair("MODE", &Server::_mode),     std::make_pair("NAMES", &Server::_names),
+	std::make_pair("NICK", &Server::_nick),     std::make_pair("NOTICE", &Server::_notice),
+	std::make_pair("OPER", &Server::_oper),     std::make_pair("PART", &Server::_part),
+	std::make_pair("PASS", &Server::_pass),     std::make_pair("PING", &Server::_ping),
+	std::make_pair("PONG", &Server::_pong),     std::make_pair("PRIVMSG", &Server::_privmsg),
+	std::make_pair("QUIT", &Server::_quit),     std::make_pair("TOPIC", &Server::_topic),
 	std::make_pair("USER", &Server::_user),
 };
-Server::CommandMap const Server::_commands_by_name = CommandMap(
+Server::_CommandMap const Server::_commands_by_name = _CommandMap(
 	_raw_commands_by_name,
 	_raw_commands_by_name + sizeof(_raw_commands_by_name) / sizeof(*_raw_commands_by_name));
 
@@ -161,6 +162,7 @@ Server::Server(int const port, std::string const &name, std::string const &passw
 	_epoll_socket(epoll_create1(0)),
 	_sock_addr(new_sockaddr_in(AF_INET, htons(port), INADDR_ANY)),
 	_name(name),
+	_version("0.0"),
 	_password(password),
 	_compilation_date(__DATE__),
 	_compilation_time(__TIME__),
@@ -173,10 +175,15 @@ Server::Server(int const port, std::string const &name, std::string const &passw
 	if (this->_socket == -1)
 		throw ProblemWithSocket();
 
+	int optval = 1;
+
+	if (setsockopt(this->_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
+		throw ProblemWithSetSockOpt();
+
 	if (this->_epoll_socket == -1)
 		throw ProblemWithEpollCreate1();
 
-	if (bind(this->_socket, (struct sockaddr *)&this->_sock_addr, sizeof(this->_sock_addr)) == -1)
+	if (bind(this->_socket, reinterpret_cast<sockaddr const *>(&this->_sock_addr), sizeof(this->_sock_addr)) == -1)
 		throw ProblemWithBind();
 
 	if (listen(this->_socket, 10) == -1)

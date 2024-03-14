@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 05:46:54 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 14:54:05 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,6 @@ class ChannelName;
 class Client
 {
 public:
-	// Shared fields
-	static std::string const _default_quit_msg;
-
 	// Nested classes
 	class Modes
 	{
@@ -48,6 +45,7 @@ public:
 		void set(UserMode const mode, void const *const arg = NULL);
 		void clear(UserMode const mode);
 		bool is_set(UserMode const mode) const;
+		bool has_any_mode_set(void) const;
 
 		std::string to_string(void) const;
 
@@ -66,6 +64,7 @@ public:
 			void set(UserMode const mode);
 			void clear(UserMode const mode);
 			bool is_set(UserMode const mode) const;
+			bool has_any_flag_set(void) const;
 
 			std::string to_string(void) const;
 
@@ -82,6 +81,9 @@ public:
 		std::string _away_msg;
 	};
 
+	// Types
+	typedef std::map<ChannelName, Channel const *const> JoinedChannelMap;
+
 	// Constructors
 	Client(
 		int const       socket = -1,
@@ -94,16 +96,17 @@ public:
 	~Client(void);
 
 	// Accessors
-	int                  get_socket(void) const;
-	bool                 get_has_been_pinged(void) const;
-	std::string const   &get_ping_token(void) const;
-	NickName const      &get_nickname(void) const;
-	HostName const      &get_hostname(void) const;
-	Client::Modes const &get_modes(void) const;
+	int                     get_socket(void) const;
+	bool                    get_has_been_pinged(void) const;
+	std::string const      &get_ping_token(void) const;
+	NickName const         &get_nickname(void) const;
+	HostName const         &get_hostname(void) const;
+	Client::Modes const    &get_modes(void) const;
+	JoinedChannelMap const &get_joined_channels_by_name(void) const;
 
 	// Mutators
 	void set_socket(int const socket);
-	void set_last_msg_time(clock_t const time);
+	void set_last_msg_time(time_t const time);
 	void set_has_been_pinged(bool const has_been_pinged);
 	void set_ping_token(std::string const &ping_token);
 	void set_nickname(NickName const &nickname);
@@ -114,7 +117,9 @@ public:
 	// Methods
 	void        append_to_msg_in(std::string const &s);
 	std::string get_next_msg(void);
-	clock_t     time_since_last_msg(void) const;
+	time_t      time_since_last_msg(void) const;
+
+	bool is_registered(void) const;
 
 	std::string prefix(void) const;
 	void        append_formatted_reply_to_msg_out(int const reply_number...);
@@ -127,6 +132,10 @@ public:
 
 	std::string user_mask(void) const;
 
+	void   join_channel(ChannelName const &chan_name, Channel const &channel);
+	void   leave_channel(ChannelName const &chan_name);
+	size_t joined_channel_count(void) const;
+
 	void disconnect(void);
 
 private:
@@ -134,7 +143,7 @@ private:
 	int         _socket;
 	std::string _msg_in;
 	std::string _msg_out;
-	clock_t     _last_msg_time;
+	time_t      _last_msg_time;
 	bool        _has_been_pinged;
 	std::string _ping_token;
 
@@ -144,5 +153,5 @@ private:
 	RealName      _realname;
 	Client::Modes _modes;
 
-	std::map<ChannelName, Channel *const> _joined_channels_by_name;
+	JoinedChannelMap _joined_channels_by_name;
 };

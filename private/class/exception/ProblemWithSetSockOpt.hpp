@@ -1,28 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   NickName.hpp                                       :+:      :+:    :+:   */
+/*   ProblemWithSetSockOpt.hpp                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/16 03:36:23 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 04:30:04 by jodufour         ###   ########.fr       */
+/*   Created: 2024/03/12 04:59:00 by jodufour          #+#    #+#             */
+/*   Updated: 2024/03/12 05:00:25 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include <string>
+#include <exception>
 
-class NickName : public std::string
+class ProblemWithSetSockOpt : public std::exception
 {
 public:
 	// Constructors
-	NickName(std::string const &nickname = "*");
+	ProblemWithSetSockOpt(void) throw();
 
 	// Destructor
-	~NickName(void);
+	virtual ~ProblemWithSetSockOpt(void) throw();
 
 	// Methods
-	bool is_valid(void) const;
+	virtual char const *what(void) const throw();
 };

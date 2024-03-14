@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 17:38:20 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/14 22:46:14 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,12 +80,13 @@ int main(int const ac, char const *const *const av)
 
 	try
 	{
-		Server(atoi(av[1]), "MyServer", std::string(av[2])).start();
+		Server(atoi(av[1]), "PharmacIRC", std::string(av[2])).start();
 	}
 	catch (std::exception const &e)
 	{
 		std::cerr << e.what() << std::endl;
 		return 1;
 	}
+
 	return 0;
 }

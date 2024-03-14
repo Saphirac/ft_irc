@@ -6,9 +6,13 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 05:29:50 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 02:40:43 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#ifdef DEBUG
+#	include <iostream>
+#endif
 
 #include "class/Message.hpp"
 #include "class/Server.hpp"
@@ -24,10 +28,10 @@
 
 // How many seconds since the last received message from a client the server will wait
 // before sending a PING to that client.
-#define TIMEOUT 180
+#define INACTIVITY_TIMEOUT 60
 // How many seconds since the last PING sent to a client the server will wait without receiving a PONG from that client
 // before disconnecting that client.
-#define TIMEOUT_SINCE_PING 15
+#define PING_TIMEOUT 15
 
 bool interrupted = false;
 
@@ -45,42 +49,13 @@ void Server::start(void)
 			Client &client = it->second;
 
 			this->_compute_next_msg_for_a_client(client);
+			this->_check_time_of_last_msg(client);
 			client.send_msg_out();
-			// TODO: check if the client connection is still active.
 			++it;
 			if (client.has_mode(IsAboutToBeDisconnected))
 				this->_remove_client(client);
 		}
 	}
-}
-
-/**
- * @brief Copies a given Client instance to the list of known clients.
- *
- * @param client The Client instance to copy.
- *
- * @throw `std::exception` if a function of the C++ standard library critically fails.
- */
-void Server::_add_client(Client const &client)
-{
-	std::pair<std::map<int, Client>::iterator, bool> ret =
-		this->_clients_by_socket.insert(std::make_pair(client.get_socket(), client));
-
-	if (ret.second)
-		this->_clients_by_nickname.insert(std::make_pair(client.get_nickname(), &ret.first->second));
-}
-
-/**
- * @brief Removes a client from the list of known clients.
- *
- * @param client The Client instance to remove.
- *
- * @throw `ProblemWithClose` if `close()` fails.
- */
-void Server::_remove_client(Client const &client)
-{
-	if (this->_clients_by_nickname.erase(client.get_nickname()) != 0)
-		this->_clients_by_socket.erase(client.get_socket());
 }
 
 #define EPOLL_WAIT_TIMEOUT 100
@@ -99,9 +74,9 @@ void Server::_remove_client(Client const &client)
 void Server::_handle_epoll_events(void)
 {
 	int         fds_ready;
-	epoll_event events[MAX_CLIENTS];
+	epoll_event events[MAXIMUM_NUMBER_OF_CLIENTS];
 
-	fds_ready = epoll_wait(this->_epoll_socket, events, MAX_CLIENTS, EPOLL_WAIT_TIMEOUT);
+	fds_ready = epoll_wait(this->_epoll_socket, events, MAXIMUM_NUMBER_OF_CLIENTS, EPOLL_WAIT_TIMEOUT);
 	if (fds_ready == -1)
 		throw ProblemWithEpollWait();
 
@@ -163,9 +138,17 @@ void Server::_receive_data_from_client(Client &client)
 		throw ProblemWithRecv();
 
 	if (client.get_has_been_pinged() == false)
-		client.set_last_msg_time(clock());
+		client.set_last_msg_time(time(NULL));
 	if (bytes_received == 0)
 		return this->_remove_client(client);
+
+#ifdef DEBUG
+	std::string buffer_as_string(buffer, bytes_received);
+
+	while (buffer_as_string.find("\r\n") != std::string::npos)
+		buffer_as_string.replace(buffer_as_string.find("\r\n"), 2, "\\r\\n");
+	std::cout << "Received [" << buffer_as_string << "] from " << client.get_nickname() << '\n';
+#endif
 	client.append_to_msg_in(std::string(buffer, bytes_received));
 }
 
@@ -184,9 +167,9 @@ void Server::_compute_next_msg_for_a_client(Client &client)
 
 	if (!raw_msg.empty())
 	{
-		Message const         msg(raw_msg);
-		std::string const    &command_name = msg.get_command();
-		CommandIterator const command_by_name = this->_commands_by_name.find(command_name);
+		Message const                     msg(raw_msg);
+		std::string const                &command_name = msg.get_command();
+		_CommandMap::const_iterator const command_by_name = this->_commands_by_name.find(command_name);
 
 		if (command_by_name == this->_commands_by_name.end())
 			client.append_formatted_reply_to_msg_out(ERR_UNKNOWNCOMMAND, &command_name);
@@ -208,35 +191,89 @@ inline static std::string const random_string(size_t len)
 
 /**
  * @brief
- * Check the time of last activity of each clients, if that time delay is greater than TIMEOUT, send a PING and
- * set the has_been_pinged flag to true
- * If the client has been pinged and the time delay is greater than TIMEOUT_SINCE_PING, disconnect the client
+ * Checks whether a client connection is still alive by checking the time since the last message was received,
+ * and sending a PING if necessary.
  *
- * @throw disconnect() can throw ProblemWithClose() if the close() function fails.
+ * @param client The client for which the connection will be checked.
+ *
+ * @throw `ProblemWithClose` if `close()` fails.
  */
-void Server::_check_time_of_last_msg(void)
+void Server::_check_time_of_last_msg(Client &client) const
 {
-	std::map<int, Client>::iterator const end = this->_clients_by_socket.end();
+	time_t const time_since_last_msg = client.time_since_last_msg();
 
-	for (std::map<int, Client>::iterator client_by_socket = this->_clients_by_socket.begin(); client_by_socket != end;
-	     ++client_by_socket)
+	if (client.get_has_been_pinged())
 	{
-		Client &client = client_by_socket->second;
-
-		if (client.get_has_been_pinged())
-		{
-			if (client.time_since_last_msg() / CLOCKS_PER_SEC < TIMEOUT_SINCE_PING)
-				continue;
+		if (time_since_last_msg > PING_TIMEOUT)
 			client.set_mode(IsAboutToBeDisconnected);
-		}
-		else
-		{
-			if (client.time_since_last_msg() / CLOCKS_PER_SEC < TIMEOUT)
-				continue;
-			client.set_ping_token(random_string(10));
-			client.set_has_been_pinged(true);
-			client.set_last_msg_time(clock());
-			client.append_to_msg_out(':' + this->_name + " PING " + client.get_ping_token());
-		}
+		return;
 	}
+
+	if (time_since_last_msg < INACTIVITY_TIMEOUT)
+		return;
+	client.set_ping_token(random_string(10));
+	client.set_has_been_pinged(true);
+	client.set_last_msg_time(time(NULL));
+	client.append_to_msg_out(':' + this->_name + " PING " + client.get_ping_token());
+}
+
+/**
+ * @brief
+ * Makes a client leave all their joined channels using PART,
+ * close their connection, and removes them from the list of known clients.
+ *
+ * @param client The client to remove.
+ * @param part_text The PART text to send to the channels in which the user is joined.
+ *
+ * @throw `ProblemWithClose` if `close()` fails.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+void Server::_remove_client(Client &client, std::string const &part_text)
+{
+	this->_make_client_leave_all_their_joined_channels(client, part_text);
+	this->_clients_by_nickname.erase(client.get_nickname());
+	this->_clients_by_socket.erase(client.get_socket());
+}
+
+/**
+ * @brief Sends the welcome message to a client that registered.
+ *
+ * @param client The client that registered.
+ */
+void Server::_welcome(Client &client) const
+{
+	std::string const user_mask = client.user_mask();
+
+	client.append_formatted_reply_to_msg_out(RPL_WELCOME, &user_mask);
+	client.append_formatted_reply_to_msg_out(RPL_YOURHOST, &this->_name, &this->_version);
+	client.append_formatted_reply_to_msg_out(RPL_CREATED, &this->_creation_date);
+	client.append_formatted_reply_to_msg_out(RPL_MYINFO, &this->_name, &this->_version, USER_MODES, CHANNEL_MODES);
+}
+
+/**
+ * @brief Makes a user leave all their joined channels using the PART command.
+ *
+ * @param user The user that will leave all their joined channels.
+ * @param part_text The PART text to send to the channels in which the user is joined.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+void Server::_make_client_leave_all_their_joined_channels(Client &client, std::string const &part_text)
+{
+	Client::JoinedChannelMap const &joined_channels_by_name = client.get_joined_channels_by_name();
+
+	if (joined_channels_by_name.empty())
+		return;
+
+	Client::JoinedChannelMap::const_iterator joined_channel_by_name = joined_channels_by_name.begin();
+	std::string                              channels_to_leave = joined_channel_by_name->first;
+
+	while (++joined_channel_by_name != joined_channels_by_name.end())
+		channels_to_leave += ',' + joined_channel_by_name->first;
+
+	CommandParameterVector part_arguments(2);
+
+	part_arguments[0] = channels_to_leave;
+	part_arguments[1] = part_text;
+	this->_part(client, part_arguments);
 }
