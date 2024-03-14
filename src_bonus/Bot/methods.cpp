@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 19:01:27 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 18:28:15 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 22:32:37 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,8 +77,6 @@ void Bot::_privmsg(Message const &msg)
 	if (msg.get_parameters().size() < 2)
 		return;
 
-	std::string const first_param = remove_crlf(msg.get_parameters()[0]);
-	std::string const second_param = remove_crlf(msg.get_parameters()[1]);
 	std::string const sender = is_channel(first_param) ? first_param : msg.get_prefix().who_is_sender();
 
 	if (!second_param.empty())
@@ -99,7 +97,7 @@ void Bot::_privmsg(Message const &msg)
  */
 void Bot::_ping(Message const &msg)
 {
-	std::string const response = "PONG " + msg.get_parameters()[0];
+	std::string const response = "PONG " + msg.get_parameters()[0] + "\r\n";
 
 	if (send(this->_socket, response.c_str(), response.size(), 0) < 0)
 		throw ProblemWithSend();
@@ -112,7 +110,7 @@ void Bot::_ping(Message const &msg)
  */
 void Bot::_invite(Message const &msg)
 {
-	std::string const response = "JOIN " + msg.get_parameters()[1];
+	std::string const response = "JOIN " + msg.get_parameters()[1] + "\r\n";
 	
 	if (send(this->_socket, response.c_str(), response.size(), 0) < 0)
 		throw ProblemWithSend();
@@ -147,7 +145,7 @@ void Bot::_bot_routine(fd_set &read_fds, int &max_fd, timeval &timeout)
 		}
 		else
 		{
-			Message               msg((std::string(buffer, received)));
+			Message               msg(remove_crlf(std::string(buffer, received)));
 			CommandIterator const command_by_name = this->_commands_by_name.find(msg.get_command());
 
 			if (command_by_name == this->_commands_by_name.end())
