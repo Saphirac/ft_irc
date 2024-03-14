@@ -6,11 +6,13 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 19:56:37 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 00:52:50 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 14:11:01 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+#include <string>
 
 /**
  * @brief Splits a string into substrings using a delimiter
@@ -28,18 +30,15 @@ template<typename SequenceCollection>
 SequenceCollection split(std::string const &s, char const delimiter)
 {
 	SequenceCollection result;
-	std::string        str = s; //"moha est le boss";
-	size_t             begin = str.find_first_not_of(delimiter);
-	size_t             end = str.find_first_of(delimiter, begin);
+	size_t             begin = s.find_first_not_of(delimiter);
+	size_t             end = s.find_first_of(delimiter, begin);
 
-	while (end != std::string::npos)
+	while (begin != std::string::npos)
 	{
-		result.push_back(str.substr(begin, end - begin));
-		str.erase(begin, end - begin + 1);
-		begin = str.find_first_not_of(delimiter);
-		end = str.find(delimiter, begin);
+		result.push_back(s.substr(begin, end - begin));
+		begin = s.find_first_not_of(delimiter, end);
+		end = s.find_first_of(delimiter, begin);
 	}
-	if (begin != std::string::npos)
-		result.push_back(str.substr(begin));
+
 	return result;
 }
