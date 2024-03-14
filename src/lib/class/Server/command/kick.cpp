@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 02:10:58 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 00:22:07 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,24 +15,12 @@
 #include "split.hpp"
 #include <list>
 
-#define DEFAULT_KICK_MSG "You have been kicked from the channel"
+#define DEFAULT_KICK_TEXT "Move, bitch, get out da way!"
 
 typedef std::list<ChannelName> ChannelNameList;
 typedef std::list<NickName>    NickNameList;
 
-inline static void kick_user(
-	Client const      &sender,
-	ChannelName const &channel_name,
-	Channel           &channel,
-	NickName const    &target_nickname,
-	Client            &target,
-	std::string const &comment)
-{
-	channel.broadcast_to_all_members(sender.prefix() + "KICK " + channel_name + ' ' + target_nickname + " :" + comment);
-	target.leave_channel(channel_name);
-	channel.remove_member(target);
-}
-
+// TODO: write the doxygen comment for this function
 inline static void kick_serveral_users_from_one_channel(
 	Server::ClientMap const &users_by_nickname,
 	Server::ChannelMap      &channels_by_name,
@@ -63,12 +51,18 @@ inline static void kick_serveral_users_from_one_channel(
 
 		Client &target = *user_by_nickname->second;
 
-		channel.has_member(target)
-			? kick_user(sender, channel_name, channel, *nickname, target, comment)
-			: sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &*nickname, &channel_name);
+		if (channel.has_member(target))
+			make_user_leave_channel(
+				channels_by_name,
+				target,
+				channel_name,
+				sender.prefix() + "KICK " + channel_name + ' ' + *nickname + " :" + comment);
+		else
+			sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &*nickname, &channel_name);
 	}
 }
 
+// TODO: write the doxygen comment for this function
 inline static void kick_several_user_from_several_channels(
 	Server::ClientMap const &users_by_nickname,
 	Server::ChannelMap      &channels_by_name,
@@ -92,7 +86,7 @@ inline static void kick_several_user_from_several_channels(
 
 			if (user_by_nickname == users_by_nickname.end())
 			{
-				sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &*nickname, &channel_name);
+				sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &*nickname, &*channel_name);
 				continue;
 			}
 
@@ -100,15 +94,20 @@ inline static void kick_several_user_from_several_channels(
 			Client  &target = *user_by_nickname->second;
 
 			if (!channel.get_modes().has_operator(sender))
-				sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &channel_name);
+				sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &*channel_name);
 			else if (!channel.has_member(target))
-				sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &*nickname, &channel_name);
+				sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &*nickname, &*channel_name);
 			else
-				kick_user(sender, *channel_name, channel, *nickname, target, comment);
+				make_user_leave_channel(
+					channels_by_name,
+					target,
+					*channel_name,
+					sender.prefix() + "KICK " + *channel_name + ' ' + *nickname + " :" + comment);
 		}
 	}
 }
 
+// TODO: write the doxygen comment for this function
 inline static void kick_one_client_from_several_channels(
 	Server::ClientMap const &users_by_nickname,
 	Server::ChannelMap      &channels_by_name,
@@ -147,7 +146,11 @@ inline static void kick_one_client_from_several_channels(
 		else if (!channel.has_member(target))
 			sender.append_formatted_reply_to_msg_out(ERR_USERNOTONCHANNEL, &nickname, &*channel_name);
 		else
-			kick_user(sender, *channel_name, channel, nickname, target, comment);
+			make_user_leave_channel(
+				channels_by_name,
+				target,
+				*channel_name,
+				sender.prefix() + "KICK " + *channel_name + ' ' + nickname + " :" + comment);
 	}
 }
 
@@ -190,7 +193,7 @@ void Server::_kick(Client &sender, CommandParameterVector const &parameters)
 			sender,
 			channel_names,
 			nicknames,
-			parameters_len > 2 ? parameters[2] : DEFAULT_KICK_MSG);
+			parameters_len > 2 ? parameters[2] : DEFAULT_KICK_TEXT);
 	}
 	if (channel_names_len == 1)
 		return kick_serveral_users_from_one_channel(
@@ -199,12 +202,12 @@ void Server::_kick(Client &sender, CommandParameterVector const &parameters)
 			sender,
 			channel_names.front(),
 			nicknames,
-			parameters_len > 2 ? parameters[2] : DEFAULT_KICK_MSG);
+			parameters_len > 2 ? parameters[2] : DEFAULT_KICK_TEXT);
 	return kick_one_client_from_several_channels(
 		this->_clients_by_nickname,
 		this->_channels_by_name,
 		sender,
 		channel_names,
 		nicknames.front(),
-		parameters_len > 2 ? parameters[2] : DEFAULT_KICK_MSG);
+		parameters_len > 2 ? parameters[2] : DEFAULT_KICK_TEXT);
 }

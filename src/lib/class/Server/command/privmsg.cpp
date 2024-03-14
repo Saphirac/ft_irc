@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:52 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 00:13:37 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 23:24:47 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,20 @@ void Server::_privmsg(Client &sender, CommandParameterVector const &parameters)
 			ChannelMap::const_iterator const channel_by_name = this->_channels_by_name.find(channel_name);
 
 			if (channel_by_name == this->_channels_by_name.end())
-				return sender.append_formatted_reply_to_msg_out(ERR_CANNOTSENDTOCHAN, &channel_name);
+			{
+				sender.append_formatted_reply_to_msg_out(ERR_NOSUCHNICK, &channel_name);
+				continue;
+			}
+
+			Channel const        &channel = channel_by_name->second;
+			Channel::Modes const &channel_modes = channel.get_modes();
+
+			if (channel_modes.has_ban_mask(sender.get_nickname())
+			    || (channel_modes.is_set(NoMessagesFromOutside) && !channel.has_member(sender)))
+			{
+				sender.append_formatted_reply_to_msg_out(ERR_CANNOTSENDTOCHAN, &channel_name);
+				continue;
+			}
 
 			privmsg_to_channel(sender, channel_name, channel_by_name->second, parameters[1]);
 		}
@@ -80,7 +93,10 @@ void Server::_privmsg(Client &sender, CommandParameterVector const &parameters)
 			ClientMap::const_iterator client_by_nickname = this->_clients_by_nickname.find(nickname);
 
 			if (client_by_nickname == this->_clients_by_nickname.end())
-				return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHNICK, &nickname);
+			{
+				sender.append_formatted_reply_to_msg_out(ERR_NOSUCHNICK, &nickname);
+				continue;
+			}
 
 			privmsg_to_user(sender, nickname, *client_by_nickname->second, parameters[1]);
 		}

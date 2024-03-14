@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 15:22:11 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 18:29:44 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -663,8 +663,9 @@ void Client::send_msg_out(void)
 #ifdef DEBUG
 	std::string msg_out = this->_msg_out;
 
-	while (msg_out.find("\r\n") != std::string::npos) msg_out.replace(msg_out.find("\r\n"), 2, "\\r\\n");
-	std::cout << "Sending: [" << msg_out << "] to " << this->_nickname << '\n';
+	while (msg_out.find("\r\n") != std::string::npos)
+		msg_out.replace(msg_out.find("\r\n"), 2, "\033[37m\\r\\n\033[0m\n\t");
+	std::cout << this->_nickname << ": Sending: [\n\t" << msg_out << std::string(4, '\b') << "]\n";
 #endif
 
 	if (send(this->_socket, this->_msg_out.c_str(), this->_msg_out.size(), 0) == -1)
@@ -710,7 +711,7 @@ std::string Client::user_mask(void) const { return this->_nickname + '!' + this-
  *
  * @param channel The channel to add.
  */
-void Client::join_channel(ChannelName const &channel_name, Channel const &channel)
+void Client::join_channel(ChannelName const &channel_name, Channel &channel)
 {
 	this->_joined_channels_by_name.insert(std::make_pair(channel_name, &channel));
 }

@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:26:34 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 00:13:37 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 00:26:52 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,17 +41,14 @@ void Server::_part(Client &sender, CommandParameterVector const &parameters)
 
 		if (channel_by_name == this->_channels_by_name.end())
 			return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &*channel_name);
-
-		Channel &channel = channel_by_name->second;
-
 		if (!channel_by_name->second.has_member(sender))
 			return sender.append_formatted_reply_to_msg_out(ERR_NOTONCHANNEL, &*channel_name);
 
-		std::string const msg = sender.prefix() + "PART " + *channel_name + ' '
-		                      + (parameters.size() > 1 ? parameters[1] : DEFAULT_PART_TEXT);
-
-		channel.broadcast_to_all_members(msg);
-		channel.remove_member(sender);
-		sender.leave_channel(*channel_name);
+		make_user_leave_channel(
+			this->_channels_by_name,
+			sender,
+			*channel_name,
+			sender.prefix() + "PART " + *channel_name + ' '
+				+ (parameters.size() > 1 ? parameters[1] : DEFAULT_PART_TEXT));
 	}
 }

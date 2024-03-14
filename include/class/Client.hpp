@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 14:54:05 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 17:12:33 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ public:
 	};
 
 	// Types
-	typedef std::map<ChannelName, Channel const *const> JoinedChannelMap;
+	typedef std::map<ChannelName, Channel *const> JoinedChannelMap;
 
 	// Constructors
 	Client(
@@ -132,7 +132,7 @@ public:
 
 	std::string user_mask(void) const;
 
-	void   join_channel(ChannelName const &chan_name, Channel const &channel);
+	void   join_channel(ChannelName const &chan_name, Channel &channel);
 	void   leave_channel(ChannelName const &chan_name);
 	size_t joined_channel_count(void) const;
 

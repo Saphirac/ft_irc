@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:28:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 00:13:37 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 23:24:37 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,9 +65,16 @@ void Server::_notice(Client &sender, CommandParameterVector const &parameters)
 			ChannelMap::const_iterator const channel_by_name = this->_channels_by_name.find(channel_name);
 
 			if (channel_by_name == this->_channels_by_name.end())
-				return;
+				continue;
 
-			notice_to_channel(sender, channel_name, channel_by_name->second, parameters[1]);
+			Channel const        &channel = channel_by_name->second;
+			Channel::Modes const &channel_modes = channel.get_modes();
+
+			if (channel_modes.has_ban_mask(sender.get_nickname())
+			    || (channel_modes.is_set(NoMessagesFromOutside) && !channel.has_member(sender)))
+				continue;
+
+			notice_to_channel(sender, channel_name, channel, parameters[1]);
 		}
 		else
 		{
