@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/14 03:44:29 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/03/14 15:21:40 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -115,11 +115,11 @@ LIB_SRC := \
 						core \
 						methods \
 					} \
-					${addprefix ProblemWithSetSockOpt/, \
+					${addprefix ProblemWithSelect/, \
 						core \
 						methods \
 					} \
-					${addprefix ProblemWithSigaction/, \
+					${addprefix ProblemWithSetSockOpt/, \
 						core \
 						methods \
 					} \

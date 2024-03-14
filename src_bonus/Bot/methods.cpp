@@ -6,20 +6,21 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 19:01:27 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 13:57:32 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 15:20:37 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Bot.hpp"
 #include "class/exception/ProblemWithRecv.hpp"
 #include "class/exception/ProblemWithSend.hpp"
+#include "class/exception/ProblemWithSelect.hpp"
 #include <iostream>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #define MAX_BUFFER_SIZE 4096
 
-bool bot_interrupted = false;
+volatile bool bot_interrupted = false;
 
 inline static std::string remove_crlf(std::string const &str)
 {
@@ -74,34 +75,46 @@ void Bot::_join_cmd(std::string &response, Message const &msg)
 	response = "JOIN " + msg.get_parameters()[1];
 }
 
-void Bot::_bot_routine()
+void Bot::_bot_routine(fd_set &read_fds, int &max_fd)
 {
-	char    buffer[MAX_BUFFER_SIZE];
-	ssize_t received = recv(this->_socket, buffer, sizeof(buffer) - 1, 0);
-	buffer[received] = '\0'; // Assurez-vous que la chaîne est correctement terminée.
+	struct timeval timeout;
+	timeout.tv_sec = 5; // Timeout après 5 secondes
+	timeout.tv_usec = 0;
 
-	if (received < 0)
-		throw ProblemWithRecv();
-	else if (received == 0)
+	int activity = select(max_fd + 1, &read_fds, NULL, NULL, &timeout);
+
+	if (activity < 0)
+		throw ProblemWithSelect();
+	
+	if (activity && FD_ISSET(this->_socket, &read_fds))
 	{
-		std::cout << "Server closed connection" << std::endl;
-		return;
-	}
-	else
-	{
-		Message     msg((std::string(buffer, received)));
-		std::string response;
+		char    buffer[MAX_BUFFER_SIZE];
+		ssize_t received = recv(this->_socket, buffer, sizeof(buffer) - 1, 0);
+		buffer[received] = '\0'; // Assurez-vous que la chaîne est correctement terminée.
 
-		std::cout << "Command : [" << msg.get_command() << "]" << std::endl;
+		if (received < 0)
+			throw ProblemWithRecv();
+		else if (received == 0)
+		{
+			std::cout << "Server closed connection" << std::endl;
+			return;
+		}
+		else
+		{
+			Message     msg((std::string(buffer, received)));
+			std::string response;
 
-		if (msg.get_command() == "PRIVMSG")
-			this->_privmsg_cmd(response, msg);
-		if (msg.get_command() == "PING")
-			this->_ping_cmd(response, msg);
-		if (msg.get_command() == "INVITE")
-			this->_join_cmd(response, msg);
-		if (!response.empty() && send(this->_socket, response.c_str(), response.size(), 0) < 0)
-			throw ProblemWithSend();
+			std::cout << "Command : [" << msg.get_command() << "]" << std::endl;
+
+			if (msg.get_command() == "PRIVMSG")
+				this->_privmsg_cmd(response, msg);
+			if (msg.get_command() == "PING")
+				this->_ping_cmd(response, msg);
+			if (msg.get_command() == "INVITE")
+				this->_join_cmd(response, msg);
+			if (!response.empty() && send(this->_socket, response.c_str(), response.size(), 0) < 0)
+				throw ProblemWithSend();
+		}
 	}
 }
 
@@ -113,9 +126,14 @@ void Bot::_disconnect()
 
 void Bot::run()
 {
+	fd_set read_fds;
+	int max_fd = this->_socket;
+
 	this->_send_connexion_message();
 	while (!bot_interrupted)
 	{
-		this->_bot_routine();
+		FD_ZERO(&read_fds);
+		FD_SET(this->_socket, &read_fds);
+		this->_bot_routine(read_fds, max_fd);
 	}
 }

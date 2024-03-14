@@ -1,28 +1,15 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ProblemWithSigaction.hpp                           :+:      :+:    :+:   */
+/*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/14 03:23:05 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 03:23:29 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/03/12 04:58:01 by jodufour          #+#    #+#             */
+/*   Updated: 2024/03/14 15:20:53 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#include "class/exception/ProblemWithSelect.hpp"
 
-#include <exception>
-
-class ProblemWithSigaction : public std::exception
-{
-public:
-	// Constructors
-	ProblemWithSigaction(void) throw();
-
-	// Destructor
-	virtual ~ProblemWithSigaction(void) throw();
-
-	// Methods
-	virtual char const *what(void) const throw();
-};
+char const *ProblemWithSelect::what(void) const throw() { return "Problem with Select()"; }

@@ -1,21 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   core.cpp                                           :+:      :+:    :+:   */
+/*   ProblemWithSelect.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/12 04:57:57 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 03:24:12 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/03/14 03:23:05 by mcourtoi          #+#    #+#             */
+/*   Updated: 2024/03/14 15:20:07 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/exception/ProblemWithSigaction.hpp"
+#pragma once
 
-// Constructors //
+#include <exception>
 
-ProblemWithSigaction::ProblemWithSigaction(void) throw() {}
+class ProblemWithSelect : public std::exception
+{
+public:
+	// Constructors
+	ProblemWithSelect(void) throw();
 
-// Destructor //
+	// Destructor
+	virtual ~ProblemWithSelect(void) throw();
 
-ProblemWithSigaction::~ProblemWithSigaction(void) throw() {}
+	// Methods
+	virtual char const *what(void) const throw();
+};

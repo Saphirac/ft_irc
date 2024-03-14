@@ -6,13 +6,12 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 18:57:11 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 13:58:39 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 15:20:25 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Bot.hpp"
 #include "class/exception/ProblemWithConnect.hpp"
-#include "class/exception/ProblemWithSigaction.hpp"
 #include "class/exception/ProblemWithSocket.hpp"
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -20,7 +19,8 @@
 #include <string>
 #include <sys/socket.h>
 
-extern bool bot_interrupted;
+
+extern volatile bool bot_interrupted;
 
 inline static void handle_sigint(int signal_number __attribute__((unused))) { bot_interrupted = true; }
 
