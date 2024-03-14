@@ -48,6 +48,7 @@ CXXFLAGS    +=	-MMD -MP
 CXXFLAGS    +=	-Wshadow
 CXXFLAGS 	+=	-std=c++14
 CXXFLAGS	+=	-I${PRIV_DIR}
+CXXFLAGS	+=	-I${INC_DIR}
 
 LFLAGS 		+=	-lpthread
 

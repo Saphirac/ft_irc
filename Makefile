@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
+#    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/12 05:04:18 by jodufour         ###   ########.fr        #
+#    Updated: 2024/03/14 03:44:29 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,8 +35,8 @@ LIB := lib${NAME}.a
 SRC_DIR := src
 OBJ_DIR := obj
 PRV_DIR := private
-LIB_DIR := lib
 INC_DIR := include
+LIB_DIR := lib
 
 ######################################
 #            SOURCE FILES            #
@@ -83,6 +83,10 @@ LIB_SRC := \
 						core \
 						methods \
 					} \
+					${addprefix ProblemWithConnect/, \
+						core \
+						methods \
+					} \
 					${addprefix ProblemWithEpollCreate1/, \
 						core \
 						methods \
@@ -112,6 +116,10 @@ LIB_SRC := \
 						methods \
 					} \
 					${addprefix ProblemWithSetSockOpt/, \
+						core \
+						methods \
+					} \
+					${addprefix ProblemWithSigaction/, \
 						core \
 						methods \
 					} \
