@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 02:40:43 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 22:58:15 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@
 // How many seconds since the last PING sent to a client the server will wait without receiving a PONG from that client
 // before disconnecting that client.
 #define PING_TIMEOUT 15
+// The number of clients that the server can accept (chosen arbitrarily).
+#define MAXIMUM_NUMBER_OF_CLIENTS 7
 
 bool interrupted = false;
 
@@ -82,7 +84,7 @@ void Server::_handle_epoll_events(void)
 
 	for (int i = 0; i < fds_ready; ++i)
 	{
-		if (events[i].data.fd == this->_socket)
+		if (events[i].data.fd == this->_socket && this->_clients_by_socket.size() < MAXIMUM_NUMBER_OF_CLIENTS)
 			this->_new_client_connection();
 		else
 			this->_receive_data_from_client(this->_clients_by_socket[events[i].data.fd]);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 14:54:05 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 22:51:52 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,9 +115,9 @@ public:
 	void set_realname(RealName const &realname);
 
 	// Methods
-	void        append_to_msg_in(std::string const &s);
-	std::string get_next_msg(void);
-	time_t      time_since_last_msg(void) const;
+	void              append_to_msg_in(std::string const &s);
+	std::string       get_next_msg(void);
+	time_t            time_since_last_msg(void) const;
 
 	bool is_registered(void) const;
 
