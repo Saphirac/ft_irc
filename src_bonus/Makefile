@@ -1,35 +1,35 @@
 ######################################
 #              COMMANDS              #
 ######################################
-CXX         =   ${shell which c++}
-LINK        =   ${shell which clang++}
-MKDIR       =   ${shell which mkdir} -p
-RM          =   ${shell which rm} -rf
-CMAKE		=	${shell which cmake}
+CXX         :=   ${shell which c++}
+LINK        :=   ${shell which clang++}
+MKDIR       :=   ${shell which mkdir} -p
+RM          :=   ${shell which rm} -rf
+CMAKE		:=	${shell which cmake}
 
 ######################################
 #             EXECUTABLE             #
 ######################################
-NAME = bot
+NAME := bot
 
 #######################################
 #             DIRECTORIES             #
 #######################################
-OBJ_DIR     =   obj
-SRC_DIR		=	.
-PRIV_DIR	=	../private/
-INC_DIR		=	../include/
+OBJ_DIR     :=   obj
+SRC_DIR		:=	.
+PRIV_DIR	:=	../private/
+INC_DIR		:=	../include/
 
 #######################################
 #              LIBRARIES              #
 #######################################
 
-IRC_A = ../libircserv.a
+IRC_A := ../libircserv.a
 
 ######################################
 #            SOURCE FILES            #
 ######################################
-SRC = \
+SRC := \
 	${addsuffix .cpp, \
 	 \
 		${addprefix Bot/, \
@@ -42,28 +42,26 @@ SRC = \
 #######################################
 #                FLAGS                #
 #######################################
-CXXFLAGS    =   -c
-CXXFLAGS    +=  -Wall -Wextra -Werror
-CXXFLAGS    +=	-MMD -MP
-CXXFLAGS    +=	-Wshadow
-CXXFLAGS 	+=	-std=c++14
-CXXFLAGS	+=	-I${PRIV_DIR}
-CXXFLAGS	+=	-I${INC_DIR}
-
-LFLAGS 		+=	-lpthread
+CXXFLAGS    = \
+	-c \
+	-Wall \
+	-Wextra \
+	-Werror \
+	-Wshadow \
+	-pedantic \
+	-std=c++14 \
+	-I${PRIV_DIR} \
+	-I${INC_DIR}
 
 ifeq (${DEBUG}, 1)
-    CXXFLAGS    +=  -g
-    CXXFLAGS    +=  -DDEBUG=1
+	CXXFLAGS += -gdwarf-4 -DDEBUG=1
 endif
 
 ######################################
 #            OBJECT FILES            #
 ######################################
-OBJ = ${SRC:.cpp=.o}
+OBJ := ${SRC:.cpp=.o}
 OBJ := ${addprefix ${OBJ_DIR}/, ${OBJ}}
-
-TEST_DEP = ${OBJ:.o=.d}
 
 #####################################
 #           	RULES        		#

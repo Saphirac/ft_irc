@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 03:04:48 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/14 18:50:23 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 18:51:56 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ bool Prefix::is_valid(void) const
 		return false;
 
 	size_t const      end_server_or_nick = this->find_first_of("!@", 1);
-	std::string server_or_nick = this->substr(1, end_server_or_nick - 1);
+	std::string const server_or_nick = this->substr(1, end_server_or_nick - 1);
 
 	if (end_server_or_nick == std::string::npos)
 		return HostName(server_or_nick).is_valid();

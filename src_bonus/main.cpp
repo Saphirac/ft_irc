@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 13:13:11 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 03:43:56 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 18:56:14 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ int main(int const ac, char const *const *const av)
 		return 1;
 	}
 
-	int port = atoi(av[1]);
+	int         port = atoi(av[1]);
 	std::string password = av[2];
 
 	try 
