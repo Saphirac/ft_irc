@@ -6,52 +6,48 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 01:05:55 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 04:08:06 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
 #include "replies.hpp"
 #include "split.hpp"
-#include <cstdio>
 #include <list>
-#include <utility>
 
 #define MAXIMUM_NUMBER_OF_JOINED_CHANNELS_BY_USER 42
 #define MAXIMUM_NUMBER_OF_MEMBERS_BY_CHANNEL      42
 
-typedef std::pair<ChannelName, Key>       PairChannelNameKey;
-typedef std::pair<ChannelName, Channel *> PairChannelNameChannel;
-typedef std::vector<ChannelName>          ChannelNameVector;
-typedef std::vector<Key>                  KeyVector;
+typedef std::list<ChannelName> ChannelNameList;
+typedef std::list<Key>         KeyList;
 
 /**
- * @brief Makes a user create and join a new channel.
+ * @brief Creates a new channel and makes a user join it, promoting them to channel operator.
  *
- * @param user the client sending the JOIN command
- * @param chan_name the name of the channel to join
- * @param channels_by_name the map of channels by name
+ * @param user The user that will join the channel.
+ * @param channel_name The name of the channel to create and join.
+ * @param channels_by_name The map of the existing channels.
  *
  * @return The address of the joined channed upon success, `NULL` otherwise.
+ *
+ * @throw `UnknownReply` if a given reply number isn't recognized.
+ * @throw `InvalidConversion` if a conversion specification is invalid.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static Channel *join_new_channel(
-	Client                         &user,
-	ChannelName const              &chan_name,
-	std::map<ChannelName, Channel> &channels_by_name)
+	Client             &user,
+	ChannelName const  &channel_name,
+	Server::ChannelMap &channels_by_name)
 {
-	if (user.joined_channel_count() == MAXIMUM_NUMBER_OF_JOINED_CHANNELS_BY_USER)
+	if (!channel_name.is_valid())
 	{
-		user.append_formatted_reply_to_msg_out(ERR_TOOMANYCHANNELS);
-		return NULL;
-	}
-	if (!chan_name.is_valid())
-	{
-		user.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &chan_name);
+		user.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &channel_name);
 		return NULL;
 	}
 
 	Channel &channel =
-		channels_by_name.insert(std::make_pair(chan_name, Channel(chan_name.are_modes_supported()))).first->second;
+		channels_by_name.insert(std::make_pair(channel_name, Channel(channel_name.are_modes_supported())))
+			.first->second;
 
 	channel.set_mode(ChannelOperator, &user);
 	return &channel;
@@ -60,23 +56,21 @@ inline static Channel *join_new_channel(
 /**
  * @brief Makes a user join an existing channel.
  *
- * @param user
- * @param channel
- * @param key
+ * @param user The user that will join the channel.
+ * @param channel_name The name of the channel to join.
+ * @param channel The channel to join.
+ * @param key The key provided by the user to join the channel.
  *
  * @return The address of the joined channel upon success, `NULL` otherwise.
  */
 inline static Channel *join_existing_channel(
 	Client            &user,
+	ChannelName const &channel_name,
 	Channel           &channel,
-	ChannelName const &chan_name,
 	Key const         &key)
 {
-	if (user.joined_channel_count() == MAXIMUM_NUMBER_OF_JOINED_CHANNELS_BY_USER)
-	{
-		user.append_formatted_reply_to_msg_out(ERR_TOOMANYCHANNELS);
-		return NULL;
-	}
+	if (channel.has_member(user))
+		return &channel;
 
 	size_t const member_count = channel.member_count();
 
@@ -87,30 +81,30 @@ inline static Channel *join_existing_channel(
 
 		if (channel_modes.has_ban_mask(nickname))
 		{
-			user.append_formatted_reply_to_msg_out(ERR_BANNEDFROMCHAN, &chan_name);
+			user.append_formatted_reply_to_msg_out(ERR_BANNEDFROMCHAN, &channel_name);
 			return NULL;
 		}
 		if (channel_modes.is_set(InviteOnly) && !channel.has_invited_user_by_operator(user)
 		    && !channel_modes.has_invite_mask(nickname))
 		{
-			user.append_formatted_reply_to_msg_out(ERR_INVITEONLYCHAN, &chan_name);
+			user.append_formatted_reply_to_msg_out(ERR_INVITEONLYCHAN, &channel_name);
 			return NULL;
 		}
 		if (channel_modes.is_set(KeyProtected) && channel_modes.get_key() != key && !channel.has_invited_user(user)
 		    && !channel_modes.has_invite_mask(nickname))
 		{
-			user.append_formatted_reply_to_msg_out(ERR_BADCHANNELKEY, &chan_name);
+			user.append_formatted_reply_to_msg_out(ERR_BADCHANNELKEY, &channel_name);
 			return NULL;
 		}
 		if (channel_modes.is_set(Limit) && member_count == channel_modes.get_limit())
 		{
-			user.append_formatted_reply_to_msg_out(ERR_CHANNELISFULL, &chan_name);
+			user.append_formatted_reply_to_msg_out(ERR_CHANNELISFULL, &channel_name);
 			return NULL;
 		}
 	}
 	if (member_count == MAXIMUM_NUMBER_OF_MEMBERS_BY_CHANNEL)
 	{
-		user.append_formatted_reply_to_msg_out(ERR_CHANNELISFULL, &chan_name);
+		user.append_formatted_reply_to_msg_out(ERR_CHANNELISFULL, &channel_name);
 		return NULL;
 	}
 
@@ -119,26 +113,41 @@ inline static Channel *join_existing_channel(
 }
 
 /**
- * @brief Create a list of pairs of channels and keys
+ * @brief Makes a user either join an existing channel or create and join a new channel.
  *
- * @param channels
- * @param keys
+ * @param user The user that will join the channel.
+ * @param channel_name The name of the channel to join or create and join.
+ * @param key The key provided by the user to join the channel if any.
  *
- * @return The list of pairs of channels and keys.
+ * @return `true` upon success, `false` otherwise.
+ *
+ * @throw `UnknownReply` if a given reply number isn't recognized.
+ * @throw `InvalidConversion` if a conversion specification is invalid.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-inline static std::vector<PairChannelNameKey> split_channels_keys(std::string const &channels, std::string const &keys)
+inline static bool join_channel(
+	Server::ChannelMap &channels_by_name,
+	Client             &user,
+	ChannelName const  &channel_name,
+	Key const          &key = Key())
 {
-	std::vector<PairChannelNameKey> channel_key_pairs;
-	ChannelNameVector               split_channels = split<ChannelNameVector>(channels, ',');
-	KeyVector                       split_keys = split<KeyVector>(keys, ',');
-	size_t const                    split_keys_size = split_keys.size();
-	size_t const                    split_channels_size = split_channels.size();
+	Server::ChannelMap::iterator const channel_by_name = channels_by_name.find(channel_name);
+	Channel *const                     channel =
+        channel_by_name == channels_by_name.end()
+								? join_new_channel(user, channel_name, channels_by_name)
+								: join_existing_channel(user, channel_name, channel_by_name->second, key);
 
-	for (size_t i = 0; i < split_channels_size; ++i)
-		channel_key_pairs.push_back(std::make_pair(split_channels[i], i < split_keys_size ? split_keys[i] : Key()));
+	if (!channel)
+		return false;
 
-	return channel_key_pairs;
+	channel->add_member(user);
+	user.join_channel(channel_name, channel);
+	channel->broadcast_to_all_members(user.prefix() + "JOIN :" + channel_name);
+	user.append_formatted_reply_to_msg_out(RPL_TOPIC, &channel_name, &channel->get_topic());
+
+	return true;
 }
+
 /**
  * @brief Makes a user either join existing channel(s) or create and join new channel(s).
  *
@@ -149,7 +158,7 @@ inline static std::vector<PairChannelNameKey> split_channels_keys(std::string co
  * @throw `InvalidConversion` if a conversion specification is invalid.
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-void Server::_join(Client &sender, std::vector<std::string> const &parameters)
+void Server::_join(Client &sender, CommandParameterVector const &parameters)
 {
 	if (!sender.is_registered())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
@@ -157,47 +166,43 @@ void Server::_join(Client &sender, std::vector<std::string> const &parameters)
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "JOIN");
 
 	if (parameters[0] == "0")
+		return this->_make_client_leave_all_their_joined_channels(sender);
+
+	ChannelNameList const           channel_names = split<ChannelNameList>(parameters[0], ',');
+	ChannelNameList::const_iterator channel_name = channel_names.begin();
+	KeyList const                   keys = parameters.size() > 1 ? split<KeyList>(parameters[1], ',') : KeyList();
+
+	for (KeyList::const_iterator key = keys.begin(); channel_name != channel_names.end() && key != keys.end();
+	     ++channel_name, ++key)
 	{
-		std::vector<std::string>            part_arguments;
-		Client::JoinedChannelMap const      joined_channels_by_name = sender.get_joined_channels_by_name();
-		Client::JoinedChannelIterator const end = joined_channels_by_name.end();
+		if (sender.joined_channel_count() == MAXIMUM_NUMBER_OF_JOINED_CHANNELS_BY_USER)
+		{
+			while (channel_name++ != channel_names.end()) sender.append_formatted_reply_to_msg_out(ERR_TOOMANYCHANNELS);
+			return;
+		}
 
-		for (Client::JoinedChannelIterator joined_channel_by_name = joined_channels_by_name.begin();
-		     joined_channel_by_name != end;
-		     ++joined_channel_by_name)
-			part_arguments.push_back(joined_channel_by_name->first);
-		part_arguments.push_back(DEFAULT_QUIT_MESSAGE);
+		if (!join_channel(this->_channels_by_name, sender, *channel_name, *key))
+			continue;
 
-		return this->_part(sender, part_arguments);
+		CommandParameterVector names_arguments(1);
+
+		names_arguments[0] = *channel_name;
+		this->_names(sender, names_arguments);
 	}
-
-	std::vector<PairChannelNameKey> const channel_key_pairs =
-		split_channels_keys(parameters[0], parameters.size() > 1 ? parameters[1] : std::string());
-
-	for (size_t i = 0; i < channel_key_pairs.size(); ++i)
+	for (; channel_name != channel_names.end(); ++channel_name)
 	{
-		ChannelName const                       &channel_name = channel_key_pairs[i].first;
-		std::map<ChannelName, Channel>::iterator channel_by_name = this->_channels_by_name.find(channel_name);
-		Channel                                 *channel;
-	
-		if (channel_by_name == this->_channels_by_name.end())
-			channel = join_new_channel(sender, channel_name, this->_channels_by_name);
-		else if (channel_by_name->second.has_member(sender))
-			continue;
-		else
-			channel = join_existing_channel(sender, channel_by_name->second, channel_name, channel_key_pairs[i].second);
+		if (sender.joined_channel_count() == MAXIMUM_NUMBER_OF_JOINED_CHANNELS_BY_USER)
+		{
+			while (channel_name++ != channel_names.end()) sender.append_formatted_reply_to_msg_out(ERR_TOOMANYCHANNELS);
+			return;
+		}
 
-		if (!channel)
+		if (!join_channel(this->_channels_by_name, sender, *channel_name))
 			continue;
 
-		channel->add_member(sender);
-		sender.join_channel(channel_name, channel);
-		channel->broadcast_to_all_members(sender.prefix() + "JOIN :" + channel_name);
-		sender.append_formatted_reply_to_msg_out(RPL_TOPIC, &channel_name, &channel->get_topic());
+		CommandParameterVector names_arguments(1);
 
-		std::vector<std::string> names_arguments;
-
-		names_arguments.push_back(channel_name);
+		names_arguments[0] = *channel_name;
 		this->_names(sender, names_arguments);
 	}
 }

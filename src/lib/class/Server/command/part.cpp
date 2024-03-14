@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:26:34 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:29:01 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 00:13:37 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,7 @@
 #include "split.hpp"
 #include <list>
 
-#define DEFAULT_PART_MESSAGE "Goodbye to all!"
-
-typedef std::list<ChannelName>          ChannelNameList;
-typedef ChannelNameList::const_iterator ChannelNameIterator;
+typedef std::list<ChannelName> ChannelNameList;
 
 /**
  * @brief Remove member of each channel sent in params
@@ -28,19 +25,19 @@ typedef ChannelNameList::const_iterator ChannelNameIterator;
  *
  * @throw std:exception if a std function critically fails
  */
-void Server::_part(Client &sender, std::vector<std::string> const &parameters)
+void Server::_part(Client &sender, CommandParameterVector const &parameters)
 {
 	if (!sender.is_registered())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
 	if (parameters.empty())
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "PART");
 
-	ChannelNameList const     channel_names = split<ChannelNameList>(parameters[0], ',');
-	ChannelNameIterator const end = channel_names.end();
+	ChannelNameList const channel_names = split<ChannelNameList>(parameters[0], ',');
 
-	for (ChannelNameIterator channel_name = channel_names.begin(); channel_name != end; ++channel_name)
+	for (ChannelNameList::const_iterator channel_name = channel_names.begin(); channel_name != channel_names.end();
+	     ++channel_name)
 	{
-		std::map<ChannelName, Channel>::iterator const channel_by_name = this->_channels_by_name.find(*channel_name);
+		ChannelMap::iterator const channel_by_name = this->_channels_by_name.find(*channel_name);
 
 		if (channel_by_name == this->_channels_by_name.end())
 			return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &*channel_name);
@@ -51,9 +48,10 @@ void Server::_part(Client &sender, std::vector<std::string> const &parameters)
 			return sender.append_formatted_reply_to_msg_out(ERR_NOTONCHANNEL, &*channel_name);
 
 		std::string const msg = sender.prefix() + "PART " + *channel_name + ' '
-		                      + (parameters.size() > 1 ? parameters[1] : DEFAULT_PART_MESSAGE);
+		                      + (parameters.size() > 1 ? parameters[1] : DEFAULT_PART_TEXT);
 
 		channel.broadcast_to_all_members(msg);
 		channel.remove_member(sender);
+		sender.leave_channel(*channel_name);
 	}
 }

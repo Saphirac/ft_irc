@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 22:08:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 09:34:11 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 13:23:07 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,12 +81,14 @@
 #define ERR_UMODEUNKNOWNFLAG  501
 #define ERR_USERSDONTMATCH    502
 
+typedef std::map<int, char const *> FormatMap;
+
 static std::pair<int, char const *> const raw_formats_by_reply[] = {
 	std::make_pair(RPL_WELCOME, ":Welcome to the Internet Relay Network %S"),
 	std::make_pair(RPL_YOURHOST, ":Your host is %S, running version %S"),
 	std::make_pair(RPL_CREATED, ":This server was created %S"),
 	std::make_pair(RPL_MYINFO, "%S %S %s %s"),
-	std::make_pair(RPL_UMODEIS, "%S :+%S"),
+	std::make_pair(RPL_UMODEIS, ":+%S"),
 	std::make_pair(RPL_AWAY, "%S :%S"),
 	std::make_pair(RPL_ISON, ":%S"),
 	std::make_pair(RPL_UNAWAY, ":You are no longer marked as being away"),
@@ -96,7 +98,7 @@ static std::pair<int, char const *> const raw_formats_by_reply[] = {
 	std::make_pair(RPL_ENDOFWHOIS, "%S :End of WHOIS list"),
 	std::make_pair(RPL_WHOISCHANNELS, "%S :%S"),
 	std::make_pair(RPL_LIST, "%S %hhu :%S"),
-	std::make_pair(RPL_LISTEND, ":End of LIST"),
+	std::make_pair(RPL_LISTEND, ":End of /LIST"),
 	std::make_pair(RPL_CHANNELMODEIS, "%S +%S"),
 	std::make_pair(RPL_NOTOPIC, "%S :No topic is set"),
 	std::make_pair(RPL_TOPIC, "%S :%S"),
@@ -105,7 +107,7 @@ static std::pair<int, char const *> const raw_formats_by_reply[] = {
 	std::make_pair(RPL_ENDOFINVITELIST, "%S :End of channel invite list"),
 	std::make_pair(RPL_VERSION, "%S %S :%S"),
 	std::make_pair(RPL_NAMESREPLY, "%S :%S"),
-	std::make_pair(RPL_ENDOFNAMES, "%S :End of NAMES list"),
+	std::make_pair(RPL_ENDOFNAMES, "%S :End of /NAMES list"),
 	std::make_pair(RPL_BANLIST, "%S %S"),
 	std::make_pair(RPL_ENDOFBANLIST, "%S :End of channel ban list"),
 	std::make_pair(RPL_INFO, ":%S"),
@@ -147,8 +149,6 @@ static std::pair<int, char const *> const raw_formats_by_reply[] = {
 	std::make_pair(ERR_UMODEUNKNOWNFLAG, ":Unknown MODE flag"),
 	std::make_pair(ERR_USERSDONTMATCH, ":Cannot change mode for other users"),
 };
-static std::map<int, char const *> const formats_by_reply(
+static FormatMap const formats_by_reply(
 	raw_formats_by_reply,
 	raw_formats_by_reply + sizeof(raw_formats_by_reply) / sizeof(*raw_formats_by_reply));
-
-typedef std::map<int, char const *>::const_iterator ReplyIterator;

@@ -6,16 +6,20 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:26:52 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 15:22:11 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#ifdef DEBUG
+#	include <iostream>
+#endif
 
 #include "class/Client.hpp"
 #include "class/exception/InvalidConversion.hpp"
 #include "class/exception/NotAFlag.hpp"
-#include "class/exception/ProblemWithClock.hpp"
 #include "class/exception/ProblemWithClose.hpp"
 #include "class/exception/ProblemWithSend.hpp"
+#include "class/exception/ProblemWithTime.hpp"
 #include "class/exception/UnknownReply.hpp"
 #include "maximum_length_for_message.hpp"
 #include "replies.hpp"
@@ -52,8 +56,8 @@ void Client::Modes::Flags::set(UserMode const flag)
 	case Invisible:
 		this->_bits |= 1 << Invisible;
 		return;
-	case AlreadySentPass:
-		this->_bits |= 1 << AlreadySentPass;
+	case Authenticated:
+		this->_bits |= 1 << Authenticated;
 		return;
 	case AlreadySentUser:
 		this->_bits |= 1 << AlreadySentUser;
@@ -89,8 +93,8 @@ void Client::Modes::Flags::clear(UserMode const flag)
 	case Invisible:
 		this->_bits &= ~(1 << Invisible);
 		return;
-	case AlreadySentPass:
-		this->_bits &= ~(1 << AlreadySentPass);
+	case Authenticated:
+		this->_bits &= ~(1 << Authenticated);
 		return;
 	case AlreadySentUser:
 		this->_bits &= ~(1 << AlreadySentUser);
@@ -124,8 +128,8 @@ bool Client::Modes::Flags::is_set(UserMode const flag) const
 		return (this->_bits & 1 << WallopsListener) != 0;
 	case Invisible:
 		return (this->_bits & 1 << Invisible) != 0;
-	case AlreadySentPass:
-		return (this->_bits & 1 << AlreadySentPass) != 0;
+	case Authenticated:
+		return (this->_bits & 1 << Authenticated) != 0;
 	case AlreadySentUser:
 		return (this->_bits & 1 << AlreadySentUser) != 0;
 	case IsAboutToBeDisconnected:
@@ -190,8 +194,8 @@ void Client::Modes::set(UserMode const mode, void const *const arg)
 	case Away:
 		this->_away_msg = *static_cast<std::string const *>(arg);
 		return;
-	case AlreadySentPass:
-		this->_flags.set(AlreadySentPass);
+	case Authenticated:
+		this->_flags.set(Authenticated);
 		return;
 	case AlreadySentUser:
 		this->_flags.set(AlreadySentUser);
@@ -221,8 +225,8 @@ void Client::Modes::clear(UserMode const mode)
 		return this->_flags.clear(Invisible);
 	case Away:
 		return this->_away_msg.clear();
-	case AlreadySentPass:
-		return this->_flags.clear(AlreadySentPass);
+	case Authenticated:
+		return this->_flags.clear(Authenticated);
 	case AlreadySentUser:
 		return this->_flags.clear(AlreadySentUser);
 	case IsAboutToBeDisconnected:
@@ -251,8 +255,8 @@ bool Client::Modes::is_set(UserMode const mode) const
 		return this->_flags.is_set(Invisible);
 	case Away:
 		return !this->_away_msg.empty();
-	case AlreadySentPass:
-		return this->_flags.is_set(AlreadySentPass);
+	case Authenticated:
+		return this->_flags.is_set(Authenticated);
 	case AlreadySentUser:
 		return this->_flags.is_set(AlreadySentUser);
 	case IsAboutToBeDisconnected:
@@ -315,16 +319,16 @@ std::string Client::get_next_msg(void)
  *
  * @return The difference between the current time and the time of the last message.
  *
- * @throw `ProblemWithClock` if `clock()` fails.
+ * @throw `ProblemWithTime` if `time()` fails.
  */
-clock_t Client::time_since_last_msg(void) const
+time_t Client::time_since_last_msg(void) const
 {
-	clock_t const now = clock();
+	time_t const now = time(NULL);
 
 	if (now == -1)
-		throw ProblemWithClock();
+		throw ProblemWithTime();
 
-	return now - this->_last_msg_time;
+	return (now - this->_last_msg_time);
 }
 
 /**
@@ -486,7 +490,7 @@ inline static size_t convert_low_uint(
 {
 	std::stringstream ss;
 
-	ss << static_cast<Uint>(va_arg(args, uint32_t));
+	ss << static_cast<uint16_t>(static_cast<Uint>(va_arg(args, uint32_t)));
 
 	std::string const arg = ss.str();
 
@@ -572,7 +576,7 @@ inline static size_t convert_u(
  */
 void Client::append_formatted_reply_to_msg_out(int const reply_number...)
 {
-	ReplyIterator const format_by_reply = formats_by_reply.find(reply_number);
+	FormatMap::const_iterator const format_by_reply = formats_by_reply.find(reply_number);
 
 	if (format_by_reply == formats_by_reply.end())
 		throw UnknownReply();
@@ -656,6 +660,13 @@ void Client::send_msg_out(void)
 	if (this->_msg_out.empty())
 		return;
 
+#ifdef DEBUG
+	std::string msg_out = this->_msg_out;
+
+	while (msg_out.find("\r\n") != std::string::npos) msg_out.replace(msg_out.find("\r\n"), 2, "\\r\\n");
+	std::cout << "Sending: [" << msg_out << "] to " << this->_nickname << '\n';
+#endif
+
 	if (send(this->_socket, this->_msg_out.c_str(), this->_msg_out.size(), 0) == -1)
 		throw ProblemWithSend();
 
@@ -699,9 +710,9 @@ std::string Client::user_mask(void) const { return this->_nickname + '!' + this-
  *
  * @param channel The channel to add.
  */
-void Client::join_channel(ChannelName const &chan_name, Channel const &channel)
+void Client::join_channel(ChannelName const &channel_name, Channel const &channel)
 {
-	this->_joined_channels_by_name.insert(std::make_pair(chan_name, &channel));
+	this->_joined_channels_by_name.insert(std::make_pair(channel_name, &channel));
 }
 
 /**
@@ -709,7 +720,7 @@ void Client::join_channel(ChannelName const &chan_name, Channel const &channel)
  *
  * @param channel the channel to leave
  */
-void Client::leave_channel(ChannelName const &chan_name) { this->_joined_channels_by_name.erase(chan_name); }
+void Client::leave_channel(ChannelName const &channel_name) { this->_joined_channels_by_name.erase(channel_name); }
 
 /**
  * @return The number of channels that the client has joined.

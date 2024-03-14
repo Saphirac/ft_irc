@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:28:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:29:01 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 00:13:37 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,48 +17,67 @@
 
 typedef std::list<std::string> StringList;
 
-inline static bool is_channel(std::string const &s) { return s[0] == '#' || s[0] == '&' || s[0] == '+' || s[0] == '!'; }
+static std::string const possible_channel_prefix = "#&+!";
 
+// TODO: Write the doxygen comment of this function
+inline static bool is_channel(std::string const &s) { return possible_channel_prefix.find(s[0]) != std::string::npos; }
+
+// TODO: Write the doxygen comment of this function
 inline static void notice_to_channel(
 	Client            &sender,
-	Channel const     &channel,
-	ChannelName const &chan_name,
+	ChannelName const &target_name,
+	Channel const     &target,
 	std::string const &msg)
 {
-	if (channel.get_modes().is_set(NoMessagesFromOutside) && !channel.has_member(sender))
-		return;
-	if (!msg.empty())
-		channel.broadcast_to_all_members_but_one(sender.prefix() + "PRIVMSG " + chan_name + " :" + msg, sender);
-}
-
-inline static void notice_to_user(Client &sender, Client &receiver, std::string const &msg)
-{
-	if (!receiver.get_modes().is_set(Away))
-		receiver.append_to_msg_out(sender.prefix() + "PRIVMSG " + receiver.get_nickname() + " :" + msg);
-}
-
-void Server::_notice(Client &sender, std::vector<std::string> const &params)
-{
-	if (!sender.is_registered() || params.size() < 2)
+	if (target.get_modes().is_set(NoMessagesFromOutside) && !target.has_member(sender))
 		return;
 
-	StringList list_of_targets = split<StringList>(params[0], ',');
+	target.broadcast_to_all_members_but_one(sender.prefix() + "NOTICE " + target_name + " :" + msg, sender);
+}
 
-	for (StringList::const_iterator target = list_of_targets.begin(); target != list_of_targets.end(); ++target)
+// TODO: Write the doxygen comment of this function
+inline static void notice_to_user(
+	Client            &sender,
+	NickName const    &target_nickname,
+	Client            &target,
+	std::string const &msg)
+{
+	Client::Modes const &target_modes = target.get_modes();
+
+	if (target_modes.is_set(Away))
+		return;
+
+	target.append_to_msg_out(sender.prefix() + "NOTICE " + target_nickname + " :" + msg);
+}
+
+void Server::_notice(Client &sender, CommandParameterVector const &parameters)
+{
+	if (!sender.is_registered() || parameters.size() < 2)
+		return;
+
+	StringList const targets = split<StringList>(parameters[0], ',');
+
+	for (StringList::const_iterator target = targets.begin(); target != targets.end(); ++target)
 	{
-		if (is_channel(params[0]))
+		if (is_channel(*target))
 		{
-			ChannelName const &chan_name = ChannelName(params[0]);
+			ChannelName const               &channel_name = ChannelName(*target);
+			ChannelMap::const_iterator const channel_by_name = this->_channels_by_name.find(channel_name);
 
-			if (this->_channels_by_name.count(chan_name) != 0)
-				notice_to_channel(sender, this->_channels_by_name[chan_name], chan_name, params[1]);
+			if (channel_by_name == this->_channels_by_name.end())
+				return;
+
+			notice_to_channel(sender, channel_name, channel_by_name->second, parameters[1]);
 		}
 		else
 		{
-			NickName const &nickname = NickName(params[0]);
+			NickName const           &nickname = NickName(*target);
+			ClientMap::const_iterator client_by_nickname = this->_clients_by_nickname.find(nickname);
 
-			if (this->_clients_by_nickname.count(nickname) != 0)
-				notice_to_user(sender, *this->_clients_by_nickname[nickname], params[1]);
+			if (client_by_nickname == this->_clients_by_nickname.end())
+				return;
+
+			notice_to_user(sender, nickname, *client_by_nickname->second, parameters[1]);
 		}
 	}
 }

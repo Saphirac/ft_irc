@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 01:29:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 03:03:56 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 12:31:02 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,13 @@ bool Channel::Modes::Flags::is_set(ChannelMode const flag) const
 		throw NotAFlag();
 	}
 }
+
+/**
+ * @brief Checks whether any flag is set.
+ *
+ * @return `true` if any flag is set, `false` otherwise.
+ */
+bool Channel::Modes::Flags::has_any_flag_set(void) const { return this->_bits != 0; }
 
 /**
  * @return The string representation of the flags that are currently set.
@@ -261,6 +268,17 @@ bool Channel::Modes::has_ban_mask(NickName const &nickname) const
 }
 
 /**
+ * @brief Checks whether any mode is set.
+ *
+ * @return `true` if any mode is set, `false` otherwise.
+ */
+bool Channel::Modes::has_any_mode_set(void) const
+{
+	return this->_flags.has_any_flag_set() || this->is_set(Limit) || this->is_set(KeyProtected)
+	    || this->is_set(ChannelOperator) || this->is_set(InviteMask) || this->is_set(BanMask);
+}
+
+/**
  * @brief Generates the string representation of the modes that are currently set.
  *
  * @param include_operators whether the resulting string shall contain the ChannelOperator mode if it's set.
@@ -381,7 +399,7 @@ std::string Channel::members_as_string(void) const
 	if (this->_members.empty())
 		return members_as_string;
 
-	_MemberIterator cit = this->_members.begin();
+	_MemberSet::const_iterator cit = this->_members.begin();
 
 	if (this->_modes.has_operator(**cit))
 		members_as_string += '@';
@@ -406,9 +424,8 @@ std::string Channel::members_as_string(void) const
  */
 void Channel::broadcast_to_all_members(std::string const &msg) const
 {
-	_MemberIterator const end = this->_members.end();
-
-	for (_MemberIterator cit = this->_members.begin(); cit != end; ++cit) (*cit)->append_to_msg_out(msg);
+	for (_MemberSet::const_iterator cit = this->_members.begin(); cit != this->_members.end(); ++cit)
+		(*cit)->append_to_msg_out(msg);
 }
 
 /**
@@ -422,16 +439,15 @@ void Channel::broadcast_to_all_members(std::string const &msg) const
  */
 void Channel::broadcast_to_all_members_but_one(std::string const &msg, Client &user) const
 {
-	_MemberIterator const member = this->_members.find(&user);
-	_MemberIterator const end = this->_members.end();
+	_MemberSet::const_iterator const excluded = this->_members.find(&user);
 
-	if (member == end)
+	if (excluded == this->_members.end())
 		throw UserNotOnChannel();
 
-	_MemberIterator cit;
+	_MemberSet::const_iterator cit;
 
-	for (cit = this->_members.begin(); cit != member; ++cit) (*cit)->append_to_msg_out(msg);
-	while (++cit != end) (*cit)->append_to_msg_out(msg);
+	for (cit = this->_members.begin(); cit != excluded; ++cit) (*cit)->append_to_msg_out(msg);
+	while (++cit != this->_members.end()) (*cit)->append_to_msg_out(msg);
 }
 
 /**
@@ -473,7 +489,7 @@ bool Channel::has_invited_user(Client const &user) const
  */
 bool Channel::has_invited_user_by_operator(Client const &user) const
 {
-	_InvitedUserIterator const cit = this->_invited_users.find(&user);
+	_InvitedUserMap::const_iterator const cit = this->_invited_users.find(&user);
 
 	return cit != this->_invited_users.end() && cit->second;
 }

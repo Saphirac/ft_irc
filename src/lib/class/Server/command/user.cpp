@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:41:35 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 00:13:37 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,17 +33,14 @@
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  * @throw `ProblemWithSend` if the `send()` function fails.
  */
-void Server::_user(Client &sender, std::vector<std::string> const &parameters)
+void Server::_user(Client &sender, CommandParameterVector const &parameters)
 {
 	if (sender.is_registered())
 		return sender.append_formatted_reply_to_msg_out(ERR_ALREADYREGISTERED);
-	if ((!this->_password.empty() && !sender.has_mode(AlreadySentPass)))
-		return sender.set_mode(IsAboutToBeDisconnected);
+	if (!this->_password.empty() && !sender.has_mode(Authenticated))
+		return sender.append_formatted_reply_to_msg_out(ERR_PASSWDMISMATCH);
 	if (parameters.size() < 4)
-	{
-		sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "USER");
-		return sender.set_mode(IsAboutToBeDisconnected);
-	}
+		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "USER");
 
 	UserName const &username = parameters[0];
 

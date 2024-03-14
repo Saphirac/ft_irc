@@ -6,9 +6,13 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:26:59 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:29:01 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 02:41:35 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#ifdef DEBUG
+#	include <iostream>
+#endif
 
 #include "class/Server.hpp"
 #include "maximum_length_for_message.hpp"
@@ -16,8 +20,7 @@
 #include "split.hpp"
 #include <list>
 
-typedef std::vector<std::string>          ChannelNameVector;
-typedef ChannelNameVector::const_iterator ChannelNameIterator;
+typedef std::list<ChannelName> ChannelNameList;
 
 /**
  * @brief Lists the members of a channel.
@@ -28,7 +31,7 @@ typedef ChannelNameVector::const_iterator ChannelNameIterator;
  */
 inline static void list_channel_members(Client &client, ChannelName const &channel_name, Channel const &channel)
 {
-	std::string const prefixed_channel_name = "=" + channel_name;
+	std::string const prefixed_channel_name = "= " + channel_name;
 	size_t const maximum_length_for_members_as_string = MAXIMUM_LENGTH_FOR_MESSAGE - prefixed_channel_name.size() - 2;
 	std::string  members_as_string = channel.members_as_string();
 
@@ -51,11 +54,12 @@ inline static void list_channel_members(Client &client, ChannelName const &chann
  */
 inline static void list_members_of_joined_channels(Client &client)
 {
-	Client::JoinedChannelMap const     &joined_channels_by_name = client.get_joined_channels_by_name();
-	Client::JoinedChannelIterator const end = joined_channels_by_name.end();
+	Client::JoinedChannelMap const &joined_channels_by_name = client.get_joined_channels_by_name();
 
-	for (Client::JoinedChannelIterator cit = joined_channels_by_name.begin(); cit != end; ++cit)
-		list_channel_members(client, cit->first, *cit->second);
+	for (Client::JoinedChannelMap::const_iterator joined_channel_by_name = joined_channels_by_name.begin();
+	     joined_channel_by_name != joined_channels_by_name.end();
+	     ++joined_channel_by_name)
+		list_channel_members(client, joined_channel_by_name->first, *joined_channel_by_name->second);
 }
 
 /**
@@ -66,18 +70,16 @@ inline static void list_members_of_joined_channels(Client &client)
  */
 inline static void list_members_of_specific_channels(
 	Client                   &client,
-	ChannelNameVector const  &channel_names,
+	ChannelNameList const    &channel_names,
 	Server::ChannelMap const &channels_by_name)
 {
-	ChannelNameIterator const end = channel_names.end();
-
-	for (ChannelNameIterator cit = channel_names.begin(); cit != end; ++cit)
+	for (ChannelNameList::const_iterator channel_name = channel_names.begin(); channel_name != channel_names.end();
+	     ++channel_name)
 	{
-		ChannelName const                 &channel_name = *cit;
-		Server::ChannelConstIterator const channel_by_name = channels_by_name.find(channel_name);
+		Server::ChannelMap::const_iterator const channel_by_name = channels_by_name.find(*channel_name);
 
 		if (channel_by_name != channels_by_name.end())
-			list_channel_members(client, channel_name, channel_by_name->second);
+			list_channel_members(client, *channel_name, channel_by_name->second);
 	}
 }
 
@@ -91,12 +93,12 @@ inline static void list_members_of_specific_channels(
  * @throw `InvalidConversion` if a conversion specification is invalid.
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-void Server::_names(Client &sender, std::vector<std::string> const &parameters)
+void Server::_names(Client &sender, CommandParameterVector const &parameters)
 {
 	if (!sender.is_registered())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
 
 	if (parameters.empty())
 		return list_members_of_joined_channels(sender);
-	list_members_of_specific_channels(sender, split<ChannelNameVector>(parameters[0], ','), this->_channels_by_name);
+	list_members_of_specific_channels(sender, split<ChannelNameList>(parameters[0], ','), this->_channels_by_name);
 }

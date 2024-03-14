@@ -6,7 +6,7 @@
 #    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/12 05:04:18 by jodufour         ###   ########.fr        #
+#    Updated: 2024/03/13 15:01:54 by jodufour         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -72,10 +72,6 @@ LIB_SRC := \
 						methods \
 					} \
 					${addprefix ProblemWithBind/, \
-						core \
-						methods \
-					} \
-					${addprefix ProblemWithClock/, \
 						core \
 						methods \
 					} \

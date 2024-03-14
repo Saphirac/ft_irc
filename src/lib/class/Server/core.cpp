@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:10:39 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 23:55:53 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ extern bool interrupted;
 // Shared fields //
 
 static std::string const raw_operator_hosts[] = {
-	// TODO: replace this with the actual operator hosts
 	"localhost",
 };
 std::set<std::string> const Server::_operator_hosts = std::set<std::string>(
@@ -44,7 +43,7 @@ std::map<std::string, std::string const> const Server::_operator_ids = std::map<
 	raw_operator_ids,
 	raw_operator_ids + sizeof(raw_operator_ids) / sizeof(*raw_operator_ids));
 
-Server::CommandPair const Server::_raw_commands_by_name[] = {
+Server::_CommandPair const Server::_raw_commands_by_name[] = {
 	// TODO: add missing commands
 	std::make_pair("AWAY", &Server::_away),     std::make_pair("CAP", &Server::_cap),
 	std::make_pair("INVITE", &Server::_invite), std::make_pair("JOIN", &Server::_join),
@@ -57,7 +56,7 @@ Server::CommandPair const Server::_raw_commands_by_name[] = {
 	std::make_pair("QUIT", &Server::_quit),     std::make_pair("TOPIC", &Server::_topic),
 	std::make_pair("USER", &Server::_user),
 };
-Server::CommandMap const Server::_commands_by_name = CommandMap(
+Server::_CommandMap const Server::_commands_by_name = _CommandMap(
 	_raw_commands_by_name,
 	_raw_commands_by_name + sizeof(_raw_commands_by_name) / sizeof(*_raw_commands_by_name));
 
@@ -163,6 +162,7 @@ Server::Server(int const port, std::string const &name, std::string const &passw
 	_epoll_socket(epoll_create1(0)),
 	_sock_addr(new_sockaddr_in(AF_INET, htons(port), INADDR_ANY)),
 	_name(name),
+	_version("0.0"),
 	_password(password),
 	_compilation_date(__DATE__),
 	_compilation_time(__TIME__),
@@ -183,7 +183,7 @@ Server::Server(int const port, std::string const &name, std::string const &passw
 	if (this->_epoll_socket == -1)
 		throw ProblemWithEpollCreate1();
 
-	if (bind(this->_socket, (struct sockaddr *)&this->_sock_addr, sizeof(this->_sock_addr)) == -1)
+	if (bind(this->_socket, reinterpret_cast<sockaddr const *>(&this->_sock_addr), sizeof(this->_sock_addr)) == -1)
 		throw ProblemWithBind();
 
 	if (listen(this->_socket, 10) == -1)

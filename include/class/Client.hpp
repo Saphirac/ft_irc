@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:25:26 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 14:54:05 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,6 @@ public:
 
 	// Types
 	typedef std::map<ChannelName, Channel const *const> JoinedChannelMap;
-	typedef JoinedChannelMap::const_iterator            JoinedChannelIterator;
 
 	// Constructors
 	Client(
@@ -107,7 +106,7 @@ public:
 
 	// Mutators
 	void set_socket(int const socket);
-	void set_last_msg_time(clock_t const time);
+	void set_last_msg_time(time_t const time);
 	void set_has_been_pinged(bool const has_been_pinged);
 	void set_ping_token(std::string const &ping_token);
 	void set_nickname(NickName const &nickname);
@@ -118,7 +117,7 @@ public:
 	// Methods
 	void        append_to_msg_in(std::string const &s);
 	std::string get_next_msg(void);
-	clock_t     time_since_last_msg(void) const;
+	time_t      time_since_last_msg(void) const;
 
 	bool is_registered(void) const;
 
@@ -144,7 +143,7 @@ private:
 	int         _socket;
 	std::string _msg_in;
 	std::string _msg_out;
-	clock_t     _last_msg_time;
+	time_t      _last_msg_time;
 	bool        _has_been_pinged;
 	std::string _ping_token;
 

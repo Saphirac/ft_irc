@@ -6,12 +6,12 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:46:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:38:57 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 15:01:17 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Client.hpp"
-#include "class/exception/ProblemWithClock.hpp"
+#include "class/exception/ProblemWithTime.hpp"
 
 // Constructors //
 
@@ -26,7 +26,7 @@ Client::Modes::Modes(void) : _flags(), _away_msg() {}
  * @param username The username of the client.
  * @param realname The realname of the client.
  *
- * @throw `ProblemWithClock` if `clock()` fails.
+ * @throw `ProblemWithTime` if `time()` fails.
  */
 Client::Client(
 	int const       socket,
@@ -37,7 +37,7 @@ Client::Client(
 	_socket(socket),
 	_msg_in(),
 	_msg_out(),
-	_last_msg_time(clock()),
+	_last_msg_time(time(NULL)),
 	_has_been_pinged(false),
 	_ping_token(),
 	_nickname(nickname),
@@ -48,7 +48,7 @@ Client::Client(
 	_joined_channels_by_name()
 {
 	if (this->_last_msg_time == -1)
-		throw ProblemWithClock();
+		throw ProblemWithTime();
 }
 
 // Destructor //
@@ -80,7 +80,7 @@ Client::JoinedChannelMap const &Client::get_joined_channels_by_name(void) const
 // Mutators //
 
 void Client::set_socket(int const socket) { this->_socket = socket; }
-void Client::set_last_msg_time(clock_t const time) { this->_last_msg_time = time; }
+void Client::set_last_msg_time(time_t const time) { this->_last_msg_time = time; }
 void Client::set_has_been_pinged(bool const has_been_pinged) { this->_has_been_pinged = has_been_pinged; }
 void Client::set_ping_token(std::string const &ping_token) { this->_ping_token = ping_token; }
 void Client::set_nickname(NickName const &nickname) { this->_nickname = nickname; }

@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:52 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:29:01 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 00:13:37 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,27 +25,33 @@ inline static bool is_channel(std::string const &s) { return possible_channel_pr
 // TODO: Write the doxygen comment of this function
 inline static void privmsg_to_channel(
 	Client            &sender,
-	Channel const     &channel,
-	ChannelName const &chan_name,
+	ChannelName const &target_name,
+	Channel const     &target,
 	std::string const &msg)
 {
-	if (channel.get_modes().is_set(NoMessagesFromOutside) && !channel.has_member(sender))
-		return sender.append_formatted_reply_to_msg_out(ERR_CANNOTSENDTOCHAN, &chan_name);
-	channel.broadcast_to_all_members_but_one(sender.prefix() + "PRIVMSG " + chan_name + " :" + msg, sender);
+	if (target.get_modes().is_set(NoMessagesFromOutside) && !target.has_member(sender))
+		return sender.append_formatted_reply_to_msg_out(ERR_CANNOTSENDTOCHAN, &target_name);
+
+	target.broadcast_to_all_members_but_one(sender.prefix() + "PRIVMSG " + target_name + " :" + msg, sender);
 }
 
 // TODO: Write the doxygen comment of this function
-inline static void privmsg_to_user(Client &sender, NickName const &nickname, Client &receiver, std::string const &msg)
+inline static void privmsg_to_user(
+	Client            &sender,
+	NickName const    &target_nickname,
+	Client            &target,
+	std::string const &msg)
 {
-	Client::Modes const &user_modes = receiver.get_modes();
+	Client::Modes const &target_modes = target.get_modes();
 
-	if (user_modes.is_set(Away))
-		sender.append_formatted_reply_to_msg_out(RPL_AWAY, &nickname, &user_modes.get_away_msg());
-	receiver.append_to_msg_out(sender.prefix() + "PRIVMSG " + nickname + " :" + msg);
+	if (target_modes.is_set(Away))
+		sender.append_formatted_reply_to_msg_out(RPL_AWAY, &target_nickname, &target_modes.get_away_msg());
+
+	target.append_to_msg_out(sender.prefix() + "PRIVMSG " + target_nickname + " :" + msg);
 }
 
 // TODO: Write the doxygen comment of this method
-void Server::_privmsg(Client &sender, std::vector<std::string> const &parameters)
+void Server::_privmsg(Client &sender, CommandParameterVector const &parameters)
 {
 	if (!sender.is_registered())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
@@ -60,19 +66,18 @@ void Server::_privmsg(Client &sender, std::vector<std::string> const &parameters
 	{
 		if (is_channel(*target))
 		{
-			ChannelName const         &channel_name = ChannelName(*target);
-			ChannelConstIterator const channel_by_name = this->_channels_by_name.find(channel_name);
+			ChannelName const               &channel_name = ChannelName(*target);
+			ChannelMap::const_iterator const channel_by_name = this->_channels_by_name.find(channel_name);
 
 			if (channel_by_name == this->_channels_by_name.end())
 				return sender.append_formatted_reply_to_msg_out(ERR_CANNOTSENDTOCHAN, &channel_name);
 
-			privmsg_to_channel(sender, channel_by_name->second, channel_name, parameters[1]);
+			privmsg_to_channel(sender, channel_name, channel_by_name->second, parameters[1]);
 		}
 		else
 		{
-			NickName const                                   &nickname = NickName(*target);
-			std::map<NickName, Client *const>::const_iterator client_by_nickname =
-				this->_clients_by_nickname.find(nickname);
+			NickName const           &nickname = NickName(*target);
+			ClientMap::const_iterator client_by_nickname = this->_clients_by_nickname.find(nickname);
 
 			if (client_by_nickname == this->_clients_by_nickname.end())
 				return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHNICK, &nickname);

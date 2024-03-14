@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 00:23:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 02:43:49 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 12:22:52 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,11 +47,11 @@ public:
 		// Methods
 		void set(ChannelMode const mode, void const *const arg = NULL);
 		void clear(ChannelMode const mode, void const *const arg = NULL);
-
 		bool is_set(ChannelMode const mode) const;
 		bool has_operator(Client const &client) const;
 		bool has_invite_mask(NickName const &nickname) const;
 		bool has_ban_mask(NickName const &nickname) const;
+		bool has_any_mode_set(void) const;
 
 		std::string to_string(
 			bool const include_operators = false,
@@ -73,6 +73,7 @@ public:
 			void set(ChannelMode const mode);
 			void clear(ChannelMode const mode);
 			bool is_set(ChannelMode const mode) const;
+			bool has_any_flag_set(void) const;
 
 			std::string to_string(void) const;
 
@@ -131,10 +132,8 @@ public:
 
 private:
 	// Types
-	typedef std::set<Client *>              _MemberSet;
-	typedef _MemberSet::const_iterator      _MemberIterator;
-	typedef std::map<Client const *, bool>  _InvitedUserMap;
-	typedef _InvitedUserMap::const_iterator _InvitedUserIterator;
+	typedef std::set<Client *>                   _MemberSet;
+	typedef std::map<Client const *, bool const> _InvitedUserMap;
 
 	// Fields
 	Topic           _topic;
