@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 19:01:27 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 22:32:37 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/15 00:07:23 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#define MAX_BUFFER_SIZE 4096
+#define BUFFER_SIZE 4096
 #define TIMEOUT 5
 
 /**
@@ -28,18 +28,38 @@
 volatile bool bot_interrupted = false;
 
 /**
- * @brief removes the crlf from a string
- * 
- * @param str the string to remove the crlf from
- * @return std::string a new string without the crlf
+ * @brief Appends a string to the input buffer of the Client instance.
+ *
+ * @param s The string to append.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-inline static std::string remove_crlf(std::string const &str)
-{
-	std::string result = str;
+void Bot::_append_to_msg_in(std::string const &s) { this->_msg_in += s; }
 
-	if (result.length() >= 2 && result[result.length() - 2] == '\r' && result[result.length() - 1] == '\n')
-		result.erase(result.length() - 2);
-	return result;
+#define TERMINATING_SEQUENCE "\r\n"
+#define TERMINATING_SEQUENCE_LENGTH 2
+#define MAXIMUM_LENGTH_FOR_MESSAGE 512
+/**
+ * @brief Get the first message in the input buffer of the Client instance.
+ * A message is <= 512 characters and is suffixed with a CRLF sequence.
+ * Then it extracts and return this message and erase it from the reste of the buffer.
+ *
+ * @return The message found or an empty string if either no message is found or the message is too long.
+ */
+std::string Bot::_get_next_msg(void)
+{
+	size_t const pos = this->_msg_in.find(TERMINATING_SEQUENCE);
+
+	if (pos == std::string::npos)
+		return std::string();
+
+	std::string const msg = this->_msg_in.substr(0, pos);
+
+	this->_msg_in.erase(0, pos + TERMINATING_SEQUENCE_LENGTH);
+	if (pos > MAXIMUM_LENGTH_FOR_MESSAGE)
+		return std::string();
+
+	return msg;
 }
 
 /**
@@ -77,6 +97,8 @@ void Bot::_privmsg(Message const &msg)
 	if (msg.get_parameters().size() < 2)
 		return;
 
+	std::string const first_param = msg.get_parameters()[0];
+	std::string const second_param = msg.get_parameters()[1];
 	std::string const sender = is_channel(first_param) ? first_param : msg.get_prefix().who_is_sender();
 
 	if (!second_param.empty())
@@ -132,26 +154,29 @@ void Bot::_bot_routine(fd_set &read_fds, int &max_fd, timeval &timeout)
 		throw ProblemWithSelect();
 	if (activity && FD_ISSET(this->_socket, &read_fds))
 	{
-		char    buffer[MAX_BUFFER_SIZE];
-		ssize_t received = recv(this->_socket, buffer, sizeof(buffer) - 1, 0);
+		char          buffer[BUFFER_SIZE];
+		ssize_t const bytes_received = recv(this->_socket, buffer, BUFFER_SIZE, 0);
 
-		if (received < 0)
+		if (bytes_received < 0)
 			throw ProblemWithRecv();
-		else if (received == 0)
+		else if (bytes_received == 0)
 		{
 			std::cout << "Server closed connection" << std::endl;
 			bot_interrupted = true;
 			return;
-		}
-		else
+		}	
+		this->_append_to_msg_in(std::string(buffer, bytes_received));
+
+		std::string const raw_msg = this->_get_next_msg();
+
+		if (!raw_msg.empty())
 		{
-			Message               msg(remove_crlf(std::string(buffer, received)));
-			CommandIterator const command_by_name = this->_commands_by_name.find(msg.get_command());
+			Message const                     msg(raw_msg);
+			_CommandMap::const_iterator const command_by_name = this->_commands_by_name.find(msg.get_command());
 
 			if (command_by_name == this->_commands_by_name.end())
 				return ;
-			else
-				(this->*(command_by_name->second))(msg);
+			(this->*(command_by_name->second))(msg);
 		}
 	}
 }

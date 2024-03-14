@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 02:01:25 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/15 00:03:20 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -273,7 +273,7 @@ void Client::append_to_msg_in(std::string const &s) { this->_msg_in += s; }
  *
  * @return The message found or an empty string if either no message is found or the message is too long.
  */
-std::string Client::get_next_msg(void)
+std::string Bot::_get_next_msg(void)
 {
 	size_t const pos = this->_msg_in.find(TERMINATING_SEQUENCE);
 

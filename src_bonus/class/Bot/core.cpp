@@ -6,19 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 18:57:11 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 18:26:07 by mcourtoi         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   core.cpp                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/13 18:57:11 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 17:59:24 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 23:39:53 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +25,7 @@ extern volatile bool bot_interrupted;
  * @brief the initializer by std::pair of the CommandMap
  * 
  */
-Bot::CommandPair const Bot::_raw_commands_by_name[] = {
+Bot::_CommandPair const Bot::_raw_commands_by_name[] = {
 	std::make_pair("INVITE", &Bot::_invite),
 	std::make_pair("PING", &Bot::_ping),
 	std::make_pair("PRIVMSG", &Bot::_privmsg),
@@ -47,20 +35,18 @@ Bot::CommandPair const Bot::_raw_commands_by_name[] = {
  * @brief a map of all the commands that can be used by the bot
  * 
  */
-Bot::CommandMap const Bot::_commands_by_name = CommandMap(
+Bot::_CommandMap const Bot::_commands_by_name = _CommandMap(
 	_raw_commands_by_name,
 	_raw_commands_by_name + sizeof(_raw_commands_by_name) / sizeof(*_raw_commands_by_name));
 
 /**
- * @brief the fonction to call if sigint (^C) is used change the global variable bot_interrupted to true
+ * @brief called if sigint (^C) is used to change the global variable bot_interrupted to true
  * 
  * @param signal_number unused argument
  */
 inline static void handle_sigint(int signal_number __attribute__((unused))) { bot_interrupted = true; }
 
 /**
- * @brief Construct a new Bot:: Bot object
- * 
  * @param port the server port
  * @param password the password to use to connect to the server
  * 
@@ -81,7 +67,7 @@ Bot::Bot(int const port, std::string const &password) : _socket(socket(AF_INET, 
 	server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	// Connect to server
-	if (connect(this->_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
+	if (connect(this->_socket, reinterpret_cast<struct sockaddr*>(&server_addr), sizeof(server_addr)) < 0)
 		throw ProblemWithConnect();
 
 	// Set the signal handler for sigint

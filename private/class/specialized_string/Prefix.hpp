@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 03:04:01 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/13 17:26:18 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 23:35:15 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,6 @@ public:
 	~Prefix(void);
 
 	// Methods
-	bool is_valid(void) const;
-
-	// Getters
+	bool              is_valid(void) const;
 	std::string const who_is_sender(void) const;
 };
