@@ -6,7 +6,7 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:36:34 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 13:15:32 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/14 16:40:49 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 // Constructors //
 
 /**
- * @param password The nickname to initialize the instance with.
+ * @param password The password to initialize the instance with.
  */
 Password::Password(std::string const &password) : std::string(password) {}
 

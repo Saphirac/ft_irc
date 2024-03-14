@@ -6,7 +6,7 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/13 18:33:23 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/14 17:05:50 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,9 @@ inline static bool check_main_arguments(int const ac, char const *const *const a
 		std::cerr << "incorrect: number of arguments" << std::endl;
 		return false;
 	}
-	for (const char *it = av[1]; *it; ++it)
+	for (char const *ptr = av[1]; *ptr; ++ptr)
 	{
-		if (!isdigit(*it))
+		if (!isdigit(*ptr))
 		{
 			std::cerr << "incorrect: port must be only digit" << std::endl;
 			return false;
@@ -51,15 +51,15 @@ inline static bool check_main_arguments(int const ac, char const *const *const a
 
 	errno = 0;
 
-	if ((errno == ERANGE && (port == LONG_MAX || port == LONG_MIN)) || (errno != 0 && port == 0))
+	if (errno == ERANGE)
 	{
 		std::cerr << "incorrect: port conversion error" << std::endl;
 		return false;
 	}
 
-	if (*end_ptr != '\0' || !(port >= MINIMUM_PORT && port <= MAXIMUM_PORT))
+	if (*end_ptr != '\0' || (port < MINIMUM_PORT && port > MAXIMUM_PORT))
 	{
-		std::cerr << "incorrect: port must be between 1024 and 49151" << std::endl;
+		std::cerr << "incorrect: port must be between MINIMUM_PORT and MAXIMUM_PORT" << std::endl;
 		return false;
 	}
 

@@ -6,7 +6,7 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:37:23 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 12:17:11 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/14 16:58:36 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,18 +15,20 @@
 
 #define MAXIMUM_LENGTH_FOR_PASSWORD 50
 
-inline static bool is_nolfcrspcl(char c)
+inline static bool is_nolfcrspcl(char const c)
 {
-	return (c >= 0x01 && c <= 0x09) || (c >= 0x0B && c <= 0x0C) || (c >= 0x0E && c <= 0x1F) || (c >= 0x21 && c <= 0x39)
-	    || (c >= 0x3B);
+	return std::string("\x00\r\n :").find(c) == std::string::npos;
 }
 
-inline static bool is_nolfcrsp(char c)
+inline static bool is_nolfcrsp(char const c)
 {
-	return (c >= 0x01 && c <= 0x09) || (c >= 0x0B && c <= 0x0C) || (c >= 0x0E && c <= 0x1F) || (c >= 0x21);
+	return std::string("\x00\r\n ").find(c) == std::string::npos;
 }
 
-inline static bool is_nolfcr(char c) { return c != '\n' && c != '\r'; }
+inline static bool is_nolfcr(char const c)
+{
+	return std::string("\x00\r\n").find(c) == std::string::npos;
+}
 
 /**
  * @brief Checks whether the password is valid.
@@ -39,14 +41,14 @@ bool Password::is_valid() const
 		return false;
 
 	size_t const length = this->length();
-
-	char const first_char = this->at(0);
-	if (!is_nolfcrspcl(first_char))
+	
+	if (!is_nolfcrspcl(this->at(0)))
 		return false;
 
 	for (size_t i = 1; i < length; ++i)
 	{
-		char c = this->at(i);
+		char const c = this->at(i);
+		
 		if (c == ':')
 		{
 			for (size_t j = i + 1; j < length; ++j)
@@ -54,11 +56,10 @@ bool Password::is_valid() const
 				if (!is_nolfcr(this->at(j)))
 					return false;
 			}
-			break; // Exit the loop after processing the portion following ':'
+			return true;
 		}
-		else if (!is_nolfcrsp(c))
+		if (!is_nolfcrsp(c))
 			return false;
 	}
-
 	return true;
 }
