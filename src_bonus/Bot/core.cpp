@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 18:57:11 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 03:59:26 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 13:58:39 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,9 @@
 #include <string>
 #include <sys/socket.h>
 
-extern bool interrupted;
+extern bool bot_interrupted;
 
-inline static void handle_sigint(int sig)
-{
-	(void)sig;
-	interrupted = true;
-}
+inline static void handle_sigint(int signal_number __attribute__((unused))) { bot_interrupted = true; }
 
 Bot::Bot(int const port, std::string const &password) : _socket(socket(AF_INET, SOCK_STREAM, 0)), _password(password)
 {
@@ -44,16 +40,7 @@ Bot::Bot(int const port, std::string const &password) : _socket(socket(AF_INET, 
 	if (connect(this->_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
 		throw ProblemWithConnect();
 
-	struct sigaction sa;
-	sa.sa_handler = handle_sigint; // Définir le gestionnaire de signal
-	sigemptyset(&sa.sa_mask);      // Bloquer aucun signal supplémentaire
-	sa.sa_flags = 0;               // Flags à 0
-
-	if (sigaction(SIGINT, &sa, NULL) == -1)
-		throw ProblemWithSigaction();
+	signal(SIGINT, handle_sigint);
 }
 
-Bot::~Bot()
-{
-	this->_disconnect();
-}
+Bot::~Bot() { this->_disconnect(); }

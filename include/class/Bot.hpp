@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 18:56:18 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 03:58:47 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 13:55:31 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,16 +18,14 @@
 class Bot
 {
 public:
-
 	Bot(int const port = 0, std::string const &password = "");
 
 	~Bot();
-	
+
 	void run();
 
 private:
-
-	int _socket;
+	int         _socket;
 	std::string _password;
 
 	void _send_connexion_message();
@@ -36,5 +34,5 @@ private:
 	void _join_cmd(std::string &response, Message const &msg);
 	void _disconnect();
 
-	void _bot_loop();
+	void _bot_routine();
 };

@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 19:01:27 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 04:00:16 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 13:57:32 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,12 @@
 #include "class/exception/ProblemWithRecv.hpp"
 #include "class/exception/ProblemWithSend.hpp"
 #include <iostream>
-#include <unistd.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 #define MAX_BUFFER_SIZE 4096
 
-bool interrupted = false;
+bool bot_interrupted = false;
 
 inline static std::string remove_crlf(std::string const &str)
 {
@@ -33,8 +33,8 @@ inline static std::string remove_crlf(std::string const &str)
 
 void Bot::_send_connexion_message()
 {
-	std::string const connexion_msg =
-		"PASS " + this->_password + "\r\n" + "NICK Wall-E\r\n" + "USER userbot 0 localhost userbot\r\n" + "MODE +B\r\n";
+	std::string const connexion_msg = "PASS " + this->_password + "\r\n" + "NICK Wall-E\r\n"
+	                                + "USER userbot 0 localhost userbot\r\n" + "MODE Wall-E +B\r\n";
 
 	if (send(this->_socket, connexion_msg.c_str(), connexion_msg.size(), 0) < 0)
 		throw ProblemWithSend();
@@ -74,37 +74,34 @@ void Bot::_join_cmd(std::string &response, Message const &msg)
 	response = "JOIN " + msg.get_parameters()[1];
 }
 
-void Bot::_bot_loop()
+void Bot::_bot_routine()
 {
-	while (interrupted == false)
+	char    buffer[MAX_BUFFER_SIZE];
+	ssize_t received = recv(this->_socket, buffer, sizeof(buffer) - 1, 0);
+	buffer[received] = '\0'; // Assurez-vous que la chaîne est correctement terminée.
+
+	if (received < 0)
+		throw ProblemWithRecv();
+	else if (received == 0)
 	{
-		char    buffer[MAX_BUFFER_SIZE];
-		ssize_t received = recv(this->_socket, buffer, sizeof(buffer) - 1, 0);
-		buffer[received] = '\0'; // Assurez-vous que la chaîne est correctement terminée.
+		std::cout << "Server closed connection" << std::endl;
+		return;
+	}
+	else
+	{
+		Message     msg((std::string(buffer, received)));
+		std::string response;
 
-		if (received < 0)
-			throw ProblemWithRecv();
-		else if (received == 0)
-		{
-			std::cout << "Server closed connection" << std::endl;
-			return;
-		}
-		else
-		{
-			Message     msg((std::string(buffer, received)));
-			std::string response;
+		std::cout << "Command : [" << msg.get_command() << "]" << std::endl;
 
-			std::cout << "Command : [" << msg.get_command() << "]" << std::endl;
-
-			if (msg.get_command() == "PRIVMSG")
-				this->_privmsg_cmd(response, msg);
-			if (msg.get_command() == "PING")
-				this->_ping_cmd(response, msg);
-			if (msg.get_command() == "INVITE")
-				this->_join_cmd(response, msg);
-			if (!response.empty() && send(this->_socket, response.c_str(), response.size(), 0) < 0)
-				throw ProblemWithSend();
-		}
+		if (msg.get_command() == "PRIVMSG")
+			this->_privmsg_cmd(response, msg);
+		if (msg.get_command() == "PING")
+			this->_ping_cmd(response, msg);
+		if (msg.get_command() == "INVITE")
+			this->_join_cmd(response, msg);
+		if (!response.empty() && send(this->_socket, response.c_str(), response.size(), 0) < 0)
+			throw ProblemWithSend();
 	}
 }
 
@@ -117,5 +114,8 @@ void Bot::_disconnect()
 void Bot::run()
 {
 	this->_send_connexion_message();
-	this->_bot_loop();
+	while (!bot_interrupted)
+	{
+		this->_bot_routine();
+	}
 }
