@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 18:56:18 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 15:58:52 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 18:08:14 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,5 +47,5 @@ private:
 	void _invite(Message const &msg);
 	void _disconnect();
 
-	void _bot_routine(fd_set &read_fds, int &max_fd);
+	void _bot_routine(fd_set &read_fds, int &max_fd, timeval &timeout);
 };
