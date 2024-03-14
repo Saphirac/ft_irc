@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 08:43:46 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 00:14:58 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,23 +19,22 @@
  * @param sender The client that sent the command.
  * @param parameters The parameters of the command.
  */
-void Server::_invite(Client &sender, std::vector<std::string> const &params)
+void Server::_invite(Client &sender, CommandParameterVector const &parameters)
 {
 	if (!sender.is_registered())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
-	if (params.size() < 2)
+	if (parameters.size() < 2)
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "INVITE");
 
-	NickName const                                   &sender_nickname = sender.get_nickname();
-	NickName const                                   &target_nickname = params[0];
-	std::map<NickName, Client *const>::iterator const user_by_nickname =
-		this->_clients_by_nickname.find(target_nickname);
+	NickName const           &sender_nickname = sender.get_nickname();
+	NickName const           &target_nickname = parameters[0];
+	ClientMap::iterator const user_by_nickname = this->_clients_by_nickname.find(target_nickname);
 
 	if (user_by_nickname == this->_clients_by_nickname.end())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHNICK, &target_nickname);
 
 	Client                    &target = *user_by_nickname->second;
-	ChannelName const         &channel_name = params[1];
+	ChannelName const         &channel_name = parameters[1];
 	ChannelMap::iterator const channel_by_name = this->_channels_by_name.find(channel_name);
 
 	if (channel_by_name == this->_channels_by_name.end())

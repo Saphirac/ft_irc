@@ -12,8 +12,7 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include "class/Server.hpp"
 
 class Message
 {
@@ -25,13 +24,13 @@ public:
 	~Message(void);
 
 	// Accessors
-	std::string const              &get_prefix(void) const;
-	std::string const              &get_command(void) const;
-	std::vector<std::string> const &get_parameters(void) const;
+	std::string const                    &get_prefix(void) const;
+	std::string const                    &get_command(void) const;
+	Server::CommandParameterVector const &get_parameters(void) const;
 
 private:
 	// Fields
-	std::string              _prefix;
-	std::string              _command;
-	std::vector<std::string> _parameters;
+	std::string                    _prefix;
+	std::string                    _command;
+	Server::CommandParameterVector _parameters;
 };

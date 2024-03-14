@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:26:47 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 08:43:02 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 00:13:37 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ inline static void send_back_current_topic(Client &sender, Channel const &channe
 	sender.append_formatted_reply_to_msg_out(RPL_TOPIC, &chan_name, &topic);
 }
 
-void Server::_topic(Client &sender, std::vector<std::string> const &parameters)
+void Server::_topic(Client &sender, CommandParameterVector const &parameters)
 {
 	if (!sender.is_registered())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);

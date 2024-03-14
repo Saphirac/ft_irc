@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:52 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 09:45:02 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 00:13:37 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ inline static void privmsg_to_user(
 }
 
 // TODO: Write the doxygen comment of this method
-void Server::_privmsg(Client &sender, std::vector<std::string> const &parameters)
+void Server::_privmsg(Client &sender, CommandParameterVector const &parameters)
 {
 	if (!sender.is_registered())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
@@ -76,9 +76,8 @@ void Server::_privmsg(Client &sender, std::vector<std::string> const &parameters
 		}
 		else
 		{
-			NickName const                                   &nickname = NickName(*target);
-			std::map<NickName, Client *const>::const_iterator client_by_nickname =
-				this->_clients_by_nickname.find(nickname);
+			NickName const           &nickname = NickName(*target);
+			ClientMap::const_iterator client_by_nickname = this->_clients_by_nickname.find(nickname);
 
 			if (client_by_nickname == this->_clients_by_nickname.end())
 				return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHNICK, &nickname);

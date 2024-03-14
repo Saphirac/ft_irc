@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:28:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 09:46:46 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 00:13:37 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ inline static void notice_to_user(
 	target.append_to_msg_out(sender.prefix() + "NOTICE " + target_nickname + " :" + msg);
 }
 
-void Server::_notice(Client &sender, std::vector<std::string> const &parameters)
+void Server::_notice(Client &sender, CommandParameterVector const &parameters)
 {
 	if (!sender.is_registered() || parameters.size() < 2)
 		return;
@@ -71,9 +71,8 @@ void Server::_notice(Client &sender, std::vector<std::string> const &parameters)
 		}
 		else
 		{
-			NickName const                                   &nickname = NickName(*target);
-			std::map<NickName, Client *const>::const_iterator client_by_nickname =
-				this->_clients_by_nickname.find(nickname);
+			NickName const           &nickname = NickName(*target);
+			ClientMap::const_iterator client_by_nickname = this->_clients_by_nickname.find(nickname);
 
 			if (client_by_nickname == this->_clients_by_nickname.end())
 				return;

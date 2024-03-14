@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:15 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 13:04:33 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 02:41:16 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ typedef std::list<ChannelName> ChannelNameList;
  * @throw `InvalidConversion` if a conversion specification is invalid.
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-void Server::_list(Client &sender, std::vector<std::string> const &parameters)
+void Server::_list(Client &sender, CommandParameterVector const &parameters)
 {
 	if (!sender.is_registered())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);

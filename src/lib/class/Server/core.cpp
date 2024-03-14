@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 09:22:32 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/13 23:55:53 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ std::map<std::string, std::string const> const Server::_operator_ids = std::map<
 	raw_operator_ids,
 	raw_operator_ids + sizeof(raw_operator_ids) / sizeof(*raw_operator_ids));
 
-Server::CommandPair const Server::_raw_commands_by_name[] = {
+Server::_CommandPair const Server::_raw_commands_by_name[] = {
 	// TODO: add missing commands
 	std::make_pair("AWAY", &Server::_away),     std::make_pair("CAP", &Server::_cap),
 	std::make_pair("INVITE", &Server::_invite), std::make_pair("JOIN", &Server::_join),
@@ -56,7 +56,7 @@ Server::CommandPair const Server::_raw_commands_by_name[] = {
 	std::make_pair("QUIT", &Server::_quit),     std::make_pair("TOPIC", &Server::_topic),
 	std::make_pair("USER", &Server::_user),
 };
-Server::CommandMap const Server::_commands_by_name = CommandMap(
+Server::_CommandMap const Server::_commands_by_name = _CommandMap(
 	_raw_commands_by_name,
 	_raw_commands_by_name + sizeof(_raw_commands_by_name) / sizeof(*_raw_commands_by_name));
 

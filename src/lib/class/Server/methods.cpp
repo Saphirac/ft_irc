@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 15:38:16 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 02:40:43 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,9 +167,9 @@ void Server::_compute_next_msg_for_a_client(Client &client)
 
 	if (!raw_msg.empty())
 	{
-		Message const                    msg(raw_msg);
-		std::string const               &command_name = msg.get_command();
-		CommandMap::const_iterator const command_by_name = this->_commands_by_name.find(command_name);
+		Message const                     msg(raw_msg);
+		std::string const                &command_name = msg.get_command();
+		_CommandMap::const_iterator const command_by_name = this->_commands_by_name.find(command_name);
 
 		if (command_by_name == this->_commands_by_name.end())
 			client.append_formatted_reply_to_msg_out(ERR_UNKNOWNCOMMAND, &command_name);
@@ -218,32 +218,19 @@ void Server::_check_time_of_last_msg(Client &client) const
 }
 
 /**
- * @brief Removes a client from the list of known clients.
+ * @brief
+ * Makes a client leave all their joined channels using PART,
+ * close their connection, and removes them from the list of known clients.
  *
- * @param client The Client instance to remove.
+ * @param client The client to remove.
+ * @param part_text The PART text to send to the channels in which the user is joined.
  *
  * @throw `ProblemWithClose` if `close()` fails.
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-void Server::_remove_client(Client &client, std::string const &quit_msg)
+void Server::_remove_client(Client &client, std::string const &part_text)
 {
-	Client::JoinedChannelMap const &joined_channels_by_name = client.get_joined_channels_by_name();
-
-	if (!joined_channels_by_name.empty())
-	{
-		Client::JoinedChannelMap::const_iterator joined_channel_by_name = joined_channels_by_name.begin();
-		std::string                              channels_to_leave = joined_channel_by_name->first;
-
-		while (++joined_channel_by_name != joined_channels_by_name.end())
-			channels_to_leave += ',' + joined_channel_by_name->first;
-
-		std::vector<std::string> part_arguments(2);
-
-		part_arguments[0] = channels_to_leave;
-		part_arguments[1] = quit_msg;
-		this->_part(client, part_arguments);
-	}
-
+	this->_make_client_leave_all_their_joined_channels(client, part_text);
 	this->_clients_by_nickname.erase(client.get_nickname());
 	this->_clients_by_socket.erase(client.get_socket());
 }
@@ -261,4 +248,32 @@ void Server::_welcome(Client &client) const
 	client.append_formatted_reply_to_msg_out(RPL_YOURHOST, &this->_name, &this->_version);
 	client.append_formatted_reply_to_msg_out(RPL_CREATED, &this->_creation_date);
 	client.append_formatted_reply_to_msg_out(RPL_MYINFO, &this->_name, &this->_version, USER_MODES, CHANNEL_MODES);
+}
+
+/**
+ * @brief Makes a user leave all their joined channels using the PART command.
+ *
+ * @param user The user that will leave all their joined channels.
+ * @param part_text The PART text to send to the channels in which the user is joined.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+void Server::_make_client_leave_all_their_joined_channels(Client &client, std::string const &part_text)
+{
+	Client::JoinedChannelMap const &joined_channels_by_name = client.get_joined_channels_by_name();
+
+	if (joined_channels_by_name.empty())
+		return;
+
+	Client::JoinedChannelMap::const_iterator joined_channel_by_name = joined_channels_by_name.begin();
+	std::string                              channels_to_leave = joined_channel_by_name->first;
+
+	while (++joined_channel_by_name != joined_channels_by_name.end())
+		channels_to_leave += ',' + joined_channel_by_name->first;
+
+	CommandParameterVector part_arguments(2);
+
+	part_arguments[0] = channels_to_leave;
+	part_arguments[1] = part_text;
+	this->_part(client, part_arguments);
 }

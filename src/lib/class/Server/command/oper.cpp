@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:45 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 05:29:01 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 00:13:37 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
  * @throw `InvalidConversion` if a conversion specification is invalid.
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-void Server::_oper(Client &sender, std::vector<std::string> const &parameters)
+void Server::_oper(Client &sender, CommandParameterVector const &parameters)
 {
 	if (!sender.is_registered())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);

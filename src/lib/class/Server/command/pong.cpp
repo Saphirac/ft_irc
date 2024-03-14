@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:32:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 14:59:22 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 02:41:53 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
  * @param sender The client that sent the command.
  * @param parameters The parameters of the command.
  */
-void Server::_pong(Client &sender, std::vector<std::string> const &parameters)
+void Server::_pong(Client &sender, CommandParameterVector const &parameters)
 {
 	if (sender.get_has_been_pinged() == false || parameters.empty() || sender.get_ping_token() != parameters[0])
 		return;

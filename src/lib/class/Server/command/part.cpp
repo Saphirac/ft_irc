@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:26:34 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 09:52:48 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/14 00:13:37 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 #include "replies.hpp"
 #include "split.hpp"
 #include <list>
-
-#define DEFAULT_PART_MESSAGE "Goodbye to all!"
 
 typedef std::list<ChannelName> ChannelNameList;
 
@@ -27,7 +25,7 @@ typedef std::list<ChannelName> ChannelNameList;
  *
  * @throw std:exception if a std function critically fails
  */
-void Server::_part(Client &sender, std::vector<std::string> const &parameters)
+void Server::_part(Client &sender, CommandParameterVector const &parameters)
 {
 	if (!sender.is_registered())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
@@ -50,7 +48,7 @@ void Server::_part(Client &sender, std::vector<std::string> const &parameters)
 			return sender.append_formatted_reply_to_msg_out(ERR_NOTONCHANNEL, &*channel_name);
 
 		std::string const msg = sender.prefix() + "PART " + *channel_name + ' '
-		                      + (parameters.size() > 1 ? parameters[1] : DEFAULT_PART_MESSAGE);
+		                      + (parameters.size() > 1 ? parameters[1] : DEFAULT_PART_TEXT);
 
 		channel.broadcast_to_all_members(msg);
 		channel.remove_member(sender);
