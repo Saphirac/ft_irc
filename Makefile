@@ -6,7 +6,7 @@
 #    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/14 17:07:49 by jodufour         ###   ########.fr        #
+#    Updated: 2024/03/15 00:37:21 by jodufour         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -184,6 +184,10 @@ LIB_SRC := \
 						methods \
 					} \
 					${addprefix NickName/, \
+						core \
+						methods \
+					} \
+					${addprefix Password/, \
 						core \
 						methods \
 					} \
