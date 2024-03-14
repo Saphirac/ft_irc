@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/14 18:41:21 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/03/14 18:47:33 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -83,6 +83,10 @@ LIB_SRC := \
 						core \
 						methods \
 					} \
+					${addprefix ProblemWithConnect/, \
+						core \
+						methods \
+					} \
 					${addprefix ProblemWithEpollCreate1/, \
 						core \
 						methods \
@@ -108,6 +112,10 @@ LIB_SRC := \
 						methods \
 					} \
 					${addprefix ProblemWithSend/, \
+						core \
+						methods \
+					} \
+					${addprefix ProblemWithSelect/, \
 						core \
 						methods \
 					} \

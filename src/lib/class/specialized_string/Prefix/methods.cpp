@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 03:04:48 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/11 17:08:07 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/13 17:25:54 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ bool Prefix::is_valid(void) const
 		return false;
 
 	size_t const      end_server_or_nick = this->find_first_of("!@", 1);
-	std::string const server_or_nick = this->substr(1, end_server_or_nick - 1);
+	std::string server_or_nick = this->substr(1, end_server_or_nick - 1);
 
 	if (end_server_or_nick == std::string::npos)
 		return HostName(server_or_nick).is_valid();
@@ -51,4 +51,9 @@ bool Prefix::is_valid(void) const
 		return UserName(remaining.substr(0, at_pos)).is_valid() && HostName(remaining.substr(at_pos + 1)).is_valid();
 	}
 	return HostName(remaining).is_valid();
+}
+
+std::string const Prefix::who_is_sender(void) const 
+{
+	return this->substr(1, this->find_first_of("!@") - 1);
 }

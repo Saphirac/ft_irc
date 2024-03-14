@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:06:05 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/11 05:49:32 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/14 18:46:07 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,6 @@ Message::~Message(void) {}
 
 // Accessors //
 
-std::string const              &Message::get_prefix(void) const { return this->_prefix; }
+Prefix const                   &Message::get_prefix(void) const { return this->_prefix; }
 std::string const              &Message::get_command(void) const { return this->_command; }
 std::vector<std::string> const &Message::get_parameters(void) const { return this->_parameters; }
