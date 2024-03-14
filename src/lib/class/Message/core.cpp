@@ -6,11 +6,23 @@
 /*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:06:05 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/11 05:49:32 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/14 23:02:57 by gle-mini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Message.hpp"
+
+/**
+ * @brief Converts a given command string to uppercase.
+ *
+ * @param command The command string to convert to uppercase. 
+ * @return std::string The command string converted to uppercase.
+ */
+inline static std::string to_upper_command(std::string command)
+{
+	for (std::string::size_type i = 0; i < command.length(); ++i) command[i] = std::toupper(command[i]);
+	return command;
+}
 
 // Constructors //
 
@@ -37,10 +49,10 @@ Message::Message(std::string const &msg) : _prefix(), _command(), _parameters()
 	// Command
 	if ((space_pos = msg.find(' ', pos)) == std::string::npos)
 	{
-		this->_command = msg.substr(pos);
+		this->_command = to_upper_command(msg.substr(pos));
 		return;
 	}
-	this->_command = msg.substr(pos, space_pos - pos);
+	this->_command = to_upper_command(msg.substr(pos, space_pos - pos));
 	pos = space_pos + 1;
 
 	size_t const length = msg.length();
