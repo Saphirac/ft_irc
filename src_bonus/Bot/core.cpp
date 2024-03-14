@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 18:57:11 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 15:20:25 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 15:49:33 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,19 @@
 #include <string>
 #include <sys/socket.h>
 
-
 extern volatile bool bot_interrupted;
+
+Bot::CommandPair const Bot::_raw_commands_by_name[] = {
+	// TODO: add missing commands
+	std::make_pair("INVITE", &Bot::_invite),
+	std::make_pair("PING", &Bot::_ping),
+	std::make_pair("PRIVMSG", &Bot::_privmsg),
+};
+
+Bot::CommandMap const Bot::_commands_by_name = CommandMap(
+	_raw_commands_by_name,
+	_raw_commands_by_name + sizeof(_raw_commands_by_name) / sizeof(*_raw_commands_by_name));
+
 
 inline static void handle_sigint(int signal_number __attribute__((unused))) { bot_interrupted = true; }
 

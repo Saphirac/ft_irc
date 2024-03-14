@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 19:01:27 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 15:20:37 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 16:01:09 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ inline static std::string remove_crlf(std::string const &str)
 {
 	std::string result = str;
 
-	// Vérifie si la chaîne se termine par CRLF et la réduit en conséquence
 	if (result.length() >= 2 && result[result.length() - 2] == '\r' && result[result.length() - 1] == '\n')
 		result.erase(result.length() - 2);
 	return result;
@@ -44,8 +43,10 @@ void Bot::_send_connexion_message()
 inline static bool is_channel(std::string const &s) { return s[0] == '#' || s[0] == '&' || s[0] == '+' || s[0] == '!'; }
 
 // TODO : make a lookup table for these functions
-void Bot::_privmsg_cmd(std::string &response, Message const &msg)
+void Bot::_privmsg(Message const &msg)
 {
+	std::string response;
+
 	if (msg.get_parameters().size() < 2)
 		return;
 
@@ -59,20 +60,25 @@ void Bot::_privmsg_cmd(std::string &response, Message const &msg)
 			response = "PRIVMSG " + sender + " bar\r\n";
 		else if (second_param == "Eve")
 			response = "PRIVMSG " + sender + " Wall-E\r\n";
+		if (send(this->_socket, response.c_str(), response.size(), 0) < 0)
+			throw ProblemWithSend();
 	}
 }
 
-void Bot::_ping_cmd(std::string &response, Message const &msg)
+void Bot::_ping(Message const &msg)
 {
-	std::string const scd_param = remove_crlf(msg.get_parameters()[1]);
+	std::string const response = "PONG " + msg.get_parameters()[0];
 
-	response = "PONG " + msg.get_parameters()[0];
+	if (send(this->_socket, response.c_str(), response.size(), 0) < 0)
+		throw ProblemWithSend();
 }
 
-void Bot::_join_cmd(std::string &response, Message const &msg)
+void Bot::_invite(Message const &msg)
 {
-	std::cout << "Joining [" << msg.get_parameters()[1] << "]" << std::endl;
-	response = "JOIN " + msg.get_parameters()[1];
+	std::string const response = "JOIN " + msg.get_parameters()[1];
+	
+	if (send(this->_socket, response.c_str(), response.size(), 0) < 0)
+		throw ProblemWithSend();
 }
 
 void Bot::_bot_routine(fd_set &read_fds, int &max_fd)
@@ -97,23 +103,19 @@ void Bot::_bot_routine(fd_set &read_fds, int &max_fd)
 		else if (received == 0)
 		{
 			std::cout << "Server closed connection" << std::endl;
+			bot_interrupted = true;
 			return;
 		}
 		else
 		{
 			Message     msg((std::string(buffer, received)));
-			std::string response;
 
-			std::cout << "Command : [" << msg.get_command() << "]" << std::endl;
+			CommandIterator const command_by_name = this->_commands_by_name.find(msg.get_command());
 
-			if (msg.get_command() == "PRIVMSG")
-				this->_privmsg_cmd(response, msg);
-			if (msg.get_command() == "PING")
-				this->_ping_cmd(response, msg);
-			if (msg.get_command() == "INVITE")
-				this->_join_cmd(response, msg);
-			if (!response.empty() && send(this->_socket, response.c_str(), response.size(), 0) < 0)
-				throw ProblemWithSend();
+			if (command_by_name == this->_commands_by_name.end())
+				return ;
+			else
+				(this->*(command_by_name->second))(msg);
 		}
 	}
 }
