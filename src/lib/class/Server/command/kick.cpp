@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:38 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/15 00:22:07 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 06:03:47 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ typedef std::list<ChannelName> ChannelNameList;
 typedef std::list<NickName>    NickNameList;
 
 // TODO: write the doxygen comment for this function
-inline static void kick_serveral_users_from_one_channel(
+inline static void kick_several_users_from_one_channel(
 	Server::ClientMap const &users_by_nickname,
 	Server::ChannelMap      &channels_by_name,
 	Client                  &sender,
@@ -196,7 +196,7 @@ void Server::_kick(Client &sender, CommandParameterVector const &parameters)
 			parameters_len > 2 ? parameters[2] : DEFAULT_KICK_TEXT);
 	}
 	if (channel_names_len == 1)
-		return kick_serveral_users_from_one_channel(
+		return kick_several_users_from_one_channel(
 			this->_clients_by_nickname,
 			this->_channels_by_name,
 			sender,

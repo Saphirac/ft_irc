@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
+#    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/14 23:15:50 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/15 03:20:43 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/03/15 05:39:37 by jodufour         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -54,7 +54,7 @@ SRC := \
 				methods \
 			} \
 		} \
-		${addprefix Bot/, \
+		${addprefix WallE/, \
 			core \
 			methods \
 		} \
@@ -72,6 +72,7 @@ CXXFLAGS    = \
 	-Wshadow \
 	-pedantic \
 	-std=c++98 \
+	-I${PRIV_DIR} \
 	-I${INC_DIR}
 
 ifeq (${DEBUG}, 1)
@@ -108,7 +109,7 @@ clean:
 	${RM} ${NAME} ${OBJ_DIR} vgcore.*
 
 fclean: clean 
-	${MAKE} -C ../fclean
+	${MAKE} -C .. fclean
 
 re: clean all
 

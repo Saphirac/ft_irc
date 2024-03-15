@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/15 03:22:29 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 06:59:52 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,15 +43,15 @@ void Server::start(void)
 	while (!server_interrupted)
 	{
 		this->_handle_epoll_events();
-		for (std::map<int, Client>::iterator it = this->_clients_by_socket.begin();
-		     it != this->_clients_by_socket.end();)
+		for (std::map<int, Client>::iterator client_by_socket = this->_clients_by_socket.begin();
+		     client_by_socket != this->_clients_by_socket.end();)
 		{
-			Client &client = it->second;
+			Client &client = client_by_socket->second;
 
 			this->_compute_next_msg_for_a_client(client);
 			this->_check_time_of_last_msg(client);
 			client.send_msg_out();
-			++it;
+			++client_by_socket;
 			if (client.has_mode(IsAboutToBeDisconnected))
 				this->_remove_client(client);
 		}

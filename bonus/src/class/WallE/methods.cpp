@@ -3,27 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 19:01:27 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/15 03:32:36 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/15 05:39:02 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Bot.hpp"
+#include "class/WallE.hpp"
 #include "class/exception/ProblemWithRecv.hpp"
-#include "class/exception/ProblemWithSend.hpp"
 #include "class/exception/ProblemWithSelect.hpp"
+#include "class/exception/ProblemWithSend.hpp"
 #include <iostream>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #define BUFFER_SIZE 4096
-#define TIMEOUT 1
+#define TIMEOUT     1
 
 /**
  * @brief the global variable to stop the bot
- * 
+ *
  */
 volatile bool bot_interrupted = false;
 
@@ -34,11 +34,11 @@ volatile bool bot_interrupted = false;
  *
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-void Bot::_append_to_msg_in(std::string const &s) { this->_msg_in += s; }
+void WallE::_append_to_msg_in(std::string const &s) { this->_msg_in += s; }
 
-#define TERMINATING_SEQUENCE "\r\n"
+#define TERMINATING_SEQUENCE        "\r\n"
 #define TERMINATING_SEQUENCE_LENGTH 2
-#define MAXIMUM_LENGTH_FOR_MESSAGE 512
+#define MAXIMUM_LENGTH_FOR_MESSAGE  512
 
 /**
  * @brief Get the first message in the input buffer of the Client instance.
@@ -47,7 +47,7 @@ void Bot::_append_to_msg_in(std::string const &s) { this->_msg_in += s; }
  *
  * @return The message found or an empty string if either no message is found or the message is too long.
  */
-std::string Bot::_get_next_msg(void)
+std::string WallE::_get_next_msg(void)
 {
 	size_t const pos = this->_msg_in.find(TERMINATING_SEQUENCE);
 
@@ -65,9 +65,9 @@ std::string Bot::_get_next_msg(void)
 
 /**
  * @brief Sends the PASS NICK USER and MODE commands to the server
- * 
+ *
  */
-void Bot::_send_connexion_message()
+void WallE::_send_connexion_message()
 {
 	std::string const connexion_msg = "PASS " + this->_password + "\r\n" + "NICK Wall-E\r\n"
 	                                + "USER userbot 0 localhost userbot\r\n" + "MODE Wall-E +B\r\n";
@@ -78,7 +78,7 @@ void Bot::_send_connexion_message()
 
 /**
  * @brief Check if a given string corresponds to a channel (begins by #!+&)
- * 
+ *
  * @param s the string to check
  * @return true if channel
  * @return false if not channel
@@ -86,14 +86,13 @@ void Bot::_send_connexion_message()
 inline static bool is_channel(std::string const &str) { return std::string("#&+!").find(str[0]) != std::string::npos; }
 
 /**
- * @brief Responds to a PRIVMSG message with bar if the second parameter is foo and Wall-E if the second parameter is Eve
- * If the sender is a channel, sends the response to the channel, otherwise sends the response to the sender
- * 
+ * @brief Responds to a PRIVMSG message with bar if the second parameter is foo and Wall-E if the second parameter is
+ * Eve If the sender is a channel, sends the response to the channel, otherwise sends the response to the sender
+ *
  * @param msg the received message
  */
-void Bot::_privmsg(Message const &msg)
+void WallE::_privmsg(Message const &msg)
 {
-
 	if (msg.get_parameters().size() < 2)
 		return;
 
@@ -101,10 +100,10 @@ void Bot::_privmsg(Message const &msg)
 
 	if (!second_param.empty())
 	{
-		std::string response;
+		std::string       response;
 		std::string const first_param = msg.get_parameters()[0];
 		std::string const sender = is_channel(first_param) ? first_param : msg.get_prefix().who_is_sender();
-		
+
 		if (second_param == "foo")
 			response = "PRIVMSG " + sender + " bar\r\n";
 		else if (second_param == "Eve")
@@ -116,10 +115,10 @@ void Bot::_privmsg(Message const &msg)
 
 /**
  * @brief Responds to a received ping with a pong and the same parameter
- * 
+ *
  * @param msg the received message
  */
-void Bot::_ping(Message const &msg)
+void WallE::_ping(Message const &msg)
 {
 	if (msg.get_parameters().empty())
 		return;
@@ -132,38 +131,35 @@ void Bot::_ping(Message const &msg)
 
 /**
  * @brief Responds to an invite by joining the channel
- * 
+ *
  * @param msg the received message
  */
-void Bot::_invite(Message const &msg)
+void WallE::_invite(Message const &msg)
 {
 	if (msg.get_parameters().size() < 2)
 		return;
 
 	std::string const response = "JOIN " + msg.get_parameters()[1] + "\r\n";
-	
+
 	if (send(this->_socket, response.c_str(), response.size(), 0) < 0)
 		throw ProblemWithSend();
 }
 
 /**
  * @brief handle PASSWDMISMATCH reply
- * 
+ *
  */
-void Bot::_pass(Message const &msg __attribute__((unused)))
-{
-	bot_interrupted = true;
-}
+void WallE::_pass(Message const &msg __attribute__((unused))) { bot_interrupted = true; }
 
 /**
  * @brief The routine that check if the bot has received a message and calls the corresponding function
  * if the command is invite / privmsg or ping
- * 
+ *
  * @param read_fds the fd that select checks
  * @param max_fd the surveiled fd with the highest-number (here we only have one)
  * @param timeout a timeval struct to indicates when to stop select
  */
-void Bot::_bot_routine(fd_set &read_fds, int &max_fd, timeval &timeout)
+void WallE::_bot_routine(fd_set &read_fds, int &max_fd, timeval &timeout)
 {
 	int activity = select(max_fd + 1, &read_fds, NULL, NULL, &timeout);
 
@@ -181,12 +177,12 @@ void Bot::_bot_routine(fd_set &read_fds, int &max_fd, timeval &timeout)
 			std::cout << "Server closed connection" << std::endl;
 			bot_interrupted = true;
 			return;
-		}	
+		}
 		this->_append_to_msg_in(std::string(buffer, bytes_received));
 	}
 
 	if (this->_msg_in.empty())
-		return ;
+		return;
 
 	std::string raw_msg;
 
@@ -196,16 +192,16 @@ void Bot::_bot_routine(fd_set &read_fds, int &max_fd, timeval &timeout)
 		_CommandMap::const_iterator const command_by_name = this->_commands_by_name.find(msg.get_command());
 
 		if (command_by_name == this->_commands_by_name.end())
-			return ;
+			return;
 		(this->*(command_by_name->second))(msg);
 	}
 }
 
 /**
  * @brief a simple method to close the socket, is called at the destruction of the bot
- * 
+ *
  */
-void Bot::_disconnect()
+void WallE::_disconnect()
 {
 	if (this->_socket != -1)
 		close(this->_socket);
@@ -215,9 +211,9 @@ void Bot::_disconnect()
  * @brief The main function of the bot, it sends the connexion message and then calls the bot_routine
  * Stay running until bot_interrupted is true
  * Also sets the select variables
- * 
+ *
  */
-void Bot::run()
+void WallE::run()
 {
 	fd_set         read_fds;
 	int            max_fd = this->_socket;

@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 02:41:26 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 06:12:00 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1083,15 +1083,15 @@ inline static void mode_for_channel(
 	Server::CommandParameterVector const &parameters)
 {
 	ChannelName const                 &name = parameters[0];
-	Server::ChannelMap::iterator const it = channels_by_name.find(name);
+	Server::ChannelMap::iterator const channel_by_name = channels_by_name.find(name);
 
-	if (it == channels_by_name.end())
+	if (channel_by_name == channels_by_name.end())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &name);
 
 	if (name[0] == '+')
 		return sender.append_formatted_reply_to_msg_out(ERR_NOCHANMODES, &name);
 
-	Channel &channel = it->second;
+	Channel &channel = channel_by_name->second;
 
 	if (parameters.size() == 1)
 		return reply_channel_mode_is(sender, name, channel.get_modes());

@@ -24,6 +24,6 @@ public:
 	~Prefix(void);
 
 	// Methods
-	bool              is_valid(void) const;
-	std::string       who_is_sender(void) const;
+	bool        is_valid(void) const;
+	std::string who_is_sender(void) const;
 };
