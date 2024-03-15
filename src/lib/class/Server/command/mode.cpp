@@ -3,19 +3,48 @@
 /*                                                        :::      ::::::::   */
 /*   mode.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/10 02:11:47 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/15 06:12:00 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "channel_modes.hpp"
 #include "class/Server.hpp"
 #include "replies.hpp"
-#include "user_modes.hpp"
 #include <list>
 #include <sstream>
+
+typedef std::pair<char, UserMode>    UserModePair;
+typedef std::map<char, UserMode>     UserModeMap;
+typedef std::pair<char, ChannelMode> ChannelModePair;
+typedef std::map<char, ChannelMode>  ChannelModeMap;
+
+static UserModePair const raw_user_modes_by_identifier[] = {
+	std::make_pair(USER_MODES[Bot], Bot),
+	std::make_pair(USER_MODES[LocalOperator], LocalOperator),
+	std::make_pair(USER_MODES[Away], Away),
+	std::make_pair(USER_MODES[Invisible], Invisible),
+	std::make_pair(USER_MODES[WallopsListener], WallopsListener),
+};
+static UserModeMap const user_modes_by_identifier(
+	raw_user_modes_by_identifier,
+	raw_user_modes_by_identifier + sizeof(raw_user_modes_by_identifier) / sizeof(*raw_user_modes_by_identifier));
+
+static ChannelModePair const raw_channel_modes_by_identifier[] = {
+	std::make_pair(CHANNEL_MODES[InviteOnly], InviteOnly),
+	std::make_pair(CHANNEL_MODES[NoMessagesFromOutside], NoMessagesFromOutside),
+	std::make_pair(CHANNEL_MODES[RestrictedTopic], RestrictedTopic),
+	std::make_pair(CHANNEL_MODES[InviteMask], InviteMask),
+	std::make_pair(CHANNEL_MODES[BanMask], BanMask),
+	std::make_pair(CHANNEL_MODES[KeyProtected], KeyProtected),
+	std::make_pair(CHANNEL_MODES[Limit], Limit),
+	std::make_pair(CHANNEL_MODES[ChannelOperator], ChannelOperator),
+};
+static ChannelModeMap const channel_modes_by_identifier(
+	raw_channel_modes_by_identifier,
+	raw_channel_modes_by_identifier
+		+ sizeof(raw_channel_modes_by_identifier) / sizeof(*raw_channel_modes_by_identifier));
 
 enum
 {
@@ -25,15 +54,15 @@ enum
 
 struct ParsingTools
 {
-	std::vector<std::string>::const_iterator       current_word;
-	std::vector<std::string>::const_iterator       next_word;
-	std::vector<std::string>::const_iterator const end_of_words;
-	std::string::const_iterator                    current_character;
+	Server::CommandParameterVector::const_iterator       current_word;
+	Server::CommandParameterVector::const_iterator       next_word;
+	Server::CommandParameterVector::const_iterator const end_of_words;
+	std::string::const_iterator                          current_character;
 
 	// Constructors
 	ParsingTools(
-		std::vector<std::string>::const_iterator const &current_word,
-		std::vector<std::string>::const_iterator const &end_of_words) :
+		Server::CommandParameterVector::const_iterator const &current_word,
+		Server::CommandParameterVector::const_iterator const &end_of_words) :
 		current_word(current_word),
 		next_word(current_word + 1),
 		end_of_words(end_of_words),
@@ -62,12 +91,12 @@ inline static bool save_user_mode_to_be_set(
 	Client::Modes *const modes_to_be,
 	char const           identifer)
 {
-	UserModeIterator const cit = user_modes.find(identifer);
+	UserModeMap::const_iterator const user_mode_by_identifier = user_modes_by_identifier.find(identifer);
 
-	if (cit == user_modes.end())
+	if (user_mode_by_identifier == user_modes_by_identifier.end())
 		return false;
 
-	UserMode const &mode = cit->second;
+	UserMode const &mode = user_mode_by_identifier->second;
 
 	if (mode != LocalOperator && mode != Away)
 	{
@@ -94,12 +123,12 @@ inline static bool save_user_mode_to_be_cleared(
 	Client::Modes *const modes_to_be,
 	char const           identifer)
 {
-	UserModeIterator const cit = user_modes.find(identifer);
+	UserModeMap::const_iterator const user_mode_by_identifier = user_modes_by_identifier.find(identifer);
 
-	if (cit == user_modes.end())
+	if (user_mode_by_identifier == user_modes_by_identifier.end())
 		return false;
 
-	UserMode const &mode = cit->second;
+	UserMode const &mode = user_mode_by_identifier->second;
 
 	if (mode != Away)
 	{
@@ -181,7 +210,7 @@ inline static void apply_changes_for_user(Client &client, Client::Modes *const m
  * @throw `InvalidConversion` if a conversion specification is invalid.
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-inline static void mode_for_user(Client &sender, std::vector<std::string> const &parameters)
+inline static void mode_for_user(Client &sender, Server::CommandParameterVector const &parameters)
 {
 	NickName const &nickname = parameters[0];
 
@@ -192,18 +221,30 @@ inline static void mode_for_user(Client &sender, std::vector<std::string> const 
 	{
 		std::string const modes_as_string = sender.get_modes().to_string();
 
-		return sender.append_formatted_reply_to_msg_out(RPL_UMODEIS, &nickname, &modes_as_string);
+		return sender.append_formatted_reply_to_msg_out(RPL_UMODEIS, &modes_as_string);
 	}
 
 	Client::Modes modes_to_be[2];
 
 	if (save_changes_for_user(sender.get_modes(), modes_to_be, parameters[1]))
 		return sender.append_formatted_reply_to_msg_out(ERR_UMODEUNKNOWNFLAG);
+
 	apply_changes_for_user(sender, modes_to_be);
 
-	sender.append_to_msg_out(
-		sender.prefix() + "MODE " + sender.get_nickname() + " +" + modes_to_be[Set].to_string() + '-'
-		+ modes_to_be[Cleared].to_string());
+	bool const has_any_modes_to_be_set = modes_to_be[Set].has_any_mode_set();
+	bool const has_any_modes_to_be_cleared = modes_to_be[Cleared].has_any_mode_set();
+
+	if (!has_any_modes_to_be_set && !has_any_modes_to_be_cleared)
+		return;
+
+	std::string msg = sender.prefix() + "MODE " + sender.get_nickname();
+
+	if (modes_to_be[Set].has_any_mode_set())
+		msg += " +" + modes_to_be[Set].to_string();
+	if (modes_to_be[Cleared].has_any_mode_set())
+		msg += " -" + modes_to_be[Cleared].to_string();
+
+	sender.append_to_msg_out(msg);
 }
 #pragma endregion USER MODE
 
@@ -363,10 +404,10 @@ inline static int save_key_mode_to_be_set(
  * +
  * Removes it from the list of channel modes to be cleared.
  *
+ * @param users_by_nickname The map of users, indexed by their nickname.
  * @param channel The channel for which the mode shall be set.
  * @param modes_to_be The two lists of modes that are about to be set and cleared.
  * @param parsing_tools The iterators to use to parse the changes.
- * @param clients_by_nickname The map of clients, indexed by their nicknames.
  *
  * @return
  * Zero upon success.
@@ -376,10 +417,10 @@ inline static int save_key_mode_to_be_set(
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static int save_operator_mode_to_be_set(
-	Channel const                           &channel,
-	Channel::Modes *const                    modes_to_be,
-	ParsingTools                            &parsing_tools,
-	std::map<NickName, Client *const> const &clients_by_nickname)
+	Server::ClientMap const &users_by_nickname,
+	Channel const           &channel,
+	Channel::Modes *const    modes_to_be,
+	ParsingTools            &parsing_tools)
 {
 	if (parsing_tools.next_word == parsing_tools.end_of_words)
 		return ERR_NEEDMOREPARAMS;
@@ -388,19 +429,19 @@ inline static int save_operator_mode_to_be_set(
 
 	if (nickname.is_valid())
 	{
-		std::map<NickName, Client *const>::const_iterator const client_by_nickname = clients_by_nickname.find(nickname);
+		Server::ClientMap::const_iterator const user_by_nickname = users_by_nickname.find(nickname);
 
-		if (client_by_nickname == clients_by_nickname.end())
+		if (user_by_nickname == users_by_nickname.end())
 			return ERR_USERNOTONCHANNEL;
 
-		Client &client = *client_by_nickname->second;
+		Client &user = *user_by_nickname->second;
 
-		if (!channel.has_member(client))
+		if (!channel.has_member(user))
 			return ERR_USERNOTONCHANNEL;
 
-		if (!channel.get_modes().has_operator(client))
-			modes_to_be[Set].set(ChannelOperator, &client);
-		modes_to_be[Cleared].clear(ChannelOperator, &client);
+		if (!channel.get_modes().has_operator(user))
+			modes_to_be[Set].set(ChannelOperator, &user);
+		modes_to_be[Cleared].clear(ChannelOperator, &user);
 	}
 	return 0;
 }
@@ -479,10 +520,10 @@ inline static int save_ban_mask_mode_to_be_set(
  * @brief
  * Adds a channel mode to the list of channel modes to be set + Removes it from the list of channel modes to be cleared.
  *
+ * @param users_by_nickname The map of users, indexed by their nickname.
  * @param channel The channel for which the mode shall be set.
  * @param modes_to_be The two lists of modes that are about to be set and cleared.
  * @param parsing_tools The iterators to use to parse the changes.
- * @param clients_by_nickname The map of clients, indexed by their nicknames.
  *
  * @return
  * Zero upon success.
@@ -494,17 +535,18 @@ inline static int save_ban_mask_mode_to_be_set(
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static int save_channel_mode_to_be_set(
-	Channel const                           &channel,
-	Channel::Modes *const                    modes_to_be,
-	ParsingTools                            &parsing_tools,
-	std::map<NickName, Client *const> const &clients_by_nickname)
+	Server::ClientMap const &users_by_nickname,
+	Channel const           &channel,
+	Channel::Modes *const    modes_to_be,
+	ParsingTools            &parsing_tools)
 {
-	ChannelModeIterator const cit = channel_modes.find(*parsing_tools.current_character);
+	ChannelModeMap::const_iterator const channel_mode_by_identifier =
+		channel_modes_by_identifier.find(*parsing_tools.current_character);
 
-	if (cit == channel_modes.end())
+	if (channel_mode_by_identifier == channel_modes_by_identifier.end())
 		return ERR_UNKNOWNMODE;
 
-	ChannelMode const &mode = cit->second;
+	ChannelMode const &mode = channel_mode_by_identifier->second;
 
 	switch (mode)
 	{
@@ -522,7 +564,7 @@ inline static int save_channel_mode_to_be_set(
 	case KeyProtected:
 		return save_key_mode_to_be_set(channel.get_modes(), modes_to_be, parsing_tools);
 	case ChannelOperator:
-		return save_operator_mode_to_be_set(channel, modes_to_be, parsing_tools, clients_by_nickname);
+		return save_operator_mode_to_be_set(users_by_nickname, channel, modes_to_be, parsing_tools);
 	case InviteMask:
 		return save_invite_mask_mode_to_be_set(channel.get_modes(), modes_to_be, parsing_tools);
 	case BanMask:
@@ -621,10 +663,10 @@ inline static void save_key_mode_to_be_cleared(Channel::Modes const &modes, Chan
  * +
  * Removes it from the list of channel modes to be set.
  *
+ * @param users_by_nickname The map of users, indexed by their nickname.
  * @param channel The channel for which the mode shall be cleared.
  * @param modes_to_be The two lists of modes that are about to be set and cleared.
  * @param parsing_tools The iterators to use to parse the changes.
- * @param clients_by_nickname The map of clients, indexed by their nicknames.
  *
  * @return
  * Zero upon success.
@@ -634,10 +676,10 @@ inline static void save_key_mode_to_be_cleared(Channel::Modes const &modes, Chan
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static int save_operator_mode_to_be_cleared(
-	Channel const                           &channel,
-	Channel::Modes *const                    modes_to_be,
-	ParsingTools                            &parsing_tools,
-	std::map<NickName, Client *const> const &clients_by_nickname)
+	Server::ClientMap const &users_by_nickname,
+	Channel const           &channel,
+	Channel::Modes *const    modes_to_be,
+	ParsingTools            &parsing_tools)
 {
 	if (parsing_tools.next_word == parsing_tools.end_of_words)
 		return ERR_NEEDMOREPARAMS;
@@ -646,19 +688,19 @@ inline static int save_operator_mode_to_be_cleared(
 
 	if (nickname.is_valid())
 	{
-		std::map<NickName, Client *const>::const_iterator const client_by_nickname = clients_by_nickname.find(nickname);
+		Server::ClientMap::const_iterator const user_by_nickname = users_by_nickname.find(nickname);
 
-		if (client_by_nickname == clients_by_nickname.end())
+		if (user_by_nickname == users_by_nickname.end())
 			return ERR_USERNOTONCHANNEL;
 
-		Client &client = *client_by_nickname->second;
+		Client &user = *user_by_nickname->second;
 
-		if (!channel.has_member(client))
+		if (!channel.has_member(user))
 			return ERR_USERNOTONCHANNEL;
 
-		if (channel.get_modes().has_operator(client))
-			modes_to_be[Cleared].set(ChannelOperator, &client);
-		modes_to_be[Set].clear(ChannelOperator, &client);
+		if (channel.get_modes().has_operator(user))
+			modes_to_be[Cleared].set(ChannelOperator, &user);
+		modes_to_be[Set].clear(ChannelOperator, &user);
 	}
 	return 0;
 }
@@ -738,10 +780,10 @@ inline static int save_ban_mask_mode_to_be_cleared(
  * Adds a channel mode to the list of channel modes to be cleared + Removes it from the list of channel modes to be
  * set.
  *
+ * @param users_by_nickname The map of users, indexed by their nickname.
  * @param channel The channel for which the mode shall be cleared.
  * @param modes_to_be The two lists of modes that are about to be set and cleared.
  * @param parsing_tools The iterators to use to parse the changes.
- * @param clients_by_nickname The map of clients, indexed by their nicknames.
  *
  * @return
  * Zero upon success.
@@ -752,17 +794,18 @@ inline static int save_ban_mask_mode_to_be_cleared(
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static int save_channel_mode_to_be_cleared(
-	Channel const                           &channel,
-	Channel::Modes *const                    modes_to_be,
-	ParsingTools                            &parsing_tools,
-	std::map<NickName, Client *const> const &clients_by_nickname)
+	Server::ClientMap const &users_by_nickname,
+	Channel const           &channel,
+	Channel::Modes *const    modes_to_be,
+	ParsingTools            &parsing_tools)
 {
-	ChannelModeIterator const cit = channel_modes.find(*parsing_tools.current_character);
+	ChannelModeMap::const_iterator const channel_mode_by_identifier =
+		channel_modes_by_identifier.find(*parsing_tools.current_character);
 
-	if (cit == channel_modes.end())
+	if (channel_mode_by_identifier == channel_modes_by_identifier.end())
 		return ERR_UNKNOWNMODE;
 
-	ChannelMode const &mode = cit->second;
+	ChannelMode const &mode = channel_mode_by_identifier->second;
 
 	switch (mode)
 	{
@@ -782,7 +825,7 @@ inline static int save_channel_mode_to_be_cleared(
 		save_key_mode_to_be_cleared(channel.get_modes(), modes_to_be);
 		break;
 	case ChannelOperator:
-		return save_operator_mode_to_be_cleared(channel, modes_to_be, parsing_tools, clients_by_nickname);
+		return save_operator_mode_to_be_cleared(users_by_nickname, channel, modes_to_be, parsing_tools);
 	case InviteMask:
 		return save_invite_mask_mode_to_be_cleared(channel.get_modes(), modes_to_be, parsing_tools);
 	case BanMask:
@@ -794,10 +837,10 @@ inline static int save_channel_mode_to_be_cleared(
 /**
  * @brief Saves the changes to be made to the modes of a channel in two lists of modes.
  *
+ * @param users_by_nickname The map of users, indexed by their nickname.
  * @param channel The channel for which the modes shall change.
  * @param modes_to_be The two lists of modes that are about to be set and cleared.
  * @param parsing_tools The iterators to use to parse the changes.
- * @param clients_by_nickname The map of clients, indexed by their nicknames.
  *
  * @return
  * Zero upon success.
@@ -809,10 +852,10 @@ inline static int save_channel_mode_to_be_cleared(
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static int save_changes_for_channel(
-	Channel const                           &channel,
-	Channel::Modes *const                    modes_to_be,
-	ParsingTools                            &parsing_tools,
-	std::map<NickName, Client *const> const &clients_by_nickname)
+	Server::ClientMap const &users_by_nickname,
+	Channel const           &channel,
+	Channel::Modes *const    modes_to_be,
+	ParsingTools            &parsing_tools)
 {
 	for (parsing_tools.next_word = parsing_tools.current_word + 1;
 	     parsing_tools.current_word != parsing_tools.end_of_words;
@@ -829,7 +872,7 @@ inline static int save_changes_for_channel(
 				do
 				{
 					++parsing_tools.current_character;
-					ret = save_channel_mode_to_be_set(channel, modes_to_be, parsing_tools, clients_by_nickname);
+					ret = save_channel_mode_to_be_set(users_by_nickname, channel, modes_to_be, parsing_tools);
 				}
 				while (!ret);
 				break;
@@ -837,7 +880,7 @@ inline static int save_changes_for_channel(
 				do
 				{
 					++parsing_tools.current_character;
-					ret = save_channel_mode_to_be_cleared(channel, modes_to_be, parsing_tools, clients_by_nickname);
+					ret = save_channel_mode_to_be_cleared(users_by_nickname, channel, modes_to_be, parsing_tools);
 				}
 				while (!ret);
 				break;
@@ -1024,40 +1067,41 @@ inline static void apply_changes_for_channel(Channel &channel, Channel::Modes co
 /**
  * @brief Gets the current modes of a channel, or applies some changes to the mode of a channel.
  *
+ * @param users_by_nickname The map of users, indexed by their nickname.
+ * @param channels_by_name The map of channels, indexed by their names.
  * @param sender The client that sent the command.
  * @param parameters The parameters of the command.
- * @param channels_by_name The map of channels, indexed by their names.
  *
  * @throw `UnknownReply` if a given reply number isn't recognized.
  * @throw `InvalidConversion` if a conversion specification is invalid.
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static void mode_for_channel(
-	Client                                  &sender,
-	std::vector<std::string> const          &parameters,
-	std::map<ChannelName, Channel>          &channels_by_name,
-	std::map<NickName, Client *const> const &clients_by_nickname)
+	Server::ClientMap const              &users_by_nickname,
+	Server::ChannelMap                   &channels_by_name,
+	Client                               &sender,
+	Server::CommandParameterVector const &parameters)
 {
-	ChannelName const                             &name = parameters[0];
-	std::map<ChannelName, Channel>::iterator const it = channels_by_name.find(name);
+	ChannelName const                 &name = parameters[0];
+	Server::ChannelMap::iterator const channel_by_name = channels_by_name.find(name);
 
-	if (it == channels_by_name.end())
+	if (channel_by_name == channels_by_name.end())
 		return sender.append_formatted_reply_to_msg_out(ERR_NOSUCHCHANNEL, &name);
 
 	if (name[0] == '+')
 		return sender.append_formatted_reply_to_msg_out(ERR_NOCHANMODES, &name);
 
-	Channel &channel = it->second;
-
-	if (!channel.get_modes().has_operator(sender))
-		return sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &name);
+	Channel &channel = channel_by_name->second;
 
 	if (parameters.size() == 1)
 		return reply_channel_mode_is(sender, name, channel.get_modes());
 
+	if (!channel.get_modes().has_operator(sender))
+		return sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &name);
+
 	Channel::Modes modes_to_be[2];
 	ParsingTools   parsing_tools(parameters.begin() + 1, parameters.end());
-	int const      ret = save_changes_for_channel(channel, modes_to_be, parsing_tools, clients_by_nickname);
+	int const      ret = save_changes_for_channel(users_by_nickname, channel, modes_to_be, parsing_tools);
 
 	switch (ret)
 	{
@@ -1071,11 +1115,22 @@ inline static void mode_for_channel(
 		return sender.append_formatted_reply_to_msg_out(ERR_UNKNOWNMODE, *parsing_tools.current_character, &name);
 	}
 
+	bool const is_any_mode_to_be_set = modes_to_be[Set].has_any_mode_set();
+	bool const is_any_mode_to_be_cleared = modes_to_be[Cleared].has_any_mode_set();
+
+	if (!is_any_mode_to_be_set && !is_any_mode_to_be_cleared)
+		return;
+
 	apply_changes_for_channel(channel, modes_to_be);
 
-	channel.broadcast_to_all_members(
-		sender.prefix() + "MODE " + name + " +" + modes_to_be[Set].to_string(true, true, true) + " -"
-		+ modes_to_be[Cleared].to_string(true, true, true));
+	std::string msg = sender.prefix() + "MODE " + name;
+
+	if (is_any_mode_to_be_set)
+		msg += " +" + modes_to_be[Set].to_string(true, true, true);
+	if (is_any_mode_to_be_cleared)
+		msg += " -" + modes_to_be[Cleared].to_string(true, true, true);
+
+	channel.broadcast_to_all_members(msg);
 }
 #pragma endregion CHANNEL MODE
 
@@ -1089,12 +1144,14 @@ inline static void mode_for_channel(
  * @throw `InvalidConversion` if a conversion specification is invalid.
  * @throw `std::exception` if function of the C++ standard library critically fails.
  */
-void Server::_mode(Client &sender, std::vector<std::string> const &parameters)
+void Server::_mode(Client &sender, CommandParameterVector const &parameters)
 {
+	if (!sender.is_registered())
+		return sender.append_formatted_reply_to_msg_out(ERR_NOTREGISTERED);
 	if (parameters.empty())
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "MODE");
 
 	if (std::string("#&+!").find(parameters[0][0]) == std::string::npos)
 		return mode_for_user(sender, parameters);
-	return mode_for_channel(sender, parameters, this->_channels_by_name, this->_clients_by_nickname);
+	return mode_for_channel(this->_clients_by_nickname, this->_channels_by_name, sender, parameters);
 }

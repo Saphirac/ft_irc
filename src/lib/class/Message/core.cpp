@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:06:05 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/15 01:43:36 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/15 03:53:05 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,6 @@ Message::~Message(void) {}
 
 // Accessors //
 
-Prefix const                   &Message::get_prefix(void) const { return this->_prefix; }
-std::string const              &Message::get_command(void) const { return this->_command; }
-std::vector<std::string> const &Message::get_parameters(void) const { return this->_parameters; }
+Prefix const                         &Message::get_prefix(void) const { return this->_prefix; }
+std::string const                    &Message::get_command(void) const { return this->_command; }
+Server::CommandParameterVector const &Message::get_parameters(void) const { return this->_parameters; }

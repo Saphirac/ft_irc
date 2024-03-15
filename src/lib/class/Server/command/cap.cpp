@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cap.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 13:43:54 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/10 02:04:49 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/14 00:13:43 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,8 @@
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 void Server::_cap(
-	Client                         &sender __attribute__((unused)),
-	std::vector<std::string> const &parameters __attribute__((unused)))
+	Client                       &sender __attribute__((unused)),
+	CommandParameterVector const &parameters __attribute__((unused)))
 {
 	if (parameters.empty())
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "CAP");

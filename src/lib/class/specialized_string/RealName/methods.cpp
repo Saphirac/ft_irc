@@ -1,28 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   NickName.hpp                                       :+:      :+:    :+:   */
+/*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/16 03:36:23 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/12 04:30:04 by jodufour         ###   ########.fr       */
+/*   Created: 2024/03/11 00:45:56 by jodufour          #+#    #+#             */
+/*   Updated: 2024/03/12 03:22:31 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#include "abnf_components.hpp"
+#include "class/specialized_string/RealName.hpp"
 
-#include <string>
-
-class NickName : public std::string
-{
-public:
-	// Constructors
-	NickName(std::string const &nickname = "*");
-
-	// Destructor
-	~NickName(void);
-
-	// Methods
-	bool is_valid(void) const;
-};
+/**
+ * @brief Checks whether the real name is valid.
+ *
+ * @return `true` if the real name is valid, `false` otherwise.
+ */
+bool RealName::is_valid(void) const { return !this->empty(); }

@@ -1,15 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   methods.cpp                                        :+:      :+:    :+:   */
+/*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/05 00:59:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 00:59:34 by jodufour         ###   ########.fr       */
+/*   Created: 2024/03/12 03:07:23 by jodufour          #+#    #+#             */
+/*   Updated: 2024/03/12 03:09:01 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/exception/ProblemWithClock.hpp"
+#include "class/exception/UserNotOnChannel.hpp"
 
-char const *ProblemWithClock::what(void) const throw() { return "Problem with clock()"; }
+// Constructors //
+
+UserNotOnChannel::UserNotOnChannel(void) throw() {}
+
+// Destructors //
+
+UserNotOnChannel::~UserNotOnChannel(void) throw() {}

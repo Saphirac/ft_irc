@@ -13,7 +13,6 @@ AllowShortEnumsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: true
-PenaltyReturnTypeOnItsOwnLine: 4242
 AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: Yes
@@ -67,6 +66,7 @@ KeepEmptyLinesAtTheStartOfBlocks: false
 Language: Cpp
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: All
+PenaltyReturnTypeOnItsOwnLine: 4242
 PointerAlignment: Right
 ReflowComments: true
 SortIncludes: true

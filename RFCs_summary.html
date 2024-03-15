@@ -807,7 +807,7 @@
 							<li>check that the given nickname is valid and not already in use</li>
 							<li>change the nickname of the user to the given one</li>
 							<li>
-								send back a NICK message to the client<br>
+								send back a NICK message to the client,<br>
 								to confirm that their nickname has been changed
 							</li>
 						</ol>
@@ -1636,34 +1636,42 @@
 					</details>
 					<!-- #endregion -->
 					<p>
-						The NAMES command is used to list the users<br>
-						that are present in 1 or more given channels.<br>
-						In the absence of parameters, the command must list<br>
-						the users that are present in every channel the user is in.<br>
-						When the server receives a NAMES message, it must check<br>
-						whether a parameter list is given.<br>
-						<ul>
-							<li>If there is, then for each given channel, the server must do the following routine:
-								<p>
-									Check that the channel exists.<br>
-									Then check that the user is in it.<br>
-									Then send back a <a href="#rpl_namesreply">RPL_NAMESREPLY</a><br>
-									to the client, to indicate the users that are present in the channel.<br>
-								</p>
+						The NAMES command is used to get lists of channel members.<br>
+						<br>
+						When the server receives a NAMES message, it must:
+						<ol>
+							<li>
+								determine whether the client provided a list of channels<br>
+								for which they want to get the list of members
+								<ul>
+									<li>If they did, then, for each given channel name:
+										<ol>
+											<li>check that the channel exists</li>
+											<li>
+												send back as many <a href="#rpl_namesreply">RPL_NAMESREPLY</a> as needed to the client,<br>
+												to indicate them the list of the channel members
+											</li>
+										</ol>
+									</li>
+									<li>
+										If they didn't, then, for each channel joined by the user,<br>
+										send back as many <a href="#rpl_namesreply">RPL_NAMESREPLY</a> as needed to the client,<br>
+										to indicate them the list of the channel members
+									</li>
+								</ul>
 							</li>
 							<li>
-								If there is not, then for each channel the user is in,<br>
-								the server must send back a <a href="#rpl_namesreply">RPL_NAMESREPLY</a><br>
-								to the client, to indicate the users that are present in the channel.
+								send back a <a href="#rpl_endofnames">RPL_ENDOFNAMES</a> to the client,<br>
+								to indicate the end of the NAMES list
+							</li>
+						</ol>
+						<b>Note</b>: for each assertion that can fail, there is how the server must react if they do:
+						<ul>
+							<li>
+								The channel doesn't exist<br>
+								&#x21B3; silently ignore the channel and proceed to the next one
 							</li>
 						</ul>
-						Finally, the server must send back a <a href="#rpl_endofnames">RPL_ENDOFNAMES</a><br>
-						to the client, to indicate the end of the NAMES list.<br>
-						<br>
-						<b>Note</b>: for each assertion, if it fails,<br>
-						then no error reply is sent back to the client,<br>
-						the process for the current channel is aborted,<br>
-						and the process for the next given channel starts.
 					</p>
 				</section>
 
@@ -1692,29 +1700,41 @@
 					<!-- #endregion -->
 					<p>
 						The LIST command is used to list the channels and their information.<br>
-						When the server receives a LIST message, it must check<br>
-						whether a parameter list is given.<br>
-						<ul>
-							<li>If there is, then for each given channel, the server must do the following routine:
-								<p>
-									Check that the channel exists.<br>
-									Send back a <a href="#rpl_list">RPL_LIST</a><br>
-									to the client, to indicate the channel and its information.<br>
-								</p>
+						<br>
+						When the server receives a LIST message, it must:
+						<ol>
+							<li>
+								determine whether the client provided a list of channels<br>
+								for which they want to get information
+								<ul>
+									<li>If they did, then, for each given channel name:
+										<ol>
+											<li>check that the channel exists</li>
+											<li>
+												send back a <a href="#rpl_list">RPL_LIST</a> to the client,<br>
+												to indicate them the channel information
+											</li>
+										</ol>
+									</li>
+									<li>
+										If they didn't, then, for each existing channel,<br>
+										send back a <a href="#rpl_list">RPL_LIST</a> to the client,<br>
+										to indicate them the channel information.
+									</li>
+								</ul>
 							</li>
 							<li>
-								If there is not, then for each existing channel,<br>
-								the server must send back a <a href="#rpl_list">RPL_LIST</a><br>
-								to the client, to indicate the channel and its information.
+								send back a <a href="#rpl_listend">RPL_LISTEND</a> to the client,<br>
+								to indicate the end of the LIST list
+							</li>
+						</ol>
+						<b>Note</b>:  for each assertion that can fail, there is how the server must react if they do:
+						<ul>
+							<li>
+								The channel doesn't exist<br>
+								&#x21B3 silently ignore the channel and proceed to the next one
 							</li>
 						</ul>
-						Finally, the server must send back a <a href="#rpl_listend">RPL_LISTEND</a><br>
-						to the client, to indicate the end of the LIST.<br>
-						<br>
-						<b>Note</b>: for each assertion, if it fails,<br>
-						then no error reply is sent back to the client,<br>
-						the process for the current channel is aborted,<br>
-						and the process for the next given channel starts.
 					</p>
 				</section>
 
@@ -1884,8 +1904,8 @@
 									In case of a channel, then check that it exists.<br>
 									Then check whether the `n` mode is set for the channel.<br>
 									If it is, then check that the sending user is in the channel.<br>
-									Then forward the PRIVMSG message to every user<br>
-									that are present in the channel.
+									Then forward the PRIVMSG message to every other user<br>
+									that is present in the channel.
 								</li>
 								<li>
 									In case of a user, then check that they exist.<br>
@@ -2457,14 +2477,12 @@
 								<details>
 									<summary>
 										<code>
-											nick space colon [ plus ] *umode
+											colon [ plus ] *umode
 										</code>
 									</summary>
 									<blockquote>
 										<ol>
-											<li>Start with 1 <code><a href="#abnf_nick">nick</a></code></li>
-											<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
-											<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>
+											<li>Start with 1 <code><a href="#abnf_colon">colon</a></code></li>
 											<li>Contain 0 or 1 <code><a href="#abnf_plus">plus</a></code></li>
 											<li>Contain 0 or more <code><a href="#abnf_umode">umode</a></code></li>
 										</ol>
@@ -2870,7 +2888,7 @@
 								<details>
 									<summary>
 										<code>
-											( star / equal / at ) channel space colon [ plus / at ] nick *( space [ plus / at ] nick )
+											( star / equal / at ) space channel space colon [ plus / at ] nick *( space [ plus / at ] nick )
 										</code>
 									</summary>
 									<blockquote>
@@ -2880,6 +2898,7 @@
 												or 1 <code><a href="#abnf_equal">equal</a></code>
 												or 1 <code><a href="#abnf_at">at</a></code>
 											</li>
+											<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
 											<li>Contain 1 <code><a href="#abnf_channel">channel</a></code></li>
 											<li>Contain 1 <code><a href="#abnf_space">space</a></code></li>
 											<li>Contain 1 <code><a href="#abnf_colon">colon</a></code></li>

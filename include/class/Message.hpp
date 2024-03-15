@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include "class/Server.hpp"
 #include "class/specialized_string/Prefix.hpp"
 #include <string>
 #include <vector>
@@ -26,13 +27,13 @@ public:
 	~Message(void);
 
 	// Accessors
-	Prefix const                   &get_prefix(void) const;
-	std::string const              &get_command(void) const;
-	std::vector<std::string> const &get_parameters(void) const;
+	Prefix const                         &get_prefix(void) const;
+	std::string const                    &get_command(void) const;
+	Server::CommandParameterVector const &get_parameters(void) const;
 
 private:
 	// Fields
-	Prefix                   _prefix;
-	std::string              _command;
-	std::vector<std::string> _parameters;
+	Prefix                         _prefix;
+	std::string                    _command;
+	Server::CommandParameterVector _parameters;
 };

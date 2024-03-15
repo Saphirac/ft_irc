@@ -6,13 +6,16 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 01:29:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/08 22:30:58 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 00:14:53 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Channel.hpp"
 #include "class/exception/NotAFlag.hpp"
+#include "class/exception/UserNotOnChannel.hpp"
 #include <sstream>
+
+// Flags //
 
 /**
  * @brief Sets a flag.
@@ -89,6 +92,13 @@ bool Channel::Modes::Flags::is_set(ChannelMode const flag) const
 }
 
 /**
+ * @brief Checks whether any flag is set.
+ *
+ * @return `true` if any flag is set, `false` otherwise.
+ */
+bool Channel::Modes::Flags::has_any_flag_set(void) const { return this->_bits != 0; }
+
+/**
  * @return The string representation of the flags that are currently set.
  *
  * @throw `std::exception` if a function of the C++ standard library critically fails.
@@ -106,6 +116,8 @@ std::string Channel::Modes::Flags::to_string(void) const
 
 	return flags_as_string;
 }
+
+// Modes //
 
 /**
  * @brief Sets a mode.
@@ -256,6 +268,17 @@ bool Channel::Modes::has_ban_mask(NickName const &nickname) const
 }
 
 /**
+ * @brief Checks whether any mode is set.
+ *
+ * @return `true` if any mode is set, `false` otherwise.
+ */
+bool Channel::Modes::has_any_mode_set(void) const
+{
+	return this->_flags.has_any_flag_set() || this->is_set(Limit) || this->is_set(KeyProtected)
+	    || this->is_set(ChannelOperator) || this->is_set(InviteMask) || this->is_set(BanMask);
+}
+
+/**
  * @brief Generates the string representation of the modes that are currently set.
  *
  * @param include_operators whether the resulting string shall contain the ChannelOperator mode if it's set.
@@ -310,6 +333,8 @@ std::string Channel::Modes::to_string(
 	return modes_as_string;
 }
 
+// Channel //
+
 /**
  * @brief Sets a mode for the channel.
  *
@@ -329,35 +354,76 @@ void Channel::set_mode(ChannelMode const mode, void const *const arg) { this->_m
 void Channel::clear_mode(ChannelMode const mode, void const *const arg) { this->_modes.clear(mode, arg); }
 
 /**
- * @brief Adds a client to the list of the members of the channel.
+ * @brief Adds a user to the list of the members of the channel.
  *
- * @param client The client to add.
- *
- * @throw `std::exception` if a function of the C++ standard library critically fails.
- */
-void Channel::add_member(Client &client) { this->_members.insert(&client); }
-
-/**
- * @brief Removes a client from the list of the members of the channel.
-    void broadcast_to_all_members_but_one(std::string const &msg, Client &client) const;
- *
- * @param client The client to remove.
- */
-void Channel::remove_member(Client &client) { this->_members.erase(&client); }
-
-/**
- * @brief Checks whether a client is a member of the channel.
- *
- * @param client The client to check.
- *
- * @return `true` if the client is a member of the channel, `false` otherwise.
+ * @param user The user to add.
  *
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-bool Channel::has_member(Client &client) const { return this->_members.find(&client) != this->_members.end(); }
+void Channel::add_member(Client &user) { this->_members.insert(&user); }
 
 /**
- * @brief Broadcasts a message to all the members of the channel.
+ * @brief Removes a user from the list of the members of the channel.
+ *
+ * @param user The user to remove.
+ */
+void Channel::remove_member(Client &user) { this->_members.erase(&user); }
+
+/**
+ * @brief Checks whether a user is a member of the channel.
+ *
+ * @param user The user to check.
+ *
+ * @return `true` if the user is a member of the channel, `false` otherwise.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+bool Channel::has_member(Client &user) const { return this->_members.find(&user) != this->_members.end(); }
+
+/**
+ * @brief Checks whether the list of the members of the channel is empty.
+ *
+ * @return `true` if the list of the members of the channel is empty, `false` otherwise.
+ */
+bool Channel::is_empty(void) const { return this->_members.empty(); }
+
+/**
+ * @return The number of members of the channel.
+ */
+size_t Channel::member_count(void) const { return this->_members.size(); }
+
+/**
+ * @brief Generates the string representation of the members of the channel.
+ *
+ * @return The string representation of the members of the channel.
+ *
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+std::string Channel::members_as_string(void) const
+{
+	std::string members_as_string;
+
+	if (this->_members.empty())
+		return members_as_string;
+
+	_MemberSet::const_iterator cit = this->_members.begin();
+
+	if (this->_modes.has_operator(**cit))
+		members_as_string += '@';
+	members_as_string += (*cit)->get_nickname();
+	while (++cit != this->_members.end())
+	{
+		members_as_string += ' ';
+		if (this->_modes.has_operator(**cit))
+			members_as_string += '@';
+		members_as_string += (*cit)->get_nickname();
+	}
+
+	return members_as_string;
+}
+
+/**
+ * @brief Broadcasts a message to all the channel members.
  *
  * @param msg The message to broadcast.
  *
@@ -365,6 +431,72 @@ bool Channel::has_member(Client &client) const { return this->_members.find(&cli
  */
 void Channel::broadcast_to_all_members(std::string const &msg) const
 {
-	for (std::set<Client *>::const_iterator cit = this->_members.begin(); cit != this->_members.end(); ++cit)
+	for (_MemberSet::const_iterator cit = this->_members.begin(); cit != this->_members.end(); ++cit)
 		(*cit)->append_to_msg_out(msg);
+}
+
+/**
+ * @brief Broadcasts a message to all the channel members except one.
+ *
+ * @param msg The message to broadcast.
+ * @param user The user to exclude from the broadcast.
+ *
+ * @throw `UserNotOnChannel` if the user isn't a member of the channel.
+ * @throw `std::exception` if a function of the C++ standard library critically fails.
+ */
+void Channel::broadcast_to_all_members_but_one(std::string const &msg, Client &user) const
+{
+	_MemberSet::const_iterator const excluded = this->_members.find(&user);
+
+	if (excluded == this->_members.end())
+		throw UserNotOnChannel();
+
+	_MemberSet::const_iterator cit;
+
+	for (cit = this->_members.begin(); cit != excluded; ++cit) (*cit)->append_to_msg_out(msg);
+	while (++cit != this->_members.end()) (*cit)->append_to_msg_out(msg);
+}
+
+/**
+ * @brief Adds a user to the list of the users who have been invited to the channel.
+ *
+ * @param user The user to add.
+ * @param is_invited_by_operator Whether the user has been invited by a channel operator.
+ */
+void Channel::add_invited_user(Client const &user, bool const is_invited_by_operator)
+{
+	this->_invited_users.insert(std::make_pair(&user, is_invited_by_operator));
+}
+
+/**
+ * @brief Removes a user from the list of the users who have been invited to the channel.
+ *
+ * @param user The user to remove.
+ */
+void Channel::remove_invited_user(Client const &user) { this->_invited_users.erase(&user); }
+
+/**
+ * @brief Checks whether a user has been invited to the channel.
+ *
+ * @param user The user to check.
+ *
+ * @return `true` if the user has been invited to the channel, `false` otherwise.
+ */
+bool Channel::has_invited_user(Client const &user) const
+{
+	return this->_invited_users.find(&user) != this->_invited_users.end();
+}
+
+/**
+ * @brief Checks whether a user has been invited to the channel by one of the channel operator.
+ *
+ * @param user The user to check.
+ *
+ * @return `true` if the user has been invited to the channel by a channel operator, `false` otherwise.
+ */
+bool Channel::has_invited_user_by_operator(Client const &user) const
+{
+	_InvitedUserMap::const_iterator const cit = this->_invited_users.find(&user);
+
+	return cit != this->_invited_users.end() && cit->second;
 }

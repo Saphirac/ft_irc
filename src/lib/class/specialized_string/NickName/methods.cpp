@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:37:23 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/11 16:27:51 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/11 18:01:28 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 #include "class/specialized_string/NickName.hpp"
 
 #define MAXIMUM_LENGTH_FOR_NICKNAME 9
+
+static std::string const letters_specials = LETTERS SPECIALS;
+
 /**
  * @brief Checks whether the nickname is valid.
  *
@@ -22,6 +25,6 @@
 bool NickName::is_valid(void) const
 {
 	return !this->empty() && this->size() <= MAXIMUM_LENGTH_FOR_NICKNAME
-	    && (letter + special).find(this->at(0)) != this->npos
-	    && this->find_first_not_of(letter + digit + special + dash, 1) == this->npos;
+	    && letters_specials.find(this->at(0)) != this->npos
+	    && this->find_first_not_of(LETTERS DIGITS SPECIALS DASH, 1) == this->npos;
 }
