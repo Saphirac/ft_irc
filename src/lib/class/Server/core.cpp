@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/15 03:53:17 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 08:00:13 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,7 +158,7 @@ inline static void stop_server(int signal_number __attribute__((unused))) { serv
  * @throw `ProblemWithStrftime` if `strftime()` fails.
  */
 Server::Server(int const port, std::string const &name, std::string const &password) :
-	_socket(socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)),
+	_socket(socket(AF_INET, SOCK_STREAM, 0)),
 	_epoll_socket(epoll_create1(0)),
 	_sock_addr(new_sockaddr_in(AF_INET, htons(port), INADDR_ANY)),
 	_name(name),
