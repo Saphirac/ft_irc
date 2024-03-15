@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:21 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/15 06:12:00 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 12:18:02 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -633,12 +633,26 @@ inline static void save_restricted_topic_mode_to_be_cleared(
  *
  * @param modes The current modes of the channel for which the mode shall be cleared.
  * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ * @param parsing_tools The iterators to use to parse the changes.
  */
-inline static void save_limit_mode_to_be_cleared(Channel::Modes const &modes, Channel::Modes *const modes_to_be)
+inline static int save_limit_mode_to_be_cleared(
+	Channel::Modes const &modes,
+	Channel::Modes *const modes_to_be,
+	ParsingTools         &parsing_tools)
 {
-	if (modes.is_set(Limit))
-		modes_to_be[Cleared].set(Limit);
-	modes_to_be[Set].clear(Limit);
+	if (parsing_tools.next_word == parsing_tools.end_of_words)
+		return ERR_NEEDMOREPARAMS;
+
+	size_t limit;
+
+	std::stringstream(*parsing_tools.next_word++) >> limit;
+
+	if (modes.is_set(Limit) && limit == modes.get_limit())
+	{
+		modes_to_be[Cleared].set(Limit, &limit);
+		modes_to_be[Set].clear(Limit);
+	}
+	return 0;
 }
 
 /**
@@ -649,12 +663,28 @@ inline static void save_limit_mode_to_be_cleared(Channel::Modes const &modes, Ch
  *
  * @param modes The current modes of the channel for which the mode shall be cleared.
  * @param modes_to_be The two lists of modes that are about to be set and cleared.
+ * @param parsing_tools The iterators to use to parse the changes.
+ *
+ * @return
+ * Zero upon success.
+ * `ERR_NEEDMOREPARAMS` upon failure due to a lack of arguments.
  */
-inline static void save_key_mode_to_be_cleared(Channel::Modes const &modes, Channel::Modes *const modes_to_be)
+inline static int save_key_mode_to_be_cleared(
+	Channel::Modes const &modes,
+	Channel::Modes *const modes_to_be,
+	ParsingTools         &parsing_tools)
 {
-	if (modes.is_set(KeyProtected))
-		modes_to_be[Cleared].set(KeyProtected);
-	modes_to_be[Set].clear(KeyProtected);
+	if (parsing_tools.next_word == parsing_tools.end_of_words)
+		return ERR_NEEDMOREPARAMS;
+
+	Key const &key = *parsing_tools.next_word++;
+
+	if (modes.is_set(KeyProtected) && key == modes.get_key())
+	{
+		modes_to_be[Cleared].set(KeyProtected, &key);
+		modes_to_be[Set].clear(KeyProtected);
+	}
+	return 0;
 }
 
 /**
@@ -819,11 +849,9 @@ inline static int save_channel_mode_to_be_cleared(
 		save_restricted_topic_mode_to_be_cleared(channel.get_modes(), modes_to_be);
 		break;
 	case Limit:
-		save_limit_mode_to_be_cleared(channel.get_modes(), modes_to_be);
-		break;
+		return save_limit_mode_to_be_cleared(channel.get_modes(), modes_to_be, parsing_tools);
 	case KeyProtected:
-		save_key_mode_to_be_cleared(channel.get_modes(), modes_to_be);
-		break;
+		return save_key_mode_to_be_cleared(channel.get_modes(), modes_to_be, parsing_tools);
 	case ChannelOperator:
 		return save_operator_mode_to_be_cleared(users_by_nickname, channel, modes_to_be, parsing_tools);
 	case InviteMask:
