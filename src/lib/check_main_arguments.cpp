@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 01:06:56 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/15 01:12:35 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/15 05:11:21 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,29 +35,20 @@ bool check_main_arguments(int const ac, char const *const *const av)
 		std::cerr << "incorrect: number of arguments" << std::endl;
 		return false;
 	}
-	for (char const *ptr = av[1]; *ptr; ++ptr)
-	{
-		if (!isdigit(*ptr))
-		{
-			std::cerr << "incorrect: port must be only digit" << std::endl;
-			return false;
-		}
-	}
 
 	char          *end_ptr;
 	long int const port = strtol(av[1], &end_ptr, 10);
 
 	errno = 0;
-
 	if (errno == ERANGE)
 	{
 		std::cerr << "incorrect: port conversion error" << std::endl;
 		return false;
 	}
 
-	if (*end_ptr != '\0' || (port < MINIMUM_PORT && port > MAXIMUM_PORT))
+	if (*end_ptr || (port < MINIMUM_PORT || port > MAXIMUM_PORT))
 	{
-		std::cerr << "incorrect: port must be between MINIMUM_PORT and MAXIMUM_PORT" << std::endl;
+		std::cerr << "incorrect: port must be a number composed of only digits between " << MINIMUM_PORT << " and " << MAXIMUM_PORT << std::endl;
 		return false;
 	}
 
