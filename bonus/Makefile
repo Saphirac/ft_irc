@@ -6,7 +6,7 @@
 #    By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/14 23:15:50 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/15 03:18:56 by mcourtoi         ###   ########.fr        #
+#    Updated: 2024/03/15 03:20:43 by mcourtoi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -96,7 +96,7 @@ ${NAME}: ${OBJ} ${LIB}
 	${LINK} $^ ${OUTPUT_OPTION}
 
 ${LIB}:
-	$(MAKE) -C ${@D} ${@F}
+	${MAKE} -C ${@D} ${@F}
 
 -include ${DEP}
 
@@ -107,8 +107,8 @@ ${OBJ_DIR}/%.o: ${SRC_DIR}/%.cpp
 clean:
 	${RM} ${NAME} ${OBJ_DIR} vgcore.*
 
-fclean:
-	${RM} ${NAME} ${OBJ_DIR} ${LIB} vgcore.*
+fclean: clean 
+	${MAKE} -C ../fclean
 
 re: clean all
 

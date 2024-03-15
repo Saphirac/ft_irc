@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 19:01:27 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/15 01:36:27 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/15 03:32:36 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,6 @@ inline static bool is_channel(std::string const &str) { return std::string("#&+!
  */
 void Bot::_privmsg(Message const &msg)
 {
-	std::string response;
 
 	if (msg.get_parameters().size() < 2)
 		return;
@@ -102,6 +101,7 @@ void Bot::_privmsg(Message const &msg)
 
 	if (!second_param.empty())
 	{
+		std::string response;
 		std::string const first_param = msg.get_parameters()[0];
 		std::string const sender = is_channel(first_param) ? first_param : msg.get_prefix().who_is_sender();
 		
@@ -109,7 +109,7 @@ void Bot::_privmsg(Message const &msg)
 			response = "PRIVMSG " + sender + " bar\r\n";
 		else if (second_param == "Eve")
 			response = "PRIVMSG " + sender + " Wall-E\r\n";
-		if (send(this->_socket, response.c_str(), response.size(), 0) < 0)
+		if (!response.empty() && send(this->_socket, response.c_str(), response.size(), 0) < 0)
 			throw ProblemWithSend();
 	}
 }

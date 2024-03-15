@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 03:04:01 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/14 23:35:15 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/15 03:44:25 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,5 +25,5 @@ public:
 
 	// Methods
 	bool              is_valid(void) const;
-	std::string const who_is_sender(void) const;
+	std::string       who_is_sender(void) const;
 };
