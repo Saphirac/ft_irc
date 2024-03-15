@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 22:56:44 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 22:51:52 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/15 07:26:17 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ public:
 	};
 
 	// Types
-	typedef std::map<ChannelName, Channel const *const> JoinedChannelMap;
+	typedef std::map<ChannelName, Channel *const> JoinedChannelMap;
 
 	// Constructors
 	Client(
@@ -115,9 +115,9 @@ public:
 	void set_realname(RealName const &realname);
 
 	// Methods
-	void              append_to_msg_in(std::string const &s);
-	std::string       get_next_msg(void);
-	time_t            time_since_last_msg(void) const;
+	void        append_to_msg_in(std::string const &s);
+	std::string get_next_msg(void);
+	time_t      time_since_last_msg(void) const;
 
 	bool is_registered(void) const;
 
@@ -132,7 +132,7 @@ public:
 
 	std::string user_mask(void) const;
 
-	void   join_channel(ChannelName const &chan_name, Channel const &channel);
+	void   join_channel(ChannelName const &chan_name, Channel &channel);
 	void   leave_channel(ChannelName const &chan_name);
 	size_t joined_channel_count(void) const;
 

@@ -6,13 +6,9 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:22 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 02:41:46 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 06:17:30 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#ifdef DEBUG
-#	include <iostream>
-#endif
 
 #include "class/Server.hpp"
 #include "replies.hpp"

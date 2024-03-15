@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 02:41:08 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 05:51:21 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,9 @@ typedef std::list<Key>         KeyList;
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static Channel *join_new_channel(
+	Server::ChannelMap &channels_by_name,
 	Client             &user,
-	ChannelName const  &channel_name,
-	Server::ChannelMap &channels_by_name)
+	ChannelName const  &channel_name)
 {
 	if (!channel_name.is_valid())
 	{
@@ -70,7 +70,7 @@ inline static Channel *join_existing_channel(
 	Key const         &key)
 {
 	if (channel.has_member(user))
-		return &channel;
+		return NULL;
 
 	size_t const member_count = channel.member_count();
 
@@ -132,16 +132,18 @@ inline static bool join_channel(
 	Key const          &key = Key())
 {
 	Server::ChannelMap::iterator const channel_by_name = channels_by_name.find(channel_name);
-	Channel *const                     channel =
-        channel_by_name == channels_by_name.end()
-								? join_new_channel(user, channel_name, channels_by_name)
-								: join_existing_channel(user, channel_name, channel_by_name->second, key);
+	Channel                           *channel;
+
+	if (channel_by_name == channels_by_name.end())
+		channel = join_new_channel(channels_by_name, user, channel_name);
+	else
+		channel = join_existing_channel(user, channel_name, channel_by_name->second, key);
 
 	if (!channel)
 		return false;
 
 	channel->add_member(user);
-	user.join_channel(channel_name, channel);
+	user.join_channel(channel_name, *channel);
 	channel->broadcast_to_all_members(user.prefix() + "JOIN :" + channel_name);
 	user.append_formatted_reply_to_msg_out(RPL_TOPIC, &channel_name, &channel->get_topic());
 
@@ -166,7 +168,7 @@ void Server::_join(Client &sender, CommandParameterVector const &parameters)
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "JOIN");
 
 	if (parameters[0] == "0")
-		return this->_make_client_leave_all_their_joined_channels(sender);
+		return this->_make_user_leave_all_their_joined_channels(sender);
 
 	ChannelNameList const           channel_names = split<ChannelNameList>(parameters[0], ',');
 	ChannelNameList::const_iterator channel_name = channel_names.begin();

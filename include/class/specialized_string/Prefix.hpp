@@ -1,22 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   core.cpp                                           :+:      :+:    :+:   */
+/*   Prefix.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/10 03:04:36 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/14 18:50:52 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/03/10 03:04:01 by gle-mini          #+#    #+#             */
+/*   Updated: 2024/03/15 03:44:25 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/specialized_string/Prefix.hpp"
+#pragma once
 
-/**
- * @param prefix The prefix to initialize the instance with.
- */
-Prefix::Prefix(std::string const &prefix) : std::string(prefix) {}
+#include <string>
 
-// Destructor //
+class Prefix : public std::string
+{
+public:
+	// Constructors
+	Prefix(std::string const &prefix = "");
 
-Prefix::~Prefix(void) {}
+	// Destructor
+	~Prefix(void);
+
+	// Methods
+	bool        is_valid(void) const;
+	std::string who_is_sender(void) const;
+};

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 00:23:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 22:48:45 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/15 07:26:10 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,6 +120,7 @@ public:
 	void        add_member(Client &user);
 	void        remove_member(Client &user);
 	bool        has_member(Client &user) const;
+	bool        is_empty(void) const;
 	size_t      member_count(void) const;
 	std::string members_as_string(void) const;
 	void        broadcast_to_all_members(std::string const &msg) const;

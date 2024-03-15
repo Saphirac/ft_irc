@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 22:57:46 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/15 07:26:23 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@
 
 // TODO : change this to a proper value
 
-#define DEFAULT_PART_TEXT         "Leaving, bye! <3"
-#define DEFAULT_QUIT_TEXT         "Disconnecting, bye! <3"
+#define DEFAULT_PART_TEXT "Leaving, bye! <3"
+#define DEFAULT_QUIT_TEXT "Disconnecting, bye! <3"
 
 class Server
 {
@@ -78,7 +78,7 @@ private:
 	void _remove_client(Client &client, std::string const &part_msg = DEFAULT_QUIT_TEXT);
 
 	void _welcome(Client &client) const;
-	void _make_client_leave_all_their_joined_channels(Client &client, std::string const &part_msg = DEFAULT_PART_TEXT);
+	void _make_user_leave_all_their_joined_channels(Client &client, std::string const &part_msg = DEFAULT_PART_TEXT);
 
 	// Commands
 	void _away(Client &sender, CommandParameterVector const &parameters);
@@ -101,3 +101,9 @@ private:
 	void _privmsg(Client &sender, CommandParameterVector const &parameters);
 	void _notice(Client &sender, CommandParameterVector const &parameters);
 };
+
+void make_user_leave_channel(
+	Server::ChannelMap &channels_by_name,
+	Client             &user,
+	ChannelName const  &channel_name,
+	std::string const  &msg);

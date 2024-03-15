@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:58:03 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 23:55:53 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 03:53:17 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 #include <csignal>
 #include <sys/epoll.h>
 
-extern bool interrupted;
+extern volatile bool server_interrupted;
 
 // Shared fields //
 
@@ -139,7 +139,7 @@ inline static std::string now_date(void)
  *
  * @param signal_number The number of the signal that has been raised.
  */
-inline static void stop_server(int signal_number __attribute__((unused))) { interrupted = true; }
+inline static void stop_server(int signal_number __attribute__((unused))) { server_interrupted = true; }
 
 // Constructors //
 
@@ -158,7 +158,7 @@ inline static void stop_server(int signal_number __attribute__((unused))) { inte
  * @throw `ProblemWithStrftime` if `strftime()` fails.
  */
 Server::Server(int const port, std::string const &name, std::string const &password) :
-	_socket(socket(AF_INET, SOCK_STREAM, 0)),
+	_socket(socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)),
 	_epoll_socket(epoll_create1(0)),
 	_sock_addr(new_sockaddr_in(AF_INET, htons(port), INADDR_ANY)),
 	_name(name),

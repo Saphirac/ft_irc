@@ -1,15 +1,15 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   methods.cpp                                        :+:      :+:    :+:   */
+/*   libircserv.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/05 00:59:48 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 00:59:51 by jodufour         ###   ########.fr       */
+/*   Created: 2024/03/15 01:08:32 by mcourtoi          #+#    #+#             */
+/*   Updated: 2024/03/15 01:08:40 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/exception/ProblemWithClose.hpp"
+#pragma once
 
-char const *ProblemWithClose::what(void) const throw() { return "Problem with close()"; }
+bool check_main_arguments(int const ac, char const *const *const av);

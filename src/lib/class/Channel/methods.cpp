@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 01:29:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 12:31:02 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 00:14:53 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -379,6 +379,13 @@ void Channel::remove_member(Client &user) { this->_members.erase(&user); }
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 bool Channel::has_member(Client &user) const { return this->_members.find(&user) != this->_members.end(); }
+
+/**
+ * @brief Checks whether the list of the members of the channel is empty.
+ *
+ * @return `true` if the list of the members of the channel is empty, `false` otherwise.
+ */
+bool Channel::is_empty(void) const { return this->_members.empty(); }
 
 /**
  * @return The number of members of the channel.

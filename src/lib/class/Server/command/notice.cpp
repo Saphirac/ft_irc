@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:28:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 00:13:37 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 06:34:35 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,21 +35,6 @@ inline static void notice_to_channel(
 	target.broadcast_to_all_members_but_one(sender.prefix() + "NOTICE " + target_name + " :" + msg, sender);
 }
 
-// TODO: Write the doxygen comment of this function
-inline static void notice_to_user(
-	Client            &sender,
-	NickName const    &target_nickname,
-	Client            &target,
-	std::string const &msg)
-{
-	Client::Modes const &target_modes = target.get_modes();
-
-	if (target_modes.is_set(Away))
-		return;
-
-	target.append_to_msg_out(sender.prefix() + "NOTICE " + target_nickname + " :" + msg);
-}
-
 void Server::_notice(Client &sender, CommandParameterVector const &parameters)
 {
 	if (!sender.is_registered() || parameters.size() < 2)
@@ -65,19 +50,27 @@ void Server::_notice(Client &sender, CommandParameterVector const &parameters)
 			ChannelMap::const_iterator const channel_by_name = this->_channels_by_name.find(channel_name);
 
 			if (channel_by_name == this->_channels_by_name.end())
-				return;
+				continue;
 
-			notice_to_channel(sender, channel_name, channel_by_name->second, parameters[1]);
+			Channel const        &channel = channel_by_name->second;
+			Channel::Modes const &channel_modes = channel.get_modes();
+
+			if (channel_modes.has_ban_mask(sender.get_nickname())
+			    || (channel_modes.is_set(NoMessagesFromOutside) && !channel.has_member(sender)))
+				continue;
+
+			notice_to_channel(sender, channel_name, channel, parameters[1]);
 		}
 		else
 		{
 			NickName const           &nickname = NickName(*target);
-			ClientMap::const_iterator client_by_nickname = this->_clients_by_nickname.find(nickname);
+			ClientMap::const_iterator user_by_nickname = this->_clients_by_nickname.find(nickname);
 
-			if (client_by_nickname == this->_clients_by_nickname.end())
+			if (user_by_nickname == this->_clients_by_nickname.end())
 				return;
 
-			notice_to_user(sender, nickname, *client_by_nickname->second, parameters[1]);
+			(*user_by_nickname->second)
+				.append_to_msg_out(sender.prefix() + "NOTICE " + nickname + " :" + parameters[1]);
 		}
 	}
 }

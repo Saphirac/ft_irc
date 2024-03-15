@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/15 07:24:30 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 07:26:50 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,25 +35,25 @@
 // The number of clients that the server can accept (chosen arbitrarily).
 #define MAXIMUM_NUMBER_OF_CLIENTS 7
 
-bool interrupted = false;
+volatile bool server_interrupted = false;
 
 /**
  * @brief Starts the server, making it receiving messages, handling them and sending the appropriate replies.
  */
 void Server::start(void)
 {
-	while (!interrupted)
+	while (!server_interrupted)
 	{
 		this->_handle_epoll_events();
-		for (std::map<int, Client>::iterator it = this->_clients_by_socket.begin();
-		     it != this->_clients_by_socket.end();)
+		for (std::map<int, Client>::iterator client_by_socket = this->_clients_by_socket.begin();
+		     client_by_socket != this->_clients_by_socket.end();)
 		{
-			Client &client = it->second;
+			Client &client = client_by_socket->second;
 
 			this->_compute_next_msg_for_a_client(client);
 			this->_check_time_of_last_msg(client);
 			client.send_msg_out();
-			++it;
+			++client_by_socket;
 			if (client.has_mode(IsAboutToBeDisconnected))
 				this->_remove_client(client);
 		}
@@ -151,8 +151,8 @@ void Server::_receive_data_from_client(Client &client)
 	std::string buffer_as_string(buffer, bytes_received);
 
 	while (buffer_as_string.find("\r\n") != std::string::npos)
-		buffer_as_string.replace(buffer_as_string.find("\r\n"), 2, "\\r\\n");
-	std::cout << "Received [" << buffer_as_string << "] from " << client.get_nickname() << '\n';
+		buffer_as_string.replace(buffer_as_string.find("\r\n"), 2, "\033[37m\\r\\n\033[0m\n\t");
+	std::cout << client.get_nickname() << ": Received [\n\t" << buffer_as_string << std::string(4, '\b') << "]\n";
 #endif
 	client.append_to_msg_in(std::string(buffer, bytes_received));
 }
@@ -235,7 +235,7 @@ void Server::_check_time_of_last_msg(Client &client) const
  */
 void Server::_remove_client(Client &client, std::string const &part_text)
 {
-	this->_make_client_leave_all_their_joined_channels(client, part_text);
+	this->_make_user_leave_all_their_joined_channels(client, part_text);
 	this->_clients_by_nickname.erase(client.get_nickname());
 	this->_clients_by_socket.erase(client.get_socket());
 }
@@ -263,22 +263,50 @@ void Server::_welcome(Client &client) const
  *
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
-void Server::_make_client_leave_all_their_joined_channels(Client &client, std::string const &part_text)
+void Server::_make_user_leave_all_their_joined_channels(Client &user, std::string const &part_text)
 {
-	Client::JoinedChannelMap const &joined_channels_by_name = client.get_joined_channels_by_name();
+	Client::JoinedChannelMap const &joined_channels_by_name = user.get_joined_channels_by_name();
 
 	if (joined_channels_by_name.empty())
 		return;
 
 	Client::JoinedChannelMap::const_iterator joined_channel_by_name = joined_channels_by_name.begin();
-	std::string                              channels_to_leave = joined_channel_by_name->first;
 
-	while (++joined_channel_by_name != joined_channels_by_name.end())
-		channels_to_leave += ',' + joined_channel_by_name->first;
+	do
+	{
+		ChannelName const &joined_channel_name = joined_channel_by_name->first;
 
-	CommandParameterVector part_arguments(2);
+		++joined_channel_by_name;
+		make_user_leave_channel(this->_channels_by_name, user, joined_channel_name, part_text);
+	}
+	while (joined_channel_by_name != joined_channels_by_name.end());
+}
 
-	part_arguments[0] = channels_to_leave;
-	part_arguments[1] = part_text;
-	this->_part(client, part_arguments);
+/**
+ * @brief Makes a user leave a channel manually.
+ *
+ * @param channel_by_names The map of channels, indexed by their name.
+ * @param user The user that will leave the channel.
+ * @param channel_name The name of the channel to leave.
+ * @param msg The message to broadcast to the channel before making the user leave it.
+ */
+void make_user_leave_channel(
+	Server::ChannelMap &channels_by_name,
+	Client             &user,
+	ChannelName const  &channel_name,
+	std::string const  &msg)
+{
+	Server::ChannelMap::iterator const channel_by_name = channels_by_name.find(channel_name);
+
+	if (channel_by_name == channels_by_name.end())
+		return;
+
+	Channel &channel = channel_by_name->second;
+
+	channel.broadcast_to_all_members(msg);
+	channel.remove_member(user);
+	channel.clear_mode(ChannelOperator, &user);
+	user.leave_channel(channel_name);
+	if (channel.is_empty())
+		channels_by_name.erase(channel_by_name);
 }

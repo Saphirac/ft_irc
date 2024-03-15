@@ -1,15 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   methods.cpp                                        :+:      :+:    :+:   */
+/*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/05 00:59:48 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/05 00:59:51 by jodufour         ###   ########.fr       */
+/*   Created: 2024/03/12 04:57:57 by jodufour          #+#    #+#             */
+/*   Updated: 2024/03/14 03:24:56 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/exception/ProblemWithClose.hpp"
+#include "class/exception/ProblemWithConnect.hpp"
 
-char const *ProblemWithClose::what(void) const throw() { return "Problem with close()"; }
+// Constructors //
+
+ProblemWithConnect::ProblemWithConnect(void) throw() {}
+
+// Destructor //
+
+ProblemWithConnect::~ProblemWithConnect(void) throw() {}
