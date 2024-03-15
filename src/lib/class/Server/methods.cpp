@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/15 00:06:44 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 03:22:29 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,14 +33,14 @@
 // before disconnecting that client.
 #define PING_TIMEOUT 15
 
-bool interrupted = false;
+volatile bool server_interrupted = false;
 
 /**
  * @brief Starts the server, making it receiving messages, handling them and sending the appropriate replies.
  */
 void Server::start(void)
 {
-	while (!interrupted)
+	while (!server_interrupted)
 	{
 		this->_handle_epoll_events();
 		for (std::map<int, Client>::iterator it = this->_clients_by_socket.begin();
