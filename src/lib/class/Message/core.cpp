@@ -6,11 +6,12 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:06:05 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 00:14:13 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 01:47:43 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Message.hpp"
+#include <algorithm>
 
 // Constructors //
 
@@ -38,9 +39,11 @@ Message::Message(std::string const &msg) : _prefix(), _command(), _parameters()
 	if ((space_pos = msg.find(' ', pos)) == std::string::npos)
 	{
 		this->_command = msg.substr(pos);
+		std::transform(this->_command.begin(), this->_command.end(), this->_command.begin(), ::toupper);
 		return;
 	}
 	this->_command = msg.substr(pos, space_pos - pos);
+	std::transform(this->_command.begin(), this->_command.end(), this->_command.begin(), ::toupper);
 	pos = space_pos + 1;
 
 	size_t const length = msg.length();
