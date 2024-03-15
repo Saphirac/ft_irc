@@ -1,35 +1,15 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   libircserv.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/15 01:12:54 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/03/15 01:08:32 by mcourtoi          #+#    #+#             */
+/*   Updated: 2024/03/15 01:08:40 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Server.hpp"
-#include "libircserv.hpp"
-#include <cstdlib>
-#include <iostream>
+#pragma once
 
-int main(int const ac, char const *const *const av)
-{
-	srand(time(NULL));
-
-	if (!check_main_arguments(ac, av))
-		return 1;
-
-	try
-	{
-		Server(atoi(av[1]), "MyServer", std::string(av[2])).start();
-	}
-	catch (std::exception const &e)
-	{
-		std::cerr << e.what() << std::endl;
-		return 1;
-	}
-	return 0;
-}
+bool check_main_arguments(int const ac, char const *const *const av);

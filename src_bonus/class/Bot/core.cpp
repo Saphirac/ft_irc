@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 18:57:11 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 23:39:53 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/15 01:41:25 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 
 extern volatile bool bot_interrupted;
 
+#define ERR_PASSWDMISMATCH "464"
+
 /**
  * @brief the initializer by std::pair of the CommandMap
  * 
@@ -29,6 +31,7 @@ Bot::_CommandPair const Bot::_raw_commands_by_name[] = {
 	std::make_pair("INVITE", &Bot::_invite),
 	std::make_pair("PING", &Bot::_ping),
 	std::make_pair("PRIVMSG", &Bot::_privmsg),
+	std::make_pair(ERR_PASSWDMISMATCH, &Bot::_pass),
 };
 
 /**

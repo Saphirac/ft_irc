@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 18:56:18 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/15 00:06:31 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/15 01:34:13 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,8 @@ private:
 	void _ping(Message const &msg);
 	void _privmsg(Message const &msg);
 	void _invite(Message const &msg);
+	void _pass(Message const &msg);
+
 	void _disconnect();
 
 	void _bot_routine(fd_set &read_fds, int &max_fd, timeval &timeout);

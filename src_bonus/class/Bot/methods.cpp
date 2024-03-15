@@ -6,7 +6,7 @@
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 19:01:27 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/15 00:51:47 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/15 01:36:27 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ void Bot::_send_connexion_message()
  * @return true if channel
  * @return false if not channel
  */
-inline static bool is_channel(std::string const &str) { return str[0] == '#' || str[0] == '&' || str[0] == '+' || str[0] == '!'; }
+inline static bool is_channel(std::string const &str) { return std::string("#&+!").find(str[0]) != std::string::npos; }
 
 /**
  * @brief Responds to a PRIVMSG message with bar if the second parameter is foo and Wall-E if the second parameter is Eve
@@ -98,12 +98,13 @@ void Bot::_privmsg(Message const &msg)
 	if (msg.get_parameters().size() < 2)
 		return;
 
-	std::string const first_param = msg.get_parameters()[0];
 	std::string const second_param = msg.get_parameters()[1];
-	std::string const sender = is_channel(first_param) ? first_param : msg.get_prefix().who_is_sender();
 
 	if (!second_param.empty())
 	{
+		std::string const first_param = msg.get_parameters()[0];
+		std::string const sender = is_channel(first_param) ? first_param : msg.get_prefix().who_is_sender();
+		
 		if (second_param == "foo")
 			response = "PRIVMSG " + sender + " bar\r\n";
 		else if (second_param == "Eve")
@@ -120,6 +121,9 @@ void Bot::_privmsg(Message const &msg)
  */
 void Bot::_ping(Message const &msg)
 {
+	if (msg.get_parameters().empty())
+		return;
+
 	std::string const response = "PONG " + msg.get_parameters()[0] + "\r\n";
 
 	if (send(this->_socket, response.c_str(), response.size(), 0) < 0)
@@ -133,10 +137,22 @@ void Bot::_ping(Message const &msg)
  */
 void Bot::_invite(Message const &msg)
 {
+	if (msg.get_parameters().size() < 2)
+		return;
+
 	std::string const response = "JOIN " + msg.get_parameters()[1] + "\r\n";
 	
 	if (send(this->_socket, response.c_str(), response.size(), 0) < 0)
 		throw ProblemWithSend();
+}
+
+/**
+ * @brief handle PASSWDMISMATCH reply
+ * 
+ */
+void Bot::_pass(Message const &msg __attribute__((unused)))
+{
+	bot_interrupted = true;
 }
 
 /**
