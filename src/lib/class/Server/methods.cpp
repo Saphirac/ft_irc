@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 22:06:33 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 22:58:15 by mcourtoi         ###   ########.fr       */
+/*   Updated: 2024/03/15 07:24:30 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,8 +84,11 @@ void Server::_handle_epoll_events(void)
 
 	for (int i = 0; i < fds_ready; ++i)
 	{
-		if (events[i].data.fd == this->_socket && this->_clients_by_socket.size() < MAXIMUM_NUMBER_OF_CLIENTS)
-			this->_new_client_connection();
+		if (events[i].data.fd == this->_socket)
+		{
+			if (this->_clients_by_socket.size() < MAXIMUM_NUMBER_OF_CLIENTS)
+				this->_new_client_connection();
+		}
 		else
 			this->_receive_data_from_client(this->_clients_by_socket[events[i].data.fd]);
 	}
