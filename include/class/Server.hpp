@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/05 06:38:07 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/15 03:52:07 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 07:26:23 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,8 @@
 
 // TODO : change this to a proper value
 
-#define DEFAULT_PART_TEXT         "Leaving, bye! <3"
-#define DEFAULT_QUIT_TEXT         "Disconnecting, bye! <3"
-#define MAXIMUM_NUMBER_OF_CLIENTS 3
+#define DEFAULT_PART_TEXT "Leaving, bye! <3"
+#define DEFAULT_QUIT_TEXT "Disconnecting, bye! <3"
 
 class Server
 {

@@ -6,7 +6,7 @@
 #    By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/24 19:29:43 by mcourtoi          #+#    #+#              #
-#    Updated: 2024/03/15 03:58:34 by jodufour         ###   ########.fr        #
+#    Updated: 2024/03/15 07:26:01 by jodufour         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -139,16 +139,11 @@ LIB_SRC := \
 					${addprefix command/, \
 						away \
 						cap \
-						die \
-						info \
 						invite \
-						ison \
 						join \
 						kick \
-						kill \
 						list \
 						mode \
-						motd \
 						names \
 						nick \
 						notice \
@@ -159,13 +154,8 @@ LIB_SRC := \
 						pong \
 						privmsg \
 						quit \
-						restart \
-						time \
 						topic \
 						user \
-						version \
-						wallops \
-						whois \
 					} \
 					core \
 					methods \

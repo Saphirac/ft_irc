@@ -6,12 +6,14 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:46:30 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/13 15:01:17 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 07:33:02 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Client.hpp"
+#include "class/exception/ProblemWithClose.hpp"
 #include "class/exception/ProblemWithTime.hpp"
+#include <unistd.h>
 
 // Constructors //
 
@@ -60,7 +62,15 @@ Client::Modes::~Modes(void) {}
 /**
  * @throw `ProblemWithClose` if `close()` fails.
  */
-Client::~Client(void) { this->disconnect(); }
+Client::~Client(void)
+{
+	if (this->_socket != -1)
+	{
+		if (close(this->_socket) == -1)
+			throw ProblemWithClose();
+		this->_socket = -1;
+	}
+}
 
 // Accessors //
 
