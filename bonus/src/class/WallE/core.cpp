@@ -6,11 +6,12 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 18:57:11 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/15 05:40:25 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 07:33:59 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/WallE.hpp"
+#include "class/exception/ProblemWithClose.hpp"
 #include "class/exception/ProblemWithConnect.hpp"
 #include "class/exception/ProblemWithSocket.hpp"
 #include <arpa/inet.h>
@@ -84,4 +85,12 @@ WallE::WallE(int const port, std::string const &password) :
  *
  * @throw close() can throw a ProblemWithClose exception
  */
-WallE::~WallE() { this->_disconnect(); }
+WallE::~WallE(void)
+{
+	if (this->_socket != -1)
+	{
+		if (close(this->_socket) == -1)
+			throw ProblemWithClose();
+		this->_socket = -1;
+	}
+}

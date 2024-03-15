@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 19:01:27 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/15 05:39:02 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 07:33:06 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,16 +195,6 @@ void WallE::_bot_routine(fd_set &read_fds, int &max_fd, timeval &timeout)
 			return;
 		(this->*(command_by_name->second))(msg);
 	}
-}
-
-/**
- * @brief a simple method to close the socket, is called at the destruction of the bot
- *
- */
-void WallE::_disconnect()
-{
-	if (this->_socket != -1)
-		close(this->_socket);
 }
 
 /**

@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/13 18:56:18 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/15 05:37:46 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 07:33:58 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,13 @@
 class WallE
 {
 public:
+	// Constructors
 	WallE(int const port = DEFAULT_IRC_PORT, std::string const &password = "");
 
+	// Destructor
 	~WallE();
 
+	// Methods
 	void run();
 
 private:
@@ -36,7 +39,7 @@ private:
 	static _CommandPair const _raw_commands_by_name[];
 	static _CommandMap const  _commands_by_name;
 
-	int const         _socket;
+	int               _socket;
 	std::string const _password;
 	fd_set            _read_fds;
 	std::string       _msg_in;
@@ -44,13 +47,11 @@ private:
 	void        _append_to_msg_in(std::string const &s);
 	std::string _get_next_msg(void);
 
-	void _send_connexion_message();
+	void _send_connexion_message(void);
 	void _ping(Message const &msg);
 	void _privmsg(Message const &msg);
 	void _invite(Message const &msg);
 	void _pass(Message const &msg);
-
-	void _disconnect();
 
 	void _bot_routine(fd_set &read_fds, int &max_fd, timeval &timeout);
 };

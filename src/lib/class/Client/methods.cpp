@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/15 07:26:44 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 07:30:02 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 #include "class/Client.hpp"
 #include "class/exception/InvalidConversion.hpp"
 #include "class/exception/NotAFlag.hpp"
-#include "class/exception/ProblemWithClose.hpp"
 #include "class/exception/ProblemWithSend.hpp"
 #include "class/exception/ProblemWithTime.hpp"
 #include "class/exception/UnknownReply.hpp"
@@ -28,7 +27,6 @@
 #include <iomanip>
 #include <sstream>
 #include <sys/socket.h>
-#include <unistd.h>
 
 // Flags //
 
@@ -726,18 +724,3 @@ void Client::leave_channel(ChannelName const &channel_name) { this->_joined_chan
  * @return The number of channels that the client has joined.
  */
 size_t Client::joined_channel_count(void) const { return this->_joined_channels_by_name.size(); }
-
-/**
- * @brief Closes the socket of the Client instance.
- *
- * @throw `ProblemWithClose()` if `close()` fails.
- */
-void Client::disconnect(void)
-{
-	if (this->_socket != -1)
-	{
-		if (close(this->_socket) == -1)
-			throw ProblemWithClose();
-		this->_socket = -1;
-	}
-}
