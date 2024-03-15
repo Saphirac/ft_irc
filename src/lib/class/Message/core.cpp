@@ -3,26 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   core.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 14:06:05 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/14 23:02:57 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/15 01:01:41 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Message.hpp"
-
-/**
- * @brief Converts a given command string to uppercase.
- *
- * @param command The command string to convert to uppercase. 
- * @return std::string The command string converted to uppercase.
- */
-inline static std::string to_upper_command(std::string command)
-{
-	for (std::string::size_type i = 0; i < command.length(); ++i) command[i] = std::toupper(command[i]);
-	return command;
-}
+#include <algorithm>
 
 // Constructors //
 
@@ -49,10 +38,12 @@ Message::Message(std::string const &msg) : _prefix(), _command(), _parameters()
 	// Command
 	if ((space_pos = msg.find(' ', pos)) == std::string::npos)
 	{
-		this->_command = to_upper_command(msg.substr(pos));
+		this->_command = msg.substr(pos);
+		std::transform(this->_command.begin(), this->_command.end(), this->_command.begin(), ::toupper);
 		return;
 	}
-	this->_command = to_upper_command(msg.substr(pos, space_pos - pos));
+	this->_command = msg.substr(pos, space_pos - pos);
+	std::transform(this->_command.begin(), this->_command.end(), this->_command.begin(), ::toupper);
 	pos = space_pos + 1;
 
 	size_t const length = msg.length();
