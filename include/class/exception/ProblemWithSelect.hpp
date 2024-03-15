@@ -1,35 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   ProblemWithSelect.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/15 01:12:54 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/03/14 03:23:05 by mcourtoi          #+#    #+#             */
+/*   Updated: 2024/03/14 15:20:07 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Server.hpp"
-#include "libircserv.hpp"
-#include <cstdlib>
-#include <iostream>
+#pragma once
 
-int main(int const ac, char const *const *const av)
+#include <exception>
+
+class ProblemWithSelect : public std::exception
 {
-	srand(time(NULL));
+public:
+	// Constructors
+	ProblemWithSelect(void) throw();
 
-	if (!check_main_arguments(ac, av))
-		return 1;
+	// Destructor
+	virtual ~ProblemWithSelect(void) throw();
 
-	try
-	{
-		Server(atoi(av[1]), "MyServer", std::string(av[2])).start();
-	}
-	catch (std::exception const &e)
-	{
-		std::cerr << e.what() << std::endl;
-		return 1;
-	}
-	return 0;
-}
+	// Methods
+	virtual char const *what(void) const throw();
+};

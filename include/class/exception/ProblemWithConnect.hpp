@@ -1,28 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Prefix.hpp                                         :+:      :+:    :+:   */
+/*   ProblemWithConnect.hpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/10 03:04:01 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/10 03:34:56 by gle-mini         ###   ########.fr       */
+/*   Created: 2024/03/14 03:23:05 by mcourtoi          #+#    #+#             */
+/*   Updated: 2024/03/14 03:26:38 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include <string>
+#include <exception>
 
-class Prefix : public std::string
+class ProblemWithConnect : public std::exception
 {
 public:
 	// Constructors
-	Prefix(std::string const &prefix = "");
+	ProblemWithConnect(void) throw();
 
 	// Destructor
-	~Prefix(void);
+	virtual ~ProblemWithConnect(void) throw();
 
 	// Methods
-	bool is_valid(void) const;
+	virtual char const *what(void) const throw();
 };

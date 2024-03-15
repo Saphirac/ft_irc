@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 03:04:48 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/11 17:08:07 by gle-mini         ###   ########.fr       */
+/*   Updated: 2024/03/15 03:44:44 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,4 +51,14 @@ bool Prefix::is_valid(void) const
 		return UserName(remaining.substr(0, at_pos)).is_valid() && HostName(remaining.substr(at_pos + 1)).is_valid();
 	}
 	return HostName(remaining).is_valid();
+}
+
+/**
+ * @brief Extracts the sender from the prefix and gives it back as string
+ * 
+ * @return the sender as a string
+ */
+std::string Prefix::who_is_sender(void) const 
+{
+	return this->substr(1, this->find_first_of("!@") - 1);
 }

@@ -1,35 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   Prefix.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/24 19:31:04 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/03/15 01:12:54 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/03/10 03:04:01 by gle-mini          #+#    #+#             */
+/*   Updated: 2024/03/15 03:44:25 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/Server.hpp"
-#include "libircserv.hpp"
-#include <cstdlib>
-#include <iostream>
+#pragma once
 
-int main(int const ac, char const *const *const av)
+#include <string>
+
+class Prefix : public std::string
 {
-	srand(time(NULL));
+public:
+	// Constructors
+	Prefix(std::string const &prefix = "");
 
-	if (!check_main_arguments(ac, av))
-		return 1;
+	// Destructor
+	~Prefix(void);
 
-	try
-	{
-		Server(atoi(av[1]), "MyServer", std::string(av[2])).start();
-	}
-	catch (std::exception const &e)
-	{
-		std::cerr << e.what() << std::endl;
-		return 1;
-	}
-	return 0;
-}
+	// Methods
+	bool              is_valid(void) const;
+	std::string       who_is_sender(void) const;
+};
