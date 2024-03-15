@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:28:18 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/15 06:34:35 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 12:40:37 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,14 @@ inline static void notice_to_channel(
 	Channel const     &target,
 	std::string const &msg)
 {
-	if (target.get_modes().is_set(NoMessagesFromOutside) && !target.has_member(sender))
+	bool const sender_is_member = target.has_member(sender);
+
+	if (target.get_modes().is_set(NoMessagesFromOutside) && sender_is_member)
 		return;
 
-	target.broadcast_to_all_members_but_one(sender.prefix() + "NOTICE " + target_name + " :" + msg, sender);
+	sender_is_member
+		? target.broadcast_to_all_members_but_one(sender.prefix() + "NOTICE " + target_name + " :" + msg, sender)
+		: target.broadcast_to_all_members(sender.prefix() + "NOTICE " + target_name + " :" + msg);
 }
 
 void Server::_notice(Client &sender, CommandParameterVector const &parameters)
