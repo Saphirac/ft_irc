@@ -1,22 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   core.cpp                                           :+:      :+:    :+:   */
+/*   ProblemWithSelect.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/10 03:04:36 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/14 18:50:52 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/03/14 03:23:05 by mcourtoi          #+#    #+#             */
+/*   Updated: 2024/03/14 15:20:07 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/specialized_string/Prefix.hpp"
+#pragma once
 
-/**
- * @param prefix The prefix to initialize the instance with.
- */
-Prefix::Prefix(std::string const &prefix) : std::string(prefix) {}
+#include <exception>
 
-// Destructor //
+class ProblemWithSelect : public std::exception
+{
+public:
+	// Constructors
+	ProblemWithSelect(void) throw();
 
-Prefix::~Prefix(void) {}
+	// Destructor
+	virtual ~ProblemWithSelect(void) throw();
+
+	// Methods
+	virtual char const *what(void) const throw();
+};

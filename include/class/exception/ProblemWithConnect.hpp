@@ -1,36 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Message.hpp                                     :+:      :+:    :+:   */
+/*   ProblemWithConnect.hpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/17 14:06:14 by mcourtoi          #+#    #+#             */
-/*   Updated: 2024/02/29 18:10:13 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/03/14 03:23:05 by mcourtoi          #+#    #+#             */
+/*   Updated: 2024/03/14 03:26:38 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "class/Server.hpp"
+#include <exception>
 
-class Message
+class ProblemWithConnect : public std::exception
 {
 public:
 	// Constructors
-	Message(std::string const &raw_msg);
+	ProblemWithConnect(void) throw();
 
 	// Destructor
-	~Message(void);
+	virtual ~ProblemWithConnect(void) throw();
 
-	// Accessors
-	std::string const                    &get_prefix(void) const;
-	std::string const                    &get_command(void) const;
-	Server::CommandParameterVector const &get_parameters(void) const;
-
-private:
-	// Fields
-	std::string                    _prefix;
-	std::string                    _command;
-	Server::CommandParameterVector _parameters;
+	// Methods
+	virtual char const *what(void) const throw();
 };

@@ -1,28 +1,15 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Prefix.hpp                                         :+:      :+:    :+:   */
+/*   methods.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gle-mini <gle-mini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/10 03:04:01 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/10 03:34:56 by gle-mini         ###   ########.fr       */
+/*   Created: 2024/03/12 04:58:01 by jodufour          #+#    #+#             */
+/*   Updated: 2024/03/14 23:36:43 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#include "class/exception/ProblemWithConnect.hpp"
 
-#include <string>
-
-class Prefix : public std::string
-{
-public:
-	// Constructors
-	Prefix(std::string const &prefix = "");
-
-	// Destructor
-	~Prefix(void);
-
-	// Methods
-	bool is_valid(void) const;
-};
+char const *ProblemWithConnect::what(void) const throw() { return "Problem with connect()"; }

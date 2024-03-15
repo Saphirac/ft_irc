@@ -5,18 +5,17 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/10 03:04:36 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/14 18:50:52 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/03/12 04:57:57 by jodufour          #+#    #+#             */
+/*   Updated: 2024/03/14 03:24:56 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/specialized_string/Prefix.hpp"
+#include "class/exception/ProblemWithConnect.hpp"
 
-/**
- * @param prefix The prefix to initialize the instance with.
- */
-Prefix::Prefix(std::string const &prefix) : std::string(prefix) {}
+// Constructors //
+
+ProblemWithConnect::ProblemWithConnect(void) throw() {}
 
 // Destructor //
 
-Prefix::~Prefix(void) {}
+ProblemWithConnect::~ProblemWithConnect(void) throw() {}

@@ -1,0 +1,137 @@
++------+
+| PASS |
++------+
+0. No arguments + No password set     =>
+1. No arguments + Password set        => ERR_NEEDMOREPARAMS
+2. Invalid password + No password set => ERR_PASSWDMISMATCH
+3. Invalid password + Password set    => ERR_PASSWDMISMATCH
+4. Valid password + No password set   => ERR_PASSWDMISMATCH
+5. Valid incorrect password           => ERR_PASSWDMISMATCH
+6. Valid correct password             => Authenticates the client
+
++------+
+| NICK |
++------+
+0. No arguments                    => No nickname given
+1. Invalid nickname                => Erroneous nickname
+2. Valid nickname + Already in use => Nickname is already in use
+3. Valid nickname + Not in use     => Correctly set the nickname
+
++------+
+| USER |
++------+
+ 0. No arguments                                                                       => disconnect
+ 1. One argument + Invalid user name                                                   => ERR_NEEDMOREPARAMS
+ 2. One argument + Valid user name                                                     => ERR_NEEDMOREPARAMS
+ 3. Two arguments + Invalid user name + Invalid user mode mask                         => ERR_NEEDMOREPARAMS
+ 4. Two arguments + Invalid user name + Valid user mode mask                           => ERR_NEEDMOREPARAMS
+ 5. Two arguments + Valid user name + Invalid user mode mask                           => ERR_NEEDMOREPARAMS
+ 6. Two arguments + Valid user name + Valid user mode mask                             => ERR_NEEDMOREPARAMS
+ 7. Three arguments + Invalid user name + Invalid user mode mask + Invalid host name   => ERR_NEEDMOREPARAMS
+ 8. Three arguments + Invalid user name + Invalid user mode mask + Valid host name     => ERR_NEEDMOREPARAMS
+ 9. Three arguments + Invalid user name + Valid user mode mask + Invalid host name     => ERR_NEEDMOREPARAMS
+10. Three arguments + Invalid user name + Valid user mode mask + Valid host name       => ERR_NEEDMOREPARAMS
+11. Three arguments + Valid user name + Invalid user mode mask + Invalid host name     => ERR_NEEDMOREPARAMS
+12. Three arguments + Valid user name + Invalid user mode mask + Valid host name       => ERR_NEEDMOREPARAMS
+13. Three arguments + Valid user name + Valid user mode mask + Invalid host name       => ERR_NEEDMOREPARAMS
+14. Three arguments + Valid user name + Valid user mode mask + Valid host name         => ERR_NEEDMOREPARAMS
+15. Invalid user name + Invalid user mode mask + Invalid host name + Invalid real name => disconnect
+16. Invalid user name + Invalid user mode mask + Invalid host name + Valid real name   => disconnect
+17. Invalid user name + Invalid user mode mask + Valid host name + Invalid real name   => disconnect
+18. Invalid user name + Invalid user mode mask + Valid host name + Valid real name     => disconnect
+19. Invalid user name + Valid user mode mask + Invalid host name + Invalid real name   => disconnect
+20. Invalid user name + Valid user mode mask + Invalid host name + Valid real name     => disconnect
+21. Invalid user name + Valid user mode mask + Valid host name + Invalid real name     => disconnect
+22. Invalid user name + Valid user mode mask + Valid host name + Valid real name       => disconnect
+23. Valid user name + Invalid user mode mask + Invalid host name + Invalid real name   => disconnect
+24. Valid user name + Invalid user mode mask + Invalid host name + Valid real name     => disconnect
+25. Valid user name + Invalid user mode mask + Valid host name + Invalid real name     => disconnect
+26. Valid user name + Invalid user mode mask + Valid host name + Valid real name       => send the rpl welcome
+27. Valid user name + Valid user mode mask + Invalid host name + Invalid real name     => disconnect
+28. Valid user name + Valid user mode mask + Invalid host name + Valid real name       => disconnect
+29. Valid user name + Valid user mode mask + Valid host name + Invalid real name       => send the rpl welcome
+30. Valid user name + Valid user mode mask + Valid host name + Valid real name         => send the rpl welcome
+
++------+
+| OPER |
++------+
+0. No arguments                                                                => ERR_NEEDMOREPARAMS
+1. 1 argument + Invalid user name                                              => ERR_NEEDMOREPARAMS
+2. 1 argument + Valid user name                                                => ERR_NEEDMOREPARAMS
+3. Invalid user name + Invalid password                                        => :n!user@host 491 n :No O-lines for your host
+4. Invalid user name + Valid password                                          => :n!user@host 491 n :No O-lines for your host
+5. Valid user name + Invalid password                                          => :n!user@host 491 n :No O-lines for your host
+6. Valid user name + Valid password + Incorrect user name + Incorrect password => :n!user@host 491 n :No O-lines for your host
+7. Valid user name + Valid password + Incorrect user name + Correct password   => :n!user@host 491 n :No O-lines for your host
+8. Valid user name + Valid password + Correct user name + Incorrect password   => :n!user@host 491 n :No O-lines for your host
+9. Valid user name + Valid password + Correct user name + Correct password     => :n!user@host 491 n :No O-lines for your host
+
++------+
+| AWAY |
++------+
+0. No arguments => You are no longer marked as being away (receives msg log via irssi)
+1. One argument => You have been marked as being away (correct away message being set)
+
++------+
+| QUIT |
++------+
+
+0. No params is given =>
+1. An invalid param is given =>
+2. A valid param is given =>
+
++------+
+| JOIN |
++------+
+
+0. No arguments => ERR_NEEDMOREPARAMS
+1. One argument + Invalid channel name => ERR_NOSUCHCHANNEL
+2. One argument + Valid channel name => JOIN / CREATE the channel
+3. Two arguments + Invalid channel name + Invalid channel key => ERR_NOSUCHCHANNEL
+4. Two arguments + Invalid channel name + Valid channel key => ERR_NOSUCHCHANNEL
+5. Two arguments + Valid channel name (non keyed) + Invalid channel key => JOIN / CREATE the channel
+6. Two arguments + Valid channel name (non keyed) + Valid channel key => JOIN / CREATE the channel
+7. Three arguments + Invalid channel name + Invalid channel key + Extra parameter => ERR_NOSUCHCHANNEL
+8. Three arguments + Invalid channel name + Valid channel key + Extra parameter => ERR_NOSUCHCHANNEL
+9. Three arguments + Valid channel name + Invalid channel key + Extra parameter => JOIN / CREATE the channel
+10. Three arguments + Valid channel name (non keyed) + Valid channel key + Extra parameter => JOIN / CREATE the channel (ignore extra)
+11. Valid channel name + Missing channel key for keyed channel => ERR_BADCHANNELKEY
+12. Valid channel name already joined + Valid channel key => IGNORE (already in channel)
+13. Valid channel name already joined + No channel key => IGNORE (already in channel)
+14. Invalid channel name + No channel key => ERR_NOSUCHCHANNEL
+15. Multiple channel names (comma-separated) + No keys => JOIN multiple channels
+16. Multiple channel names (comma-separated) + Invalid keys => ERR_BADCHANNELKEY for channels requiring keys
+17. Multiple channel names (comma-separated) + Valid keys (comma-separated) => JOIN multiple channels with keys
+18. Multiple channel names with one invalid + Valid keys => JOIN valid channels, ERR_NOSUCHCHANNEL for invalid
+19. Simultaneous join requests with the same valid channel name => JOIN the channel (handle concurrency)
+20. Simultaneous join requests with the same valid channel name and different keys => JOIN the channel if any key is correct
+21. Multiple valid channel names + Multiple valid keys, with some channels not requiring keys => JOIN all valid channels, correctly applying keys where needed
+22. Multiple valid channel names some keyed some non existing and some existing + corresponding and not corresponding key => JOIN the channels with the keys and ERR_BADCHANNELKEY for those without the right keys
+23. Mix of valid and invalid channel names => JOIN the valid one and ERR_NOSUCHCHANNEL for the other
+
+
++--------+
+| INVITE |
++--------+
+
+Here valid is just checked with user existing or not
+
+0. No arguments => ERR_NEEDMOREPARAMS
+1. One argument + Invalid nickname => ERR_NOSUCHNICK
+2. One argument + Valid nickname => ERR_NEEDMOREPARAMS
+3. Two arguments + Invalid nickname + Non-existing channel => ERR_NOSUCHNICK
+4. Two arguments + Valid nickname + Non-existing channel => ERR_NOSUCHCHANNEL
+5. Two arguments + Invalid nickname + Existing channel => ERR_NOSUCHNICK
+6. Two arguments + Valid nickname + Existing channel => INVITE sent if permissions allow
+7. Two arguments + Valid nickname + Existing channel where sender has no invite privileges => ERR_CHANOPRIVSNEEDED
+8. Two arguments + Valid nickname + Existing, invite-only channel + Sender is not in channel => ERR_NOTONCHANNEL
+9. Two arguments + Valid nickname already in the channel + Existing channel => ERR_USERONCHANNEL
+10. Two arguments + Valid nickname + Existing, invite-only channel => INVITE sent if sender has invite privileges
+11. Two arguments + Valid nickname + Sender is not in channel => ERR_NOTONCHANNEL
+12. Two arguments + Valid nickname + Existing channel with mode +i (invite-only) and sender has privileges => INVITE sent
+13. Two arguments + Valid nickname + Existing channel with mode +i (invite-only) and sender lacks privileges => ERR_CHANOPRIVSNEEDED
+14. Two arguments + Valid nickname + Channel the sender is banned from => ERR_CHANOPRIVSNEEDED or ERR_BANNEDFROMCHAN
+15. Two arguments + Valid nickname + Channel the invitee is banned from => ERR_NOSUCHNICK
+16. Two arguments + Valid nickname + user is away + existing channel => RPL_AWAY
+17. Three arguments + Valid nickname + Existing channel + Extra argument => INVITE sent, extra argument ignored
+

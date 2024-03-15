@@ -1,22 +1,15 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   core.cpp                                           :+:      :+:    :+:   */
+/*   libircserv.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcourtoi <mcourtoi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/10 03:04:36 by gle-mini          #+#    #+#             */
-/*   Updated: 2024/03/14 18:50:52 by mcourtoi         ###   ########.fr       */
+/*   Created: 2024/03/15 01:08:32 by mcourtoi          #+#    #+#             */
+/*   Updated: 2024/03/15 01:08:40 by mcourtoi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "class/specialized_string/Prefix.hpp"
+#pragma once
 
-/**
- * @param prefix The prefix to initialize the instance with.
- */
-Prefix::Prefix(std::string const &prefix) : std::string(prefix) {}
-
-// Destructor //
-
-Prefix::~Prefix(void) {}
+bool check_main_arguments(int const ac, char const *const *const av);
