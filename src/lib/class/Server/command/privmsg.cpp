@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:52 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 23:24:47 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 12:39:10 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,14 @@ inline static void privmsg_to_channel(
 	Channel const     &target,
 	std::string const &msg)
 {
-	if (target.get_modes().is_set(NoMessagesFromOutside) && !target.has_member(sender))
+	bool const sender_is_member(target.has_member(sender));
+
+	if (target.get_modes().is_set(NoMessagesFromOutside) && !sender_is_member)
 		return sender.append_formatted_reply_to_msg_out(ERR_CANNOTSENDTOCHAN, &target_name);
 
-	target.broadcast_to_all_members_but_one(sender.prefix() + "PRIVMSG " + target_name + " :" + msg, sender);
+	sender_is_member
+		? target.broadcast_to_all_members_but_one(sender.prefix() + "PRIVMSG " + target_name + " :" + msg, sender)
+		: target.broadcast_to_all_members(sender.prefix() + "PRIVMSG " + target_name + " :" + msg);
 }
 
 // TODO: Write the doxygen comment of this function

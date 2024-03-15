@@ -6,32 +6,32 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:26:47 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 00:13:37 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 12:53:06 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "class/Server.hpp"
 #include "replies.hpp"
 
-inline static void set_topic(Client &sender, Channel &channel, ChannelName const &chan_name, Topic const &topic)
+inline static void set_topic(Client &sender, Channel &channel, ChannelName const &channel_name, Topic const &topic)
 {
 	Channel::Modes const &modes = channel.get_modes();
 
 	if (modes.is_set(RestrictedTopic) && !modes.has_operator(sender))
-		return sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &sender.get_nickname());
+		return sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &channel_name);
 
 	channel.set_topic(topic.is_valid() ? topic : Topic());
-	channel.broadcast_to_all_members(sender.prefix() + "TOPIC " + chan_name + " :" + channel.get_topic());
+	channel.broadcast_to_all_members(sender.prefix() + "TOPIC " + channel_name + " :" + channel.get_topic());
 }
 
-inline static void send_back_current_topic(Client &sender, Channel const &channel, ChannelName const &chan_name)
+inline static void send_back_current_topic(Client &sender, Channel const &channel, ChannelName const &channel_name)
 {
 	Topic const &topic = channel.get_topic();
 
 	if (topic.empty())
-		return sender.append_formatted_reply_to_msg_out(RPL_NOTOPIC, &chan_name);
+		return sender.append_formatted_reply_to_msg_out(RPL_NOTOPIC, &channel_name);
 
-	sender.append_formatted_reply_to_msg_out(RPL_TOPIC, &chan_name, &topic);
+	sender.append_formatted_reply_to_msg_out(RPL_TOPIC, &channel_name, &topic);
 }
 
 void Server::_topic(Client &sender, CommandParameterVector const &parameters)

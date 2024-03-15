@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:27:28 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 00:14:58 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 12:54:05 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ void Server::_invite(Client &sender, CommandParameterVector const &parameters)
 	if (parameters.size() < 2)
 		return sender.append_formatted_reply_to_msg_out(ERR_NEEDMOREPARAMS, "INVITE");
 
-	NickName const           &sender_nickname = sender.get_nickname();
 	NickName const           &target_nickname = parameters[0];
 	ClientMap::iterator const user_by_nickname = this->_clients_by_nickname.find(target_nickname);
 
@@ -51,7 +50,7 @@ void Server::_invite(Client &sender, CommandParameterVector const &parameters)
 	bool const            is_sender_operator = channel_modes.has_operator(sender);
 
 	if (channel_modes.is_set(InviteOnly) && !is_sender_operator)
-		return sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &sender_nickname);
+		return sender.append_formatted_reply_to_msg_out(ERR_CHANOPRIVSNEEDED, &channel_name);
 
 	Client::Modes const &target_modes = target.get_modes();
 
