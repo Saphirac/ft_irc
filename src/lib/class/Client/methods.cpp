@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 23:45:26 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/15 03:52:40 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 05:06:42 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@
 #include <sstream>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <vector>
 
 // Flags //
 
@@ -328,7 +327,7 @@ time_t Client::time_since_last_msg(void) const
 	if (now == -1)
 		throw ProblemWithTime();
 
-	return (now - this->_last_msg_time);
+	return now - this->_last_msg_time;
 }
 
 /**
@@ -729,9 +728,9 @@ void Client::leave_channel(ChannelName const &channel_name) { this->_joined_chan
 size_t Client::joined_channel_count(void) const { return this->_joined_channels_by_name.size(); }
 
 /**
- * @brief Closes the socket of the Client instance and deletes it's associated epoll_event
+ * @brief Closes the socket of the Client instance.
  *
- * @throw ProblemWithClose() if the close() function fails.
+ * @throw `ProblemWithClose()` if `close()` fails.
  */
 void Client::disconnect(void)
 {

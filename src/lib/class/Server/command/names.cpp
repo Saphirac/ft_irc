@@ -6,13 +6,9 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:26:59 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 02:41:35 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 06:16:59 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#ifdef DEBUG
-#	include <iostream>
-#endif
 
 #include "class/Server.hpp"
 #include "maximum_length_for_message.hpp"

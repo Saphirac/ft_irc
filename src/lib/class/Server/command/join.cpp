@@ -6,7 +6,7 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:25:50 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/15 00:20:08 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 05:51:21 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,9 @@ typedef std::list<Key>         KeyList;
  * @throw `std::exception` if a function of the C++ standard library critically fails.
  */
 inline static Channel *join_new_channel(
+	Server::ChannelMap &channels_by_name,
 	Client             &user,
-	ChannelName const  &channel_name,
-	Server::ChannelMap &channels_by_name)
+	ChannelName const  &channel_name)
 {
 	if (!channel_name.is_valid())
 	{
@@ -70,7 +70,7 @@ inline static Channel *join_existing_channel(
 	Key const         &key)
 {
 	if (channel.has_member(user))
-		return &channel;
+		return NULL;
 
 	size_t const member_count = channel.member_count();
 
@@ -135,7 +135,7 @@ inline static bool join_channel(
 	Channel                           *channel;
 
 	if (channel_by_name == channels_by_name.end())
-		channel = join_new_channel(user, channel_name, channels_by_name);
+		channel = join_new_channel(channels_by_name, user, channel_name);
 	else
 		channel = join_existing_channel(user, channel_name, channel_by_name->second, key);
 

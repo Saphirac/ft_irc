@@ -6,13 +6,9 @@
 /*   By: jodufour <jodufour@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 17:24:14 by jodufour          #+#    #+#             */
-/*   Updated: 2024/03/14 00:13:37 by jodufour         ###   ########.fr       */
+/*   Updated: 2024/03/15 06:20:17 by jodufour         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#ifdef DEBUG
-#	include <iostream>
-#endif
 
 // REMIND: this part is commented out because `irssi` doesn't send the user mode mask, it sucks!
 // #include "class/specialized_string/UserModeMask.hpp"
@@ -60,6 +56,9 @@ void Server::_user(Client &sender, CommandParameterVector const &parameters)
 		return sender.set_mode(IsAboutToBeDisconnected);
 
 	RealName const &realname = parameters[3];
+
+	if (!realname.is_valid())
+		return sender.set_mode(IsAboutToBeDisconnected);
 
 	sender.set_username(username);
 	sender.set_hostname(hostname);

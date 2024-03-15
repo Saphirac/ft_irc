@@ -14,6 +14,8 @@
 
 #include "class/Server.hpp"
 #include "class/specialized_string/Prefix.hpp"
+#include <string>
+#include <vector>
 
 class Message
 {
